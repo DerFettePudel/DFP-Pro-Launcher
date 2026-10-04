@@ -1,0 +1,28 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userprefs
+
+# Bauergebnisse
+bin/
+obj/
+publish/
+installer/Output/
+installer/*.ico
+
+# Sonstiges
+*.log
+*.tmp
+*.pdb
+TestResults/
+
+# Persönliche Daten dürfen nie ins Repository
+settings.json
+settings.defekt_*.json
+settings_backups/
+backups/
+logs/
+covers/
+custom/
+*.dfptheme

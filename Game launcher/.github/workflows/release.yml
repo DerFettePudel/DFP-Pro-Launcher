@@ -1,0 +1,78 @@
+name: Neue Version veröffentlichen
+
+# Startet, sobald ein Tag wie v1.0.1 hochgeladen wird (oder ein Release mit so einem Tag angelegt wird)
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Quellcode holen
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: .NET 8 einrichten
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Versionsnummer aus dem Tag lesen
+        id: ver
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}".TrimStart('v', 'V')
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Programm bauen (eigenständige Einzeldatei)
+        shell: pwsh
+        run: |
+          $project = (Get-ChildItem -Recurse -Filter *.csproj | Select-Object -First 1).FullName
+          dotnet publish "$project" -c Release -r win-x64 --self-contained true `
+            -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:Version=${{ steps.ver.outputs.version }} `
+            -p:UpdateRepository=${{ github.repository }} `
+            -o publish
+
+      - name: Symbol für den Installer bereitstellen
+        shell: pwsh
+        run: |
+          $icon = Get-ChildItem -Recurse -Filter DFP_Pro_Launcher.ico | Where-Object { $_.FullName -notlike '*\installer\*' } | Select-Object -First 1
+          Copy-Item $icon.FullName installer\DFP_Pro_Launcher.ico
+
+      - name: Installer bauen
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "/DMyAppVersion=${{ steps.ver.outputs.version }}" installer\setup.iss
+
+      - name: Prüfsumme erstellen
+        shell: pwsh
+        run: |
+          $file = "installer\Output\DFP_Pro_Launcher_Setup.exe"
+          $hash = (Get-FileHash $file -Algorithm SHA256).Hash.ToLower()
+          Set-Content -NoNewline -Path "$file.sha256" -Value $hash
+
+      - name: Beschreibung aus den Commit-Nachrichten erstellen
+        shell: pwsh
+        run: |
+          $previous = git describe --tags --abbrev=0 "HEAD^" 2>$null
+          if ($previous) { $range = "$previous..HEAD" } else { $range = "HEAD" }
+          $lines = git log $range --pretty=format:"- %s" --no-merges
+          if (-not $lines) { $lines = "- Verbesserungen und Fehlerbehebungen" }
+          Set-Content -Path release_notes.md -Value $lines -Encoding utf8
+
+      - name: Release veröffentlichen
+        uses: softprops/action-gh-release@v2
+        with:
+          name: DFP Pro Launcher ${{ github.ref_name }}
+          body_path: release_notes.md
+          files: |
+            installer/Output/DFP_Pro_Launcher_Setup.exe
+            installer/Output/DFP_Pro_Launcher_Setup.exe.sha256

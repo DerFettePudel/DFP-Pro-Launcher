@@ -1,0 +1,16573 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
+using Microsoft.Win32;
+using Forms = System.Windows.Forms;
+using Interop = System.Runtime.InteropServices;
+
+namespace Game_launcher
+{
+    // ───────────────────────────── Datenmodelle ─────────────────────────────
+
+    public class GameItem
+    {
+        public string Name { get; set; } = string.Empty;
+        public string ExecutablePath { get; set; } = string.Empty;
+        public string InstallDir { get; set; } = string.Empty;
+        public string? LaunchUri { get; set; }
+        public string Source { get; set; } = "Manuell";
+        public string AppId { get; set; } = string.Empty;            // Steam-AppID
+        public string PackageFullName { get; set; } = string.Empty;  // Xbox-Paketname (zum Deinstallieren)
+        public List<string> CoverUrls { get; set; } = new();         // mögliche Cover-Quellen, beste zuerst
+        public string CoverPath { get; set; } = string.Empty;        // lokale Cover-Datei
+        public string FallbackCoverPath { get; set; } = string.Empty;
+        public ImageSource? LocalIcon { get; set; }
+        public bool IsFavorite { get; set; }
+        public DateTime? LastPlayed { get; set; }
+        public int LaunchCount { get; set; }
+        public long PlaySeconds { get; set; }
+        public int Rating { get; set; }
+        public string Notes { get; set; } = string.Empty;
+        public List<string> Collections { get; set; } = new();
+        public DateTime? FirstSeen { get; set; }
+        public string Status { get; set; } = string.Empty;          // backlog | playing | done
+        public string SavePath { get; set; } = string.Empty;
+        public string LaunchArgs { get; set; } = string.Empty;
+        public bool RunAsAdmin { get; set; }
+        public List<string> CompanionApps { get; set; } = new();
+        public bool Hidden { get; set; }
+        public string CustomCover { get; set; } = string.Empty;
+        public double Price { get; set; }
+        public string ProfileMode { get; set; } = "global";
+        public string CloseMode { get; set; } = "global";
+        public string ModPath { get; set; } = string.Empty;
+    }
+
+    public class GameState
+    {
+        public bool IsFavorite { get; set; }
+        public DateTime? LastPlayed { get; set; }
+        public int LaunchCount { get; set; }
+        public long PlaySeconds { get; set; }
+        public int Rating { get; set; }
+        public string Notes { get; set; } = string.Empty;
+        public List<string> Collections { get; set; } = new();
+        public DateTime? FirstSeen { get; set; }
+        public string Status { get; set; } = string.Empty;          // backlog | playing | done
+        public string SavePath { get; set; } = string.Empty;
+        public string LaunchArgs { get; set; } = string.Empty;
+        public bool RunAsAdmin { get; set; }
+        public List<string> CompanionApps { get; set; } = new();
+        public bool Hidden { get; set; }
+        public string CustomCover { get; set; } = string.Empty;
+        public double Price { get; set; }
+        public string ProfileMode { get; set; } = "global";
+        public string CloseMode { get; set; } = "global";
+        public string ModPath { get; set; } = string.Empty;
+    }
+
+    public class ManualGame
+    {
+        public string Name { get; set; } = string.Empty;
+        public string ExecutablePath { get; set; } = string.Empty;
+    }
+
+    public class ManualApp
+    {
+        public string Name { get; set; } = string.Empty;
+        public string ExePath { get; set; } = string.Empty;
+    }
+
+    public class AppEntry
+    {
+        public string Name { get; set; } = string.Empty;
+        public string ExePath { get; set; } = string.Empty;
+        public string Arguments { get; set; } = string.Empty;
+        public bool IsManual { get; set; }
+        public ImageSource? Icon { get; set; }
+    }
+
+    public class AppSettings
+    {
+        // Profil & Farben
+        public string UserName { get; set; } = "Gamer";
+        public string BackgroundColor { get; set; } = "#0F111A";
+        public string AccentColor { get; set; } = "#8B5CF6";
+
+        // Darstellung
+        public int CardWidth { get; set; } = 220;
+        public int CardCorner { get; set; } = 14;
+        public int UiScale { get; set; } = 100;
+        public int HoverZoom { get; set; } = 105;
+        public bool HoverAnimations { get; set; } = true;
+        public bool ShowCardNames { get; set; } = true;
+        public bool ShowCardSource { get; set; } = true;
+        public int SortMode { get; set; }
+
+        // Dashboard & Widgets
+        public bool ShowClock { get; set; } = true;
+        public bool Clock24h { get; set; } = true;
+        public bool ClockSeconds { get; set; }
+        public bool ShowWeather { get; set; } = true;
+        public bool Fahrenheit { get; set; }
+        public string WeatherCity { get; set; } = string.Empty;
+        public bool ShowStats { get; set; } = true;
+        public bool ShowRecent { get; set; } = true;
+        public int RecentCount { get; set; } = 6;
+        public bool ShowFavorites { get; set; } = true;
+
+        // Spiele & Cover
+        public bool FullResCovers { get; set; } = true;
+        public string StartPage { get; set; } = "dashboard";
+
+        // Systemüberwachung
+        public int MonitorIntervalMs { get; set; } = 1000;
+        public bool ShowSparklines { get; set; } = true;
+
+        // Verhalten & Fenster
+        public bool MinimizeOnLaunch { get; set; }
+        public bool AlwaysOnTop { get; set; }
+        public bool RememberWindow { get; set; } = true;
+        public bool OnlineFeatures { get; set; } = true;
+        public double WinLeft { get; set; }
+        public double WinTop { get; set; }
+        public double WinWidth { get; set; }
+        public double WinHeight { get; set; }
+        public bool WinMaximized { get; set; }
+
+        // Daten
+        public List<ManualGame> ManualGames { get; set; } = new();
+        public List<ManualApp> ManualApps { get; set; } = new();
+        public Dictionary<string, GameState> GameStates { get; set; } = new();
+        public Dictionary<string, int> SteamIds { get; set; } = new();
+
+        // Animationen
+        public bool PageAnimations { get; set; } = true;
+        public bool CardAnimations { get; set; } = true;
+        public bool SmoothMetrics { get; set; } = true;
+        public bool HoverGlow { get; set; } = true;
+        public bool AnimatedBackground { get; set; }
+
+        // Design
+        public string BackgroundImagePath { get; set; } = string.Empty;
+        public int BgDim { get; set; } = 55;
+        public int BgBlur { get; set; } = 8;
+        public bool GlassEffect { get; set; }
+        public string CardLayout { get; set; } = "cards";   // cards | detail | list
+        public bool SidebarCollapsed { get; set; }
+        public List<string> HiddenSections { get; set; } = new();
+        public bool ShowHero { get; set; } = true;
+
+        // Funktionen
+        public bool TrackPlaytime { get; set; } = true;
+        public bool GamingProfile { get; set; }
+        public bool ShowOverlay { get; set; } = true;
+        public int OverlayCorner { get; set; } = 1;          // 0 oben links, 1 oben rechts, 2 unten links, 3 unten rechts
+        public bool ControllerSupport { get; set; } = true;
+        public bool MinimizeToTray { get; set; }
+        public bool StartMinimized { get; set; }
+        public string PreviousPowerPlan { get; set; } = string.Empty;
+        public List<string> CollectionNames { get; set; } = new();
+        public Dictionary<string, double> PlayLog { get; set; } = new();
+
+        // Weitere Funktionen
+        public bool ShowDeals { get; set; } = true;
+        public List<string> SeenFreeGames { get; set; } = new();
+        public bool StorageWarning { get; set; } = true;
+        public int WeeklyGoalHours { get; set; }
+        public int BreakReminderMinutes { get; set; }
+        public bool AutoBackupSaves { get; set; } = true;
+        public int BackupCount { get; set; }
+        public List<string> DefaultCompanions { get; set; } = new();
+        public Dictionary<string, string> Achievements { get; set; } = new();
+        public bool NightOwl { get; set; }
+        public bool InitialScanDone { get; set; }
+        public List<ReleaseEntry> Releases { get; set; } = new();
+        public List<string> ScreenshotFolders { get; set; } = new();
+
+        // Sprache und Komfort
+        public string Language { get; set; } = "auto";
+        public bool CloseAppsEnabled { get; set; }
+        public List<string> CloseApps { get; set; } = new();
+        public bool AutoRescan { get; set; } = true;
+        public bool GlobalHotkey { get; set; } = true;
+        public bool MotionChecked { get; set; }
+
+        // Anpassung, Leistung und Controller
+        public List<string> NavOrder { get; set; } = new();
+        public int CardSpacing { get; set; } = 12;
+        public int CardAspect { get; set; } = 136;
+        public int SidebarWidth { get; set; } = 250;
+        public bool OledMode { get; set; }
+        public bool OledPixelShift { get; set; } = true;
+        public bool PerformanceMode { get; set; }
+        public bool SoftwareRendering { get; set; }
+        public bool PauseWhenMinimized { get; set; } = true;
+        public bool AlwaysPlayGifs { get; set; }
+        public string ControllerLayout { get; set; } = "auto";
+
+        // Cover-Quelle, Spielzeit-Ausnahmen, Logo, Navigation, Schnellzugriff, Infobereich
+        public string SteamGridDbKey { get; set; } = string.Empty;
+        public List<string> TrackingIgnored { get; set; } = new();
+        public int BrandLogoSize { get; set; } = 54;
+        public int BrandNameSize { get; set; } = 20;
+        public bool BrandShowName { get; set; } = true;
+        public bool BrandShowSubtitle { get; set; } = true;
+        public string BrandDesign { get; set; } = "original";
+        public string BrandNameColor { get; set; } = "white";
+        public string BrandName { get; set; } = "DFP PRO";
+        public string BrandSubtitle { get; set; } = "LAUNCHER";
+        public int NavFontSize { get; set; } = 14;
+        public int NavItemPadding { get; set; } = 8;
+        public List<QuickLink> QuickLinks { get; set; } = new();
+        public bool QuickLinksSeeded { get; set; }
+        public int QuickTileSize { get; set; } = 190;
+        public bool ShowTrayIcon { get; set; } = true;
+        public bool ShowToasts { get; set; } = true;
+        public bool DoubleClickLaunch { get; set; }
+        public bool ExitWarning { get; set; } = true;
+        public bool SgdbAnimated { get; set; }
+
+        // Wunschliste, Spielinfos, Sensoren, Klänge, Updates, Einrichtung, Sicherung
+        public List<WishItem> Wishlist { get; set; } = new();
+        public Dictionary<string, GameInfoEntry> GameInfo { get; set; } = new();
+        public DateTime LastWishCheck { get; set; }
+        public bool SensorsEnabled { get; set; }
+        public bool UiSounds { get; set; }
+        public bool FetchGameInfo { get; set; } = true;
+        public bool CheckUpdates { get; set; } = true;
+        public string UpdateRepo { get; set; } = string.Empty;
+        public DateTime LastUpdateCheck { get; set; }
+        public bool SetupDone { get; set; }
+        public string CloudBackupFolder { get; set; } = string.Empty;
+
+        // Streamer-Modus und Komfort
+        public bool StreamerMode { get; set; }
+        public bool StreamerAuto { get; set; }
+        public bool StreamHideName { get; set; } = true;
+        public bool StreamHideLocation { get; set; } = true;
+        public bool StreamHideStats { get; set; } = true;
+        public bool StreamHideRecent { get; set; } = true;
+        public bool StreamHidePaths { get; set; } = true;
+        public bool StreamHideShots { get; set; } = true;
+        public bool StreamMuteAlerts { get; set; } = true;
+        public bool ReopenAfterGame { get; set; }
+        public bool AskOnClose { get; set; }
+        public bool TrayClickOpensLauncher { get; set; }
+        public bool TypeToSearch { get; set; }
+        public bool FavoritesFirst { get; set; }
+        public bool ShowAlphaBar { get; set; } = true;
+        public bool SessionReport { get; set; } = true;
+        public bool MuteWhilePlaying { get; set; }
+        public int DailyLimitHours { get; set; }
+        public int OverlayOpacity { get; set; } = 90;
+        public int OverlayScale { get; set; } = 100;
+        public bool OverlayShowCpu { get; set; } = true;
+        public bool OverlayShowGpu { get; set; } = true;
+        public bool OverlayShowRam { get; set; } = true;
+        public bool OverlayShowClock { get; set; }
+
+        // Mod-Ordner, Discord, Widgets, Willkommen
+        public bool ShowModButton { get; set; } = true;
+        public bool WelcomeAnimation { get; set; } = true;
+        public bool DiscordEnabled { get; set; }
+        public string DiscordWebhook { get; set; } = string.Empty;
+        public bool DiscordOnStart { get; set; } = true;
+        public bool DiscordOnEnd { get; set; } = true;
+        public bool DiscordSendName { get; set; } = true;
+        public List<string> DashboardOrder { get; set; } = new();
+        public List<string> DashboardHidden { get; set; } = new() { "goal", "backlog", "wishlist", "quick" };
+    }
+
+    public class InfoRow
+    {
+        public string Label { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
+    }
+
+    public class HardwareGroup
+    {
+        public string Title { get; set; } = string.Empty;
+        public List<InfoRow> Rows { get; set; } = new();
+    }
+
+    public class GpuAdapter
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Vendor { get; set; } = string.Empty;
+        public string Driver { get; set; } = string.Empty;
+        public long VramBytes { get; set; }
+    }
+
+    public class FileEntry
+    {
+        public string Name { get; set; } = string.Empty;
+        public string FullPath { get; set; } = string.Empty;
+        public string SizeText { get; set; } = string.Empty;
+        public string DateText { get; set; } = string.Empty;
+    }
+
+    public class DriveInfoModel
+    {
+        public string DriveName { get; set; } = string.Empty;
+        public string InfoText { get; set; } = string.Empty;
+        public string PercentText { get; set; } = string.Empty;
+        public double UsedPercent { get; set; }
+        public System.Windows.Media.Brush BarBrush { get; set; } = System.Windows.Media.Brushes.MediumPurple;
+    }
+
+    public class GameSizeModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string SizeText { get; set; } = string.Empty;
+        public double Percent { get; set; }
+    }
+
+    internal static class NativeMethods
+    {
+        [System.Runtime.InteropServices.DllImport("shell32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+        internal static extern int SHEmptyRecycleBin(IntPtr hwnd, string? pszRootPath, uint dwFlags);
+    }
+
+    // ───────────────────────────── Zusätzliche Modelle ─────────────────────────────
+
+    public class StatRow
+    {
+        public string Rank { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string TimeText { get; set; } = string.Empty;
+        public double Percent { get; set; }
+    }
+
+    public class MetricsSample
+    {
+        public double Cpu { get; set; }
+        public double Ram { get; set; }
+        public double Gpu { get; set; }
+        public double Mhz { get; set; }
+        public double UsedMb { get; set; }
+        public bool HasGpu { get; set; }
+    }
+
+    public class SpotlightEntry
+    {
+        public string Icon { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Subtitle { get; set; } = string.Empty;
+        public int Score { get; set; }
+        public Action Action { get; set; } = () => { };
+    }
+
+    internal static class NativeFeatures
+    {
+        [Interop.StructLayout(Interop.LayoutKind.Sequential)]
+        internal struct Margins
+        {
+            public int Left;
+            public int Right;
+            public int Top;
+            public int Bottom;
+        }
+
+        [Interop.StructLayout(Interop.LayoutKind.Sequential)]
+        internal struct XInputGamepad
+        {
+            public ushort Buttons;
+            public byte LeftTrigger;
+            public byte RightTrigger;
+            public short ThumbLX;
+            public short ThumbLY;
+            public short ThumbRX;
+            public short ThumbRY;
+        }
+
+        [Interop.StructLayout(Interop.LayoutKind.Sequential)]
+        internal struct XInputState
+        {
+            public uint PacketNumber;
+            public XInputGamepad Gamepad;
+        }
+
+        [Interop.DllImport("dwmapi.dll")]
+        internal static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int size);
+
+        [Interop.DllImport("dwmapi.dll")]
+        internal static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref Margins margins);
+
+        [Interop.DllImport("user32.dll")]
+        internal static extern int GetWindowLong(IntPtr hwnd, int index);
+
+        [Interop.DllImport("user32.dll")]
+        internal static extern int SetWindowLong(IntPtr hwnd, int index, int value);
+
+        [Interop.DllImport("xinput1_4.dll")]
+        internal static extern uint XInputGetState(uint index, out XInputState state);
+
+        [Interop.DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern IntPtr OpenProcess(uint access, bool inherit, int pid);
+
+        [Interop.DllImport("kernel32.dll", SetLastError = true)]
+        [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
+        internal static extern bool CloseHandle(IntPtr handle);
+
+        [Interop.DllImport("kernel32.dll", CharSet = Interop.CharSet.Unicode, SetLastError = true)]
+        [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
+        internal static extern bool QueryFullProcessImageName(IntPtr process, int flags, System.Text.StringBuilder text, ref int size);
+
+        /// <summary>Liest den Dateipfad eines laufenden Prozesses (funktioniert auch bei geschützten Spielen).</summary>
+        internal static string? GetProcessPath(int pid)
+        {
+            IntPtr handle = OpenProcess(0x1000, false, pid); // PROCESS_QUERY_LIMITED_INFORMATION
+            if (handle == IntPtr.Zero) return null;
+
+            try
+            {
+                var buffer = new System.Text.StringBuilder(1024);
+                int size = buffer.Capacity;
+                return QueryFullProcessImageName(handle, 0, buffer, ref size) ? buffer.ToString(0, size) : null;
+            }
+            finally
+            {
+                CloseHandle(handle);
+            }
+        }
+    }
+
+    // ───────────────────────────── Modelle für weitere Funktionen ─────────────────────────────
+
+    public class ReleaseEntry
+    {
+        public string Name { get; set; } = string.Empty;
+        public DateTime Date { get; set; }
+    }
+
+    public class DealItem
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Subtitle { get; set; } = string.Empty;
+        public string Badge { get; set; } = string.Empty;
+        public string ImageUrl { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
+        public string Store { get; set; } = string.Empty;   // epic | steam
+    }
+
+    public class PingResult
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Text { get; set; } = string.Empty;
+        public double Percent { get; set; }
+        public System.Windows.Media.Brush BarBrush { get; set; } = System.Windows.Media.Brushes.MediumPurple;
+    }
+
+    public class AchievementRow
+    {
+        public string Icon { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public string ProgressText { get; set; } = string.Empty;
+        public double Percent { get; set; }
+        public double Opacity { get; set; } = 1.0;
+        public bool Unlocked { get; set; }
+    }
+
+    public class AchievementDef
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Icon { get; set; } = string.Empty;
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public double Current { get; set; }
+        public double Target { get; set; }
+    }
+
+    public class ShotInfo
+    {
+        public string FilePath { get; set; } = string.Empty;
+        public DateTime Time { get; set; }
+        public string Label { get; set; } = string.Empty;
+    }
+
+    // ───────────────────────────── Sprachen ─────────────────────────────
+
+    /// <summary>Übersetzt deutsche Texte (Quelle) in die gewählte Sprache. Unbekannte Texte bleiben unverändert.</summary>
+    public static class Loc
+    {
+        public static readonly (string Code, string Name)[] Languages =
+        {
+            ("de", "Deutsch"), ("en", "English"), ("zh", "中文"), ("es", "Español"),
+            ("fr", "Français"), ("pt", "Português"), ("ru", "Русский"), ("ja", "日本語")
+        };
+
+        private static readonly string[] CultureNames = { "de-DE", "en-US", "zh-CN", "es-ES", "fr-FR", "pt-BR", "ru-RU", "ja-JP" };
+
+        private sealed class Template
+        {
+            public Regex Pattern = null!;
+            public string[] Texts = Array.Empty<string>();
+            public int Literal;
+        }
+
+        private static readonly Dictionary<string, string[]> Exact = new(StringComparer.Ordinal);
+        private static readonly List<Template> Templates = new();
+        private static readonly Dictionary<string, string> Cache = new(StringComparer.Ordinal);
+        private static int languageIndex = -1;   // -1 = Deutsch (Originaltext), 0 = Englisch, 1 = Chinesisch ...
+
+        public static string Language { get; private set; } = "de";
+        public static int Version { get; private set; }
+        public static CultureInfo Culture { get; private set; } = new("de-DE");
+
+        static Loc()
+        {
+            try { Load(); } catch { }
+        }
+
+        private static string Normalize(string text) => Regex.Replace(text, @"\s+", " ").Trim();
+
+        private static void Load()
+        {
+            foreach (string rawLine in LocData.Text.Split('\n'))
+            {
+                string line = rawLine.Trim();
+                if (line.Length == 0 || line.StartsWith('#')) continue;
+
+                string[] parts = line.Split(" || ");
+                if (parts.Length < 2) continue;
+
+                string key = Normalize(parts[0].Replace("\\n", "\n"));
+                string[] texts = parts.Skip(1).Select(p => p.Replace("\\n", "\n").Trim()).ToArray();
+
+                if (key.Contains('{'))
+                    Templates.Add(BuildTemplate(key, texts));
+                else
+                    Exact[key] = texts;
+            }
+
+            Templates.Sort((a, b) => b.Literal.CompareTo(a.Literal));
+        }
+
+        private static Template BuildTemplate(string key, string[] texts)
+        {
+            var pattern = new System.Text.StringBuilder("^");
+            int last = 0;
+            int literal = 0;
+
+            foreach (Match m in Regex.Matches(key, @"\{(#?)(\d)\}"))
+            {
+                string before = key.Substring(last, m.Index - last);
+                pattern.Append(Regex.Escape(before));
+                literal += before.Length;
+                pattern.Append(m.Groups[1].Value == "#"
+                    ? "(?<g" + m.Groups[2].Value + @">[\d.,:]+)"
+                    : "(?<g" + m.Groups[2].Value + ">.+?)");
+                last = m.Index + m.Length;
+            }
+
+            string tail = key.Substring(last);
+            pattern.Append(Regex.Escape(tail)).Append('$');
+            literal += tail.Length;
+
+            return new Template
+            {
+                Pattern = new Regex(pattern.ToString(), RegexOptions.Singleline | RegexOptions.CultureInvariant),
+                Texts = texts,
+                Literal = literal
+            };
+        }
+
+        public static void SetLanguage(string code)
+        {
+            int index = Array.FindIndex(Languages, l => l.Code == code);
+            if (index < 0) index = 1; // Englisch als Standard
+
+            Language = Languages[index].Code;
+            languageIndex = index - 1;
+            Culture = CultureInfo.GetCultureInfo(CultureNames[index]);
+
+            lock (Cache) Cache.Clear();
+            Version++;
+        }
+
+        /// <summary>Ermittelt die passende Sprache aus der Windows-Sprache (sonst Englisch).</summary>
+        public static string Detect()
+        {
+            string two = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            return Languages.Any(l => l.Code == two) ? two : "en";
+        }
+
+        private static string Pick(string[] row)
+        {
+            if (languageIndex >= 0 && languageIndex < row.Length && row[languageIndex].Length > 0)
+                return row[languageIndex];
+            return row.Length > 0 ? row[0] : string.Empty;
+        }
+
+        public static string T(string? text)
+        {
+            if (string.IsNullOrEmpty(text) || languageIndex < 0) return text ?? string.Empty;
+
+            lock (Cache)
+            {
+                if (Cache.TryGetValue(text, out var cached)) return cached;
+            }
+
+            string result = Translate(text, 0);
+
+            lock (Cache)
+            {
+                if (Cache.Count > 20000) Cache.Clear();
+                Cache[text] = result;
+            }
+            return result;
+        }
+
+        private static string Translate(string text, int depth)
+        {
+            if (depth > 3) return text;
+
+            string normalized = Normalize(text);
+            if (normalized.Length == 0) return text;
+
+            if (Exact.TryGetValue(normalized, out var row)) return Pick(row);
+
+            foreach (var template in Templates)
+            {
+                var match = template.Pattern.Match(normalized);
+                if (!match.Success) continue;
+
+                string pattern = Pick(template.Texts);
+                return Regex.Replace(pattern, @"\{#?(\d)\}",
+                    m => Translate(match.Groups["g" + m.Groups[1].Value].Value, depth + 1));
+            }
+
+            // zusammengesetzte Texte: "Steam · 12,5 Std." usw.
+            if (normalized.Contains(" · "))
+            {
+                var parts = normalized.Split(" · ");
+                return string.Join(" · ", parts.Select(p => Translate(p, depth + 1)));
+            }
+
+            return text;
+        }
+    }
+
+    internal static class LocData
+    {
+        public const string Text = """
+# Spalten: Deutsch || English || 中文 || Español || Français || Português || Русский || 日本語
+# Fehlt eine Spalte, wird Englisch verwendet. {0} = beliebiger Text, {#0} = Zahl.
+
+# ───────── Navigation und Seitentitel ─────────
+Dashboard || Dashboard || 仪表盘 || Panel || Tableau de bord || Painel || Панель || ダッシュボード
+Spiele || Games || 游戏 || Juegos || Jeux || Jogos || Игры || ゲーム
+Statistik || Statistics || 统计 || Estadísticas || Statistiques || Estatísticas || Статистика || 統計
+Angebote || Deals || 优惠 || Ofertas || Offres || Ofertas || Скидки || セール
+Backlog || Backlog || 待玩清单 || Pendientes || À jouer || Backlog || Бэклог || 積みゲー
+Backlog und Planer || Backlog and planner || 待玩清单与计划 || Pendientes y planificador || Backlog et planificateur || Backlog e planejador || Бэклог и планировщик || 積みゲーとプランナー
+Galerie || Gallery || 图库 || Galería || Galerie || Galeria || Галерея || ギャラリー
+Anwendungen || Apps || 应用 || Aplicaciones || Applications || Aplicativos || Приложения || アプリ
+Downloads || Downloads || 下载 || Descargas || Téléchargements || Downloads || Загрузки || ダウンロード
+Systemüberwachung || System monitor || 系统监控 || Monitor del sistema || Moniteur système || Monitor do sistema || Мониторинг системы || システムモニター
+Speicher || Storage || 存储 || Almacenamiento || Stockage || Armazenamento || Хранилище || ストレージ
+Optimierung || Optimization || 优化 || Optimización || Optimisation || Otimização || Оптимизация || 最適化
+Tools || Tools || 工具 || Herramientas || Outils || Ferramentas || Инструменты || ツール
+Einstellungen || Settings || 设置 || Ajustes || Paramètres || Configurações || Настройки || 設定
+Willkommen zurück || Welcome back || 欢迎回来 || Bienvenido de nuevo || Bon retour || Bem-vindo de volta || С возвращением || おかえりなさい
+Strg+K  Suche || Ctrl+K  Search || Ctrl+K  搜索 || Ctrl+K  Buscar || Ctrl+K  Recherche || Ctrl+K  Busca || Ctrl+K  Поиск || Ctrl+K  検索
+Seitenleiste ein- oder ausklappen || Expand or collapse sidebar || 展开或折叠侧边栏 || Expandir o contraer la barra lateral || Développer ou réduire la barre latérale || Expandir ou recolher a barra lateral || Развернуть или свернуть боковую панель || サイドバーを展開/折りたたみ
+
+# ───────── Begrüßung, Zeit und Zahlen ─────────
+Hallo || Hello || 你好 || Hola || Bonjour || Olá || Привет || こんにちは
+Guten Morgen, {0} || Good morning, {0} || 早上好，{0} || Buenos días, {0} || Bonjour, {0} || Bom dia, {0} || Доброе утро, {0} || おはようございます、{0}
+Guten Tag, {0} || Good afternoon, {0} || 你好，{0} || Buenas tardes, {0} || Bon après-midi, {0} || Boa tarde, {0} || Добрый день, {0} || こんにちは、{0}
+Guten Abend, {0} || Good evening, {0} || 晚上好，{0} || Buenas noches, {0} || Bonsoir, {0} || Boa noite, {0} || Добрый вечер, {0} || こんばんは、{0}
+Gute Nacht, {0} || Good night, {0} || 晚安，{0} || Buenas noches, {0} || Bonne nuit, {0} || Boa noite, {0} || Доброй ночи, {0} || おやすみなさい、{0}
+Kalenderwoche {#0} || Calendar week {0} || 第{0}周 || Semana {0} || Semaine {0} || Semana {0} || Неделя {0} || 第{0}週
+gerade eben || just now || 刚刚 || ahora mismo || à l'instant || agora mesmo || только что || たった今
+vor {#0} Min. || {0} min ago || {0}分钟前 || hace {0} min || il y a {0} min || há {0} min || {0} мин назад || {0}分前
+vor {#0} Std. || {0} h ago || {0}小时前 || hace {0} h || il y a {0} h || há {0} h || {0} ч назад || {0}時間前
+vor {#0} Tagen || {0} days ago || {0}天前 || hace {0} días || il y a {0} jours || há {0} dias || {0} дн. назад || {0}日前
+gestern || yesterday || 昨天 || ayer || hier || ontem || вчера || 昨日
+in {#0} Tagen || in {0} days || {0}天后 || en {0} días || dans {0} jours || em {0} dias || через {0} дн. || {0}日後
+morgen || tomorrow || 明天 || mañana || demain || amanhã || завтра || 明日
+heute! || today! || 今天！ || ¡hoy! || aujourd'hui ! || hoje! || сегодня! || 今日！
+erschienen || released || 已发售 || lanzado || sorti || lançado || вышла || 発売済み
+0 Min. || 0 min || 0 分钟 || 0 min || 0 min || 0 min || 0 мин || 0 分
+< 1 Min. || < 1 min || < 1 分钟 || < 1 min || < 1 min || < 1 min || < 1 мин || 1分未満
+{#0} Min. || {0} min || {0} 分钟 || {0} min || {0} min || {0} min || {0} мин || {0} 分
+{#0} Std. || {0} h || {0} 小时 || {0} h || {0} h || {0} h || {0} ч || {0} 時間
+{#0} Std. {#1} Min. || {0} h {1} min || {0} 小时 {1} 分钟 || {0} h {1} min || {0} h {1} min || {0} h {1} min || {0} ч {1} мин || {0} 時間 {1} 分
+{#0} Tg. {#1} Std. {#2} Min. || {0} d {1} h {2} min || {0} 天 {1} 小时 {2} 分钟 || {0} d {1} h {2} min || {0} j {1} h {2} min || {0} d {1} h {2} min || {0} д {1} ч {2} мин || {0} 日 {1} 時間 {2} 分
+{#0} Tage || {0} days || {0} 天 || {0} días || {0} jours || {0} dias || {0} дн. || {0} 日
+{#0} Spiele || {0} games || {0} 个游戏 || {0} juegos || {0} jeux || {0} jogos || Игр: {0} || {0} 本のゲーム
+{#0} von {#1} Spielen || {0} of {1} games || 共 {1} 个游戏中的 {0} 个 || {0} de {1} juegos || {0} sur {1} jeux || {0} de {1} jogos || {0} из {1} игр || {1} 本中 {0} 本
+Sortierung: {0} || Sort: {0} || 排序：{0} || Orden: {0} || Tri : {0} || Ordem: {0} || Сортировка: {0} || 並べ替え：{0}
+Aktiver Plan: {0} || Active plan: {0} || 当前方案：{0} || Plan activo: {0} || Plan actif : {0} || Plano ativo: {0} || Активный план: {0} || 有効なプラン：{0}
+{#0}% belegt || {0}% used || 已用 {0}% || {0}% ocupado || {0}% utilisé || {0}% usado || занято {0}% || {0}% 使用中
+{#0} GB belegt von {#1} GB || {0} GB used of {1} GB || 已用 {0} GB，共 {1} GB || {0} GB usados de {1} GB || {0} Go utilisés sur {1} Go || {0} GB usados de {1} GB || занято {0} ГБ из {1} ГБ || {1} GB 中 {0} GB 使用
+{#0} GB frei || {0} GB free || 可用 {0} GB || {0} GB libres || {0} Go libres || {0} GB livres || свободно {0} ГБ || 空き {0} GB
+
+# ───────── Sortierung ─────────
+Name (A–Z) || Name (A–Z) || 名称 (A–Z) || Nombre (A–Z) || Nom (A–Z) || Nome (A–Z) || Название (А–Я) || 名前 (A–Z)
+Zuletzt gespielt || Recently played || 最近玩过 || Jugado recientemente || Joués récemment || Jogado recentemente || Недавно играли || 最近プレイ
+Meist gestartet || Most launched || 启动最多 || Más iniciado || Le plus lancé || Mais iniciado || Чаще всего запускались || 起動回数順
+Zuletzt hinzugefügt || Recently added || 最近添加 || Añadido recientemente || Ajoutés récemment || Adicionado recentemente || Недавно добавленные || 最近追加
+Beste Bewertung || Best rated || 评分最高 || Mejor valorado || Mieux notés || Melhor avaliado || Лучшие оценки || 高評価順
+Meiste Spielzeit || Most playtime || 游戏时间最长 || Más tiempo de juego || Plus de temps de jeu || Mais tempo de jogo || Больше всего времени || プレイ時間順
+
+# ───────── Dashboard und Spiele ─────────
+Zuletzt gespielt || Recently played || 最近玩过 || Jugado recientemente || Joués récemment || Jogado recentemente || Недавно играли || 最近プレイ
+Favoriten || Favorites || 收藏 || Favoritos || Favoris || Favoritos || Избранное || お気に入り
+Schnellaktionen || Quick actions || 快捷操作 || Acciones rápidas || Actions rapides || Ações rápidas || Быстрые действия || クイックアクション
+Spiele in der Bibliothek || Games in library || 库中游戏 || Juegos en la biblioteca || Jeux dans la bibliothèque || Jogos na biblioteca || Игр в библиотеке || ライブラリのゲーム
+Gesamtspielzeit || Total playtime || 总游戏时长 || Tiempo total de juego || Temps de jeu total || Tempo total de jogo || Общее время в играх || 総プレイ時間
+GESAMTSPIELZEIT || TOTAL PLAYTIME || 总游戏时长 || TIEMPO TOTAL DE JUEGO || TEMPS DE JEU TOTAL || TEMPO TOTAL DE JOGO || ОБЩЕЕ ВРЕМЯ В ИГРАХ || 総プレイ時間
+MEISTGESPIELT || MOST PLAYED || 最常玩 || MÁS JUGADO || LE PLUS JOUÉ || MAIS JOGADO || ЛИДЕР ПО ВРЕМЕНИ || 最もプレイ
+LETZTE 7 TAGE || LAST 7 DAYS || 最近7天 || ÚLTIMOS 7 DÍAS || 7 DERNIERS JOURS || ÚLTIMOS 7 DIAS || ПОСЛЕДНИЕ 7 ДНЕЙ || 過去7日間
+UHRZEIT || TIME || 时间 || HORA || HEURE || HORA || ВРЕМЯ || 時刻
+WETTER || WEATHER || 天气 || TIEMPO || MÉTÉO || CLIMA || ПОГОДА || 天気
+Noch nichts gestartet. Starte ein Spiel über den Launcher, dann erscheint es hier. || Nothing launched yet. Start a game from the launcher and it will show up here. || 还没有启动过任何游戏。通过启动器启动游戏后会显示在这里。 || Aún no has iniciado nada. Inicia un juego desde el launcher y aparecerá aquí. || Rien n'a encore été lancé. Lancez un jeu depuis le launcher et il apparaîtra ici. || Nada foi iniciado ainda. Inicie um jogo pelo launcher e ele aparecerá aqui. || Пока ничего не запускалось. Запустите игру через лаунчер, и она появится здесь. || まだ何も起動していません。ランチャーからゲームを起動すると、ここに表示されます。
+🎲  Zufälliges Spiel || 🎲 Random game || 🎲 随机游戏 || 🎲 Juego aleatorio || 🎲 Jeu aléatoire || 🎲 Jogo aleatório || 🎲 Случайная игра || 🎲 ランダムなゲーム
+＋  Spiel hinzufügen || ＋ Add game || ＋ 添加游戏 || ＋ Añadir juego || ＋ Ajouter un jeu || ＋ Adicionar jogo || ＋ Добавить игру || ＋ ゲームを追加
+＋ App hinzufügen || ＋ Add app || ＋ 添加应用 || ＋ Añadir aplicación || ＋ Ajouter une application || ＋ Adicionar aplicativo || ＋ Добавить приложение || ＋ アプリを追加
+＋ Termin || ＋ Event || ＋ 添加日期 || ＋ Fecha || ＋ Date || ＋ Data || ＋ Дата || ＋ 日付を追加
+🔄  Neu scannen || 🔄 Rescan || 🔄 重新扫描 || 🔄 Volver a escanear || 🔄 Réanalyser || 🔄 Examinar novamente || 🔄 Сканировать заново || 🔄 再スキャン
+Neu scannen || Rescan || 重新扫描 || Volver a escanear || Réanalyser || Examinar novamente || Сканировать заново || 再スキャン
+🔍  Suche (Strg+K) || 🔍 Search (Ctrl+K) || 🔍 搜索 (Ctrl+K) || 🔍 Buscar (Ctrl+K) || 🔍 Recherche (Ctrl+K) || 🔍 Busca (Ctrl+K) || 🔍 Поиск (Ctrl+K) || 🔍 検索 (Ctrl+K)
+🎮  Controller-Modus (F11) || 🎮 Controller mode (F11) || 🎮 手柄模式 (F11) || 🎮 Modo mando (F11) || 🎮 Mode manette (F11) || 🎮 Modo controle (F11) || 🎮 Режим геймпада (F11) || 🎮 コントローラーモード (F11)
+Spiel suchen... || Search games... || 搜索游戏... || Buscar juegos... || Rechercher un jeu... || Buscar jogos... || Поиск игр... || ゲームを検索...
+Alle || All || 全部 || Todos || Tous || Todos || Все || すべて
+★ Favoriten || ★ Favorites || ★ 收藏 || ★ Favoritos || ★ Favoris || ★ Favoritos || ★ Избранное || ★ お気に入り
+🆕 Neu || 🆕 New || 🆕 新增 || 🆕 Nuevo || 🆕 Nouveau || 🆕 Novo || 🆕 Новые || 🆕 新着
+🎲 Ungespielt || 🎲 Unplayed || 🎲 未玩过 || 🎲 Sin jugar || 🎲 Non joués || 🎲 Não jogados || 🎲 Не играл || 🎲 未プレイ
+Manuell || Manual || 手动 || Manual || Manuel || Manual || Вручную || 手動
+▶ SPIELEN || ▶ PLAY || ▶ 开始游戏 || ▶ JUGAR || ▶ JOUER || ▶ JOGAR || ▶ ИГРАТЬ || ▶ プレイ
+▶  Spielen || ▶ Play || ▶ 开始游戏 || ▶ Jugar || ▶ Jouer || ▶ Jogar || ▶ Играть || ▶ プレイ
+▶  Weiterspielen || ▶ Continue playing || ▶ 继续游戏 || ▶ Seguir jugando || ▶ Reprendre || ▶ Continuar jogando || ▶ Продолжить игру || ▶ 続きをプレイ
+WEITERSPIELEN || CONTINUE PLAYING || 继续游戏 || SEGUIR JUGANDO || REPRENDRE || CONTINUAR JOGANDO || ПРОДОЛЖИТЬ ИГРУ || 続きをプレイ
+Details || Details || 详情 || Detalles || Détails || Detalhes || Подробности || 詳細
+Karten || Cards || 卡片 || Tarjetas || Cartes || Cartões || Карточки || カード
+Detailkarten || Detail cards || 详细卡片 || Tarjetas detalladas || Cartes détaillées || Cartões detalhados || Подробные карточки || 詳細カード
+Liste || List || 列表 || Lista || Liste || Lista || Список || リスト
+Keine Treffer. || No results. || 没有结果。 || Sin resultados. || Aucun résultat. || Nenhum resultado. || Ничего не найдено. || 見つかりません。
+Noch keine Spiele gefunden. Füge Spiele mit „Spiel hinzufügen“ hinzu oder starte einen neuen Scan. || No games found yet. Add games with "Add game" or start a new scan. || 尚未找到游戏。请通过“添加游戏”添加,或开始新的扫描。 || Aún no se han encontrado juegos. Añade juegos con «Añadir juego» o inicia un nuevo escaneo. || Aucun jeu trouvé pour l'instant. Ajoutez des jeux avec « Ajouter un jeu » ou lancez une nouvelle analyse. || Nenhum jogo encontrado ainda. Adicione jogos com "Adicionar jogo" ou inicie uma nova busca. || Игры пока не найдены. Добавьте игры кнопкой «Добавить игру» или запустите новое сканирование. || ゲームがまだ見つかりません。「ゲームを追加」で追加するか、新しくスキャンしてください。
+Spiele werden gesucht ... || Searching for games ... || 正在搜索游戏 ... || Buscando juegos ... || Recherche des jeux ... || Procurando jogos ... || Поиск игр ... || ゲームを検索中 ...
+
+# ───────── Rechtsklick-Menü und Dialoge ─────────
+☆  Zu Favoriten hinzufügen || ☆ Add to favorites || ☆ 加入收藏 || ☆ Añadir a favoritos || ☆ Ajouter aux favoris || ☆ Adicionar aos favoritos || ☆ В избранное || ☆ お気に入りに追加
+★  Aus Favoriten entfernen || ★ Remove from favorites || ★ 取消收藏 || ★ Quitar de favoritos || ★ Retirer des favoris || ★ Remover dos favoritos || ★ Убрать из избранного || ★ お気に入りから削除
+📝  Details, Bewertung und Notizen ... || 📝 Details, rating and notes ... || 📝 详情、评分和备注 ... || 📝 Detalles, valoración y notas ... || 📝 Détails, note et remarques ... || 📝 Detalhes, avaliação e notas ... || 📝 Подробности, оценка и заметки ... || 📝 詳細・評価・メモ ...
+📁  Sammlungen || 📁 Collections || 📁 收藏夹 || 📁 Colecciones || 📁 Collections || 📁 Coleções || 📁 Коллекции || 📁 コレクション
+＋  Neue Sammlung ... || ＋ New collection ... || ＋ 新建收藏夹 ... || ＋ Nueva colección ... || ＋ Nouvelle collection ... || ＋ Nova coleção ... || ＋ Новая коллекция ... || ＋ 新しいコレクション ...
+📋  Status (Backlog) || 📋 Status (backlog) || 📋 状态（待玩清单） || 📋 Estado (pendientes) || 📋 Statut (à jouer) || 📋 Status (backlog) || 📋 Статус (бэклог) || 📋 ステータス（積みゲー）
+📋  Will ich spielen || 📋 Want to play || 📋 想玩 || 📋 Quiero jugar || 📋 À jouer || 📋 Quero jogar || 📋 Хочу сыграть || 📋 プレイ予定
+▶  Spiele ich gerade || ▶ Playing now || ▶ 正在玩 || ▶ Jugando ahora || ▶ En cours || ▶ Jogando agora || ▶ Играю сейчас || ▶ プレイ中
+✅  Durchgespielt || ✅ Completed || ✅ 已通关 || ✅ Completado || ✅ Terminé || ✅ Zerado || ✅ Пройдено || ✅ クリア済み
+💾  Spielstände || 💾 Game saves || 💾 存档 || 💾 Partidas guardadas || 💾 Sauvegardes || 💾 Saves || 💾 Сохранения || 💾 セーブデータ
+Jetzt sichern || Back up now || 立即备份 || Guardar copia ahora || Sauvegarder maintenant || Fazer backup agora || Сделать копию сейчас || 今すぐバックアップ
+Wiederherstellen ... || Restore ... || 还原 ... || Restaurar ... || Restaurer ... || Restaurar ... || Восстановить ... || 復元 ...
+Spielstand-Ordner festlegen ... || Set save folder ... || 设置存档文件夹 ... || Definir carpeta de partidas ... || Définir le dossier de sauvegarde ... || Definir pasta de saves ... || Указать папку сохранений ... || セーブフォルダーを設定 ...
+⚙  Startoptionen und Begleitprogramme ... || ⚙ Launch options and companion apps ... || ⚙ 启动选项和配套程序 ... || ⚙ Opciones de inicio y programas acompañantes ... || ⚙ Options de lancement et programmes associés ... || ⚙ Opções de inicialização e programas auxiliares ... || ⚙ Параметры запуска и сопутствующие программы ... || ⚙ 起動オプションと連携アプリ ...
+📂  Speicherort öffnen || 📂 Open file location || 📂 打开所在位置 || 📂 Abrir ubicación || 📂 Ouvrir l'emplacement || 📂 Abrir local do arquivo || 📂 Открыть расположение || 📂 保存場所を開く
+🗑  Deinstallieren ... || 🗑 Uninstall ... || 🗑 卸载 ... || 🗑 Desinstalar ... || 🗑 Désinstaller ... || 🗑 Desinstalar ... || 🗑 Удалить ... || 🗑 アンインストール ...
+✖  Aus Liste entfernen || ✖ Remove from list || ✖ 从列表移除 || ✖ Quitar de la lista || ✖ Retirer de la liste || ✖ Remover da lista || ✖ Убрать из списка || ✖ リストから削除
+🗑  Aus Liste entfernen || 🗑 Remove from list || 🗑 从列表移除 || 🗑 Quitar de la lista || 🗑 Retirer de la liste || 🗑 Remover da lista || 🗑 Убрать из списка || 🗑 リストから削除
+🗑  Eintrag löschen || 🗑 Delete entry || 🗑 删除条目 || 🗑 Eliminar entrada || 🗑 Supprimer l'entrée || 🗑 Excluir entrada || 🗑 Удалить запись || 🗑 項目を削除
+🗑  Sammlung löschen || 🗑 Delete collection || 🗑 删除收藏夹 || 🗑 Eliminar colección || 🗑 Supprimer la collection || 🗑 Excluir coleção || 🗑 Удалить коллекцию || 🗑 コレクションを削除
+🖼  Öffnen || 🖼 Open || 🖼 打开 || 🖼 Abrir || 🖼 Ouvrir || 🖼 Abrir || 🖼 Открыть || 🖼 開く
+📂  Im Ordner zeigen || 📂 Show in folder || 📂 在文件夹中显示 || 📂 Mostrar en la carpeta || 📂 Afficher dans le dossier || 📂 Mostrar na pasta || 📂 Показать в папке || 📂 フォルダーで表示
+📋  In die Zwischenablage kopieren || 📋 Copy to clipboard || 📋 复制到剪贴板 || 📋 Copiar al portapapeles || 📋 Copier dans le presse-papiers || 📋 Copiar para a área de transferência || 📋 Копировать в буфер обмена || 📋 クリップボードにコピー
+🎨  Als Hintergrundbild verwenden || 🎨 Use as background || 🎨 设为背景图片 || 🎨 Usar como fondo || 🎨 Utiliser comme arrière-plan || 🎨 Usar como plano de fundo || 🎨 Использовать как фон || 🎨 背景に設定
+Abbrechen || Cancel || 取消 || Cancelar || Annuler || Cancelar || Отмена || キャンセル
+Speichern || Save || 保存 || Guardar || Enregistrer || Salvar || Сохранить || 保存
+Schließen || Close || 关闭 || Cerrar || Fermer || Fechar || Закрыть || 閉じる
+Öffnen || Open || 打开 || Abrir || Ouvrir || Abrir || Открыть || 開く
+Übernehmen || Apply || 应用 || Aplicar || Appliquer || Aplicar || Применить || 適用
+Beenden || Quit || 退出 || Salir || Quitter || Sair || Выход || 終了
+Zufälliges Spiel || Random game || 随机游戏 || Juego aleatorio || Jeu aléatoire || Jogo aleatório || Случайная игра || ランダムなゲーム
+Status || Status || 状态 || Estado || Statut || Status || Статус || ステータス
+Bewertung || Rating || 评分 || Valoración || Note || Avaliação || Оценка || 評価
+Notizen || Notes || 备注 || Notas || Remarques || Notas || Заметки || メモ
+Sammlungen || Collections || 收藏夹 || Colecciones || Collections || Coleções || Коллекции || コレクション
+Startparameter || Launch parameters || 启动参数 || Parámetros de inicio || Paramètres de lancement || Parâmetros de inicialização || Параметры запуска || 起動パラメーター
+Als Administrator starten || Run as administrator || 以管理员身份运行 || Ejecutar como administrador || Exécuter en tant qu'administrateur || Executar como administrador || Запуск от имени администратора || 管理者として実行
+Begleitprogramme für dieses Spiel || Companion apps for this game || 此游戏的配套程序 || Programas acompañantes para este juego || Programmes associés à ce jeu || Programas auxiliares deste jogo || Сопутствующие программы для этой игры || このゲームの連携アプリ
+Sammlung löschen || Delete collection || 删除收藏夹 || Eliminar colección || Supprimer la collection || Excluir coleção || Удалить коллекцию || コレクションを削除
+Spielstand wiederherstellen || Restore game save || 还原存档 || Restaurar partida || Restaurer la sauvegarde || Restaurar save || Восстановить сохранение || セーブデータを復元
+Wiederherstellen || Restore || 还原 || Restaurar || Restaurer || Restaurar || Восстановить || 復元
+Deinstallieren || Uninstall || 卸载 || Desinstalar || Désinstaller || Desinstalar || Удалить || アンインストール
+Spiele hinzufügen || Add games || 添加游戏 || Añadir juegos || Ajouter des jeux || Adicionar jogos || Добавить игры || ゲームを追加
+Neue Sammlung || New collection || 新建收藏夹 || Nueva colección || Nouvelle collection || Nova coleção || Новая коллекция || 新しいコレクション
+Neuer Termin || New event || 新建日期 || Nueva fecha || Nouvelle date || Nova data || Новая дата || 新しい日付
+Ungültiges Datum || Invalid date || 日期无效 || Fecha no válida || Date invalide || Data inválida || Неверная дата || 無効な日付
+Fehler || Error || 错误 || Error || Erreur || Erro || Ошибка || エラー
+
+# ───────── Systemüberwachung ─────────
+PROZESSOR || PROCESSOR || 处理器 || PROCESADOR || PROCESSEUR || PROCESSADOR || ПРОЦЕССОР || プロセッサ
+ARBEITSSPEICHER || MEMORY || 内存 || MEMORIA || MÉMOIRE || MEMÓRIA || ПАМЯТЬ || メモリ
+GRAFIKKARTE || GRAPHICS CARD || 显卡 || TARJETA GRÁFICA || CARTE GRAPHIQUE || PLACA DE VÍDEO || ВИДЕОКАРТА || グラフィックカード
+Dein System || Your system || 你的系统 || Tu sistema || Votre système || Seu sistema || Ваша система || お使いのシステム
+Neu auslesen || Read again || 重新读取 || Leer de nuevo || Relire || Ler novamente || Считать заново || 再取得
+Netzwerk und Ping || Network and ping || 网络与延迟 || Red y ping || Réseau et ping || Rede e ping || Сеть и пинг || ネットワークとPing
+Jetzt testen || Test now || 立即测试 || Probar ahora || Tester maintenant || Testar agora || Проверить сейчас || 今すぐテスト
+Auslastung || Usage || 占用率 || Uso || Utilisation || Uso || Загрузка || 使用率
+3D-Last || 3D load || 3D 负载 || Carga 3D || Charge 3D || Carga 3D || 3D-нагрузка || 3D負荷
+nicht verfügbar || not available || 不可用 || no disponible || indisponible || indisponível || недоступно || 利用不可
+keine Antwort || no response || 无响应 || sin respuesta || pas de réponse || sem resposta || нет ответа || 応答なし
+Router || Router || 路由器 || Router || Routeur || Roteador || Роутер || ルーター
+Hardware wird ausgelesen ... || Reading hardware ... || 正在读取硬件信息 ... || Leyendo hardware ... || Lecture du matériel ... || Lendo o hardware ... || Считывание оборудования ... || ハードウェアを取得中 ...
+System || System || 系统 || Sistema || Système || Sistema || Система || システム
+Prozessor || Processor || 处理器 || Procesador || Processeur || Processador || Процессор || プロセッサ
+Arbeitsspeicher || Memory || 内存 || Memoria || Mémoire || Memória || Оперативная память || メモリ
+Grafikkarte || Graphics card || 显卡 || Tarjeta gráfica || Carte graphique || Placa de vídeo || Видеокарта || グラフィックカード
+Anzeige || Display || 显示器 || Pantalla || Affichage || Tela || Дисплей || ディスプレイ
+Mainboard und BIOS || Motherboard and BIOS || 主板和 BIOS || Placa base y BIOS || Carte mère et BIOS || Placa-mãe e BIOS || Материнская плата и BIOS || マザーボードとBIOS
+Laufwerke || Drives || 驱动器 || Unidades || Lecteurs || Unidades || Диски || ドライブ
+Audio und Netzwerk || Audio and network || 音频和网络 || Audio y red || Audio et réseau || Áudio e rede || Звук и сеть || オーディオとネットワーク
+Computername || Computer name || 计算机名称 || Nombre del equipo || Nom de l'ordinateur || Nome do computador || Имя компьютера || コンピューター名
+Betriebssystem || Operating system || 操作系统 || Sistema operativo || Système d'exploitation || Sistema operacional || Операционная система || OS
+Architektur || Architecture || 架构 || Arquitectura || Architecture || Arquitetura || Архитектура || アーキテクチャ
+Laufzeit seit Start || Uptime || 运行时间 || Tiempo activo || Durée de fonctionnement || Tempo ligado || Время работы || 稼働時間
+Modell || Model || 型号 || Modelo || Modèle || Modelo || Модель || モデル
+Hersteller || Manufacturer || 制造商 || Fabricante || Fabricant || Fabricante || Производитель || メーカー
+Kerne / Threads || Cores / threads || 核心 / 线程 || Núcleos / hilos || Cœurs / threads || Núcleos / threads || Ядра / потоки || コア / スレッド
+Takt || Clock speed || 频率 || Frecuencia || Fréquence || Frequência || Частота || クロック
+Gesamt || Total || 总计 || Total || Total || Total || Всего || 合計
+Kartenhersteller || Card vendor || 显卡厂商 || Fabricante de la tarjeta || Fabricant de la carte || Fabricante da placa || Производитель карты || カードメーカー
+Videospeicher || Video memory || 显存 || Memoria de vídeo || Mémoire vidéo || Memória de vídeo || Видеопамять || ビデオメモリ
+Treiberversion || Driver version || 驱动版本 || Versión del controlador || Version du pilote || Versão do driver || Версия драйвера || ドライバーバージョン
+BIOS-Hersteller || BIOS vendor || BIOS 厂商 || Fabricante de BIOS || Fabricant du BIOS || Fabricante da BIOS || Производитель BIOS || BIOSメーカー
+BIOS-Version || BIOS version || BIOS 版本 || Versión de BIOS || Version du BIOS || Versão da BIOS || Версия BIOS || BIOSバージョン
+BIOS-Datum || BIOS date || BIOS 日期 || Fecha de BIOS || Date du BIOS || Data da BIOS || Дата BIOS || BIOS日付
+Monitor {#0} || Monitor {0} || 显示器 {0} || Monitor {0} || Moniteur {0} || Monitor {0} || Монитор {0} || モニター {0}
+Auflösung {#0} || Resolution {0} || 分辨率 {0} || Resolución {0} || Résolution {0} || Resolução {0} || Разрешение {0} || 解像度 {0}
+Modul {#0} || Module {0} || 模块 {0} || Módulo {0} || Module {0} || Módulo {0} || Модуль {0} || モジュール {0}
+Grafikkarte {#0} || Graphics card {0} || 显卡 {0} || Tarjeta gráfica {0} || Carte graphique {0} || Placa de vídeo {0} || Видеокарта {0} || グラフィックカード {0}
+Audio {#0} || Audio {0} || 音频 {0} || Audio {0} || Audio {0} || Áudio {0} || Звук {0} || オーディオ {0}
+Netzwerk {#0} || Network {0} || 网络 {0} || Red {0} || Réseau {0} || Rede {0} || Сеть {0} || ネットワーク {0}
+(Hauptanzeige) || (primary display) || （主显示器） || (pantalla principal) || (écran principal) || (tela principal) || (основной дисплей) || （メインディスプレイ）
+Lokaler Datenträger || Local disk || 本地磁盘 || Disco local || Disque local || Disco local || Локальный диск || ローカルディスク
+
+# ───────── Speicher, Optimierung, Tools ─────────
+Berechnen || Calculate || 计算 || Calcular || Calculer || Calcular || Рассчитать || 計算
+Speicherbedarf der Spiele || Game storage usage || 游戏占用空间 || Espacio ocupado por los juegos || Espace occupé par les jeux || Espaço ocupado pelos jogos || Место, занимаемое играми || ゲームの使用容量
+⚡  Energiesparplan || ⚡ Power plan || ⚡ 电源计划 || ⚡ Plan de energía || ⚡ Mode d'alimentation || ⚡ Plano de energia || ⚡ План электропитания || ⚡ 電源プラン
+Energiesparen || Power saver || 节能 || Ahorro de energía || Économie d'énergie || Economia de energia || Энергосбережение || 省電力
+Ausbalanciert || Balanced || 平衡 || Equilibrado || Équilibré || Equilibrado || Сбалансированный || バランス
+Höchstleistung || High performance || 高性能 || Alto rendimiento || Haute performance || Alto desempenho || Высокая производительность || 高パフォーマンス
+Ultimative Leistung || Ultimate performance || 卓越性能 || Rendimiento máximo || Performances ultimes || Desempenho máximo || Максимальная производительность || 究極のパフォーマンス
+🧹  Temporäre Dateien || 🧹 Temporary files || 🧹 临时文件 || 🧹 Archivos temporales || 🧹 Fichiers temporaires || 🧹 Arquivos temporários || 🧹 Временные файлы || 🧹 一時ファイル
+Jetzt bereinigen || Clean now || 立即清理 || Limpiar ahora || Nettoyer maintenant || Limpar agora || Очистить сейчас || 今すぐクリーンアップ
+🗑  Papierkorb || 🗑 Recycle bin || 🗑 回收站 || 🗑 Papelera || 🗑 Corbeille || 🗑 Lixeira || 🗑 Корзина || 🗑 ごみ箱
+Papierkorb leeren || Empty recycle bin || 清空回收站 || Vaciar la papelera || Vider la corbeille || Esvaziar a lixeira || Очистить корзину || ごみ箱を空にする
+🎮  Windows Spielmodus || 🎮 Windows Game Mode || 🎮 Windows 游戏模式 || 🎮 Modo de juego de Windows || 🎮 Mode jeu de Windows || 🎮 Modo de jogo do Windows || 🎮 Игровой режим Windows || 🎮 Windows ゲームモード
+Spielmodus || Game Mode || 游戏模式 || Modo de juego || Mode jeu || Modo de jogo || Игровой режим || ゲームモード
+Grafikeinstellungen || Graphics settings || 图形设置 || Configuración de gráficos || Paramètres graphiques || Configurações de gráficos || Настройки графики || グラフィック設定
+Schnellzugriff || Quick access || 快速访问 || Acceso rápido || Accès rapide || Acesso rápido || Быстрый доступ || クイックアクセス
+Download-Ordner || Downloads folder || 下载文件夹 || Carpeta de descargas || Dossier de téléchargements || Pasta de downloads || Папка загрузок || ダウンロードフォルダー
+Im Ordner zeigen || Show in folder || 在文件夹中显示 || Mostrar en la carpeta || Afficher dans le dossier || Mostrar na pasta || Показать в папке || フォルダーで表示
+Ordner öffnen || Open folder || 打开文件夹 || Abrir carpeta || Ouvrir le dossier || Abrir pasta || Открыть папку || フォルダーを開く
+Ordner hinzufügen || Add folder || 添加文件夹 || Añadir carpeta || Ajouter un dossier || Adicionar pasta || Добавить папку || フォルダーを追加
+Aktualisieren || Refresh || 刷新 || Actualizar || Actualiser || Atualizar || Обновить || 更新
+Datei || File || 文件 || Archivo || Fichier || Arquivo || Файл || ファイル
+Größe || Size || 大小 || Tamaño || Taille || Tamanho || Размер || サイズ
+Geändert || Modified || 修改时间 || Modificado || Modifié || Modificado || Изменён || 更新日時
+Screenshots || Screenshots || 截图 || Capturas || Captures d'écran || Capturas de tela || Скриншоты || スクリーンショット
+Bildschirmausschnitt || Screen snip || 屏幕截图 || Recorte de pantalla || Capture d'une zone || Recorte de tela || Фрагмент экрана || 画面の切り取り
+DirectX-Diagnose || DirectX diagnostics || DirectX 诊断 || Diagnóstico de DirectX || Diagnostic DirectX || Diagnóstico do DirectX || Диагностика DirectX || DirectX診断
+Windows Task-Manager || Windows Task Manager || Windows 任务管理器 || Administrador de tareas de Windows || Gestionnaire des tâches Windows || Gerenciador de Tarefas do Windows || Диспетчер задач Windows || Windows タスクマネージャー
+Ressourcenmonitor || Resource Monitor || 资源监视器 || Monitor de recursos || Moniteur de ressources || Monitor de Recursos || Монитор ресурсов || リソースモニター
+Detaillierte Auslastung || Detailed usage || 详细占用情况 || Uso detallado || Utilisation détaillée || Uso detalhado || Подробная загрузка || 詳細な使用状況
+Systeminfo || System info || 系统信息 || Información del sistema || Informations système || Informações do sistema || Сведения о системе || システム情報
+Hardware und System || Hardware and system || 硬件和系统 || Hardware y sistema || Matériel et système || Hardware e sistema || Оборудование и система || ハードウェアとシステム
+Geräte-Manager || Device Manager || 设备管理器 || Administrador de dispositivos || Gestionnaire de périphériques || Gerenciador de Dispositivos || Диспетчер устройств || デバイスマネージャー
+Treiber verwalten || Manage drivers || 管理驱动程序 || Gestionar controladores || Gérer les pilotes || Gerenciar drivers || Управление драйверами || ドライバーの管理
+Netzwerk || Network || 网络 || Red || Réseau || Rede || Сеть || ネットワーク
+Netzwerkverbindungen || Network connections || 网络连接 || Conexiones de red || Connexions réseau || Conexões de rede || Сетевые подключения || ネットワーク接続
+Sound || Sound || 声音 || Sonido || Son || Som || Звук || サウンド
+Audioeinstellungen || Audio settings || 音频设置 || Ajustes de audio || Paramètres audio || Configurações de áudio || Настройки звука || オーディオ設定
+Auflösung und Bildrate || Resolution and refresh rate || 分辨率和刷新率 || Resolución y frecuencia || Résolution et fréquence || Resolução e taxa de atualização || Разрешение и частота || 解像度とリフレッシュレート
+Windows Game Mode || Windows Game Mode || Windows 游戏模式 || Modo de juego de Windows || Mode jeu de Windows || Modo de jogo do Windows || Игровой режим Windows || Windows ゲームモード
+Autostart-Apps || Startup apps || 启动应用 || Aplicaciones de inicio || Applications au démarrage || Aplicativos de inicialização || Автозагрузка || スタートアップアプリ
+Programme beim Start || Programs at startup || 开机启动程序 || Programas al iniciar || Programmes au démarrage || Programas na inicialização || Программы при запуске || 起動時のプログラム
+Updates suchen || Check for updates || 检查更新 || Buscar actualizaciones || Rechercher des mises à jour || Verificar atualizações || Проверить обновления || 更新プログラムを確認
+Xbox und Game Pass || Xbox and Game Pass || Xbox 和 Game Pass || Xbox y Game Pass || Xbox et Game Pass || Xbox e Game Pass || Xbox и Game Pass || Xbox と Game Pass
+NVIDIA Treiber || NVIDIA drivers || NVIDIA 驱动 || Controladores NVIDIA || Pilotes NVIDIA || Drivers NVIDIA || Драйверы NVIDIA || NVIDIA ドライバー
+AMD Treiber || AMD drivers || AMD 驱动 || Controladores AMD || Pilotes AMD || Drivers AMD || Драйверы AMD || AMD ドライバー
+Intel Treiber || Intel drivers || Intel 驱动 || Controladores Intel || Pilotes Intel || Drivers Intel || Драйверы Intel || Intel ドライバー
+Eigene App || Custom app || 自定义应用 || Aplicación propia || Application personnelle || Aplicativo próprio || Своё приложение || 追加したアプリ
+Erkannt || Detected || 已检测 || Detectado || Détectée || Detectado || Найдено || 検出済み
+
+# ───────── Statistik, Angebote, Backlog, Galerie ─────────
+🎉  Mein Spielejahr || 🎉 My gaming year || 🎉 我的游戏年度回顾 || 🎉 Mi año de juegos || 🎉 Mon année de jeu || 🎉 Meu ano de jogos || 🎉 Мой игровой год || 🎉 私のゲーム年間レポート
+🎯  Wochenziel || 🎯 Weekly goal || 🎯 每周目标 || 🎯 Objetivo semanal || 🎯 Objectif hebdomadaire || 🎯 Meta semanal || 🎯 Цель на неделю || 🎯 週間目標
+Letzte 7 Tage || Last 7 days || 最近7天 || Últimos 7 días || 7 derniers jours || Últimos 7 dias || Последние 7 дней || 過去7日間
+Meistgespielte Spiele || Most played games || 最常玩的游戏 || Juegos más jugados || Jeux les plus joués || Jogos mais jogados || Самые популярные игры || よくプレイするゲーム
+🏆  Erfolge || 🏆 Achievements || 🏆 成就 || 🏆 Logros || 🏆 Succès || 🏆 Conquistas || 🏆 Достижения || 🏆 実績
+{#0} von {#1} freigeschaltet || {0} of {1} unlocked || 已解锁 {0}/{1} || {0} de {1} desbloqueados || {0} sur {1} débloqués || {0} de {1} desbloqueadas || Открыто {0} из {1} || {1} 件中 {0} 件解除
+Freigeschaltet || Unlocked || 已解锁 || Desbloqueado || Débloqué || Desbloqueada || Открыто || 解除済み
+🎁  Jetzt gratis bei Epic Games || 🎁 Free now on Epic Games || 🎁 Epic Games 当前免费 || 🎁 Gratis ahora en Epic Games || 🎁 Gratuit en ce moment sur Epic Games || 🎁 Grátis agora na Epic Games || 🎁 Сейчас бесплатно в Epic Games || 🎁 Epic Games で今だけ無料
+⏳  Demnächst gratis || ⏳ Free soon || ⏳ 即将免费 || ⏳ Pronto gratis || ⏳ Bientôt gratuit || ⏳ Em breve grátis || ⏳ Скоро бесплатно || ⏳ まもなく無料
+🏷  Steam-Angebote || 🏷 Steam deals || 🏷 Steam 优惠 || 🏷 Ofertas de Steam || 🏷 Offres Steam || 🏷 Ofertas da Steam || 🏷 Скидки Steam || 🏷 Steam セール
+GRATIS || FREE || 免费 || GRATIS || GRATUIT || GRÁTIS || БЕСПЛАТНО || 無料
+BALD || SOON || 即将 || PRONTO || BIENTÔT || EM BREVE || СКОРО || まもなく
+Gratis || Free || 免费 || Gratis || Gratuit || Grátis || Бесплатно || 無料
+🗓  Bald erscheinend || 🗓 Coming soon || 🗓 即将发售 || 🗓 Próximamente || 🗓 Prochainement || 🗓 Em breve || 🗓 Скоро выходят || 🗓 発売予定
+Zufälliges Spiel || Random game || 随机游戏 || Juego aleatorio || Jeu aléatoire || Jogo aleatório || Случайная игра || ランダムなゲーム
+Neue Gratis-Spiele || New free games || 新的免费游戏 || Nuevos juegos gratis || Nouveaux jeux gratuits || Novos jogos grátis || Новые бесплатные игры || 新しい無料ゲーム
+Zurzeit gibt es keine Gratis-Spiele. || There are no free games right now. || 目前没有免费游戏。 || Ahora mismo no hay juegos gratis. || Il n'y a actuellement aucun jeu gratuit. || No momento não há jogos grátis. || Сейчас нет бесплатных игр. || 現在、無料のゲームはありません。
+Noch keine Vorschau verfügbar. || No preview available yet. || 暂无预览。 || Aún no hay vista previa. || Aucun aperçu disponible pour le moment. || Ainda não há prévia disponível. || Предпросмотр пока недоступен. || プレビューはまだありません。
+Keine Angebote gefunden. || No deals found. || 未找到优惠。 || No se encontraron ofertas. || Aucune offre trouvée. || Nenhuma oferta encontrada. || Предложения не найдены. || セールは見つかりませんでした。
+Aktualisieren || Refresh || 刷新 || Actualizar || Actualiser || Atualizar || Обновить || 更新
+Leer. Ziehe Spiele hierher oder nutze ＋. || Empty. Drag games here or use ＋. || 空。将游戏拖到这里或使用 ＋。 || Vacío. Arrastra juegos aquí o usa ＋. || Vide. Faites glisser des jeux ici ou utilisez ＋. || Vazio. Arraste jogos para cá ou use ＋. || Пусто. Перетащите сюда игры или нажмите ＋. || 空です。ゲームをここにドラッグするか、＋を使ってください。
+Ziehen zum Verschieben, Doppelklick zum Starten || Drag to move, double-click to start || 拖动移动，双击启动 || Arrastra para mover, doble clic para iniciar || Glisser pour déplacer, double-clic pour lancer || Arraste para mover, clique duas vezes para iniciar || Перетащите, чтобы переместить; двойной щелчок — запуск || ドラッグで移動、ダブルクリックで起動
+Ordner mit Screenshots auswählen || Choose screenshot folder || 选择截图文件夹 || Elegir carpeta de capturas || Choisir le dossier de captures || Escolher pasta de capturas || Выбрать папку скриншотов || スクリーンショットフォルダーを選択
+Windows || Windows || Windows || Windows || Windows || Windows || Windows || Windows
+Xbox Game Bar || Xbox Game Bar || Xbox Game Bar || Xbox Game Bar || Xbox Game Bar || Xbox Game Bar || Xbox Game Bar || Xbox Game Bar
+Eigener Ordner || Custom folder || 自定义文件夹 || Carpeta propia || Dossier personnel || Pasta própria || Своя папка || カスタムフォルダー
+
+# ───────── Wetter ─────────
+Klarer Himmel || Clear sky || 晴 || Cielo despejado || Ciel dégagé || Céu limpo || Ясно || 快晴
+Überwiegend klar || Mostly clear || 大部分晴朗 || Mayormente despejado || Plutôt dégagé || Predominantemente limpo || Преимущественно ясно || おおむね晴れ
+Teilweise bewölkt || Partly cloudy || 局部多云 || Parcialmente nublado || Partiellement nuageux || Parcialmente nublado || Переменная облачность || 一部曇り
+Bedeckt || Overcast || 阴 || Cubierto || Couvert || Encoberto || Пасмурно || 曇り
+Nebel || Fog || 雾 || Niebla || Brouillard || Neblina || Туман || 霧
+Nieselregen || Drizzle || 毛毛雨 || Llovizna || Bruine || Garoa || Морось || 霧雨
+Gefrierender Nieselregen || Freezing drizzle || 冻毛毛雨 || Llovizna helada || Bruine verglaçante || Garoa congelante || Ледяная морось || 着氷性の霧雨
+Regen || Rain || 雨 || Lluvia || Pluie || Chuva || Дождь || 雨
+Gefrierender Regen || Freezing rain || 冻雨 || Lluvia helada || Pluie verglaçante || Chuva congelante || Ледяной дождь || 着氷性の雨
+Schneefall || Snowfall || 降雪 || Nevada || Chute de neige || Neve || Снегопад || 降雪
+Schneegriesel || Snow grains || 雪粒 || Cinarra || Grains de neige || Grãos de neve || Снежная крупа || 雪あられ
+Regenschauer || Rain showers || 阵雨 || Chubascos || Averses || Pancadas de chuva || Ливни || にわか雨
+Schneeschauer || Snow showers || 阵雪 || Chubascos de nieve || Averses de neige || Pancadas de neve || Снегопады || にわか雪
+Gewitter || Thunderstorm || 雷暴 || Tormenta || Orage || Tempestade || Гроза || 雷雨
+Gewitter mit Hagel || Thunderstorm with hail || 雷暴伴冰雹 || Tormenta con granizo || Orage avec grêle || Tempestade com granizo || Гроза с градом || 雹を伴う雷雨
+Unbekannt || Unknown || 未知 || Desconocido || Inconnu || Desconhecido || Неизвестно || 不明
+Gefühlt {0} || Feels like {0} || 体感 {0} || Sensación {0} || Ressenti {0} || Sensação {0} || Ощущается как {0} || 体感 {0}
+Wind {0} km/h || Wind {0} km/h || 风速 {0} km/h || Viento {0} km/h || Vent {0} km/h || Vento {0} km/h || Ветер {0} км/ч || 風速 {0} km/h
+Luftfeuchte {0} % || Humidity {0} % || 湿度 {0} % || Humedad {0} % || Humidité {0} % || Umidade {0} % || Влажность {0} % || 湿度 {0} %
+Heute  {0} bis {1} || Today {0} to {1} || 今天 {0} 至 {1} || Hoy {0} a {1} || Aujourd'hui {0} à {1} || Hoje {0} a {1} || Сегодня от {0} до {1} || 今日 {0} ～ {1}
+Standort nicht gefunden || Location not found || 未找到位置 || Ubicación no encontrada || Position introuvable || Local não encontrado || Местоположение не найдено || 場所が見つかりません
+Wetter nicht erreichbar || Weather unavailable || 无法获取天气 || Tiempo no disponible || Météo indisponible || Clima indisponível || Погода недоступна || 天気を取得できません
+Gib in den Einstellungen einen Ort an. || Enter a location in the settings. || 请在设置中填写地点。 || Indica una ubicación en los ajustes. || Indiquez un lieu dans les paramètres. || Informe um local nas configurações. || Укажите место в настройках. || 設定で場所を指定してください。
+Prüfe deine Internetverbindung. || Check your internet connection. || 请检查你的网络连接。 || Comprueba tu conexión a internet. || Vérifiez votre connexion internet. || Verifique sua conexão com a internet. || Проверьте подключение к интернету. || インターネット接続を確認してください。
+Online-Funktionen sind deaktiviert || Online features are turned off || 在线功能已关闭 || Las funciones en línea están desactivadas || Les fonctions en ligne sont désactivées || Os recursos online estão desativados || Онлайн-функции отключены || オンライン機能はオフです
+Aktiviere sie in den Einstellungen. || Turn them on in the settings. || 请在设置中开启。 || Actívalas en los ajustes. || Activez-les dans les paramètres. || Ative-os nas configurações. || Включите их в настройках. || 設定でオンにしてください。
+
+# ───────── Einstellungen: Abschnitte ─────────
+Profil || Profile || 个人资料 || Perfil || Profil || Perfil || Профиль || プロフィール
+Darstellung || Appearance || 外观 || Apariencia || Apparence || Aparência || Оформление || 外観
+Hintergrund und Glas-Effekt || Background and glass effect || 背景与玻璃效果 || Fondo y efecto cristal || Arrière-plan et effet verre || Plano de fundo e efeito vidro || Фон и эффект стекла || 背景とガラス効果
+Animationen || Animations || 动画 || Animaciones || Animations || Animações || Анимации || アニメーション
+Dashboard und Widgets || Dashboard and widgets || 仪表盘和小组件 || Panel y widgets || Tableau de bord et widgets || Painel e widgets || Панель и виджеты || ダッシュボードとウィジェット
+Spiele und Cover || Games and covers || 游戏与封面 || Juegos y portadas || Jeux et jaquettes || Jogos e capas || Игры и обложки || ゲームとカバー
+Funktionen || Features || 功能 || Funciones || Fonctionnalités || Recursos || Функции || 機能
+Ziele und Erinnerungen || Goals and reminders || 目标与提醒 || Objetivos y recordatorios || Objectifs et rappels || Metas e lembretes || Цели и напоминания || 目標とリマインダー
+Spielstände und Start || Game saves and launch || 存档与启动 || Partidas guardadas y arranque || Sauvegardes et lancement || Saves e inicialização || Сохранения и запуск || セーブデータと起動
+Hinweise und Angebote || Notices and deals || 提示与优惠 || Avisos y ofertas || Notifications et offres || Avisos e ofertas || Уведомления и скидки || 通知とセール
+Tastenkürzel || Keyboard shortcuts || 键盘快捷键 || Atajos de teclado || Raccourcis clavier || Atalhos de teclado || Горячие клавиши || キーボードショートカット
+Seitenleiste und Bereiche || Sidebar and sections || 侧边栏与栏目 || Barra lateral y secciones || Barre latérale et sections || Barra lateral e seções || Боковая панель и разделы || サイドバーとセクション
+Verhalten und Fenster || Behavior and window || 行为与窗口 || Comportamiento y ventana || Comportement et fenêtre || Comportamento e janela || Поведение и окно || 動作とウィンドウ
+Online-Funktionen und Datenschutz || Online features and privacy || 在线功能与隐私 || Funciones en línea y privacidad || Fonctions en ligne et confidentialité || Recursos online e privacidade || Онлайн-функции и конфиденциальность || オンライン機能とプライバシー
+Daten und Werkzeuge || Data and tools || 数据与工具 || Datos y herramientas || Données et outils || Dados e ferramentas || Данные и инструменты || データとツール
+Komfort || Convenience || 便利功能 || Comodidad || Confort || Conveniência || Удобство || 便利機能
+Sprache || Language || 语言 || Idioma || Langue || Idioma || Язык || 言語
+Automatisch (Windows) || Automatic (Windows) || 自动 (Windows) || Automático (Windows) || Automatique (Windows) || Automático (Windows) || Автоматически (Windows) || 自動 (Windows)
+
+# ───────── Einstellungen: Optionen ─────────
+Benutzername || Username || 用户名 || Nombre de usuario || Nom d'utilisateur || Nome de usuário || Имя пользователя || ユーザー名
+Design-Vorlagen || Theme presets || 主题模板 || Temas predefinidos || Thèmes prédéfinis || Temas prontos || Готовые темы || テーマプリセット
+Dunkel || Dark || 深色 || Oscuro || Sombre || Escuro || Тёмная || ダーク
+Pechschwarz || Pitch black || 纯黑 || Negro total || Noir profond || Preto total || Чёрная || ピッチブラック
+Wald || Forest || 森林 || Bosque || Forêt || Floresta || Лес || 森
+Ozean || Ocean || 海洋 || Océano || Océan || Oceano || Океан || 海
+Sonnenuntergang || Sunset || 日落 || Atardecer || Coucher de soleil || Pôr do sol || Закат || 夕焼け
+Rosé || Rosé || 玫瑰 || Rosado || Rosé || Rosé || Розовая || ロゼ
+Blutrot || Blood red || 血红 || Rojo sangre || Rouge sang || Vermelho sangue || Кроваво-красная || ブラッドレッド
+Hintergrundfarbe wählen || Choose background color || 选择背景颜色 || Elegir color de fondo || Choisir la couleur d'arrière-plan || Escolher cor de fundo || Выбрать цвет фона || 背景色を選択
+Akzentfarbe wählen || Choose accent color || 选择强调色 || Elegir color de acento || Choisir la couleur d'accent || Escolher cor de destaque || Выбрать акцентный цвет || アクセントカラーを選択
+Farben zurücksetzen || Reset colors || 重置颜色 || Restablecer colores || Réinitialiser les couleurs || Redefinir cores || Сбросить цвета || 色をリセット
+Oberflächen-Zoom || Interface zoom || 界面缩放 || Zoom de la interfaz || Zoom de l'interface || Zoom da interface || Масштаб интерфейса || UIズーム
+Ansicht der Spiele || Game view || 游戏视图 || Vista de juegos || Affichage des jeux || Visualização dos jogos || Вид игр || ゲーム表示
+Größe der Spielkarten || Game card size || 游戏卡片大小 || Tamaño de las tarjetas || Taille des cartes de jeu || Tamanho dos cartões || Размер карточек игр || ゲームカードのサイズ
+Rundung der Spielkarten || Card corner rounding || 卡片圆角 || Redondeo de las tarjetas || Arrondi des cartes || Arredondamento dos cartões || Скругление карточек || カードの角丸
+Zoom-Stärke beim Darüberfahren || Hover zoom strength || 悬停缩放强度 || Intensidad del zoom al pasar el ratón || Intensité du zoom au survol || Intensidade do zoom ao passar o mouse || Степень увеличения при наведении || ホバー時のズーム強度
+Spielnamen auf den Karten anzeigen || Show game names on cards || 在卡片上显示游戏名称 || Mostrar nombres de juegos en las tarjetas || Afficher les noms des jeux sur les cartes || Mostrar nomes dos jogos nos cartões || Показывать названия игр на карточках || カードにゲーム名を表示
+Quelle und Spielzeit auf den Karten anzeigen || Show source and playtime on cards || 在卡片上显示来源和游戏时间 || Mostrar origen y tiempo de juego en las tarjetas || Afficher la source et le temps de jeu sur les cartes || Mostrar origem e tempo de jogo nos cartões || Показывать источник и время игры на карточках || カードにストアとプレイ時間を表示
+Hintergrundbild wählen || Choose background image || 选择背景图片 || Elegir imagen de fondo || Choisir l'image d'arrière-plan || Escolher imagem de fundo || Выбрать фоновое изображение || 背景画像を選択
+Bild entfernen || Remove image || 移除图片 || Quitar imagen || Supprimer l'image || Remover imagem || Удалить изображение || 画像を削除
+Abdunklung des Hintergrundbilds || Background image dimming || 背景图变暗 || Oscurecimiento de la imagen de fondo || Assombrissement de l'image d'arrière-plan || Escurecimento da imagem de fundo || Затемнение фонового изображения || 背景画像の暗さ
+Unschärfe des Hintergrundbilds || Background image blur || 背景图模糊度 || Desenfoque de la imagen de fondo || Flou de l'image d'arrière-plan || Desfoque da imagem de fundo || Размытие фонового изображения || 背景画像のぼかし
+Glas-Effekt (Mica) – nur Windows 11, wirkt am besten ohne Hintergrundbild || Glass effect (Mica) – Windows 11 only, works best without a background image || 玻璃效果(Mica)——仅限 Windows 11,无背景图片时效果最佳 || Efecto cristal (Mica): solo Windows 11, queda mejor sin imagen de fondo || Effet verre (Mica) – Windows 11 uniquement, rendu optimal sans image d'arrière-plan || Efeito de vidro (Mica) – somente Windows 11, fica melhor sem imagem de fundo || Эффект стекла (Mica) — только Windows 11, лучше смотрится без фонового изображения || ガラス効果(Mica)– Windows 11のみ。背景画像なしが最適
+Sanfte Seitenübergänge und hochzählende Zahlen || Smooth page transitions and counting numbers || 平滑的页面切换和数字递增动画 || Transiciones suaves de página y números que cuentan hacia arriba || Transitions de page fluides et nombres qui s'incrémentent || Transições de página suaves e números que contam para cima || Плавные переходы между страницами и нарастающие числа || なめらかなページ切り替えと数字のカウントアップ
+Spielkarten nacheinander einblenden (mit Schimmer beim Laden der Cover) || Fade in game cards one after another (with shimmer while covers load) || 依次淡入游戏卡片(封面加载时带闪烁效果) || Mostrar las tarjetas una tras otra (con destello mientras cargan las portadas) || Afficher les cartes l'une après l'autre (avec un effet de brillance pendant le chargement des jaquettes) || Exibir os cartões um após o outro (com brilho enquanto as capas carregam) || Показывать карточки по очереди (с мерцанием, пока загружаются обложки) || カードを順番にフェードイン(カバー読み込み中は輝きを表示)
+Kreisdiagramme weich animieren || Animate the ring charts smoothly || 平滑动画显示环形图 || Animar suavemente los gráficos circulares || Animer les graphiques circulaires en douceur || Animar os gráficos circulares suavemente || Плавно анимировать круговые диаграммы || 円グラフをなめらかにアニメーション
+Zoom-Animation beim Darüberfahren || Zoom animation on hover || 悬停缩放动画 || Animación de zoom al pasar el ratón || Animation de zoom au survol || Animação de zoom ao passar o mouse || Анимация увеличения при наведении || ホバー時のズームアニメーション
+Leuchtrand in der Akzentfarbe beim Darüberfahren || Glow in the accent color on hover || 悬停时显示强调色发光边框 || Borde luminoso con el color de acento al pasar el ratón || Bordure lumineuse à la couleur d'accentuation au survol || Borda brilhante na cor de destaque ao passar o mouse || Светящаяся рамка акцентного цвета при наведении || ホバー時にアクセントカラーで光る枠
+Langsam wandernder Farbverlauf im Hintergrund (braucht etwas Grafikleistung) || Slowly moving color gradient in the background (needs some graphics power) || 背景中缓慢移动的渐变色(需要一定显卡性能) || Degradado de color que se mueve lentamente en el fondo (requiere algo de potencia gráfica) || Dégradé de couleurs en mouvement lent à l'arrière-plan (demande un peu de puissance graphique) || Gradiente de cores que se move lentamente ao fundo (exige um pouco de poder gráfico) || Медленно движущийся градиент на фоне (требует немного мощности видеокарты) || 背景でゆっくり動くグラデーション(多少のグラフィック性能が必要)
+Großes „Weiterspielen“-Banner anzeigen || Show the large "Continue playing" banner || 显示大号“继续游戏”横幅 || Mostrar el banner grande «Seguir jugando» || Afficher la grande bannière « Continuer à jouer » || Mostrar o banner grande "Continuar jogando" || Показывать большой баннер «Продолжить игру» || 大きな「続きをプレイ」バナーを表示
+Uhr-Widget anzeigen || Show clock widget || 显示时钟小组件 || Mostrar widget de reloj || Afficher le widget horloge || Mostrar widget de relógio || Показывать виджет часов || 時計ウィジェットを表示
+24-Stunden-Format || 24-hour format || 24小时制 || Formato de 24 horas || Format 24 heures || Formato de 24 horas || 24-часовой формат || 24時間表示
+Sekunden anzeigen || Show seconds || 显示秒 || Mostrar segundos || Afficher les secondes || Mostrar segundos || Показывать секунды || 秒を表示
+Wetter-Widget anzeigen || Show weather widget || 显示天气小组件 || Mostrar widget del tiempo || Afficher le widget météo || Mostrar widget de clima || Показывать виджет погоды || 天気ウィジェットを表示
+Temperatur in Fahrenheit || Temperature in Fahrenheit || 使用华氏温度 || Temperatura en Fahrenheit || Température en Fahrenheit || Temperatura em Fahrenheit || Температура в Фаренгейтах || 華氏で温度を表示
+Wetter-Ort (leer = automatisch per IP-Adresse) || Weather location (empty = automatic via IP address) || 天气地点(留空 = 通过 IP 地址自动判断) || Ubicación del tiempo (vacío = automática por dirección IP) || Lieu pour la météo (vide = automatique via l'adresse IP) || Local do clima (vazio = automático pelo endereço IP) || Место для погоды (пусто = автоматически по IP-адресу) || 天気の場所(空欄 = IPアドレスから自動判定)
+Statistik-Kacheln anzeigen || Show statistics tiles || 显示统计卡片 || Mostrar tarjetas de estadísticas || Afficher les tuiles de statistiques || Mostrar blocos de estatísticas || Показывать плитки статистики || 統計タイルを表示
+Bereich „Zuletzt gespielt“ anzeigen || Show "Recently played" section || 显示“最近玩过” || Mostrar sección «Jugado recientemente» || Afficher la section « Joués récemment » || Mostrar seção "Jogado recentemente" || Показывать раздел «Недавно играли» || 「最近プレイ」を表示
+Bereich „Favoriten“ anzeigen || Show "Favorites" section || 显示“收藏” || Mostrar sección «Favoritos» || Afficher la section « Favoris » || Mostrar seção "Favoritos" || Показывать раздел «Избранное» || 「お気に入り」を表示
+Anzahl Spiele in „Zuletzt gespielt“ und „Favoriten“ || Number of games in "Recently played" and "Favorites" || “最近玩过”和“收藏”中的游戏数量 || Número de juegos en «Jugados recientemente» y «Favoritos» || Nombre de jeux dans « Joués récemment » et « Favoris » || Quantidade de jogos em "Jogados recentemente" e "Favoritos" || Количество игр в «Недавно сыгранные» и «Избранное» || 「最近プレイ」と「お気に入り」のゲーム数
+Cover in Originalauflösung laden und anzeigen (braucht mehr Arbeitsspeicher) || Load and show covers in original resolution (needs more memory) || 以原始分辨率加载并显示封面(占用更多内存) || Cargar y mostrar portadas en resolución original (usa más memoria) || Charger et afficher les jaquettes en résolution d'origine (utilise plus de mémoire) || Carregar e exibir capas na resolução original (usa mais memória) || Загружать и показывать обложки в исходном разрешении (больше памяти) || カバーを元の解像度で読み込んで表示(メモリを多く使用)
+Startseite beim Öffnen || Start page || 启动页面 || Página de inicio || Page de démarrage || Página inicial || Стартовая страница || 起動ページ
+Cover neu laden || Reload covers || 重新加载封面 || Recargar portadas || Recharger les jaquettes || Recarregar capas || Перезагрузить обложки || カバーを再読み込み
+Spielzeit automatisch erfassen, sobald ein Spiel läuft || Track playtime automatically while a game is running || 游戏运行时自动记录游戏时间 || Registrar automáticamente el tiempo de juego mientras se ejecuta un juego || Enregistrer automatiquement le temps de jeu pendant qu'un jeu est lancé || Registrar automaticamente o tempo de jogo enquanto um jogo estiver em execução || Автоматически учитывать время игры, пока игра запущена || ゲーム実行中にプレイ時間を自動記録
+Gaming-Profil: während des Spielens automatisch „Höchstleistung“ aktivieren || Gaming profile: switch to "High performance" automatically while playing || 游戏配置:游戏时自动启用“高性能” || Perfil gaming: activar automáticamente «Alto rendimiento» mientras juegas || Profil gaming : activer automatiquement « Hautes performances » pendant le jeu || Perfil gamer: ativar automaticamente "Alto desempenho" enquanto joga || Игровой профиль: автоматически включать «Высокую производительность» во время игры || ゲーミングプロファイル:プレイ中は自動で「高パフォーマンス」に切り替え
+Mini-Overlay mit CPU, GPU und RAM während des Spielens anzeigen || Show a mini overlay with CPU, GPU and RAM while playing || 游戏时显示包含 CPU、GPU 和内存的迷你悬浮窗 || Mostrar un mini overlay con CPU, GPU y RAM mientras juegas || Afficher un mini-overlay avec CPU, GPU et RAM pendant le jeu || Mostrar um mini overlay com CPU, GPU e RAM enquanto joga || Показывать мини-оверлей с CPU, GPU и RAM во время игры || プレイ中にCPU・GPU・RAMのミニオーバーレイを表示
+Position des Overlays || Overlay position || 悬浮窗位置 || Posición del overlay || Position de l'overlay || Posição do overlay || Положение оверлея || オーバーレイの位置
+Oben links || Top left || 左上 || Arriba a la izquierda || En haut à gauche || Superior esquerdo || Вверху слева || 左上
+Oben rechts || Top right || 右上 || Arriba a la derecha || En haut à droite || Superior direito || Вверху справа || 右上
+Unten links || Bottom left || 左下 || Abajo a la izquierda || En bas à gauche || Inferior esquerdo || Внизу слева || 左下
+Unten rechts || Bottom right || 右下 || Abajo a la derecha || En bas à droite || Inferior direito || Внизу справа || 右下
+Overlay testen || Test overlay || 测试悬浮窗 || Probar overlay || Tester l'overlay || Testar overlay || Проверить оверлей || オーバーレイをテスト
+Gamepad-Steuerung (Start-Taste öffnet den Controller-Modus, Tastenkürzel F11) || Gamepad control (the Start button opens controller mode, shortcut F11) || 手柄控制(Start 键打开手柄模式,快捷键 F11) || Control con mando (el botón Start abre el modo mando, atajo F11) || Contrôle à la manette (le bouton Start ouvre le mode manette, raccourci F11) || Controle por gamepad (o botão Start abre o modo controle, atalho F11) || Управление геймпадом (кнопка Start открывает режим геймпада, сочетание F11) || ゲームパッド操作(Startボタンでコントローラーモードを開く、ショートカットF11)
+Wochenziel (Spielzeit der letzten 7 Tage) || Weekly goal (playtime of the last 7 days) || 每周目标(最近 7 天的游戏时间) || Objetivo semanal (tiempo de juego de los últimos 7 días) || Objectif hebdomadaire (temps de jeu des 7 derniers jours) || Meta semanal (tempo de jogo dos últimos 7 dias) || Недельная цель (время игры за последние 7 дней) || 週間目標(過去7日間のプレイ時間)
+Pausen-Erinnerung während des Spielens || Break reminder while playing || 游戏时休息提醒 || Recordatorio de descanso mientras juegas || Rappel de pause pendant le jeu || Lembrete de pausa durante o jogo || Напоминание о перерыве во время игры || プレイ中の休憩リマインダー
+Aus || Off || 关闭 || Desactivado || Désactivé || Desativado || Выкл. || オフ
+{#0} Std. pro Woche || {0} h per week || 每周 {0} 小时 || {0} h por semana || {0} h par semaine || {0} h por semana || {0} ч в неделю || 週 {0} 時間
+alle {#0} Min. || every {0} min || 每 {0} 分钟 || cada {0} min || toutes les {0} min || a cada {0} min || каждые {0} мин || {0} 分ごと
+Spielstand nach jedem Spiel automatisch sichern (wenn ein Ordner festgelegt ist) || Back up the game save automatically after each game (if a folder is set) || 每次游戏结束后自动备份存档(需已设置文件夹) || Hacer copia de la partida guardada tras cada juego (si hay una carpeta definida) || Sauvegarder automatiquement la partie après chaque jeu (si un dossier est défini) || Fazer backup do save automaticamente após cada jogo (se houver uma pasta definida) || Автоматически сохранять копию сохранения после каждой игры (если указана папка) || ゲーム終了後にセーブデータを自動バックアップ(フォルダー設定時)
+Standard-Begleitprogramme wählen ... || Choose default companion apps ... || 选择默认伴随程序 ... || Elegir programas acompañantes predeterminados ... || Choisir les programmes compagnons par défaut ... || Escolher programas acompanhantes padrão ... || Выбрать сопутствующие программы по умолчанию ... || 標準の連携プログラムを選択 ...
+Auf neue Gratis-Spiele bei Epic Games hinweisen || Notify me about new free games on Epic Games || 有新的 Epic Games 免费游戏时提醒我 || Avisarme de nuevos juegos gratis en Epic Games || Me prévenir des nouveaux jeux gratuits sur Epic Games || Avisar sobre novos jogos grátis na Epic Games || Уведомлять о новых бесплатных играх в Epic Games || Epic Gamesの新しい無料ゲームを通知
+Warnen, wenn ein Laufwerk fast voll ist || Warn when a drive is almost full || 磁盘快满时发出警告 || Avisar cuando una unidad esté casi llena || Avertir lorsqu'un lecteur est presque plein || Avisar quando uma unidade estiver quase cheia || Предупреждать, если диск почти заполнен || ドライブの空き容量が少ないときに警告
+Screenshot-Ordner hinzufügen ... || Add screenshot folder ... || 添加截图文件夹 ... || Añadir carpeta de capturas ... || Ajouter un dossier de captures ... || Adicionar pasta de capturas ... || Добавить папку скриншотов ... || スクリーンショットフォルダーを追加 ...
+Launcher nach dem Spielstart minimieren || Minimize launcher after game start || 启动游戏后最小化启动器 || Minimizar el launcher al iniciar un juego || Réduire le launcher au lancement d'un jeu || Minimizar o launcher ao iniciar um jogo || Сворачивать лаунчер после запуска игры || ゲーム起動後にランチャーを最小化
+DFP Pro Launcher mit Windows starten || Start DFP Pro Launcher with Windows || 随 Windows 启动 DFP Pro Launcher || Iniciar DFP Pro Launcher con Windows || Lancer DFP Pro Launcher avec Windows || Iniciar o DFP Pro Launcher com o Windows || Запускать DFP Pro Launcher вместе с Windows || Windows 起動時に DFP Pro Launcher を起動
+Minimiert starten (im Infobereich, wenn aktiviert) || Start minimized (in the notification area, if enabled) || 最小化启动(启用时位于通知区域) || Iniciar minimizado (en la bandeja, si está activada) || Démarrer réduit (dans la zone de notification, si activée) || Iniciar minimizado (na bandeja, se ativada) || Запускать свёрнутым (в области уведомлений, если включена) || 最小化して起動(有効な場合は通知領域に)
+Beim Schließen im Infobereich weiterlaufen (Spielzeit wird weiter erfasst) || Keep running in the notification area when closed (playtime keeps being tracked) || 关闭时继续在通知区域运行(游戏时间继续记录) || Seguir en la bandeja al cerrar (el tiempo de juego se sigue registrando) || Continuer dans la zone de notification à la fermeture (le temps de jeu reste enregistré) || Continuar na bandeja ao fechar (o tempo de jogo continua sendo registrado) || Продолжать работу в области уведомлений при закрытии (время игры продолжает учитываться) || 閉じても通知領域で動作を継続(プレイ時間は記録され続けます)
+Fenster immer im Vordergrund halten || Keep window always on top || 窗口始终置顶 || Mantener la ventana siempre visible || Garder la fenêtre au premier plan || Manter a janela sempre no topo || Всегда поверх всех окон || ウィンドウを常に手前に表示
+Fensterposition und -größe merken || Remember window position and size || 记住窗口位置和大小 || Recordar posición y tamaño de la ventana || Mémoriser la position et la taille de la fenêtre || Lembrar posição e tamanho da janela || Запоминать положение и размер окна || ウィンドウの位置とサイズを記憶
+Online-Funktionen erlauben (Cover-Download und Wetter) || Allow online features (cover download and weather) || 允许在线功能(封面下载和天气) || Permitir funciones en línea (descarga de portadas y tiempo) || Autoriser les fonctions en ligne (téléchargement des jaquettes et météo) || Permitir recursos online (download de capas e clima) || Разрешить онлайн-функции (загрузка обложек и погода) || オンライン機能を許可(カバーのダウンロードと天気)
+Verlauf zurücksetzen || Reset history || 重置历史记录 || Restablecer historial || Réinitialiser l'historique || Redefinir histórico || Сбросить историю || 履歴をリセット
+Einstellungsordner öffnen || Open settings folder || 打开设置文件夹 || Abrir carpeta de ajustes || Ouvrir le dossier des paramètres || Abrir pasta de configurações || Открыть папку настроек || 設定フォルダーを開く
+Einstellungen sichern || Back up settings || 备份设置 || Guardar copia de los ajustes || Sauvegarder les paramètres || Fazer backup das configurações || Сохранить настройки || 設定をバックアップ
+Einstellungen laden || Load settings || 加载设置 || Cargar ajustes || Charger les paramètres || Carregar configurações || Загрузить настройки || 設定を読み込む
+Logo als Symbol speichern (.ico) || Save logo as icon (.ico) || 将徽标保存为图标 (.ico) || Guardar logotipo como icono (.ico) || Enregistrer le logo comme icône (.ico) || Salvar logotipo como ícone (.ico) || Сохранить логотип как значок (.ico) || ロゴをアイコンとして保存 (.ico)
+Desktop-Verknüpfung erstellen || Create desktop shortcut || 创建桌面快捷方式 || Crear acceso directo en el escritorio || Créer un raccourci sur le bureau || Criar atalho na área de trabalho || Создать ярлык на рабочем столе || デスクトップショートカットを作成
+Verlaufsgrafiken unter den Kreisdiagrammen anzeigen || Show history graphs below the ring charts || 在环形图下方显示历史曲线 || Mostrar gráficos de historial bajo los gráficos circulares || Afficher les courbes d'historique sous les graphiques circulaires || Mostrar gráficos de histórico abaixo dos gráficos circulares || Показывать графики истории под круговыми диаграммами || 円グラフの下に履歴グラフを表示
+Aktualisierung der Live-Werte || Live value refresh rate || 实时数据刷新间隔 || Frecuencia de actualización || Fréquence d'actualisation || Taxa de atualização || Частота обновления || 更新間隔
+0,5 s || 0.5 s || 0.5 秒 || 0,5 s || 0,5 s || 0,5 s || 0,5 с || 0.5 秒
+1 s || 1 s || 1 秒 || 1 s || 1 s || 1 s || 1 с || 1 秒
+2 s || 2 s || 2 秒 || 2 s || 2 s || 2 s || 2 с || 2 秒
+5 s || 5 s || 5 秒 || 5 s || 5 s || 5 s || 5 с || 5 秒
+Abgewählte Bereiche verschwinden aus der Seitenleiste. Über die Suche (Strg+K) kannst du sie trotzdem öffnen. || Deselected sections disappear from the sidebar. You can still open them with search (Ctrl+K). || 取消勾选的栏目将从侧边栏消失,但仍可通过搜索(Ctrl+K)打开。 || Las secciones desmarcadas desaparecen de la barra lateral. Aun así puedes abrirlas con la búsqueda (Ctrl+K). || Les sections décochées disparaissent de la barre latérale. Vous pouvez quand même les ouvrir avec la recherche (Ctrl+K). || As seções desmarcadas somem da barra lateral. Você ainda pode abri-las pela busca (Ctrl+K). || Снятые разделы исчезают с боковой панели. Их всё равно можно открыть через поиск (Ctrl+K). || チェックを外したセクションはサイドバーから消えます。検索(Ctrl+K)からは開けます。
+Die Erinnerung erscheint im Launcher und im Mini-Overlay über deinem Spiel. || The reminder appears in the launcher and in the mini overlay above your game. || 提醒会显示在启动器和游戏上方的迷你悬浮窗中。 || El recordatorio aparece en el launcher y en el mini overlay sobre tu juego. || Le rappel apparaît dans le launcher et dans le mini-overlay au-dessus de votre jeu. || O lembrete aparece no launcher e no mini overlay sobre o seu jogo. || Напоминание появится в лаунчере и в мини-оверлее поверх игры. || リマインダーはランチャーとゲーム上のミニオーバーレイに表示されます。
+Das Overlay erscheint über Spielen im Fenster- oder Rahmenlos-Modus. Im exklusiven Vollbild zeigt Windows es nicht an. || The overlay appears above games in windowed or borderless mode. Windows does not show it in exclusive fullscreen. || 悬浮窗显示在窗口化或无边框模式的游戏上方。独占全屏模式下 Windows 不会显示它。 || El overlay aparece sobre los juegos en modo ventana o sin bordes. Windows no lo muestra en pantalla completa exclusiva. || L'overlay s'affiche au-dessus des jeux en mode fenêtré ou sans bordure. Windows ne l'affiche pas en plein écran exclusif. || O overlay aparece sobre jogos em modo janela ou sem bordas. O Windows não o exibe em tela cheia exclusiva. || Оверлей отображается поверх игр в оконном режиме или режиме без рамки. В эксклюзивном полноэкранном режиме Windows его не показывает. || オーバーレイはウィンドウモードまたはボーダーレスのゲームの上に表示されます。排他的フルスクリーンでは表示されません。
+Den Spielstand-Ordner legst du pro Spiel per Rechtsklick fest. Sicherungen liegen in %AppData%\Game_launcher\backups, die letzten 10 bleiben erhalten. || You set the save folder per game with a right-click. Backups are stored in %AppData%\Game_launcher\backups, the latest 10 are kept. || 在每个游戏上右键即可设置存档文件夹。备份保存在 %AppData%\Game_launcher\backups,保留最近 10 份。 || La carpeta de partidas se define por juego con clic derecho. Las copias están en %AppData%\Game_launcher\backups y se conservan las últimas 10. || Le dossier de sauvegarde se définit par jeu avec un clic droit. Les sauvegardes sont dans %AppData%\Game_launcher\backups, les 10 dernières sont conservées. || A pasta de saves é definida por jogo com o botão direito. Os backups ficam em %AppData%\Game_launcher\backups e os últimos 10 são mantidos. || Папку сохранений для каждой игры задают правым щелчком. Копии лежат в %AppData%\Game_launcher\backups, хранятся последние 10. || セーブフォルダーはゲームごとに右クリックで設定します。バックアップは %AppData%\Game_launcher\backups に保存され、最新の10件が残ります。
+Favoriten, Verlauf, Cover und Einstellungen liegen in %AppData%\Game_launcher. || Favorites, history, covers and settings are stored in %AppData%\Game_launcher. || 收藏、历史、封面和设置都保存在 %AppData%\Game_launcher。 || Favoritos, historial, portadas y ajustes se guardan en %AppData%\Game_launcher. || Les favoris, l'historique, les jaquettes et les paramètres sont stockés dans %AppData%\Game_launcher. || Favoritos, histórico, capas e configurações ficam em %AppData%\Game_launcher. || Избранное, история, обложки и настройки хранятся в %AppData%\Game_launcher. || お気に入り、履歴、カバー、設定は %AppData%\Game_launcher に保存されます。
+Strg + K   Suche und Schnellstart\nStrg + F   Spiele durchsuchen\nStrg + R   Spiele neu scannen\nStrg + 1 bis 9   Bereiche öffnen\nStrg + ,   Einstellungen\nF11   Controller-Modus\nEsc   Controller-Modus oder Suche schließen || Ctrl + K   Search and quick launch\nCtrl + F   Search games\nCtrl + R   Rescan games\nCtrl + 1 to 9   Open sections\nCtrl + ,   Settings\nF11   Controller mode\nEsc   Close controller mode or search || Ctrl + K   搜索与快速启动\nCtrl + F   搜索游戏\nCtrl + R   重新扫描游戏\nCtrl + 1 到 9   打开栏目\nCtrl + ,   设置\nF11   手柄模式\nEsc   关闭手柄模式或搜索 || Ctrl + K   Búsqueda e inicio rápido\nCtrl + F   Buscar juegos\nCtrl + R   Volver a escanear juegos\nCtrl + 1 a 9   Abrir secciones\nCtrl + ,   Ajustes\nF11   Modo mando\nEsc   Cerrar modo mando o búsqueda || Ctrl + K   Recherche et lancement rapide\nCtrl + F   Rechercher des jeux\nCtrl + R   Réanalyser les jeux\nCtrl + 1 à 9   Ouvrir des sections\nCtrl + ,   Paramètres\nF11   Mode manette\nÉchap   Fermer le mode manette ou la recherche || Ctrl + K   Busca e início rápido\nCtrl + F   Pesquisar jogos\nCtrl + R   Buscar jogos novamente\nCtrl + 1 a 9   Abrir seções\nCtrl + ,   Configurações\nF11   Modo controle\nEsc   Fechar modo controle ou busca || Ctrl + K   Поиск и быстрый запуск\nCtrl + F   Поиск игр\nCtrl + R   Повторное сканирование игр\nCtrl + 1–9   Открыть разделы\nCtrl + ,   Настройки\nF11   Режим геймпада\nEsc   Закрыть режим геймпада или поиск || Ctrl + K   検索とクイック起動\nCtrl + F   ゲームを検索\nCtrl + R   ゲームを再スキャン\nCtrl + 1〜9   セクションを開く\nCtrl + ,   設定\nF11   コントローラーモード\nEsc   コントローラーモードまたは検索を閉じる
+↑ ↓ auswählen   ·   Enter öffnen   ·   Esc schließen || ↑ ↓ select   ·   Enter open   ·   Esc close || ↑ ↓ 选择   ·   Enter 打开   ·   Esc 关闭 || ↑ ↓ elegir   ·   Enter abrir   ·   Esc cerrar || ↑ ↓ choisir   ·   Entrée ouvrir   ·   Échap fermer || ↑ ↓ escolher   ·   Enter abrir   ·   Esc fechar || ↑ ↓ выбрать   ·   Enter открыть   ·   Esc закрыть || ↑ ↓ 選択   ·   Enter 開く   ·   Esc 閉じる
+
+# ───────── Seitenuntertitel (Englisch) ─────────
+Belegung deiner Laufwerke und der Platzbedarf deiner Spiele. || Usage of your drives and the space your games need. || 驱动器的使用情况以及游戏占用的空间。 || Uso de tus unidades y el espacio que ocupan tus juegos. || Occupation de vos lecteurs et espace utilisé par vos jeux. || Uso das suas unidades e o espaço ocupado pelos jogos. || Занятость ваших дисков и место, которое занимают игры. || ドライブの使用状況とゲームが占める容量。
+Berechnet, wie viel Platz jedes Spiel belegt. || Calculates how much space each game uses. || 计算每个游戏占用多少空间。 || Calcula cuánto espacio ocupa cada juego. || Calcule l'espace occupé par chaque jeu. || Calcula quanto espaço cada jogo ocupa. || Рассчитывает, сколько места занимает каждая игра. || 各ゲームが使用している容量を計算します。
+Deine Spielzeit wird automatisch erfasst, sobald ein Spiel läuft. || Your playtime is tracked automatically as soon as a game is running. || 游戏一运行,你的游戏时间就会自动记录。 || Tu tiempo de juego se registra automáticamente en cuanto se ejecuta un juego. || Votre temps de jeu est enregistré automatiquement dès qu'un jeu est lancé. || Seu tempo de jogo é registrado automaticamente assim que um jogo é executado. || Время игры учитывается автоматически, как только запускается игра. || ゲームが起動するとすぐにプレイ時間が自動記録されます。
+Deine neuesten Screenshots aus Windows, Xbox Game Bar und Steam. || Your latest screenshots from Windows, Xbox Game Bar and Steam. || 来自 Windows、Xbox Game Bar 和 Steam 的最新截图。 || Tus capturas más recientes de Windows, Xbox Game Bar y Steam. || Vos dernières captures d'écran de Windows, de la Xbox Game Bar et de Steam. || Suas capturas de tela mais recentes do Windows, da Xbox Game Bar e da Steam. || Ваши последние скриншоты из Windows, Xbox Game Bar и Steam. || Windows、Xbox Game Bar、Steamの最新スクリーンショット。
+Deine wichtigsten Programme mit einem Klick. Bekannte Apps werden automatisch erkannt. || Your most important programs in one click. Well-known apps are detected automatically. || 一键打开你最重要的程序。常见应用会被自动识别。 || Tus programas más importantes con un clic. Las aplicaciones conocidas se detectan automáticamente. || Vos programmes les plus importants en un clic. Les applications connues sont détectées automatiquement. || Seus programas mais importantes com um clique. Aplicativos conhecidos são detectados automaticamente. || Ваши главные программы в один клик. Известные приложения определяются автоматически. || よく使うプログラムをワンクリックで。主要なアプリは自動的に検出されます。
+Der Spielmodus gibt Spielen Vorrang. Prüfe hier, ob er aktiv ist, und stelle die Grafikleistung pro Spiel ein. || Game Mode gives games priority. Check here whether it is active and set graphics performance per game. || 游戏模式会优先分配资源给游戏。可在此查看是否已启用,并为每个游戏设置显卡性能。 || El Modo de juego da prioridad a los juegos. Comprueba aquí si está activo y ajusta el rendimiento gráfico por juego. || Le mode Jeu donne la priorité aux jeux. Vérifiez ici s'il est actif et réglez les performances graphiques par jeu. || O Modo de Jogo dá prioridade aos jogos. Verifique aqui se está ativo e ajuste o desempenho gráfico por jogo. || Игровой режим отдаёт приоритет играм. Здесь можно проверить, включён ли он, и настроить производительность графики для каждой игры. || ゲームモードはゲームを優先します。ここで有効かどうかを確認し、ゲームごとにグラフィック性能を設定できます。
+Gratis-Spiele bei Epic Games und aktuelle Rabatte bei Steam. || Free games on Epic Games and current discounts on Steam. || Epic Games 的免费游戏以及 Steam 的当前折扣。 || Juegos gratis en Epic Games y descuentos actuales en Steam. || Jeux gratuits sur Epic Games et réductions actuelles sur Steam. || Jogos grátis na Epic Games e descontos atuais na Steam. || Бесплатные игры в Epic Games и текущие скидки в Steam. || Epic Gamesの無料ゲームとSteamの現在のセール。
+Höchstleistung bringt mehr FPS, braucht aber mehr Strom. || High performance gives more FPS but uses more power. || 高性能能带来更高的 FPS,但耗电更多。 || Alto rendimiento da más FPS, pero consume más energía. || Les hautes performances donnent plus de FPS mais consomment plus d'énergie. || Alto desempenho dá mais FPS, mas consome mais energia. || Высокая производительность даёт больше FPS, но потребляет больше энергии. || 高パフォーマンスはFPSが上がりますが、消費電力も増えます。
+Keine Apps erkannt. Füge deine Programme mit „App hinzufügen“ selbst hinzu. || No apps detected. Add your programs yourself with "Add app". || 未检测到应用。请使用“添加应用”自行添加程序。 || No se detectaron aplicaciones. Añade tus programas tú mismo con «Añadir app». || Aucune application détectée. Ajoutez vos programmes vous-même avec « Ajouter une app ». || Nenhum aplicativo detectado. Adicione seus programas com "Adicionar app". || Приложения не найдены. Добавьте свои программы кнопкой «Добавить приложение». || アプリが見つかりません。「アプリを追加」で自分で追加してください。
+Leert den Papierkorb aller Laufwerke und schafft sofort Platz. || Empties the recycle bin of all drives and frees up space immediately. || 清空所有驱动器的回收站,立即释放空间。 || Vacía la papelera de todas las unidades y libera espacio al instante. || Vide la corbeille de tous les lecteurs et libère immédiatement de l'espace. || Esvazia a lixeira de todas as unidades e libera espaço imediatamente. || Очищает корзину на всех дисках и сразу освобождает место. || すべてのドライブのごみ箱を空にして、すぐに容量を確保します。
+Live-Auslastung deines PCs, aktualisiert jede Sekunde. || Live usage of your PC, updated every second. || 你的电脑实时负载,每秒刷新一次。 || Uso en vivo de tu PC, actualizado cada segundo. || Utilisation en direct de votre PC, actualisée chaque seconde. || Uso em tempo real do seu PC, atualizado a cada segundo. || Текущая загрузка вашего ПК, обновляется каждую секунду. || PCのリアルタイム使用率(1秒ごとに更新)。
+Löscht Dateien im Temp-Ordner, die älter als 24 Stunden sind. Dateien in Benutzung werden übersprungen. || Deletes files in the temp folder that are older than 24 hours. Files in use are skipped. || 删除临时文件夹中超过 24 小时的文件。正在使用的文件会被跳过。 || Elimina los archivos de la carpeta temporal con más de 24 horas. Se omiten los archivos en uso. || Supprime les fichiers du dossier temporaire datant de plus de 24 heures. Les fichiers en cours d'utilisation sont ignorés. || Exclui arquivos da pasta temporária com mais de 24 horas. Arquivos em uso são ignorados. || Удаляет файлы во временной папке старше 24 часов. Файлы, которые используются, пропускаются. || 一時フォルダー内の24時間以上前のファイルを削除します。使用中のファイルはスキップされます。
+Mehr Leistung und Platz für deine Spiele. || More performance and space for your games. || 为你的游戏提供更多性能和空间。 || Más rendimiento y espacio para tus juegos. || Plus de performances et d'espace pour vos jeux. || Mais desempenho e espaço para seus jogos. || Больше производительности и места для ваших игр. || ゲームのためのパフォーマンスと空き容量を増やします。
+Noch keine Spielzeit erfasst. Starte ein Spiel, der Launcher misst die Zeit automatisch. || No playtime recorded yet. Start a game and the launcher measures the time automatically. || 尚未记录游戏时间。启动游戏后,启动器会自动计时。 || Aún no hay tiempo de juego registrado. Inicia un juego y el launcher medirá el tiempo automáticamente. || Aucun temps de jeu enregistré pour l'instant. Lancez un jeu et le launcher mesure le temps automatiquement. || Nenhum tempo de jogo registrado ainda. Inicie um jogo e o launcher mede o tempo automaticamente. || Время игры пока не учтено. Запустите игру, и лаунчер сам засечёт время. || まだプレイ時間が記録されていません。ゲームを起動すると、ランチャーが自動で計測します。
+Nützliche Windows-Werkzeuge für Gamer, immer griffbereit. || Useful Windows tools for gamers, always at hand. || 为玩家准备的实用 Windows 工具,随手可用。 || Herramientas útiles de Windows para jugadores, siempre a mano. || Des outils Windows utiles pour les joueurs, toujours à portée de main. || Ferramentas úteis do Windows para jogadores, sempre à mão. || Полезные инструменты Windows для геймеров всегда под рукой. || ゲーマー向けの便利なWindowsツールをいつでもすぐに。
+Passe den Launcher an dich an. || Customize the launcher to your liking. || 按你的喜好自定义启动器。 || Personaliza el launcher a tu gusto. || Personnalisez le launcher à votre goût. || Personalize o launcher ao seu gosto. || Настройте лаунчер под себя. || ランチャーを好みに合わせてカスタマイズ。
+Stores, Treiber und deine zuletzt heruntergeladenen Dateien. || Stores, drivers and your most recently downloaded files. || 商店、驱动程序和你最近下载的文件。 || Tiendas, controladores y tus archivos descargados recientemente. || Boutiques, pilotes et vos fichiers téléchargés récemment. || Lojas, drivers e seus arquivos baixados recentemente. || Магазины, драйверы и ваши недавно загруженные файлы. || ストア、ドライバー、最近ダウンロードしたファイル。
+Teste deine Verbindung zu Router, DNS und Spiele-Diensten. || Test your connection to your router, DNS and gaming services. || 测试你到路由器、DNS 和游戏服务的连接。 || Prueba tu conexión con el router, el DNS y los servicios de juegos. || Testez votre connexion au routeur, au DNS et aux services de jeu. || Teste sua conexão com o roteador, o DNS e os serviços de jogos. || Проверьте соединение с роутером, DNS и игровыми сервисами. || ルーター、DNS、ゲームサービスへの接続をテストします。
+Ziehe Spiele zwischen den Spalten. Doppelklick startet ein Spiel. Mit ＋ fügst du mehrere auf einmal hinzu. || Drag games between the columns. Double-click starts a game. Use ＋ to add several at once. || 在各列之间拖动游戏。双击可启动游戏。用 ＋ 可一次添加多个。 || Arrastra juegos entre las columnas. Doble clic inicia un juego. Con ＋ añades varios a la vez. || Faites glisser les jeux entre les colonnes. Un double-clic lance un jeu. Avec ＋, vous en ajoutez plusieurs à la fois. || Arraste jogos entre as colunas. Clique duas vezes para iniciar um jogo. Com ＋ você adiciona vários de uma vez. || Перетаскивайте игры между столбцами. Двойной щелчок запускает игру. Кнопкой ＋ можно добавить сразу несколько. || 列の間でゲームをドラッグします。ダブルクリックで起動します。＋で複数を一度に追加できます。
+
+# ───────── Meldungen (Englisch) ─────────
+Spiele neu scannen || Rescan games || 重新扫描游戏 || Volver a escanear juegos || Réanalyser les jeux || Examinar jogos novamente || Сканировать игры заново || ゲームを再スキャン
+Spiele-Scan abgeschlossen!\n{#0} Spiele gefunden. || Scan complete!\n{0} games found. || 游戏扫描完成!\n找到 {0} 个游戏。 || ¡Escaneo completado!\nSe encontraron {0} juegos. || Analyse terminée !\n{0} jeux trouvés. || Busca concluída!\n{0} jogos encontrados. || Сканирование завершено!\nНайдено игр: {0}. || スキャン完了!\n{0}個のゲームが見つかりました。
+Es wurden noch keine Spiele gefunden. || No games have been found yet. || 还没有找到任何游戏。 || Todavía no se ha encontrado ningún juego. || Aucun jeu n'a encore été trouvé. || Nenhum jogo foi encontrado ainda. || Игры пока не найдены. || まだゲームが見つかっていません。
+Wie wäre es mit „{0}“?\n\nJetzt starten? || How about "{0}"?\n\nStart it now? || 来玩“{0}”怎么样?\n\n现在启动吗? || ¿Qué tal «{0}»?\n\n¿Iniciarlo ahora? || Et si on jouait à « {0} » ?\n\nLe lancer maintenant ? || Que tal "{0}"?\n\nIniciar agora? || Как насчёт «{0}»?\n\nЗапустить сейчас? || 「{0}」はいかがですか?\n\n今すぐ起動しますか?
+„{0}“ wirklich deinstallieren?\n\nDas Spiel wird von deinem PC entfernt. || Really uninstall "{0}"?\n\nThe game will be removed from your PC. || 确定要卸载“{0}”吗?\n\n该游戏将从你的电脑中删除。 || ¿Seguro que quieres desinstalar «{0}»?\n\nEl juego se eliminará de tu PC. || Désinstaller vraiment « {0} » ?\n\nLe jeu sera supprimé de votre PC. || Deseja mesmo desinstalar "{0}"?\n\nO jogo será removido do seu PC. || Действительно удалить «{0}»?\n\nИгра будет удалена с вашего ПК. || 「{0}」を本当にアンインストールしますか?\n\nゲームはPCから削除されます。
+„{0}“ wurde deinstalliert. || "{0}" has been uninstalled. || “{0}”已卸载。 || «{0}» se ha desinstalado. || « {0} » a été désinstallé. || "{0}" foi desinstalado. || «{0}» удалена. || 「{0}」をアンインストールしました。
+Steam öffnet jetzt die Deinstallation.\nKlicke danach auf „Neu scannen“, um die Liste zu aktualisieren. || Steam is opening the uninstall dialog now.\nAfterwards click "Rescan" to refresh the list. || Steam 正在打开卸载窗口。\n之后请点击“重新扫描”以刷新列表。 || Steam está abriendo la desinstalación.\nDespués pulsa «Volver a escanear» para actualizar la lista. || Steam ouvre maintenant la désinstallation.\nEnsuite, cliquez sur « Réanalyser » pour actualiser la liste. || A Steam está abrindo a desinstalação.\nDepois clique em "Buscar novamente" para atualizar a lista. || Steam открывает окно удаления.\nПосле этого нажмите «Повторное сканирование», чтобы обновить список. || Steamがアンインストールを開きます。\nその後「再スキャン」をクリックして一覧を更新してください。
+Das Deinstallationsprogramm wurde gestartet.\nKlicke danach auf „Neu scannen“, um die Liste zu aktualisieren. || The uninstaller has been started.\nAfterwards click "Rescan" to refresh the list. || 卸载程序已启动。\n之后请点击“重新扫描”以刷新列表。 || Se ha iniciado el desinstalador.\nDespués pulsa «Volver a escanear» para actualizar la lista. || Le programme de désinstallation a été lancé.\nEnsuite, cliquez sur « Réanalyser » pour actualiser la liste. || O desinstalador foi iniciado.\nDepois clique em "Buscar novamente" para atualizar a lista. || Программа удаления запущена.\nПосле этого нажмите «Повторное сканирование», чтобы обновить список. || アンインストーラーを起動しました。\nその後「再スキャン」をクリックして一覧を更新してください。
+Epic Games erlaubt keine Deinstallation von außen.\nDer Epic Games Launcher wurde geöffnet: Bibliothek → Spiel → ⋯ → Deinstallieren. || Epic Games does not allow uninstalling from outside.\nThe Epic Games Launcher was opened: Library → game → ⋯ → Uninstall. || Epic Games 不允许从外部卸载。\n已打开 Epic Games 启动器:库 → 游戏 → ⋯ → 卸载。 || Epic Games no permite desinstalar desde fuera.\nSe abrió el Epic Games Launcher: Biblioteca → juego → ⋯ → Desinstalar. || Epic Games n'autorise pas la désinstallation depuis l'extérieur.\nL'Epic Games Launcher a été ouvert : Bibliothèque → jeu → ⋯ → Désinstaller. || A Epic Games não permite desinstalar por fora.\nO Epic Games Launcher foi aberto: Biblioteca → jogo → ⋯ → Desinstalar. || Epic Games не позволяет удалять игры извне.\nОткрыт Epic Games Launcher: Библиотека → игра → ⋯ → Удалить. || Epic Gamesは外部からのアンインストールを許可していません。\nEpic Games Launcherを開きました:ライブラリ → ゲーム → ⋯ → アンインストール。
+Die automatische Deinstallation hat nicht funktioniert.\nWindows öffnet jetzt die App-Verwaltung. || Automatic uninstall did not work.\nWindows is now opening the app settings. || 自动卸载失败。\nWindows 现在将打开应用管理。 || La desinstalación automática no funcionó.\nWindows abrirá ahora la gestión de aplicaciones. || La désinstallation automatique n'a pas fonctionné.\nWindows ouvre maintenant la gestion des applications. || A desinstalação automática não funcionou.\nO Windows abrirá agora o gerenciador de aplicativos. || Автоматическое удаление не удалось.\nWindows открывает управление приложениями. || 自動アンインストールに失敗しました。\nWindowsのアプリ管理を開きます。
+Für dieses Spiel wurde kein Deinstallationsprogramm gefunden.\nWindows öffnet jetzt die App-Verwaltung. || No uninstaller was found for this game.\nWindows is now opening the app settings. || 未找到该游戏的卸载程序。\nWindows 现在将打开应用管理。 || No se encontró un desinstalador para este juego.\nWindows abrirá ahora la gestión de aplicaciones. || Aucun programme de désinstallation n'a été trouvé pour ce jeu.\nWindows ouvre maintenant la gestion des applications. || Nenhum desinstalador foi encontrado para este jogo.\nO Windows abrirá agora o gerenciador de aplicativos. || Для этой игры не найдена программа удаления.\nWindows открывает управление приложениями. || このゲームのアンインストーラーが見つかりませんでした。\nWindowsのアプリ管理を開きます。
+Dieses Spiel ist bereits in der Liste. || This game is already in the list. || 该游戏已在列表中。 || Este juego ya está en la lista. || Ce jeu est déjà dans la liste. || Este jogo já está na lista. || Эта игра уже есть в списке. || このゲームはすでにリストにあります。
+Diese App ist bereits in der Liste. || This app is already in the list. || 该应用已在列表中。 || Esta app ya está en la lista. || Cette application est déjà dans la liste. || Este aplicativo já está na lista. || Это приложение уже есть в списке. || このアプリはすでにリストにあります。
+Die Datei wurde nicht gefunden:\n{0} || The file was not found:\n{0} || 未找到文件:\n{0} || No se encontró el archivo:\n{0} || Le fichier est introuvable :\n{0} || O arquivo não foi encontrado:\n{0} || Файл не найден:\n{0} || ファイルが見つかりません:\n{0}
+Spiel konnte nicht gestartet werden:\n{0} || The game could not be started:\n{0} || 无法启动游戏:\n{0} || No se pudo iniciar el juego:\n{0} || Impossible de lancer le jeu :\n{0} || Não foi possível iniciar o jogo:\n{0} || Не удалось запустить игру:\n{0} || ゲームを起動できませんでした:\n{0}
+App konnte nicht gestartet werden:\n{0} || The app could not be started:\n{0} || 无法启动应用:\n{0} || No se pudo iniciar la app:\n{0} || Impossible de lancer l'application :\n{0} || Não foi possível iniciar o aplicativo:\n{0} || Не удалось запустить приложение:\n{0} || アプリを起動できませんでした:\n{0}
+Konnte nicht geöffnet werden:\n{0} || Could not be opened:\n{0} || 无法打开:\n{0} || No se pudo abrir:\n{0} || Impossible d'ouvrir :\n{0} || Não foi possível abrir:\n{0} || Не удалось открыть:\n{0} || 開けませんでした:\n{0}
+Name erfolgreich gespeichert! || Name saved successfully! || 名称已成功保存! || ¡Nombre guardado correctamente! || Nom enregistré avec succès ! || Nome salvo com sucesso! || Имя успешно сохранено! || 名前を保存しました!
+Der Papierkorb wurde geleert. || The recycle bin has been emptied. || 回收站已清空。 || Se vació la papelera. || La corbeille a été vidée. || A lixeira foi esvaziada. || Корзина очищена. || ごみ箱を空にしました。
+Der Papierkorb ist bereits leer. || The recycle bin is already empty. || 回收站已经是空的。 || La papelera ya está vacía. || La corbeille est déjà vide. || A lixeira já está vazia. || Корзина уже пуста. || ごみ箱はすでに空です。
+Papierkorb wirklich endgültig leeren? || Really empty the recycle bin permanently? || 确定要永久清空回收站吗? || ¿Vaciar la papelera definitivamente? || Vider définitivement la corbeille ? || Esvaziar a lixeira definitivamente? || Очистить корзину без возможности восстановления? || ごみ箱を完全に空にしますか?
+Temporäre Dateien (älter als 24 Stunden) aus dem Temp-Ordner löschen? || Delete temporary files (older than 24 hours) from the temp folder? || 删除临时文件夹中超过 24 小时的临时文件吗? || ¿Eliminar los archivos temporales (de más de 24 horas) de la carpeta temporal? || Supprimer les fichiers temporaires (de plus de 24 heures) du dossier temporaire ? || Excluir arquivos temporários (com mais de 24 horas) da pasta temporária? || Удалить временные файлы (старше 24 часов) из временной папки? || 一時フォルダー内の一時ファイル(24時間以上前)を削除しますか?
+{#0} Dateien gelöscht – {0} freigegeben. || {0} files deleted – {1} freed. || 已删除 {0} 个文件,释放 {1}。 || {0} archivos eliminados: {1} liberados. || {0} fichiers supprimés – {1} libérés. || {0} arquivos excluídos – {1} liberados. || Удалено файлов: {0} — освобождено {1}. || {0}個のファイルを削除しました({1}を解放)。
+Dieser Energiesparplan ist auf deinem PC nicht verfügbar. || This power plan is not available on your PC. || 此电源计划在你的电脑上不可用。 || Este plan de energía no está disponible en tu PC. || Ce mode d'alimentation n'est pas disponible sur votre PC. || Este plano de energia não está disponível no seu PC. || Эта схема питания недоступна на вашем ПК. || この電源プランはお使いのPCでは利用できません。
+Die Einstellungen wurden gesichert. || The settings have been backed up. || 设置已备份。 || Se hizo una copia de los ajustes. || Les paramètres ont été sauvegardés. || As configurações foram salvas em backup. || Резервная копия настроек создана. || 設定をバックアップしました。
+Die Einstellungen wurden geladen.\nBitte starte den Launcher neu, damit alles übernommen wird. || The settings have been loaded.\nPlease restart the launcher so everything takes effect. || 设置已载入。\n请重启启动器以使所有更改生效。 || Se cargaron los ajustes.\nReinicia el launcher para que todo surta efecto. || Les paramètres ont été chargés.\nRedémarrez le launcher pour tout appliquer. || As configurações foram carregadas.\nReinicie o launcher para que tudo entre em vigor. || Настройки загружены.\nПерезапустите лаунчер, чтобы всё вступило в силу. || 設定を読み込みました。\n反映するにはランチャーを再起動してください。
+Das Logo wurde als Symbol gespeichert. || The logo was saved as an icon. || 标志已保存为图标。 || El logotipo se guardó como icono. || Le logo a été enregistré comme icône. || O logotipo foi salvo como ícone. || Логотип сохранён как значок. || ロゴをアイコンとして保存しました。
+Die Verknüpfung mit deinem Logo wurde auf dem Desktop erstellt. || The shortcut with your logo was created on the desktop. || 带有你标志的快捷方式已创建在桌面上。 || Se creó en el escritorio el acceso directo con tu logotipo. || Le raccourci avec votre logo a été créé sur le bureau. || O atalho com o seu logotipo foi criado na área de trabalho. || Ярлык с вашим логотипом создан на рабочем столе. || ロゴ付きのショートカットをデスクトップに作成しました。
+Verlauf (Zuletzt gespielt, Startzähler und Spielzeit) wirklich zurücksetzen?\nFavoriten, Bewertungen und Notizen bleiben erhalten. || Really reset the history (recently played, launch counter and playtime)?\nFavorites, ratings and notes are kept. || 确定要重置历史记录(最近玩过、启动次数和游戏时间)吗?\n收藏、评分和笔记会保留。 || ¿Restablecer realmente el historial (jugados recientemente, contador de inicios y tiempo de juego)?\nSe conservan favoritos, valoraciones y notas. || Réinitialiser vraiment l'historique (joués récemment, compteur de lancements et temps de jeu) ?\nLes favoris, notes et remarques sont conservés. || Deseja mesmo redefinir o histórico (jogados recentemente, contador de inícios e tempo de jogo)?\nFavoritos, avaliações e anotações são mantidos. || Действительно сбросить историю (недавние игры, счётчик запусков и время игры)?\nИзбранное, оценки и заметки сохранятся. || 履歴(最近プレイ、起動回数、プレイ時間)を本当にリセットしますか?\nお気に入り、評価、メモは残ります。
+Alle gespeicherten Cover löschen und neu herunterladen? || Delete all saved covers and download them again? || 删除所有已保存的封面并重新下载吗? || ¿Eliminar todas las portadas guardadas y descargarlas de nuevo? || Supprimer toutes les jaquettes enregistrées et les télécharger à nouveau ? || Excluir todas as capas salvas e baixá-las novamente? || Удалить все сохранённые обложки и скачать их заново? || 保存済みのカバーをすべて削除して再ダウンロードしますか?
+Das Datum konnte nicht gelesen werden. Bitte im Format TT.MM.JJJJ eingeben. || The date could not be read. Please enter it as DD.MM.YYYY. || 无法识别日期。请按 DD.MM.YYYY 格式输入。 || No se pudo leer la fecha. Introdúcela con el formato DD.MM.AAAA. || La date n'a pas pu être lue. Saisissez-la au format JJ.MM.AAAA. || Não foi possível ler a data. Digite no formato DD.MM.AAAA. || Не удалось распознать дату. Введите её в формате ДД.ММ.ГГГГ. || 日付を読み取れませんでした。DD.MM.YYYY の形式で入力してください。
+Datum im Format TT.MM.JJJJ: || Date in the format DD.MM.YYYY: || 日期(格式 DD.MM.YYYY): || Fecha en formato DD.MM.AAAA: || Date au format JJ.MM.AAAA : || Data no formato DD.MM.AAAA: || Дата в формате ДД.ММ.ГГГГ: || 日付(DD.MM.YYYY 形式):
+Name des kommenden Spiels: || Name of the upcoming game: || 即将发行游戏的名称: || Nombre del próximo juego: || Nom du prochain jeu : || Nome do próximo jogo: || Название будущей игры: || 発売予定のゲーム名:
+Name der Sammlung (zum Beispiel „Backlog“ oder „Koop“): || Name of the collection (for example "Backlog" or "Co-op"): || 收藏集名称(例如“待玩”或“合作”): || Nombre de la colección (por ejemplo «Pendientes» o «Cooperativo»): || Nom de la collection (par exemple « À jouer » ou « Coop ») : || Nome da coleção (por exemplo "Backlog" ou "Coop"): || Название коллекции (например, «Бэклог» или «Кооператив»): || コレクション名(例:「積みゲー」「協力プレイ」):
+Die Sammlung „{0}“ löschen?\nDie Spiele selbst bleiben erhalten. || Delete the collection "{0}"?\nThe games themselves are kept. || 删除收藏集“{0}”吗?\n游戏本身会保留。 || ¿Eliminar la colección «{0}»?\nLos juegos se conservan. || Supprimer la collection « {0} » ?\nLes jeux eux-mêmes sont conservés. || Excluir a coleção "{0}"?\nOs jogos em si são mantidos. || Удалить коллекцию «{0}»?\nСами игры останутся. || コレクション「{0}」を削除しますか?\nゲーム自体は残ります。
+Wähle die Spiele aus, die in diese Spalte sollen. || Choose the games that should go into this column. || 选择要放入此列的游戏。 || Elige los juegos que irán en esta columna. || Choisissez les jeux à placer dans cette colonne. || Escolha os jogos que vão nesta coluna. || Выберите игры для этого столбца. || この列に入れるゲームを選んでください。
+Wähle eine Sicherung von „{0}“. Der aktuelle Stand wird vorher automatisch gesichert. || Choose a backup of "{0}". The current state is backed up automatically first. || 选择“{0}”的一个备份。当前状态会先自动备份。 || Elige una copia de «{0}». El estado actual se guarda automáticamente antes. || Choisissez une sauvegarde de « {0} ». L'état actuel est d'abord sauvegardé automatiquement. || Escolha um backup de "{0}". O estado atual é salvo automaticamente antes. || Выберите резервную копию «{0}». Текущее состояние предварительно сохраняется автоматически. || 「{0}」のバックアップを選択してください。現在の状態は事前に自動で保存されます。
+Es gibt noch keine Sicherungen für dieses Spiel. || There are no backups for this game yet. || 该游戏还没有备份。 || Todavía no hay copias de este juego. || Il n'existe pas encore de sauvegarde pour ce jeu. || Ainda não há backups deste jogo. || Для этой игры пока нет резервных копий. || このゲームのバックアップはまだありません。
+Lege zuerst den Spielstand-Ordner fest (Rechtsklick, dann „Spielstände“). || Set the save folder first (right-click, then "Game saves"). || 请先设置存档文件夹(右键 → “存档”)。 || Define primero la carpeta de partidas (clic derecho y «Partidas guardadas»). || Définissez d'abord le dossier de sauvegarde (clic droit, puis « Sauvegardes »). || Defina primeiro a pasta de saves (botão direito, depois "Saves"). || Сначала укажите папку сохранений (правый щелчок, затем «Сохранения»). || 先にセーブフォルダーを設定してください(右クリック →「セーブデータ」)。
+Die Sicherung ist fehlgeschlagen. Läuft das Spiel noch oder ist der Ordner leer? || The backup failed. Is the game still running or is the folder empty? || 备份失败。游戏是否仍在运行,或文件夹为空? || La copia falló. ¿Sigue el juego en ejecución o la carpeta está vacía? || La sauvegarde a échoué. Le jeu est-il encore lancé ou le dossier est-il vide ? || O backup falhou. O jogo ainda está em execução ou a pasta está vazia? || Не удалось создать копию. Игра ещё запущена или папка пуста? || バックアップに失敗しました。ゲームがまだ実行中か、フォルダーが空ではありませんか?
+Mögliche Spielstände gefunden:\n{0}\n\nDiesen Ordner verwenden? || Possible saves found:\n{0}\n\nUse this folder? || 找到可能的存档:\n{0}\n\n使用此文件夹吗? || Posibles partidas guardadas encontradas:\n{0}\n\n¿Usar esta carpeta? || Sauvegardes possibles trouvées :\n{0}\n\nUtiliser ce dossier ? || Possíveis saves encontrados:\n{0}\n\nUsar esta pasta? || Найдены возможные сохранения:\n{0}\n\nИспользовать эту папку? || セーブデータの候補が見つかりました:\n{0}\n\nこのフォルダーを使用しますか?
+Spielstand gesichert || Game save backed up || 存档已备份 || Copia de la partida realizada || Sauvegarde créée || Backup do save feito || Резервная копия сохранения создана || セーブデータをバックアップしました
+Spielstand wiederhergestellt || Game save restored || 存档已恢复 || Partida restaurada || Sauvegarde restaurée || Save restaurado || Сохранение восстановлено || セーブデータを復元しました
+Spiel hinzugefügt || Game added || 已添加游戏 || Juego añadido || Jeu ajouté || Jogo adicionado || Игра добавлена || ゲームを追加しました
+{#0} Spiele hinzugefügt || {0} games added || 已添加 {0} 个游戏 || {0} juegos añadidos || {0} jeux ajoutés || {0} jogos adicionados || Добавлено игр: {0} || {0}個のゲームを追加しました
+Nichts hinzugefügt || Nothing added || 未添加任何内容 || No se añadió nada || Rien n'a été ajouté || Nada foi adicionado || Ничего не добавлено || 何も追加されませんでした
+Ziehe .exe-Dateien oder Verknüpfungen (.lnk) auf das Fenster. || Drop .exe files or shortcuts (.lnk) onto the window. || 将 .exe 文件或快捷方式(.lnk)拖到窗口上。 || Suelta archivos .exe o accesos directos (.lnk) sobre la ventana. || Déposez des fichiers .exe ou des raccourcis (.lnk) sur la fenêtre. || Solte arquivos .exe ou atalhos (.lnk) sobre a janela. || Перетащите на окно файлы .exe или ярлыки (.lnk). || .exeファイルやショートカット(.lnk)をウィンドウにドロップしてください。
+Der Launcher läuft im Hintergrund weiter. Doppelklick auf das Symbol öffnet ihn wieder. || The launcher keeps running in the background. Double-click the icon to open it again. || 启动器仍在后台运行。双击图标可再次打开。 || El launcher sigue en segundo plano. Haz doble clic en el icono para abrirlo de nuevo. || Le launcher continue de tourner en arrière-plan. Double-cliquez sur l'icône pour le rouvrir. || O launcher continua em segundo plano. Clique duas vezes no ícone para abri-lo novamente. || Лаунчер продолжает работать в фоне. Дважды щёлкните значок, чтобы открыть его снова. || ランチャーはバックグラウンドで動作を続けます。アイコンをダブルクリックすると再び開きます。
+Erfolg freigeschaltet: {0} || Achievement unlocked: {0} || 成就已解锁:{0} || Logro desbloqueado: {0} || Succès débloqué : {0} || Conquista desbloqueada: {0} || Достижение получено: {0} || 実績を解除:{0}
+Pause? || Break? || 休息一下？ || ¿Descanso? || Pause ? || Pausa? || Перерыв? || 休憩しますか？
+⏰ Zeit für eine Pause! || ⏰ Time for a break! || ⏰ 该休息一下了！ || ⏰ ¡Hora de descansar! || ⏰ C'est l'heure de la pause ! || ⏰ Hora de uma pausa! || ⏰ Пора сделать перерыв! || ⏰ 休憩の時間です！
+Für dieses Jahr gibt es noch keine Spieldaten. Der Launcher erfasst die Spielzeit automatisch, sobald ein Spiel läuft. || There is no gaming data for this year yet. The launcher tracks playtime automatically while a game is running. || 今年还没有游戏数据。游戏运行时,启动器会自动记录游戏时间。 || Este año aún no hay datos de juego. El launcher registra el tiempo automáticamente mientras se ejecuta un juego. || Il n'y a pas encore de données de jeu pour cette année. Le launcher enregistre le temps automatiquement pendant qu'un jeu est lancé. || Ainda não há dados de jogo deste ano. O launcher registra o tempo automaticamente enquanto um jogo está em execução. || За этот год данных об играх пока нет. Лаунчер сам учитывает время, пока запущена игра. || 今年のプレイデータはまだありません。ゲーム実行中はランチャーが自動でプレイ時間を記録します。
+Dein Spielejahr {#0} || Your gaming year {0} || 你的 {0} 游戏年度回顾 || Tu año de juegos {0} || Ton année de jeu {0} || Seu ano de jogos {0} || Ваш игровой год {0} || {0}年のゲーム年間レポート
+Gesamte Spielzeit || Total playtime || 总游戏时长 || Tiempo total de juego || Temps de jeu total || Tempo total de jogo || Общее время в играх || 総プレイ時間
+Tage mit Spielzeit || Days with playtime || 有游戏时间的天数 || Días con tiempo de juego || Jours de jeu || Dias com tempo de jogo || Дней с играми || プレイした日数
+Längste Serie || Longest streak || 最长连续天数 || Racha más larga || Plus longue série || Maior sequência || Самая длинная серия || 最長連続日数
+Lieblings-Wochentag || Favorite weekday || 最爱的星期 || Día favorito de la semana || Jour préféré || Dia da semana favorito || Любимый день недели || お気に入りの曜日
+Längster Spieltag || Longest play day || 游戏时间最长的一天 || Día de más juego || Plus long jour de jeu || Dia com mais jogo || Самый долгий игровой день || 最長プレイ日
+Meistgespielt (insgesamt) || Most played (overall) || 最常玩（总计） || Más jugados (en total) || Les plus joués (au total) || Mais jogados (no total) || Больше всего играл (всего) || よくプレイ（累計）
+{#0} Tage || {0} days || {0} 天 || {0} días || {0} jours || {0} dias || {0} дн. || {0} 日
+Geschafft! {0} von {#1} Std. in den letzten 7 Tagen. || Done! {0} of {1} h in the last 7 days. || 达成!最近 7 天 {0} / {1} 小时。 || ¡Conseguido! {0} de {1} h en los últimos 7 días. || Objectif atteint ! {0} sur {1} h au cours des 7 derniers jours. || Conseguiu! {0} de {1} h nos últimos 7 dias. || Готово! {0} из {1} ч за последние 7 дней. || 達成!過去7日間で {0} / {1} 時間。
+{0} von {#1} Std. in den letzten 7 Tagen. || {0} of {1} h in the last 7 days. || 最近 7 天 {0} / {1} 小时。 || {0} de {1} h en los últimos 7 días. || {0} sur {1} h au cours des 7 derniers jours. || {0} de {1} h nos últimos 7 dias. || {0} из {1} ч за последние 7 дней. || 過去7日間で {0} / {1} 時間。
+Heute erscheint: {0} || Releasing today: {0} || 今日发售:{0} || Sale hoy: {0} || Sortie aujourd'hui : {0} || Lança hoje: {0} || Выходит сегодня: {0} || 本日発売:{0}
+Planer öffnen || Open planner || 打开计划表 || Abrir planificador || Ouvrir le planificateur || Abrir planejador || Открыть планировщик || プランナーを開く
+Speicher ansehen || View storage || 查看存储空间 || Ver almacenamiento || Voir le stockage || Ver armazenamento || Открыть хранилище || ストレージを表示
+Auf {0} sind nur noch {1} GB frei ({2} %). || Only {1} GB left on {0} ({2} %). || {0} 上仅剩 {1} GB 可用空间({2} %)。 || En {0} solo quedan {1} GB libres ({2} %). || Il ne reste que {1} Go sur {0} ({2} %). || Em {0} restam apenas {1} GB livres ({2} %). || На {0} осталось только {1} ГБ ({2} %). || {0} の空き容量は残り {1} GB({2} %)です。
+Ansehen || View || 查看 || Ver || Voir || Ver || Открыть || 表示
+Gratis bei Epic Games: {0} || Free on Epic Games: {0} || Epic Games 免费:{0} || Gratis en Epic Games: {0} || Gratuit sur Epic Games : {0} || Grátis na Epic Games: {0} || Бесплатно в Epic Games: {0} || Epic Gamesで無料:{0}
+Gratis bis {0} Uhr || Free until {0} || 免费至 {0} || Gratis hasta las {0} || Gratuit jusqu'au {0} || Grátis até {0} || Бесплатно до {0} || {0}まで無料
+Ab {0} Uhr gratis || Free from {0} || 自 {0} 起免费 || Gratis desde las {0} || Gratuit à partir du {0} || Grátis a partir de {0} || Бесплатно с {0} || {0}から無料
+Bald gratis || Free soon || 即将免费 || Pronto gratis || Bientôt gratuit || Grátis em breve || Скоро бесплатно || まもなく無料
+Angebote werden geladen ... || Loading deals ... || 正在加载优惠 ... || Cargando ofertas ... || Chargement des offres ... || Carregando ofertas ... || Загрузка предложений ... || セールを読み込み中 ...
+Keine Angebote geladen. Prüfe deine Internetverbindung. || No deals loaded. Check your internet connection. || 未加载到优惠。请检查你的网络连接。 || No se cargaron ofertas. Comprueba tu conexión a internet. || Aucune offre chargée. Vérifiez votre connexion internet. || Nenhuma oferta carregada. Verifique sua conexão com a internet. || Предложения не загружены. Проверьте подключение к интернету. || セールを読み込めませんでした。インターネット接続を確認してください。
+Stand: {0} Uhr || As of {0} || 更新于 {0} || Actualizado a las {0} || Mise à jour à {0} || Atualizado às {0} || Обновлено в {0} || {0}時点
+Online-Funktionen sind in den Einstellungen deaktiviert. || Online features are turned off in the settings. || 在线功能已在设置中关闭。 || Las funciones en línea están desactivadas en los ajustes. || Les fonctions en ligne sont désactivées dans les paramètres. || Os recursos online estão desativados nas configurações. || Онлайн-функции отключены в настройках. || オンライン機能は設定でオフになっています。
+Screenshots werden gesucht ... || Searching for screenshots ... || 正在搜索截图 ... || Buscando capturas ... || Recherche des captures ... || Procurando capturas ... || Поиск скриншотов ... || スクリーンショットを検索中 ...
+Teste die Verbindung ... || Testing the connection ... || 正在测试连接 ... || Probando la conexión ... || Test de la connexion ... || Testando a conexão ... || Проверка соединения ... || 接続をテスト中 ...
+Getestet um {0} Uhr. Unter 40 ms ist sehr gut, über 100 ms spürbar langsam. || Tested at {0}. Under 40 ms is very good, over 100 ms feels noticeably slow. || 测试时间 {0}。低于 40 毫秒非常好,超过 100 毫秒会明显卡顿。 || Probado a las {0}. Menos de 40 ms es muy bueno, más de 100 ms se nota lento. || Testé à {0}. Moins de 40 ms est très bien, plus de 100 ms est nettement lent. || Testado às {0}. Abaixo de 40 ms é muito bom; acima de 100 ms fica perceptivelmente lento. || Проверено в {0}. Менее 40 мс — отлично, более 100 мс — заметно медленно. || {0}にテスト。40ms未満なら非常に良好、100ms超だと明らかに遅く感じます。
+Berechne ... das kann bei vielen Spielen einen Moment dauern. || Calculating ... this may take a moment with many games. || 正在计算 ... 游戏很多时可能需要一点时间。 || Calculando ... con muchos juegos puede tardar un momento. || Calcul en cours ... cela peut prendre un moment avec beaucoup de jeux. || Calculando ... com muitos jogos isso pode levar um momento. || Расчёт ... при большом числе игр может занять некоторое время. || 計算中 ... ゲームが多いと少し時間がかかります。
+Keine installierten Spiele gefunden. || No installed games found. || 未找到已安装的游戏。 || No se encontraron juegos instalados. || Aucun jeu installé trouvé. || Nenhum jogo instalado encontrado. || Установленные игры не найдены. || インストール済みのゲームが見つかりません。
+Zuletzt ausgelesen um {0} Uhr || Last read at {0} || 上次读取时间 {0} || Última lectura a las {0} || Dernière lecture à {0} || Última leitura às {0} || Последнее считывание в {0} || 最終読み取り:{0}
+Bibliothek aktualisieren || Update library || 更新游戏库 || Actualizar biblioteca || Actualiser la bibliothèque || Atualizar biblioteca || Обновить библиотеку || ライブラリを更新
+Lass den Launcher entscheiden || Let the launcher decide || 交给启动器决定 || Que decida el launcher || Laisser le launcher décider || Deixar o launcher decidir || Пусть решает лаунчер || ランチャーに任せる
+Vollbild mit Gamepad-Steuerung || Fullscreen with gamepad control || 全屏手柄操作 || Pantalla completa con control por mando || Plein écran avec contrôle à la manette || Tela cheia com controle por gamepad || Полноэкранный режим с управлением геймпадом || ゲームパッド操作のフルスクリーン
+Vollbild mit Gamepad-Steuerung (F11) || Fullscreen with gamepad control (F11) || 全屏手柄操作(F11) || Pantalla completa con control por mando (F11) || Plein écran avec contrôle à la manette (F11) || Tela cheia com controle por gamepad (F11) || Полноэкранный режим с управлением геймпадом (F11) || ゲームパッド操作のフルスクリーン(F11)
+Keine Grafikkarte erkannt || No graphics card detected || 未检测到显卡 || No se detectó ninguna tarjeta gráfica || Aucune carte graphique détectée || Nenhuma placa de vídeo detectada || Видеокарта не обнаружена || グラフィックカードが見つかりません
+Bereich öffnen || Open section || 打开栏目 || Abrir sección || Ouvrir la section || Abrir seção || Открыть раздел || セクションを開く
+Anwendung || Application || 应用程序 || Aplicación || Application || Aplicativo || Приложение || アプリケーション
+Spiel || Game || 游戏 || Juego || Jeu || Jogo || Игра || ゲーム
+
+# ───────── Erfolge ─────────
+Erster Start || First launch || 首次启动 || Primer inicio || Premier lancement || Primeiro início || Первый запуск || 初回起動
+Starthelfer || Launch helper || 启动达人 || Ayudante de inicio || Assistant de lancement || Ajudante de início || Помощник запуска || 起動マスター
+Sammler || Collector || 收藏家 || Coleccionista || Collectionneur || Colecionador || Коллекционер || コレクター
+Großsammler || Big collector || 大收藏家 || Gran coleccionista || Grand collectionneur || Grande colecionador || Крупный коллекционер || 大コレクター
+Bibliothekar || Librarian || 图书管理员 || Bibliotecario || Bibliothécaire || Bibliotecário || Библиотекарь || 司書
+Aufgewärmt || Warmed up || 热身完成 || Calentado || Échauffé || Aquecido || Размялся || ウォーミングアップ
+Marathon || Marathon || 马拉松 || Maratón || Marathon || Maratona || Марафон || マラソン
+Legende || Legend || 传奇 || Leyenda || Légende || Lenda || Легенда || レジェンド
+Dranbleiber || Keeping at it || 坚持不懈 || Constante || Persévérant || Persistente || Упорный || 継続は力
+Stammgast || Regular || 常客 || Habitual || Habitué || Habitual || Завсегдатай || 常連
+Unermüdlich || Tireless || 不知疲倦 || Incansable || Infatigable || Incansável || Неутомимый || 不屈
+Kritiker || Critic || 评论家 || Crítico || Critique || Crítico || Критик || 批評家
+Lieblinge || Favorites || 最爱 || Favoritos || Préférés || Favoritos || Любимчики || お気に入り
+Ordnungsliebe || Tidy mind || 井井有条 || Amante del orden || Amoureux de l'ordre || Organizado || Любитель порядка || 整理上手
+Notizbuch || Notebook || 笔记本 || Cuaderno || Carnet || Caderno || Блокнот || ノート
+Alleskönner || All-rounder || 多面手 || Todoterreno || Touche-à-tout || Multitarefa || Универсал || オールラウンダー
+Nachtschwärmer || Night owl || 夜猫子 || Noctámbulo || Oiseau de nuit || Coruja noturna || Ночная сова || 夜型
+Ziel erreicht || Goal reached || 目标达成 || Objetivo cumplido || Objectif atteint || Meta alcançada || Цель достигнута || 目標達成
+Vorsichtig || Cautious || 谨慎 || Prudente || Prudent || Cauteloso || Осторожный || 慎重派
+Durchgespielt || Completed || 已通关 || Completado || Terminé || Zerado || Пройдено || クリア済み
+Starte ein Spiel über den Launcher. || Start a game from the launcher. || 通过启动器启动一个游戏。 || Inicia un juego desde el launcher. || Lancez un jeu depuis le launcher. || Inicie um jogo pelo launcher. || Запустите игру через лаунчер. || ランチャーからゲームを1回起動する。
+Starte 50-mal ein Spiel über den Launcher. || Start a game from the launcher 50 times. || 通过启动器启动游戏 50 次。 || Inicia un juego desde el launcher 50 veces. || Lancez un jeu depuis le launcher 50 fois. || Inicie um jogo pelo launcher 50 vezes. || Запустите игру через лаунчер 50 раз. || ランチャーからゲームを50回起動する。
+Habe 10 Spiele in deiner Bibliothek. || Have 10 games in your library. || 游戏库中拥有 10 个游戏。 || Ten 10 juegos en tu biblioteca. || Avoir 10 jeux dans votre bibliothèque. || Tenha 10 jogos na sua biblioteca. || Иметь 10 игр в библиотеке. || ライブラリに10本のゲームを持つ。
+Habe 25 Spiele in deiner Bibliothek. || Have 25 games in your library. || 游戏库中拥有 25 个游戏。 || Ten 25 juegos en tu biblioteca. || Avoir 25 jeux dans votre bibliothèque. || Tenha 25 jogos na sua biblioteca. || Иметь 25 игр в библиотеке. || ライブラリに25本のゲームを持つ。
+Habe 50 Spiele in deiner Bibliothek. || Have 50 games in your library. || 游戏库中拥有 50 个游戏。 || Ten 50 juegos en tu biblioteca. || Avoir 50 jeux dans votre bibliothèque. || Tenha 50 jogos na sua biblioteca. || Иметь 50 игр в библиотеке. || ライブラリに50本のゲームを持つ。
+Spiele insgesamt 10 Stunden. || Play 10 hours in total. || 累计游戏 10 小时。 || Juega 10 horas en total. || Jouez 10 heures au total. || Jogue 10 horas no total. || Сыграйте в сумме 10 часов. || 合計10時間プレイする。
+Spiele insgesamt 100 Stunden. || Play 100 hours in total. || 累计游戏 100 小时。 || Juega 100 horas en total. || Jouez 100 heures au total. || Jogue 100 horas no total. || Сыграйте в сумме 100 часов. || 合計100時間プレイする。
+Spiele insgesamt 500 Stunden. || Play 500 hours in total. || 累计游戏 500 小时。 || Juega 500 horas en total. || Jouez 500 heures au total. || Jogue 500 horas no total. || Сыграйте в сумме 500 часов. || 合計500時間プレイする。
+Spiele 3 Tage in Folge. || Play 3 days in a row. || 连续 3 天游戏。 || Juega 3 días seguidos. || Jouez 3 jours de suite. || Jogue 3 dias seguidos. || Играйте 3 дня подряд. || 3日連続でプレイする。
+Spiele 7 Tage in Folge. || Play 7 days in a row. || 连续 7 天游戏。 || Juega 7 días seguidos. || Jouez 7 jours de suite. || Jogue 7 dias seguidos. || Играйте 7 дней подряд. || 7日連続でプレイする。
+Spiele 30 Tage in Folge. || Play 30 days in a row. || 连续 30 天游戏。 || Juega 30 días seguidos. || Jouez 30 jours de suite. || Jogue 30 dias seguidos. || Играйте 30 дней подряд. || 30日連続でプレイする。
+Bewerte 10 Spiele. || Rate 10 games. || 给 10 个游戏评分。 || Valora 10 juegos. || Notez 10 jeux. || Avalie 10 jogos. || Оцените 10 игр. || 10本のゲームを評価する。
+Markiere 5 Favoriten. || Mark 5 favorites. || 标记 5 个收藏。 || Marca 5 favoritos. || Marquez 5 favoris. || Marque 5 favoritos. || Отметьте 5 избранных. || お気に入りを5件登録する。
+Lege 3 Sammlungen an. || Create 3 collections. || 创建 3 个收藏集。 || Crea 3 colecciones. || Créez 3 collections. || Crie 3 coleções. || Создайте 3 коллекции. || コレクションを3つ作成する。
+Schreibe zu 5 Spielen Notizen. || Write notes for 5 games. || 为 5 个游戏写笔记。 || Escribe notas para 5 juegos. || Écrivez des notes pour 5 jeux. || Escreva anotações para 5 jogos. || Напишите заметки к 5 играм. || 5本のゲームにメモを書く。
+Habe Spiele aus 3 verschiedenen Quellen. || Have games from 3 different sources. || 拥有来自 3 个不同来源的游戏。 || Ten juegos de 3 orígenes distintos. || Avoir des jeux de 3 sources différentes. || Tenha jogos de 3 origens diferentes. || Иметь игры из 3 разных источников. || 3つの異なるストアのゲームを持つ。
+Spiele nach Mitternacht. || Play after midnight. || 在午夜之后游戏。 || Juega después de medianoche. || Jouez après minuit. || Jogue depois da meia-noite. || Поиграйте после полуночи. || 深夜0時を過ぎてからプレイする。
+Erreiche dein Wochenziel. || Reach your weekly goal. || 达成你的每周目标。 || Alcanza tu objetivo semanal. || Atteignez votre objectif hebdomadaire. || Alcance sua meta semanal. || Достигните недельной цели. || 週間目標を達成する。
+Sichere einen Spielstand. || Back up a game save. || 备份一个存档。 || Haz una copia de una partida guardada. || Sauvegardez une partie. || Faça backup de um save. || Сделайте копию сохранения. || セーブデータを1つバックアップする。
+Verschiebe ein Spiel nach „Durchgespielt“. || Move a game to "Completed". || 把一个游戏移到“已通关”。 || Mueve un juego a «Completado». || Déplacez un jeu vers « Terminé ». || Mova um jogo para "Concluído". || Переместите игру в «Пройдено». || ゲームを1本「クリア済み」に移す。
+
+# ───────── Neue Komfortfunktionen ─────────
+Programme auswählen ... || Choose programs ... || 选择程序 ... || Elegir programas ... || Choisir des programmes ... || Escolher programas ... || Выбрать программы ... || プログラムを選択 ...
+Ausgewählte Programme beim Spielstart schließen und danach wieder öffnen || Close selected programs when a game starts and reopen them afterwards || 游戏启动时关闭选定的程序,结束后重新打开 || Cerrar los programas seleccionados al iniciar un juego y reabrirlos después || Fermer les programmes sélectionnés au lancement d'un jeu et les rouvrir ensuite || Fechar os programas selecionados ao iniciar um jogo e reabri-los depois || Закрывать выбранные программы при запуске игры и открывать их снова после || ゲーム起動時に選択したプログラムを閉じ、終了後に再度開く
+Bibliothek automatisch aktualisieren, wenn du zum Launcher zurückkehrst || Update the library automatically when you return to the launcher || 返回启动器时自动更新游戏库 || Actualizar la biblioteca automáticamente al volver al launcher || Actualiser automatiquement la bibliothèque quand vous revenez au launcher || Atualizar a biblioteca automaticamente ao voltar ao launcher || Автоматически обновлять библиотеку при возврате в лаунчер || ランチャーに戻ったときにライブラリを自動更新
+Globaler Hotkey Strg+Alt+D zum Ein- und Ausblenden des Launchers || Global hotkey Ctrl+Alt+D to show or hide the launcher || 全局热键 Ctrl+Alt+D 显示或隐藏启动器 || Atajo global Ctrl+Alt+D para mostrar u ocultar el launcher || Raccourci global Ctrl+Alt+D pour afficher ou masquer le launcher || Atalho global Ctrl+Alt+D para mostrar ou ocultar o launcher || Глобальная клавиша Ctrl+Alt+D для показа и скрытия лаунчера || グローバルホットキー Ctrl+Alt+D でランチャーを表示/非表示
+Programme beim Spielstart schließen || Close programs when a game starts || 游戏启动时关闭程序 || Cerrar programas al iniciar un juego || Fermer des programmes au lancement d'un jeu || Fechar programas ao iniciar um jogo || Закрывать программы при запуске игры || ゲーム起動時にプログラムを閉じる
+Diese Programme werden beim Spielstart sauber geschlossen (wie mit dem Schließen-Knopf) und nach dem Spiel wieder geöffnet. Nicht gespeicherte Arbeit kann dabei nachgefragt werden. || These programs are closed cleanly when a game starts (as with the close button) and reopened after the game. Unsaved work may prompt you first. || 游戏启动时这些程序会被正常关闭(与点击关闭按钮相同),游戏结束后重新打开。未保存的工作可能会先询问。 || Estos programas se cierran correctamente al iniciar un juego (como con el botón de cerrar) y se reabren después. Puede que te pregunten por el trabajo sin guardar. || Ces programmes sont fermés proprement au lancement d'un jeu (comme avec le bouton de fermeture) et rouverts après la partie. Les travaux non enregistrés peuvent donner lieu à une question. || Estes programas são fechados corretamente ao iniciar um jogo (como com o botão de fechar) e reabertos depois. Trabalhos não salvos podem gerar uma pergunta. || Эти программы корректно закрываются при запуске игры (как кнопкой закрытия) и открываются снова после неё. О несохранённой работе может быть задан вопрос. || これらのプログラムはゲーム起動時に(閉じるボタンと同様に)正常終了し、ゲーム後に再度開きます。未保存の作業がある場合は確認される場合があります。
+Programme geschlossen || Programs closed || 程序已关闭 || Programas cerrados || Programmes fermés || Programas fechados || Программы закрыты || プログラムを閉じました
+Programme wieder geöffnet || Programs reopened || 程序已重新打开 || Programas reabiertos || Programmes rouverts || Programas reabertos || Программы открыты снова || プログラムを再度開きました
+Spiel-Roulette || Game roulette || 游戏轮盘 || Ruleta de juegos || Roulette de jeux || Roleta de jogos || Рулетка игр || ゲームルーレット
+Heute spielst du: || Today you play: || 今天玩： || Hoy juegas: || Aujourd'hui tu joues : || Hoje você joga: || Сегодня ты играешь: || 今日のゲーム：
+Der Zufall wählt ... || Chance is choosing ... || 随机选择中 ... || El azar elige ... || Le hasard choisit ... || A sorte está escolhendo ... || Случай выбирает ... || 抽選中 ...
+Starten || Start || 开始 || Iniciar || Lancer || Iniciar || Запустить || 起動
+Nochmal drehen || Spin again || 再转一次 || Girar otra vez || Relancer || Girar de novo || Крутить ещё раз || もう一度回す
+Bibliothek exportieren (CSV/HTML) || Export library (CSV/HTML) || 导出游戏库 (CSV/HTML) || Exportar biblioteca (CSV/HTML) || Exporter la bibliothèque (CSV/HTML) || Exportar biblioteca (CSV/HTML) || Экспорт библиотеки (CSV/HTML) || ライブラリをエクスポート (CSV/HTML)
+Die Bibliothek wurde exportiert. || The library has been exported. || 游戏库已导出。 || Se exportó la biblioteca. || La bibliothèque a été exportée. || A biblioteca foi exportada. || Библиотека экспортирована. || ライブラリをエクスポートしました。
+Steam-Spielzeit importieren || Import Steam playtime || 导入 Steam 游戏时长 || Importar tiempo de juego de Steam || Importer le temps de jeu Steam || Importar tempo de jogo da Steam || Импортировать время игры из Steam || Steam のプレイ時間をインポート
+Keine Steam-Spielzeit gefunden. Steam speichert sie nicht immer lokal. || No Steam playtime found. Steam does not always store it locally. || 未找到 Steam 游戏时间。Steam 不一定会在本地保存。 || No se encontró tiempo de juego de Steam. Steam no siempre lo guarda en local. || Aucun temps de jeu Steam trouvé. Steam ne le stocke pas toujours en local. || Nenhum tempo de jogo da Steam encontrado. A Steam nem sempre o guarda localmente. || Время игры из Steam не найдено. Steam не всегда хранит его локально. || Steamのプレイ時間が見つかりません。Steamは常にローカルに保存するとは限りません。
+{#0} Spiele aktualisiert. || {0} games updated. || 已更新 {0} 个游戏。 || {0} juegos actualizados. || {0} jeux mis à jour. || {0} jogos atualizados. || Обновлено игр: {0}. || {0}個のゲームを更新しました。
+🖥  Grafiktreiber || 🖥 Graphics driver || 🖥 显卡驱动 || 🖥 Controlador gráfico || 🖥 Pilote graphique || 🖥 Driver gráfico || 🖥 Драйвер видеокарты || 🖥 グラフィックドライバー
+Treiber-Seite öffnen || Open driver page || 打开驱动页面 || Abrir página de controladores || Ouvrir la page des pilotes || Abrir página de drivers || Открыть страницу драйверов || ドライバーのページを開く
+Aktueller Treiber: {0} || Current driver: {0} || 当前驱动程序:{0} || Controlador actual: {0} || Pilote actuel : {0} || Driver atual: {0} || Текущий драйвер: {0} || 現在のドライバー:{0}
+Neue Spiele gefunden || New games found || 发现新游戏 || Nuevos juegos encontrados || Nouveaux jeux trouvés || Novos jogos encontrados || Найдены новые игры || 新しいゲームが見つかりました
+Zuletzt gespielt: || Recently played: || 最近玩过： || Jugado recientemente: || Joués récemment : || Jogado recentemente: || Недавно играли: || 最近プレイ：
+Der Launcher läuft bereits. || The launcher is already running. || 启动器已在运行。 || El launcher ya se está ejecutando. || Le launcher est déjà en cours d'exécution. || O launcher já está em execução. || Лаунчер уже запущен. || ランチャーはすでに起動しています。
+
+Wird geladen ... || Loading ... || 加载中 ... || Cargando ... || Chargement ... || Carregando ... || Загрузка ... || 読み込み中 ...
+
+# ───────── Ergänzungen ─────────
+Name || Name || 名称 || Nombre || Nom || Nome || Название || 名前
+Quelle || Source || 来源 || Origen || Source || Origem || Источник || ソース
+Spielzeit (Std.) || Playtime (h) || 游戏时长（小时） || Tiempo de juego (h) || Temps de jeu (h) || Tempo de jogo (h) || Время в игре (ч) || プレイ時間（時間）
+Gestartet || Launches || 启动次数 || Inicios || Lancements || Inícios || Запусков || 起動回数
+Will ich spielen || Want to play || 想玩 || Quiero jugar || À jouer || Quero jogar || Хочу сыграть || プレイ予定
+Spiele ich gerade || Playing now || 正在玩 || Jugando ahora || En cours || Jogando agora || Играю сейчас || プレイ中
+Export fehlgeschlagen:\n{0} || Export failed:\n{0} || 导出失败:\n{0} || Error al exportar:\n{0} || Échec de l'exportation :\n{0} || Falha ao exportar:\n{0} || Не удалось экспортировать:\n{0} || エクスポートに失敗しました:\n{0}
+Speichern fehlgeschlagen:\n{0} || Saving failed:\n{0} || 保存失败:\n{0} || Error al guardar:\n{0} || Échec de l'enregistrement :\n{0} || Falha ao salvar:\n{0} || Не удалось сохранить:\n{0} || 保存に失敗しました:\n{0}
+Sichern fehlgeschlagen:\n{0} || Backup failed:\n{0} || 备份失败:\n{0} || Error al hacer la copia:\n{0} || Échec de la sauvegarde :\n{0} || Falha no backup:\n{0} || Не удалось создать копию:\n{0} || バックアップに失敗しました:\n{0}
+Laden fehlgeschlagen:\n{0} || Loading failed:\n{0} || 载入失败:\n{0} || Error al cargar:\n{0} || Échec du chargement :\n{0} || Falha ao carregar:\n{0} || Не удалось загрузить:\n{0} || 読み込みに失敗しました:\n{0}
+Deinstallation fehlgeschlagen:\n{0} || Uninstall failed:\n{0} || 卸载失败:\n{0} || Error al desinstalar:\n{0} || Échec de la désinstallation :\n{0} || Falha ao desinstalar:\n{0} || Не удалось удалить:\n{0} || アンインストールに失敗しました:\n{0}
+Wiederherstellen fehlgeschlagen:\n{0} || Restore failed:\n{0} || 恢复失败:\n{0} || Error al restaurar:\n{0} || Échec de la restauration :\n{0} || Falha ao restaurar:\n{0} || Не удалось восстановить:\n{0} || 復元に失敗しました:\n{0}
+Verknüpfung fehlgeschlagen:\n{0} || Shortcut failed:\n{0} || 创建快捷方式失败:\n{0} || Error con el acceso directo:\n{0} || Échec du raccourci :\n{0} || Falha no atalho:\n{0} || Не удалось создать ярлык:\n{0} || ショートカットの作成に失敗しました:\n{0}
+Kopieren fehlgeschlagen:\n{0} || Copy failed:\n{0} || 复制失败:\n{0} || Error al copiar:\n{0} || Échec de la copie :\n{0} || Falha ao copiar:\n{0} || Не удалось скопировать:\n{0} || コピーに失敗しました:\n{0}
+Hintergrund konnte nicht gesetzt werden:\n{0} || The background could not be set:\n{0} || 无法设置背景:\n{0} || No se pudo establecer el fondo:\n{0} || Impossible de définir l'arrière-plan :\n{0} || Não foi possível definir o fundo:\n{0} || Не удалось установить фон:\n{0} || 背景を設定できませんでした:\n{0}
+Das Bild konnte nicht geladen werden:\n{0} || The image could not be loaded:\n{0} || 无法加载图片:\n{0} || No se pudo cargar la imagen:\n{0} || Impossible de charger l'image :\n{0} || Não foi possível carregar a imagem:\n{0} || Не удалось загрузить изображение:\n{0} || 画像を読み込めませんでした:\n{0}
+Autostart konnte nicht geändert werden:\n{0} || Autostart could not be changed:\n{0} || 无法更改开机启动:\n{0} || No se pudo cambiar el inicio automático:\n{0} || Impossible de modifier le démarrage automatique :\n{0} || Não foi possível alterar a inicialização automática:\n{0} || Не удалось изменить автозапуск:\n{0} || 自動起動を変更できませんでした:\n{0}
+Quelle: {0} || Source: {0} || 来源:{0} || Origen: {0} || Source : {0} || Origem: {0} || Источник: {0} || ストア:{0}
+Spielzeit: {0} || Playtime: {0} || 游戏时间:{0} || Tiempo de juego: {0} || Temps de jeu : {0} || Tempo de jogo: {0} || Время игры: {0} || プレイ時間:{0}
+Noch nicht gespielt || Not played yet || 尚未游玩 || Aún sin jugar || Pas encore joué || Ainda não jogado || Ещё не играли || 未プレイ
+Über den Launcher gestartet: {#0}× || Started via the launcher: {0}× || 通过启动器启动:{0} 次 || Iniciado desde el launcher: {0}× || Lancé via le launcher : {0}× || Iniciado pelo launcher: {0}× || Запущено через лаунчер: {0}× || ランチャーから起動:{0}回
+Zuletzt gespielt: {0} ({1}) || Last played: {0} ({1}) || 最近游玩:{0}({1}) || Última partida: {0} ({1}) || Dernière partie : {0} ({1}) || Última vez jogado: {0} ({1}) || Последний запуск: {0} ({1}) || 最終プレイ:{0}({1})
+Startoptionen: {0} || Launch options: {0} || 启动选项:{0} || Opciones de inicio: {0} || Options de lancement : {0} || Opções de inicialização: {0} || Параметры запуска: {0} || 起動オプション:{0}
+Keine Anwendungen erkannt. || No applications detected. || 未检测到应用程序。 || No se detectaron aplicaciones. || Aucune application détectée. || Nenhum aplicativo detectado. || Приложения не найдены. || アプリケーションが見つかりません。
+Keine Einträge vorhanden. || No entries available. || 没有条目。 || No hay entradas. || Aucune entrée. || Não há entradas. || Записей нет. || エントリーがありません。
+Noch keine Sammlungen. Lege sie per Rechtsklick auf ein Spiel an. || No collections yet. Create them with a right-click on a game. || 还没有收藏集。在游戏上右键即可创建。 || Aún no hay colecciones. Créalas con clic derecho sobre un juego. || Pas encore de collections. Créez-en avec un clic droit sur un jeu. || Ainda não há coleções. Crie-as com o botão direito em um jogo. || Коллекций пока нет. Создайте их правым щелчком по игре. || コレクションはまだありません。ゲームを右クリックして作成します。
+Noch keine Einträge. Trage kommende Spiele ein, der Launcher zählt die Tage herunter. || No entries yet. Add upcoming games and the launcher counts down the days. || 还没有条目。添加即将发售的游戏,启动器会倒数天数。 || Aún no hay entradas. Añade próximos juegos y el launcher cuenta los días. || Pas encore d'entrées. Ajoutez des jeux à venir et le launcher compte les jours. || Ainda não há entradas. Adicione jogos futuros e o launcher conta os dias. || Записей пока нет. Добавьте будущие игры, и лаунчер будет вести обратный отсчёт. || まだエントリーがありません。発売予定のゲームを追加すると、ランチャーが日数をカウントダウンします。
+Dieses Spiel startet über Steam, Epic oder die Xbox-App. Startparameter und Administrator-Start stellst du bitte dort ein. || This game starts via Steam, Epic or the Xbox app. Please set launch parameters and administrator start there. || 该游戏通过 Steam、Epic 或 Xbox 应用启动。启动参数和管理员启动请在那里设置。 || Este juego se inicia mediante Steam, Epic o la app de Xbox. Define allí los parámetros de inicio y el inicio como administrador. || Ce jeu se lance via Steam, Epic ou l'application Xbox. Réglez les paramètres de lancement et le démarrage en administrateur à cet endroit. || Este jogo é iniciado pela Steam, Epic ou app Xbox. Defina lá os parâmetros de inicialização e a execução como administrador. || Эта игра запускается через Steam, Epic или приложение Xbox. Параметры запуска и запуск от администратора настраиваются там. || このゲームはSteam、Epic、またはXboxアプリ経由で起動します。起動パラメーターや管理者権限での起動はそちらで設定してください。
+Startparameter und Administrator-Start gelten für den direkten Start über die .exe-Datei. || Launch parameters and administrator start apply to launching directly via the .exe file. || 启动参数和管理员启动仅适用于直接通过 .exe 文件启动。 || Los parámetros de inicio y el inicio como administrador solo valen para el inicio directo con el archivo .exe. || Les paramètres de lancement et le démarrage en administrateur ne valent que pour le lancement direct via le fichier .exe. || Os parâmetros de inicialização e a execução como administrador valem apenas para o início direto pelo arquivo .exe. || Параметры запуска и запуск от администратора действуют только при прямом запуске файла .exe. || 起動パラメーターと管理者権限での起動は、.exeファイルから直接起動する場合のみ有効です。
+Du spielst „{0}“ seit {#1} Std. {#2} Min. Zeit für eine kurze Pause! || You have been playing "{0}" for {1} h {2} min. Time for a short break! || 你已玩“{0}”{1} 小时 {2} 分钟。休息一下吧! || Llevas jugando a «{0}» {1} h {2} min. ¡Es hora de una pausa! || Vous jouez à « {0} » depuis {1} h {2} min. C'est l'heure d'une petite pause ! || Você está jogando "{0}" há {1} h {2} min. Hora de uma pausa! || Вы играете в «{0}» уже {1} ч {2} мин. Пора сделать перерыв! || 「{0}」を{1}時間{2}分プレイしています。少し休憩しましょう!
+Diese Programme starten bei jedem Spielstart automatisch mit, falls sie noch nicht laufen. || These programs start together with every game if they are not running yet. || 这些程序会在每次启动游戏时自动一同启动(如果尚未运行)。 || Estos programas se inician con cada juego si todavía no se están ejecutando. || Ces programmes démarrent avec chaque jeu s'ils ne sont pas déjà lancés. || Estes programas iniciam junto com cada jogo se ainda não estiverem em execução. || Эти программы запускаются вместе с каждой игрой, если ещё не работают. || これらのプログラムは、まだ起動していなければゲーム起動時に自動で一緒に起動します。
+Spiel-Anwendung auswählen || Choose game application || 选择游戏程序 || Elegir aplicación del juego || Choisir l'application du jeu || Escolher o aplicativo do jogo || Выбрать приложение игры || ゲームのアプリケーションを選択
+App auswählen || Choose app || 选择应用 || Elegir app || Choisir une application || Escolher aplicativo || Выбрать приложение || アプリを選択
+Ordner mit den Spielständen von „{0}“ auswählen || Choose the folder with the saves of "{0}" || 选择“{0}”的存档文件夹 || Elige la carpeta con las partidas de «{0}» || Choisissez le dossier des sauvegardes de « {0} » || Escolha a pasta com os saves de "{0}" || Выберите папку с сохранениями «{0}» || 「{0}」のセーブデータのフォルダーを選択
+Overlay-Test || Overlay test || 悬浮窗测试 || Prueba del overlay || Test de l'overlay || Teste do overlay || Тест оверлея || オーバーレイのテスト
+Verlauf zurücksetzen || Reset history || 重置历史记录 || Restablecer historial || Réinitialiser l'historique || Redefinir histórico || Сбросить историю || 履歴をリセット
+Ausführbare Dateien (*.exe) || Executable files (*.exe) || 可执行文件 (*.exe) || Archivos ejecutables (*.exe) || Fichiers exécutables (*.exe) || Arquivos executáveis (*.exe) || Исполняемые файлы (*.exe) || 実行ファイル (*.exe)
+Hardware wird ausgelesen ... || Reading hardware ... || 正在读取硬件信息 ... || Leyendo hardware ... || Lecture du matériel ... || Lendo o hardware ... || Считывание оборудования ... || ハードウェアを取得中 ...
+
+# ───────── Anpassung, Schnellzugriff, Leistung, Controller (Ergänzung) ─────────
+Allgemein || General || 常规 || General || Général || Geral || Общие || 一般
+Seitenleiste und Logo || Sidebar and logo || 侧边栏与标志 || Barra lateral y logotipo || Barre latérale et logo || Barra lateral e logotipo || Боковая панель и логотип || サイドバーとロゴ
+Leistung || Performance || 性能 || Rendimiento || Performances || Desempenho || Производительность || パフォーマンス
+Steuerung || Controls || 操作 || Controles || Commandes || Controles || Управление || 操作
+Daten und Info || Data and info || 数据与信息 || Datos e información || Données et infos || Dados e informações || Данные и сведения || データと情報
+Original || Original || 原始 || Original || Original || Original || Оригинал || オリジナル
+Gold || Gold || 金色 || Oro || Or || Dourado || Золото || ゴールド
+Neon || Neon || 霓虹 || Neón || Néon || Neon || Неон || ネオン
+Eis || Ice || 冰蓝 || Hielo || Glace || Gelo || Лёд || アイス
+Monochrom || Monochrome || 单色 || Monocromo || Monochrome || Monocromático || Монохром || モノクロ
+Akzentfarbe || Accent color || 强调色 || Color de acento || Couleur d'accentuation || Cor de destaque || Акцентный цвет || アクセントカラー
+Weiß || White || 白色 || Blanco || Blanc || Branco || Белый || ホワイト
+Automatisch || Automatic || 自动 || Automático || Automatique || Automático || Автоматически || 自動
+Detailkacheln || Detail tiles || 详情卡片 || Mosaicos detallados || Tuiles détaillées || Blocos detalhados || Подробные плитки || 詳細タイル
+Nein || No || 否 || No || Non || Não || Нет || いいえ
+🙈 Diesen Bereich ausblenden || 🙈 Hide this section || 🙈 隐藏此栏目 || 🙈 Ocultar esta sección || 🙈 Masquer cette section || 🙈 Ocultar esta seção || 🙈 Скрыть этот раздел || 🙈 このセクションを隠す
+⬆ Nach oben || ⬆ Move up || ⬆ 上移 || ⬆ Subir || ⬆ Monter || ⬆ Subir || ⬆ Выше || ⬆ 上へ
+⬇ Nach unten || ⬇ Move down || ⬇ 下移 || ⬇ Bajar || ⬇ Descendre || ⬇ Descer || ⬇ Ниже || ⬇ 下へ
+↺ Reihenfolge zurücksetzen || ↺ Reset order || ↺ 重置顺序 || ↺ Restablecer orden || ↺ Réinitialiser l'ordre || ↺ Redefinir ordem || ↺ Сбросить порядок || ↺ 順序をリセット
+👁 Bereiche anzeigen || 👁 Show sections || 👁 显示栏目 || 👁 Mostrar secciones || 👁 Afficher les sections || 👁 Mostrar seções || 👁 Показать разделы || 👁 セクションを表示
+🔠 Einträge größer || 🔠 Larger entries || 🔠 放大条目 || 🔠 Entradas más grandes || 🔠 Entrées plus grandes || 🔠 Entradas maiores || 🔠 Крупнее пункты || 🔠 項目を大きく
+🔡 Einträge kleiner || 🔡 Smaller entries || 🔡 缩小条目 || 🔡 Entradas más pequeñas || 🔡 Entrées plus petites || 🔡 Entradas menores || 🔡 Мельче пункты || 🔡 項目を小さく
+🙈 Verstecken || 🙈 Hide || 🙈 隐藏 || 🙈 Ocultar || 🙈 Masquer || 🙈 Ocultar || 🙈 Скрыть || 🙈 非表示にする
+👁 Wieder anzeigen || 👁 Show again || 👁 重新显示 || 👁 Mostrar de nuevo || 👁 Afficher à nouveau || 👁 Mostrar novamente || 👁 Показать снова || 👁 再表示
+🙈 Versteckt || 🙈 Hidden || 🙈 已隐藏 || 🙈 Ocultos || 🙈 Masqués || 🙈 Ocultos || 🙈 Скрытые || 🙈 非表示
+🖼 Eigenes Cover festlegen ... || 🖼 Set custom cover ... || 🖼 设置自定义封面 ... || 🖼 Establecer portada propia ... || 🖼 Définir une jaquette perso ... || 🖼 Definir capa própria ... || 🖼 Задать свою обложку ... || 🖼 カスタムカバーを設定 ...
+↺ Cover zurücksetzen || ↺ Reset cover || ↺ 重置封面 || ↺ Restablecer portada || ↺ Réinitialiser la jaquette || ↺ Redefinir capa || ↺ Сбросить обложку || ↺ カバーをリセット
+⏱ Spielzeit nicht erfassen || ⏱ Don't track playtime || ⏱ 不记录游戏时间 || ⏱ No registrar tiempo de juego || ⏱ Ne pas suivre le temps de jeu || ⏱ Não registrar tempo de jogo || ⏱ Не учитывать время игры || ⏱ プレイ時間を記録しない
+⏱ Spielzeit wieder erfassen || ⏱ Track playtime again || ⏱ 重新记录游戏时间 || ⏱ Registrar tiempo de juego de nuevo || ⏱ Suivre à nouveau le temps de jeu || ⏱ Registrar tempo de jogo novamente || ⏱ Снова учитывать время игры || ⏱ プレイ時間を再び記録
+✏ Bearbeiten ... || ✏ Edit ... || ✏ 编辑 ... || ✏ Editar ... || ✏ Modifier ... || ✏ Editar ... || ✏ Изменить ... || ✏ 編集 ...
+◀ Nach vorn || ◀ Move forward || ◀ 前移 || ◀ Mover adelante || ◀ Avancer || ◀ Mover para frente || ◀ Вперёд || ◀ 前へ
+▶ Nach hinten || ▶ Move back || ▶ 后移 || ▶ Mover atrás || ▶ Reculer || ▶ Mover para trás || ▶ Назад || ▶ 後ろへ
+🗑 Entfernen || 🗑 Remove || 🗑 移除 || 🗑 Quitar || 🗑 Supprimer || 🗑 Remover || 🗑 Удалить || 🗑 削除
+＋ Hinzufügen || ＋ Add || ＋ 添加 || ＋ Añadir || ＋ Ajouter || ＋ Adicionar || ＋ Добавить || ＋ 追加
+Standard wiederherstellen || Restore defaults || 恢复默认 || Restaurar valores || Rétablir par défaut || Restaurar padrão || Восстановить по умолчанию || 初期設定に戻す
+Verknüpfung hinzufügen || Add shortcut || 添加快捷方式 || Añadir acceso directo || Ajouter un raccourci || Adicionar atalho || Добавить ярлык || ショートカットを追加
+Verknüpfung bearbeiten || Edit shortcut || 编辑快捷方式 || Editar acceso directo || Modifier le raccourci || Editar atalho || Изменить ярлык || ショートカットを編集
+🚀 Autostart-Programme || 🚀 Startup programs || 🚀 开机启动程序 || 🚀 Programas de inicio || 🚀 Programmes au démarrage || 🚀 Programas de inicialização || 🚀 Автозапуск программ || 🚀 スタートアッププログラム
+Datei wählen ... || Choose file ... || 选择文件 ... || Elegir archivo ... || Choisir un fichier ... || Escolher arquivo ... || Выбрать файл ... || ファイルを選択 ...
+Ordner wählen ... || Choose folder ... || 选择文件夹 ... || Elegir carpeta ... || Choisir un dossier ... || Escolher pasta ... || Выбрать папку ... || フォルダーを選択 ...
+Bild wählen ... || Choose image ... || 选择图片 ... || Elegir imagen ... || Choisir une image ... || Escolher imagem ... || Выбрать изображение ... || 画像を選択 ...
+Symbol leeren || Clear icon || 清除图标 || Borrar icono || Effacer l'icône || Limpar ícone || Очистить значок || アイコンを消去
+Bilder || Images || 图片 || Imágenes || Images || Imagens || Изображения || 画像
+Bilder und GIFs || Images and GIFs || 图片和 GIF || Imágenes y GIF || Images et GIF || Imagens e GIFs || Изображения и GIF || 画像とGIF
+Cover auswählen || Choose cover || 选择封面 || Elegir portada || Choisir une jaquette || Escolher capa || Выбрать обложку || カバーを選択
+Eigenes Cover gespeichert || Custom cover saved || 已保存自定义封面 || Portada propia guardada || Jaquette perso enregistrée || Capa própria salva || Своя обложка сохранена || カスタムカバーを保存しました
+Spiel versteckt || Game hidden || 游戏已隐藏 || Juego oculto || Jeu masqué || Jogo oculto || Игра скрыта || ゲームを非表示にしました
+Du findest es unter dem Filter „Versteckt“. || You can find it under the "Hidden" filter. || 你可以在“已隐藏”筛选中找到它。 || Lo encontrarás en el filtro «Ocultos». || Vous le trouverez dans le filtre « Masqués ». || Você o encontra no filtro "Ocultos". || Вы найдёте её в фильтре «Скрытые». || 「非表示」フィルターで見つかります。
+Versteckte Spiele || Hidden games || 已隐藏的游戏 || Juegos ocultos || Jeux masqués || Jogos ocultos || Скрытые игры || 非表示のゲーム
+Versteckte Spiele verwalten ... || Manage hidden games ... || 管理已隐藏的游戏 ... || Gestionar juegos ocultos ... || Gérer les jeux masqués ... || Gerenciar jogos ocultos ... || Управление скрытыми играми ... || 非表示のゲームを管理 ...
+Spielzeit-Ausnahmen || Playtime exceptions || 游戏时间例外 || Excepciones de tiempo de juego || Exceptions du temps de jeu || Exceções de tempo de jogo || Исключения времени игры || プレイ時間の除外
+Ausnahmen || Exceptions || 例外 || Excepciones || Exceptions || Exceções || Исключения || 除外
+Ausnahmen festlegen ... || Set exceptions ... || 设置例外 ... || Definir excepciones ... || Définir les exceptions ... || Definir exceções ... || Задать исключения ... || 除外を設定 ...
+Erstellt von || Created by || 作者 || Creado por || Créé par || Criado por || Создатель || 作成者
+Erstellt von Der_Fette_Pudel || Created by Der_Fette_Pudel || 作者:Der_Fette_Pudel || Creado por Der_Fette_Pudel || Créé par Der_Fette_Pudel || Criado por Der_Fette_Pudel || Создатель: Der_Fette_Pudel || 作成者:Der_Fette_Pudel
+Über DFP Pro Launcher || About DFP Pro Launcher || 关于 DFP Pro Launcher || Acerca de DFP Pro Launcher || À propos de DFP Pro Launcher || Sobre o DFP Pro Launcher || О DFP Pro Launcher || DFP Pro Launcher について
+Über anzeigen || Show about || 查看关于 || Mostrar información || Afficher à propos || Mostrar sobre || Показать сведения || 情報を表示
+Controller || Controller || 手柄 || Mando || Manette || Controle || Геймпад || コントローラー
+Tastenbelegung || Button layout || 按键布局 || Distribución de botones || Disposition des boutons || Layout dos botões || Раскладка кнопок || ボタン配置
+Kein Controller erkannt || No controller detected || 未检测到手柄 || No se detectó ningún mando || Aucune manette détectée || Nenhum controle detectado || Геймпад не найден || コントローラーが見つかりません
+Erkannt: || Detected: || 已检测到: || Detectado: || Détecté : || Detectado: || Обнаружен: || 検出:
+Keine Autostart-Programme gefunden. || No startup programs found. || 未找到开机启动程序。 || No se encontraron programas de inicio. || Aucun programme au démarrage trouvé. || Nenhum programa de inicialização encontrado. || Программы автозапуска не найдены. || スタートアッププログラムが見つかりません。
+Gilt für alle Benutzer. Ändern erfordert Administratorrechte. || Applies to all users. Changing it requires administrator rights. || 适用于所有用户。更改需要管理员权限。 || Se aplica a todos los usuarios. Cambiarlo requiere derechos de administrador. || S'applique à tous les utilisateurs. La modification nécessite des droits d'administrateur. || Vale para todos os usuários. Alterar exige direitos de administrador. || Действует для всех пользователей. Для изменения нужны права администратора. || すべてのユーザーに適用されます。変更には管理者権限が必要です。
+Performance-Modus aktiv || Performance mode on || 性能模式已开启 || Modo de rendimiento activo || Mode performance actif || Modo de desempenho ativo || Режим производительности включён || パフォーマンスモード オン
+Performance-Modus aus || Performance mode off || 性能模式已关闭 || Modo de rendimiento desactivado || Mode performance désactivé || Modo de desempenho desativado || Режим производительности выключен || パフォーマンスモード オフ
+Animationen und Effekte sind abgeschaltet. || Animations and effects are turned off. || 动画和特效已关闭。 || Las animaciones y efectos están desactivados. || Les animations et effets sont désactivés. || As animações e os efeitos estão desativados. || Анимации и эффекты отключены. || アニメーションと効果をオフにしました。
+Die Standard-Einstellungen sind wieder aktiv. || The default settings are active again. || 已恢复默认设置。 || Los ajustes predeterminados vuelven a estar activos. || Les paramètres par défaut sont de nouveau actifs. || As configurações padrão estão ativas novamente. || Снова используются стандартные настройки. || 標準設定に戻しました。
+Die Änderung wird nach einem Neustart des Launchers wirksam. || The change takes effect after restarting the launcher. || 更改将在重启启动器后生效。 || El cambio surte efecto tras reiniciar el launcher. || La modification prend effet après le redémarrage du launcher. || A alteração entra em vigor após reiniciar o launcher. || Изменение вступит в силу после перезапуска лаунчера. || 変更はランチャーを再起動すると反映されます。
+Abstand der Spielkarten || Card spacing || 卡片间距 || Espaciado de tarjetas || Espacement des cartes || Espaçamento dos cartões || Расстояние между карточками || カードの間隔
+Breite der Seitenleiste || Sidebar width || 侧边栏宽度 || Ancho de la barra lateral || Largeur de la barre latérale || Largura da barra lateral || Ширина боковой панели || サイドバーの幅
+Seitenverhältnis der Karten (Höhe im Verhältnis zur Breite) || Card aspect ratio (height relative to width) || 卡片比例(高度与宽度之比) || Proporción de las tarjetas (alto respecto al ancho) || Proportions des cartes (hauteur par rapport à la largeur) || Proporção dos cartões (altura em relação à largura) || Пропорции карточек (высота к ширине) || カードの縦横比(幅に対する高さ)
+Leistung für ältere PCs || Performance for older PCs || 老旧电脑性能优化 || Rendimiento para PC antiguos || Performances pour PC anciens || Desempenho para PCs antigos || Производительность для старых ПК || 古いPC向けパフォーマンス
+Performance-Modus (weniger Animationen und Effekte, spart Leistung) || Performance mode (fewer animations and effects, saves resources) || 性能模式(减少动画和特效,节省资源) || Modo de rendimiento (menos animaciones y efectos, ahorra recursos) || Mode performance (moins d'animations et d'effets, économise des ressources) || Modo de desempenho (menos animações e efeitos, economiza recursos) || Режим производительности (меньше анимаций и эффектов, экономит ресурсы) || パフォーマンスモード(アニメーションと効果を減らして負荷を軽減)
+Software-Rendering verwenden (hilft bei Grafikfehlern, Neustart nötig) || Use software rendering (helps with graphics glitches, restart required) || 使用软件渲染(可解决显示问题,需重启) || Usar renderizado por software (ayuda con errores gráficos, requiere reinicio) || Utiliser le rendu logiciel (aide en cas de bugs graphiques, redémarrage requis) || Usar renderização por software (ajuda com falhas gráficas, requer reinício) || Использовать программный рендеринг (помогает при сбоях графики, нужен перезапуск) || ソフトウェアレンダリングを使用(表示不具合に有効、再起動が必要)
+Animationen pausieren, solange das Fenster minimiert ist || Pause animations while the window is minimized || 窗口最小化时暂停动画 || Pausar animaciones mientras la ventana está minimizada || Mettre les animations en pause quand la fenêtre est réduite || Pausar animações enquanto a janela estiver minimizada || Приостанавливать анимации, пока окно свёрнуто || ウィンドウが最小化されている間はアニメーションを停止
+Animierte Cover (GIF) immer abspielen, sonst nur beim Darüberfahren || Always play animated covers (GIF), otherwise only on hover || 始终播放动画封面(GIF),否则仅在悬停时播放 || Reproducir siempre las portadas animadas (GIF); si no, solo al pasar el ratón || Toujours lire les jaquettes animées (GIF), sinon seulement au survol || Sempre reproduzir capas animadas (GIF); caso contrário, só ao passar o mouse || Всегда проигрывать анимированные обложки (GIF), иначе только при наведении || アニメーションカバー(GIF)を常に再生、オフの場合はマウスを重ねた時のみ
+Animationen und Effekte || Animations and effects || 动画与特效 || Animaciones y efectos || Animations et effets || Animações e efeitos || Анимации и эффекты || アニメーションと効果
+OLED-Modus || OLED mode || OLED 模式 || Modo OLED || Mode OLED || Modo OLED || Режим OLED || OLEDモード
+OLED-Modus (reines Schwarz für OLED-Bildschirme) || OLED mode (pure black for OLED screens) || OLED 模式(为 OLED 屏幕提供纯黑) || Modo OLED (negro puro para pantallas OLED) || Mode OLED (noir pur pour écrans OLED) || Modo OLED (preto puro para telas OLED) || Режим OLED (чисто чёрный для OLED-экранов) || OLEDモード(OLED画面向けの純黒)
+Burn-in-Schutz: Die Oberfläche verschiebt sich alle paar Minuten minimal || Burn-in protection: the interface shifts slightly every few minutes || 防烧屏:界面每隔几分钟轻微移动 || Protección contra quemado: la interfaz se desplaza ligeramente cada pocos minutos || Protection anti-brûlure : l'interface se décale légèrement toutes les quelques minutes || Proteção contra burn-in: a interface se desloca levemente a cada poucos minutos || Защита от выгорания: интерфейс слегка смещается каждые несколько минут || 焼き付き防止:数分ごとに画面がわずかに動きます
+Spielkarten || Game cards || 游戏卡片 || Tarjetas de juego || Cartes de jeu || Cartões de jogo || Карточки игр || ゲームカード
+Cover || Cover || 封面 || Portada || Jaquette || Capa || Обложка || カバー
+Hintergrundbild || Background image || 背景图片 || Imagen de fondo || Image d'arrière-plan || Imagem de fundo || Фоновое изображение || 背景画像
+Farben || Colors || 颜色 || Colores || Couleurs || Cores || Цвета || 色
+Logo und Name || Logo and name || 标志与名称 || Logotipo y nombre || Logo et nom || Logotipo e nome || Логотип и название || ロゴと名前
+Logo-Design || Logo design || 标志样式 || Diseño del logotipo || Design du logo || Design do logotipo || Дизайн логотипа || ロゴデザイン
+Farbe des Namens || Name color || 名称颜色 || Color del nombre || Couleur du nom || Cor do nome || Цвет названия || 名前の色
+Eigener Text || Custom text || 自定义文字 || Texto propio || Texte personnalisé || Texto próprio || Свой текст || カスタムテキスト
+Zurücksetzen || Reset || 重置 || Restablecer || Réinitialiser || Redefinir || Сбросить || リセット
+Logo und Name zurücksetzen || Reset logo and name || 重置标志与名称 || Restablecer logotipo y nombre || Réinitialiser logo et nom || Redefinir logotipo e nome || Сбросить логотип и название || ロゴと名前をリセット
+Größe des Logos || Logo size || 标志大小 || Tamaño del logotipo || Taille du logo || Tamanho do logotipo || Размер логотипа || ロゴのサイズ
+Größe des Namens || Name size || 名称大小 || Tamaño del nombre || Taille du nom || Tamanho do nome || Размер названия || 名前のサイズ
+Namen neben dem Logo anzeigen || Show name next to logo || 在标志旁显示名称 || Mostrar nombre junto al logotipo || Afficher le nom à côté du logo || Mostrar nome ao lado do logotipo || Показывать название рядом с логотипом || ロゴの横に名前を表示
+Untertitel anzeigen || Show subtitle || 显示副标题 || Mostrar subtítulo || Afficher le sous-titre || Mostrar subtítulo || Показывать подзаголовок || サブタイトルを表示
+Schriftgröße der Menüeinträge || Menu entry font size || 菜单项字号 || Tamaño de fuente del menú || Taille de police du menu || Tamanho da fonte do menu || Размер шрифта пунктов меню || メニュー項目の文字サイズ
+Höhe der Menüeinträge || Menu entry height || 菜单项高度 || Altura de las entradas del menú || Hauteur des entrées du menu || Altura das entradas do menu || Высота пунктов меню || メニュー項目の高さ
+Sichtbare Bereiche und Reihenfolge || Visible sections and order || 可见栏目与顺序 || Secciones visibles y orden || Sections visibles et ordre || Seções visíveis e ordem || Видимые разделы и порядок || 表示するセクションと順序
+Sprache der Oberfläche || Interface language || 界面语言 || Idioma de la interfaz || Langue de l'interface || Idioma da interface || Язык интерфейса || 表示言語
+Startseite || Start page || 起始页 || Página de inicio || Page de démarrage || Página inicial || Стартовая страница || スタートページ
+Symbol im Infobereich immer anzeigen || Always show tray icon || 始终显示托盘图标 || Mostrar siempre el icono de la bandeja || Toujours afficher l'icône de la zone de notification || Sempre mostrar o ícone na bandeja || Всегда показывать значок в трее || 常に通知領域のアイコンを表示
+Launcher öffnen || Open launcher || 打开启动器 || Abrir launcher || Ouvrir le launcher || Abrir launcher || Открыть лаунчер || ランチャーを開く
+Schnell starten || Quick start || 快速启动 || Inicio rápido || Démarrage rapide || Início rápido || Быстрый запуск || クイック起動
+Noch nichts gestartet. || Nothing launched yet. || 尚未启动任何内容。 || Aún no has iniciado nada. || Rien n'a encore été lancé. || Nada iniciado ainda. || Пока ничего не запускалось. || まだ何も起動していません。
+🔍 Suche || 🔍 Search || 🔍 搜索 || 🔍 Buscar || 🔍 Rechercher || 🔍 Pesquisar || 🔍 Поиск || 🔍 検索
+🎲 Zufällig || 🎲 Random || 🎲 随机 || 🎲 Aleatorio || 🎲 Aléatoire || 🎲 Aleatório || 🎲 Случайно || 🎲 ランダム
+🎮 Controller-Modus || 🎮 Controller mode || 🎮 手柄模式 || 🎮 Modo mando || 🎮 Mode manette || 🎮 Modo controle || 🎮 Режим геймпада || 🎮 コントローラーモード
+⚙ Einstellungen || ⚙ Settings || ⚙ 设置 || ⚙ Ajustes || ⚙ Paramètres || ⚙ Configurações || ⚙ Настройки || ⚙ 設定
+⏻ Beenden || ⏻ Quit || ⏻ 退出 || ⏻ Salir || ⏻ Quitter || ⏻ Sair || ⏻ Выход || ⏻ 終了
+Epic Games Store – jetzt gratis || Epic Games Store – free now || Epic Games 商店 – 现已免费 || Epic Games Store – gratis ahora || Epic Games Store – gratuit maintenant || Epic Games Store – grátis agora || Epic Games Store – бесплатно сейчас || Epic Games Store – 今すぐ無料
+Epic Games Store – demnächst gratis || Epic Games Store – free soon || Epic Games 商店 – 即将免费 || Epic Games Store – pronto gratis || Epic Games Store – bientôt gratuit || Epic Games Store – grátis em breve || Epic Games Store – скоро бесплатно || Epic Games Store – まもなく無料
+Steam – aktuelle Rabatte || Steam – current discounts || Steam – 当前折扣 || Steam – descuentos actuales || Steam – réductions actuelles || Steam – descontos atuais || Steam – текущие скидки || Steam – 現在のセール
+Deine zuletzt heruntergeladenen Dateien. || Your most recently downloaded files. || 你最近下载的文件。 || Tus archivos descargados recientemente. || Vos fichiers téléchargés récemment. || Seus arquivos baixados recentemente. || Ваши последние загруженные файлы. || 最近ダウンロードしたファイル。
+Schlüssel testen || Test key || 测试密钥 || Probar clave || Tester la clé || Testar chave || Проверить ключ || キーをテスト
+Speichern und Cover neu laden || Save and reload covers || 保存并重新加载封面 || Guardar y recargar portadas || Enregistrer et recharger les jaquettes || Salvar e recarregar capas || Сохранить и перезагрузить обложки || 保存してカバーを再読み込み
+SteamGridDB-Schlüssel (optional) || SteamGridDB key (optional) || SteamGridDB 密钥(可选) || Clave de SteamGridDB (opcional) || Clé SteamGridDB (facultatif) || Chave do SteamGridDB (opcional) || Ключ SteamGridDB (необязательно) || SteamGridDBキー(任意)
+Overlay ausprobieren || Try the overlay || 试用悬浮窗 || Probar el overlay || Essayer l'overlay || Testar o overlay || Попробовать оверлей || オーバーレイを試す
+Programme zum Schließen || Programs to close || 要关闭的程序 || Programas a cerrar || Programmes à fermer || Programas a fechar || Программы для закрытия || 閉じるプログラム
+Begleitprogramme || Companion programs || 伴随程序 || Programas acompañantes || Programmes compagnons || Programas acompanhantes || Сопутствующие программы || 連携プログラム
+Spielstart und Spielstände || Game launch and saves || 游戏启动与存档 || Inicio de juego y partidas guardadas || Lancement et sauvegardes || Início de jogo e saves || Запуск игр и сохранения || ゲーム起動とセーブ
+Spielzeit und Erinnerungen || Playtime and reminders || 游戏时间与提醒 || Tiempo de juego y recordatorios || Temps de jeu et rappels || Tempo de jogo e lembretes || Время игры и напоминания || プレイ時間とリマインダー
+Bibliothek || Library || 游戏库 || Biblioteca || Bibliothèque || Biblioteca || Библиотека || ライブラリ
+Screenshot-Ordner || Screenshot folders || 截图文件夹 || Carpetas de capturas || Dossiers de captures || Pastas de capturas || Папки скриншотов || スクリーンショットフォルダー
+Import und Export || Import and export || 导入与导出 || Importar y exportar || Import et export || Importar e exportar || Импорт и экспорт || インポートとエクスポート
+Verlauf || History || 历史记录 || Historial || Historique || Histórico || История || 履歴
+Einstellungen sichern und laden || Back up and load settings || 备份与载入设置 || Guardar y cargar ajustes || Sauvegarder et charger les réglages || Salvar e carregar configurações || Резервная копия и загрузка настроек || 設定のバックアップと読み込み
+Logo und Verknüpfung || Logo and shortcut || 标志与快捷方式 || Logotipo y acceso directo || Logo et raccourci || Logotipo e atalho || Логотип и ярлык || ロゴとショートカット
+Ziel (Webadresse, Programm, Datei oder Ordner) || Target (web address, program, file or folder) || 目标(网址、程序、文件或文件夹) || Destino (dirección web, programa, archivo o carpeta) || Cible (adresse web, programme, fichier ou dossier) || Destino (endereço web, programa, arquivo ou pasta) || Цель (адрес сайта, программа, файл или папка) || ターゲット(Webアドレス、プログラム、ファイル、フォルダー)
+Symbol (Emoji eingeben oder Bild wählen, leer = Symbol der Datei) || Icon (enter an emoji or choose an image, empty = file icon) || 图标(输入表情符号或选择图片,留空 = 文件图标) || Icono (escribe un emoji o elige una imagen; vacío = icono del archivo) || Icône (saisissez un emoji ou choisissez une image ; vide = icône du fichier) || Ícone (digite um emoji ou escolha uma imagem; vazio = ícone do arquivo) || Значок (введите эмодзи или выберите изображение; пусто = значок файла) || アイコン(絵文字を入力または画像を選択、空欄 = ファイルのアイコン)
+Bitte gib einen Namen und ein Ziel ein. || Please enter a name and a target. || 请输入名称和目标。 || Introduce un nombre y un destino. || Saisissez un nom et une cible. || Informe um nome e um destino. || Введите название и цель. || 名前とターゲットを入力してください。
+Alle Verknüpfungen durch die Standard-Auswahl ersetzen? || Replace all shortcuts with the default selection? || 用默认选项替换所有快捷方式? || ¿Reemplazar todos los accesos por la selección predeterminada? || Remplacer tous les raccourcis par la sélection par défaut ? || Substituir todos os atalhos pela seleção padrão? || Заменить все ярлыки стандартным набором? || すべてのショートカットを標準の内容に置き換えますか?
+Teste Verbindung ... || Testing connection ... || 正在测试连接 ... || Probando conexión ... || Test de la connexion ... || Testando conexão ... || Проверка соединения ... || 接続をテスト中 ...
+Bitte zuerst einen Schlüssel eingeben. || Please enter a key first. || 请先输入密钥。 || Introduce primero una clave. || Saisissez d'abord une clé. || Informe uma chave primeiro. || Сначала введите ключ. || 先にキーを入力してください。
+Verbindung erfolgreich. Der Schlüssel funktioniert. || Connection successful. The key works. || 连接成功,密钥有效。 || Conexión correcta. La clave funciona. || Connexion réussie. La clé fonctionne. || Conexão bem-sucedida. A chave funciona. || Соединение установлено. Ключ работает. || 接続に成功しました。キーは有効です。
+Der Schlüssel wurde abgelehnt oder SteamGridDB ist nicht erreichbar. || The key was rejected or SteamGridDB is unreachable. || 密钥被拒绝,或无法连接 SteamGridDB。 || La clave fue rechazada o SteamGridDB no está disponible. || La clé a été refusée ou SteamGridDB est inaccessible. || A chave foi recusada ou o SteamGridDB está inacessível. || Ключ отклонён или SteamGridDB недоступен. || キーが拒否されたか、SteamGridDBに接続できません。
+Gespeichert. Neue Cover kommen jetzt zuerst von SteamGridDB. || Saved. New covers now come from SteamGridDB first. || 已保存。现在优先从 SteamGridDB 获取封面。 || Guardado. Las portadas nuevas vendrán primero de SteamGridDB. || Enregistré. Les nouvelles jaquettes viennent d'abord de SteamGridDB. || Salvo. As novas capas virão primeiro do SteamGridDB. || Сохранено. Новые обложки теперь сначала берутся из SteamGridDB. || 保存しました。新しいカバーはまずSteamGridDBから取得します。
+Schlüssel entfernt. Es werden wieder Steam- und Epic-Cover verwendet. || Key removed. Steam and Epic covers are used again. || 密钥已移除。将重新使用 Steam 和 Epic 封面。 || Clave eliminada. Se vuelven a usar las portadas de Steam y Epic. || Clé supprimée. Les jaquettes Steam et Epic sont de nouveau utilisées. || Chave removida. As capas da Steam e da Epic voltam a ser usadas. || Ключ удалён. Снова используются обложки Steam и Epic. || キーを削除しました。再びSteamとEpicのカバーを使用します。
+# ───────── Erklärungen unter den Einstellungen (nur Englisch, andere Sprachen nutzen den Rückfall) ─────────
+136 % entspricht einem klassischen Cover. Kleinere Werte machen die Karten flacher. || 136% matches a classic cover. Smaller values make the cards flatter. || 136% 对应经典封面比例。较小的值会让卡片更扁。 || 136 % equivale a una portada clásica. Valores menores hacen las tarjetas más planas. || 136 % correspond à une jaquette classique. Des valeurs plus petites rendent les cartes plus plates. || 136% corresponde a uma capa clássica. Valores menores deixam os cartões mais achatados. || 136 % соответствует классической обложке. Меньшие значения делают карточки площе. || 136%は一般的なカバーの比率です。値を小さくするとカードが平らになります。
+Aktuelles Wetter an deinem Ort. Benötigt Online-Funktionen. || Current weather at your location. Requires online features. || 你所在地的当前天气。需要在线功能。 || El tiempo actual en tu ubicación. Requiere funciones en línea. || La météo actuelle à votre position. Nécessite les fonctions en ligne. || O clima atual no seu local. Requer recursos online. || Текущая погода в вашем месте. Нужны онлайн-функции. || 現在地の天気。オンライン機能が必要です。
+Alle Hintergründe auf echtes Schwarz stellen. || Sets all backgrounds to true black. || 将所有背景设为纯黑。 || Pone todos los fondos en negro puro. || Met tous les arrière-plans en noir pur. || Define todos os fundos como preto puro. || Делает все фоны чисто чёрными. || すべての背景を真っ黒にします。
+Aus ist schonender: GIFs laufen nur, wenn du mit der Maus auf der Karte bist. || Off is gentler: GIFs only play while the mouse is over the card. || 关闭更省资源:GIF 仅在鼠标悬停于卡片上时播放。 || Desactivado es más ligero: los GIF solo se reproducen mientras el ratón está sobre la tarjeta. || Désactivé, c'est plus économe : les GIF ne sont lus que lorsque la souris est sur la carte. || Desligado é mais leve: os GIFs só rodam enquanto o mouse está sobre o cartão. || Выключено — экономнее: GIF воспроизводятся только при наведении мыши на карточку. || オフの方が軽く、GIFはマウスをカードに重ねている間だけ再生されます。
+Aus: 12-Stunden-Format mit AM/PM. || Off: 12-hour format with AM/PM. || 关闭:12 小时制(带 AM/PM)。 || Desactivado: formato de 12 horas con AM/PM. || Désactivé : format 12 heures avec AM/PM. || Desligado: formato de 12 horas com AM/PM. || Выключено: 12-часовой формат с AM/PM. || オフ:AM/PM付きの12時間表示。
+Aus: Anzeige in Grad Celsius. || Off: shown in degrees Celsius. || 关闭:以摄氏度显示。 || Desactivado: se muestra en grados Celsius. || Désactivé : affichage en degrés Celsius. || Desligado: exibido em graus Celsius. || Выключено: в градусах Цельсия. || オフ:摂氏で表示。
+Ausgeschaltet bleibt der Launcher komplett offline: keine Cover-Downloads, kein Wetter und keine Angebote. || When off, the launcher stays completely offline: no cover downloads, no weather and no deals. || 关闭后启动器完全离线:不下载封面、不显示天气、不加载优惠。 || Si está desactivado, el launcher queda totalmente sin conexión: sin descargas de portadas, sin tiempo y sin ofertas. || Désactivé, le launcher reste totalement hors ligne : pas de téléchargement de jaquettes, pas de météo et pas d'offres. || Desligado, o launcher fica totalmente offline: sem download de capas, clima ou ofertas. || В выключенном состоянии лаунчер полностью офлайн: без загрузки обложек, погоды и предложений. || オフにすると完全にオフラインで動作します(カバーのダウンロード、天気、セールは使用しません)。
+Bedient den Launcher mit Xbox-, PlayStation-, Switch- und den meisten anderen Gamepads (USB oder Bluetooth). || Control the launcher with Xbox, PlayStation, Switch and most other gamepads (USB or Bluetooth). || 可用 Xbox、PlayStation、Switch 及大多数其他手柄(USB 或蓝牙)操作启动器。 || Controla el launcher con mandos de Xbox, PlayStation, Switch y la mayoría de los demás (USB o Bluetooth). || Contrôlez le launcher avec des manettes Xbox, PlayStation, Switch et la plupart des autres (USB ou Bluetooth). || Controle o launcher com gamepads de Xbox, PlayStation, Switch e a maioria dos outros (USB ou Bluetooth). || Управляйте лаунчером геймпадами Xbox, PlayStation, Switch и большинством других (USB или Bluetooth). || Xbox、PlayStation、Switchなど、ほとんどのゲームパッド(USB/Bluetooth)でランチャーを操作できます。
+Beim Start öffnet sich kein Fenster, der Launcher wartet im Hintergrund. || No window opens at startup, the launcher waits in the background. || 启动时不会打开窗口,启动器在后台等待。 || Al iniciar no se abre ninguna ventana; el launcher espera en segundo plano. || Aucune fenêtre ne s'ouvre au démarrage, le launcher attend en arrière-plan. || Nenhuma janela é aberta ao iniciar; o launcher espera em segundo plano. || При запуске окно не открывается, лаунчер ждёт в фоне. || 起動時にウィンドウは開かず、ランチャーはバックグラウンドで待機します。
+Beim nächsten Start öffnet sich das Fenster an derselben Stelle. || Next time, the window opens in the same place. || 下次启动时窗口会在相同位置打开。 || La próxima vez la ventana se abrirá en el mismo sitio. || Au prochain démarrage, la fenêtre s'ouvre au même endroit. || Na próxima vez, a janela abre no mesmo lugar. || При следующем запуске окно откроется на том же месте. || 次回もウィンドウは同じ場所に開きます。
+Blendet Seiten weich ein und zählt Zahlen hoch. || Fades pages in smoothly and counts numbers up. || 页面平滑淡入,数字逐步递增。 || Muestra las páginas con fundido suave y hace contar los números hacia arriba. || Affiche les pages en fondu et incrémente les nombres. || Exibe as páginas com transição suave e faz os números contarem para cima. || Плавно показывает страницы и наращивает числа. || ページをなめらかに表示し、数字をカウントアップします。
+Blendet den Schriftzug neben dem Pudel-Logo ein oder aus. || Shows or hides the lettering next to the poodle logo. || 显示或隐藏贵宾犬标志旁边的文字。 || Muestra u oculta el texto junto al logotipo del caniche. || Affiche ou masque le texte à côté du logo du caniche. || Mostra ou oculta o texto ao lado do logotipo do poodle. || Показывает или скрывает надпись рядом с логотипом-пуделем. || プードルのロゴの横の文字を表示/非表示にします。
+Blendet den Titel unter dem Cover ein. || Shows the title below the cover. || 在封面下方显示标题。 || Muestra el título bajo la portada. || Affiche le titre sous la jaquette. || Mostra o título abaixo da capa. || Показывает название под обложкой. || カバーの下にタイトルを表示します。
+Breite einer Karte in Pixeln. || Width of a card in pixels. || 卡片宽度(像素)。 || Ancho de una tarjeta en píxeles. || Largeur d'une carte en pixels. || Largura de um cartão em pixels. || Ширина карточки в пикселях. || カードの幅(ピクセル)。
+Das Schließen-Kreuz versteckt den Launcher nur. Beenden kannst du ihn über das Symbol unten rechts. || The close button only hides the launcher. You can quit it from the icon at the bottom right. || 点击关闭按钮只会隐藏启动器。可通过右下角的图标退出。 || El botón de cerrar solo oculta el launcher. Puedes salir desde el icono de abajo a la derecha. || La croix de fermeture ne fait que masquer le launcher. Vous pouvez le quitter via l'icône en bas à droite. || O botão de fechar apenas oculta o launcher. Você pode sair pelo ícone no canto inferior direito. || Кнопка закрытия лишь скрывает лаунчер. Выйти можно через значок в правом нижнем углу. || ×ボタンはランチャーを隠すだけです。右下のアイコンから終了できます。
+Dein Ziel in Stunden pro Woche. 0 schaltet das Ziel aus. || Your goal in hours per week. 0 turns the goal off. || 你每周的目标小时数。0 表示关闭目标。 || Tu objetivo en horas por semana. 0 desactiva el objetivo. || Votre objectif en heures par semaine. 0 désactive l'objectif. || Sua meta em horas por semana. 0 desativa a meta. || Ваша цель в часах в неделю. 0 отключает цель. || 週あたりの目標時間。0で目標をオフにします。
+Deine eigenen Verknüpfungen zu Webseiten, Programmen und Ordnern. Rechtsklick auf eine Kachel zum Bearbeiten, Verschieben oder Entfernen. || Your own shortcuts to websites, programs and folders. Right-click a tile to edit, move or remove it. || 你自己的网站、程序和文件夹快捷方式。右键点击磁贴可编辑、移动或删除。 || Tus propios accesos directos a sitios web, programas y carpetas. Clic derecho en un icono para editarlo, moverlo o quitarlo. || Vos propres raccourcis vers des sites web, programmes et dossiers. Clic droit sur une vignette pour la modifier, la déplacer ou la supprimer. || Seus próprios atalhos para sites, programas e pastas. Clique com o botão direito em um bloco para editar, mover ou remover. || Ваши собственные ярлыки на сайты, программы и папки. Правый щелчок по плитке — изменить, переместить или удалить. || Webサイト、プログラム、フォルダーへの自分用ショートカット。タイルを右クリックして編集・移動・削除できます。
+Der Launcher bleibt über allen anderen Fenstern sichtbar. || The launcher stays above all other windows. || 启动器始终显示在所有其他窗口之上。 || El launcher permanece por encima de todas las demás ventanas. || Le launcher reste au-dessus de toutes les autres fenêtres. || O launcher fica acima de todas as outras janelas. || Лаунчер остаётся поверх всех других окон. || ランチャーは常にほかのウィンドウの上に表示されます。
+Die Anzeigen in der Systemüberwachung gleiten zu neuen Werten. || The gauges in system monitoring glide to new values. || 系统监控中的仪表平滑过渡到新数值。 || Los indicadores de la monitorización del sistema se deslizan hacia los nuevos valores. || Les jauges de la surveillance système glissent vers les nouvelles valeurs. || Os medidores do monitoramento do sistema deslizam para os novos valores. || Индикаторы мониторинга системы плавно переходят к новым значениям. || システムモニターのゲージが新しい値へなめらかに動きます。
+Die Karten erscheinen nacheinander statt alle auf einmal. || Cards appear one after another instead of all at once. || 卡片依次出现,而不是一次全部出现。 || Las tarjetas aparecen una tras otra en lugar de todas a la vez. || Les cartes apparaissent l'une après l'autre au lieu de toutes en même temps. || Os cartões aparecem um após o outro, em vez de todos de uma vez. || Карточки появляются по очереди, а не все сразу. || カードが一度に全部ではなく、順番に表示されます。
+Die größten Preisnachlässe im Steam-Shop. Die Prozentangabe zeigt die Ersparnis. || The biggest price cuts in the Steam store. The percentage shows your savings. || Steam 商店中降价幅度最大的游戏。百分比表示节省的金额。 || Las mayores rebajas de la tienda de Steam. El porcentaje muestra tu ahorro. || Les plus grosses réductions de la boutique Steam. Le pourcentage indique votre économie. || Os maiores descontos da loja da Steam. A porcentagem mostra a sua economia. || Самые большие скидки в магазине Steam. Процент показывает вашу экономию. || Steamストアで最も値引き率の大きい商品。割合は節約できる額を示します。
+Die Änderung wirkt sofort. „Automatisch“ übernimmt die Sprache von Windows. || Takes effect immediately. "Automatic" uses the Windows language. || 更改立即生效。“自动”会使用 Windows 的语言。 || El cambio surte efecto de inmediato. «Automático» usa el idioma de Windows. || La modification est immédiate. « Automatique » utilise la langue de Windows. || A alteração tem efeito imediato. "Automático" usa o idioma do Windows. || Изменение применяется сразу. «Автоматически» использует язык Windows. || 変更はすぐに反映されます。「自動」はWindowsの言語を使用します。
+Diese Programme starten bei jedem Spielstart mit, zum Beispiel Discord oder ein Overlay-Tool. || These programs start with every game, for example Discord or an overlay tool. || 这些程序会随每个游戏一起启动,例如 Discord 或悬浮工具。 || Estos programas se inician con cada juego, por ejemplo Discord o una herramienta de overlay. || Ces programmes démarrent avec chaque jeu, par exemple Discord ou un outil d'overlay. || Estes programas iniciam com cada jogo, por exemplo o Discord ou uma ferramenta de overlay. || Эти программы запускаются с каждой игрой, например Discord или инструмент оверлея. || これらのプログラムはゲームごとに一緒に起動します(例:Discordやオーバーレイツール)。
+Diese Seite öffnet sich beim Start des Launchers. || This page opens when the launcher starts. || 启动器启动时打开此页面。 || Esta página se abre al iniciar el launcher. || Cette page s'ouvre au démarrage du launcher. || Esta página é aberta ao iniciar o launcher. || Эта страница открывается при запуске лаунчера. || ランチャーの起動時にこのページが開きます。
+Diese Spiele kannst du aktuell kostenlos in deine Bibliothek holen und behalten. || You can currently add these games to your library for free and keep them. || 这些游戏目前可免费领取并永久保留。 || Estos juegos puedes conseguirlos gratis ahora y quedártelos. || Vous pouvez actuellement ajouter ces jeux gratuitement à votre bibliothèque et les conserver. || Você pode adicionar estes jogos de graça à sua biblioteca e ficar com eles. || Эти игры сейчас можно бесплатно добавить в библиотеку и оставить навсегда. || これらのゲームは現在無料でライブラリに追加でき、そのまま保持できます。
+Diese Spiele sind als Nächstes kostenlos. Das Datum steht auf der Karte. || These games are free next. The date is shown on the card. || 这些游戏是接下来的免费游戏。日期显示在卡片上。 || Estos juegos serán gratis próximamente. La fecha aparece en la tarjeta. || Ces jeux seront gratuits prochainement. La date figure sur la carte. || Estes jogos serão grátis em seguida. A data aparece no cartão. || Эти игры станут бесплатными следующими. Дата указана на карточке. || 次に無料になるゲームです。日付はカードに表示されます。
+Dieser Name erscheint in der Begrüßung auf dem Dashboard und in der Seitenleiste. || This name appears in the greeting on the dashboard and in the sidebar. || 此名称会显示在仪表盘的问候语和侧边栏中。 || Este nombre aparece en el saludo del panel y en la barra lateral. || Ce nom apparaît dans le message d'accueil du tableau de bord et dans la barre latérale. || Este nome aparece na saudação do painel e na barra lateral. || Это имя отображается в приветствии на панели и на боковой панели. || この名前はダッシュボードのあいさつとサイドバーに表示されます。
+Durchmesser des Logos in der Seitenleiste. || Diameter of the logo in the sidebar. || 侧边栏中标志的直径。 || Diámetro del logotipo en la barra lateral. || Diamètre du logo dans la barre latérale. || Diâmetro do logotipo na barra lateral. || Диаметр логотипа на боковой панели. || サイドバーのロゴの直径。
+Ein Leuchtrand in deiner Akzentfarbe um die Karte unter dem Mauszeiger. || A glowing border in your accent color around the card under the mouse pointer. || 鼠标指针下的卡片周围显示强调色的发光边框。 || Un borde luminoso con tu color de acento alrededor de la tarjeta bajo el puntero. || Une bordure lumineuse à votre couleur d'accentuation autour de la carte sous le pointeur. || Uma borda brilhante na sua cor de destaque ao redor do cartão sob o ponteiro. || Светящаяся рамка вашего акцентного цвета вокруг карточки под курсором. || マウスポインターの下のカードがアクセントカラーで光ります。
+Ein eigenes Bild hinter der ganzen Oberfläche. Unterstützt PNG, JPG und BMP. || Your own image behind the whole interface. Supports PNG, JPG and BMP. || 在整个界面后面显示你自己的图片。支持 PNG、JPG 和 BMP。 || Tu propia imagen detrás de toda la interfaz. Admite PNG, JPG y BMP. || Votre propre image derrière toute l'interface. Prend en charge PNG, JPG et BMP. || Sua própria imagem atrás de toda a interface. Suporta PNG, JPG e BMP. || Ваше изображение позади всего интерфейса. Поддерживаются PNG, JPG и BMP. || インターフェース全体の背景に自分の画像を表示します。PNG、JPG、BMPに対応。
+Ein kleines Fenster mit Live-Werten, das über dem Spiel liegt. || A small window with live values that sits on top of the game. || 一个显示实时数值、悬浮在游戏上方的小窗口。 || Una ventana pequeña con valores en vivo que se muestra sobre el juego. || Une petite fenêtre avec des valeurs en direct, affichée au-dessus du jeu. || Uma janelinha com valores em tempo real sobre o jogo. || Небольшое окно с текущими значениями поверх игры. || ゲームの上に表示される、リアルタイム値の小さなウィンドウ。
+Ein ruhiger, animierter Farbverlauf in der Akzentfarbe hinter der Oberfläche. || A calm, animated gradient in the accent color behind the interface. || 界面后方一个平静的、使用强调色的动态渐变。 || Un degradado animado y tranquilo con el color de acento detrás de la interfaz. || Un dégradé animé et calme à la couleur d'accentuation derrière l'interface. || Um gradiente animado e calmo na cor de destaque atrás da interface. || Спокойный анимированный градиент акцентного цвета позади интерфейса. || インターフェースの背後でゆっくり動く、アクセントカラーのグラデーション。
+Erinnert dich nach so vielen Minuten an eine Pause. 0 schaltet sie aus. || Reminds you to take a break after this many minutes. 0 turns it off. || 经过这么多分钟后提醒你休息。0 表示关闭。 || Te recuerda hacer una pausa pasados estos minutos. 0 lo desactiva. || Vous rappelle de faire une pause après ce nombre de minutes. 0 le désactive. || Lembra você de fazer uma pausa após esta quantidade de minutos. 0 desativa. || Напомнит об отдыхе через столько минут. 0 отключает напоминание. || この分数が経過すると休憩を促します。0でオフ。
+Erkennt laufende Spiele selbst und zählt die Zeit mit. Es wird nichts in Spiele eingeklinkt. || Detects running games by itself and counts the time. Nothing is injected into games. || 自动识别正在运行的游戏并计时。不会向游戏中注入任何内容。 || Detecta por sí mismo los juegos en ejecución y cuenta el tiempo. No se inyecta nada en los juegos. || Détecte lui-même les jeux en cours et compte le temps. Rien n'est injecté dans les jeux. || Detecta sozinho os jogos em execução e conta o tempo. Nada é injetado nos jogos. || Сам определяет запущенные игры и считает время. В игры ничего не внедряется. || 起動中のゲームを自動で検出して時間を計測します。ゲームへの介入は一切ありません。
+Es sind keine Spiele versteckt. Verstecke Spiele per Rechtsklick auf die Karte. || No games are hidden. Hide games with a right-click on the card. || 没有隐藏的游戏。在卡片上右键即可隐藏游戏。 || No hay juegos ocultos. Oculta juegos con clic derecho sobre la tarjeta. || Aucun jeu n'est masqué. Masquez des jeux par un clic droit sur la carte. || Nenhum jogo está oculto. Oculte jogos com o botão direito no cartão. || Скрытых игр нет. Скрывайте игры правым щелчком по карточке. || 非表示のゲームはありません。カードを右クリックして非表示にできます。
+Exportiere deine Bibliothek als Tabelle oder Webseite, oder übernimm die Spielzeit aus Steam. || Export your library as a table or web page, or import your playtime from Steam. || 将游戏库导出为表格或网页,或导入 Steam 的游戏时间。 || Exporta tu biblioteca como tabla o página web, o importa tu tiempo de juego desde Steam. || Exportez votre bibliothèque sous forme de tableau ou de page web, ou importez votre temps de jeu depuis Steam. || Exporte sua biblioteca como tabela ou página web, ou importe seu tempo de jogo da Steam. || Экспортируйте библиотеку в виде таблицы или веб-страницы либо импортируйте время игры из Steam. || ライブラリを表やWebページとしてエクスポートしたり、Steamのプレイ時間をインポートしたりできます。
+Farbstil von Ring und Kette. „Akzentfarbe“ übernimmt deine gewählte Akzentfarbe. || Color style of the ring and chain. "Accent color" uses your chosen accent color. || 圆环和项链的配色风格。“强调色”会使用你选择的强调色。 || Estilo de color del anillo y la cadena. «Color de acento» usa el color de acento elegido. || Style de couleur de l'anneau et de la chaîne. « Couleur d'accentuation » reprend la couleur choisie. || Estilo de cor do anel e da corrente. "Cor de destaque" usa a cor de destaque escolhida. || Цветовой стиль кольца и цепи. «Акцентный цвет» использует выбранный вами акцентный цвет. || リングとチェーンの配色スタイル。「アクセントカラー」は選択したアクセントカラーを使います。
+Fertige Farbkombinationen mit einem Klick. „Pechschwarz“ eignet sich besonders für OLED-Bildschirme. || Ready-made color combinations with one click. "Pitch black" is ideal for OLED screens. || 一键应用现成的配色组合。“纯黑”特别适合 OLED 屏幕。 || Combinaciones de colores ya hechas con un clic. «Negro total» es ideal para pantallas OLED. || Combinaisons de couleurs prêtes à l'emploi en un clic. « Noir profond » convient particulièrement aux écrans OLED. || Combinações de cores prontas com um clique. "Preto total" é ideal para telas OLED. || Готовые цветовые сочетания в один клик. «Чёрная» особенно подходит для OLED-экранов. || ワンクリックで使える配色セット。「ピッチブラック」はOLEDディスプレイに最適です。
+Freiraum zwischen den Karten in Pixeln. || Space between the cards in pixels. || 卡片之间的间距(像素)。 || Espacio entre las tarjetas en píxeles. || Espace entre les cartes en pixels. || Espaço entre os cartões em pixels. || Расстояние между карточками в пикселях. || カード間の余白(ピクセル)。
+Funktioniert auch, während ein Spiel im Vordergrund läuft. || Also works while a game is in the foreground. || 即使游戏在前台运行也有效。 || Funciona también mientras un juego está en primer plano. || Fonctionne aussi pendant qu'un jeu est au premier plan. || Funciona também enquanto um jogo está em primeiro plano. || Работает и пока игра на переднем плане. || ゲームが前面にあるときも動作します。
+Gib eine Stadt ein, wenn der automatisch erkannte Ort nicht stimmt. || Enter a city if the automatically detected location is wrong. || 如果自动识别的地点不对,请输入城市。 || Introduce una ciudad si la ubicación detectada automáticamente no es correcta. || Saisissez une ville si le lieu détecté automatiquement est incorrect. || Digite uma cidade se o local detectado automaticamente estiver errado. || Введите город, если автоматически определённое место неверно. || 自動検出された場所が違う場合は都市名を入力してください。
+Gibt Bildschirm und Arbeitsspeicher frei, sobald ein Spiel läuft. || Frees up screen space and memory as soon as a game is running. || 游戏一运行就释放屏幕空间和内存。 || Libera pantalla y memoria en cuanto se ejecuta un juego. || Libère l'écran et la mémoire dès qu'un jeu est lancé. || Libera tela e memória assim que um jogo é executado. || Освобождает экран и память, как только запускается игра. || ゲームが起動するとすぐに画面とメモリを解放します。
+Größe von Text und Symbolen der Einträge links. || Size of text and icons of the entries on the left. || 左侧条目的文字和图标大小。 || Tamaño del texto y de los iconos de las entradas de la izquierda. || Taille du texte et des icônes des entrées à gauche. || Tamanho do texto e dos ícones das entradas à esquerda. || Размер текста и значков пунктов слева. || 左側の項目の文字とアイコンのサイズ。
+Hintergrund- und Akzentfarbe frei wählen. Die Akzentfarbe färbt Schalter, Knöpfe und Hervorhebungen. || Choose background and accent colors freely. The accent color tints switches, buttons and highlights. || 自由选择背景色和强调色。强调色会应用于开关、按钮和高亮。 || Elige libremente el color de fondo y el de acento. El de acento tiñe interruptores, botones y resaltados. || Choisissez librement la couleur d'arrière-plan et d'accentuation. Cette dernière colore les interrupteurs, boutons et mises en évidence. || Escolha livremente a cor de fundo e a de destaque. A de destaque colore interruptores, botões e realces. || Свободно выбирайте цвет фона и акцентный цвет. Акцентный цвет окрашивает переключатели, кнопки и выделения. || 背景色とアクセントカラーを自由に選べます。アクセントカラーはスイッチ、ボタン、強調表示に反映されます。
+In welcher Bildschirmecke das Mini-Overlay erscheint. || Which screen corner the mini overlay appears in. || 迷你悬浮窗出现在屏幕的哪个角落。 || En qué esquina de la pantalla aparece el mini overlay. || Dans quel coin de l'écran apparaît le mini-overlay. || Em qual canto da tela o mini overlay aparece. || В каком углу экрана появляется мини-оверлей. || ミニオーバーレイを表示する画面の隅。
+Innenabstand oben und unten. Größere Werte machen die Einträge luftiger. || Padding above and below. Larger values make the entries airier. || 上下内边距。值越大,条目越宽松。 || Espaciado interior superior e inferior. Valores mayores dan más aire a las entradas. || Marge intérieure en haut et en bas. Des valeurs plus grandes aèrent les entrées. || Espaçamento interno acima e abaixo. Valores maiores deixam as entradas mais arejadas. || Внутренний отступ сверху и снизу. Большие значения делают пункты просторнее. || 上下の内側の余白。大きくすると項目がゆったりします。
+Je höher, desto dunkler das Bild. Sorgt für gut lesbare Schrift. || The higher, the darker the image. Keeps text easy to read. || 数值越高,图片越暗。可让文字更易阅读。 || Cuanto más alto, más oscura la imagen. Mantiene el texto legible. || Plus la valeur est élevée, plus l'image est sombre. Le texte reste lisible. || Quanto maior, mais escura a imagem. Mantém o texto legível. || Чем выше значение, тем темнее изображение. Текст остаётся читаемым. || 値が高いほど画像が暗くなります。文字が読みやすくなります。
+Kacheln mit großen Covern, Detailkacheln mit Zusatzinfos oder eine schlanke Liste. || Tiles with large covers, detail tiles with extra info, or a slim list. || 大封面卡片、带额外信息的详情卡片,或精简列表。 || Mosaicos con portadas grandes, mosaicos detallados con información extra o una lista compacta. || Tuiles avec grandes jaquettes, tuiles détaillées avec infos supplémentaires ou liste compacte. || Blocos com capas grandes, blocos detalhados com informações extras ou uma lista enxuta. || Плитки с крупными обложками, подробные плитки с доп. информацией или компактный список. || 大きなカバーのタイル、追加情報つきの詳細タイル、またはスリムなリスト。
+Karten wachsen leicht, wenn du mit der Maus darüberfährst. || Cards grow slightly when you move the mouse over them. || 鼠标移到卡片上时,卡片会略微放大。 || Las tarjetas crecen ligeramente al pasar el ratón por encima. || Les cartes grossissent légèrement quand la souris passe dessus. || Os cartões crescem levemente quando você passa o mouse. || Карточки слегка увеличиваются при наведении мыши. || マウスを重ねるとカードがわずかに大きくなります。
+Kleine Verlaufskurven der letzten Minuten in der Systemüberwachung. || Small history curves of the last minutes in system monitoring. || 系统监控中显示最近几分钟的小型历史曲线。 || Pequeñas curvas de historial de los últimos minutos en la monitorización del sistema. || Petites courbes d'historique des dernières minutes dans la surveillance système. || Pequenas curvas de histórico dos últimos minutos no monitoramento do sistema. || Небольшие кривые истории за последние минуты в мониторинге системы. || システムモニターに直近数分間の小さな履歴グラフを表示します。
+Legt nach dem Beenden eines Spiels eine ZIP-Sicherung an und behält die letzten 10. || Creates a ZIP backup after a game ends and keeps the last 10. || 游戏结束后创建 ZIP 备份,并保留最近 10 份。 || Crea una copia ZIP al cerrar un juego y conserva las últimas 10. || Crée une sauvegarde ZIP à la fin d'un jeu et conserve les 10 dernières. || Cria um backup ZIP ao fechar um jogo e mantém os últimos 10. || Создаёт ZIP-копию после завершения игры и хранит последние 10. || ゲーム終了後にZIPバックアップを作成し、最新の10件を保持します。
+Lädt die größte verfügbare Fassung direkt von der Quelle. Aus: kleinere, speicherschonende Vorschaubilder. || Loads the largest available version straight from the source. Off: smaller, memory-friendly previews. || 直接从来源加载可用的最大版本。关闭:更小、更省内存的预览图。 || Carga la versión más grande disponible directamente de la fuente. Desactivado: miniaturas más pequeñas y ligeras. || Charge la plus grande version disponible directement depuis la source. Désactivé : aperçus plus petits et économes en mémoire. || Carrega a maior versão disponível direto da fonte. Desligado: prévias menores e econômicas em memória. || Загружает самую большую доступную версию прямо из источника. Выключено: меньшие превью, экономящие память. || 入手可能な最大サイズを元の配信元から直接読み込みます。オフ:小さくメモリに優しいプレビュー。
+Lässt das Fenster leicht durchscheinen, so wie bei modernen Windows-Apps. || Makes the window slightly translucent, like modern Windows apps. || 让窗口略微透明,就像现代 Windows 应用一样。 || Hace la ventana ligeramente translúcida, como las apps modernas de Windows. || Rend la fenêtre légèrement translucide, comme les applications Windows modernes. || Deixa a janela levemente translúcida, como os aplicativos modernos do Windows. || Делает окно слегка полупрозрачным, как в современных приложениях Windows. || 最近のWindowsアプリのように、ウィンドウをわずかに透過させます。
+Löscht die zwischengespeicherten Cover und lädt alle neu. Eigene Cover bleiben erhalten. || Deletes the cached covers and reloads all of them. Custom covers are kept. || 删除缓存的封面并重新下载全部。自定义封面会保留。 || Elimina las portadas en caché y las vuelve a cargar todas. Las portadas propias se conservan. || Supprime les jaquettes en cache et les recharge toutes. Les jaquettes personnalisées sont conservées. || Exclui as capas em cache e recarrega todas. As capas próprias são mantidas. || Удаляет кэшированные обложки и загружает все заново. Собственные обложки сохраняются. || キャッシュされたカバーを削除してすべて再読み込みします。カスタムカバーは残ります。
+Mit dem Schalter blendest du einen Bereich aus, mit den Pfeilen verschiebst du ihn. Das geht auch per Rechtsklick auf die Seitenleiste. Einstellungen bleibt immer sichtbar. || Use the switch to hide a section and the arrows to move it. You can also do this with a right-click on the sidebar. Settings always stays visible. || 用开关隐藏栏目,用箭头移动栏目。也可以右键点击侧边栏进行操作。“设置”始终可见。 || Con el interruptor ocultas una sección y con las flechas la mueves. También puedes hacerlo con clic derecho en la barra lateral. Ajustes siempre permanece visible. || Avec l'interrupteur, vous masquez une section ; avec les flèches, vous la déplacez. Cela fonctionne aussi par clic droit sur la barre latérale. Les paramètres restent toujours visibles. || Com o interruptor você oculta uma seção e com as setas a move. Também dá para fazer isso com o botão direito na barra lateral. Configurações sempre fica visível. || Переключателем вы скрываете раздел, стрелками — перемещаете его. То же можно сделать правым щелчком по боковой панели. «Настройки» всегда остаются видимыми. || スイッチでセクションを非表示にし、矢印で移動します。サイドバーの右クリックでも操作できます。「設定」は常に表示されます。
+Mit einem kostenlosen API-Schlüssel (steamgriddb.com, Profil, Einstellungen, API) lädt der Launcher Cover zuerst von SteamGridDB, auch für Epic-, Xbox- und manuelle Spiele. || With a free API key (steamgriddb.com, profile, preferences, API) the launcher loads covers from SteamGridDB first, including for Epic, Xbox and manual games. || 使用免费的 API 密钥(steamgriddb.com → 个人资料 → 偏好设置 → API),启动器会优先从 SteamGridDB 加载封面,包括 Epic、Xbox 和手动添加的游戏。 || Con una clave API gratuita (steamgriddb.com, perfil, preferencias, API) el launcher carga primero las portadas de SteamGridDB, también para juegos de Epic, Xbox y manuales. || Avec une clé API gratuite (steamgriddb.com, profil, préférences, API), le launcher charge d'abord les jaquettes depuis SteamGridDB, y compris pour les jeux Epic, Xbox et manuels. || Com uma chave de API gratuita (steamgriddb.com, perfil, preferências, API), o launcher carrega as capas primeiro do SteamGridDB, inclusive para jogos da Epic, Xbox e manuais. || С бесплатным API-ключом (steamgriddb.com, профиль, настройки, API) лаунчер сначала загружает обложки из SteamGridDB, в том числе для игр из Epic, Xbox и добавленных вручную. || 無料のAPIキー(steamgriddb.com → プロフィール → 設定 → API)を使うと、Epic、Xbox、手動追加のゲームも含め、まずSteamGridDBからカバーを読み込みます。
+Neu installierte Spiele erscheinen von selbst. Es wird höchstens alle 10 Minuten geprüft. || Newly installed games appear on their own. It checks at most every 10 minutes. || 新安装的游戏会自动出现。最多每 10 分钟检查一次。 || Los juegos recién instalados aparecen solos. Se comprueba como máximo cada 10 minutos. || Les jeux nouvellement installés apparaissent d'eux-mêmes. Vérification toutes les 10 minutes au maximum. || Jogos recém-instalados aparecem sozinhos. A verificação ocorre no máximo a cada 10 minutos. || Новые установленные игры появляются сами. Проверка не чаще раза в 10 минут. || 新しくインストールしたゲームは自動で表示されます。確認は最大10分に1回です。
+Noch keine Verknüpfungen. Füge mit „Hinzufügen“ Webseiten, Programme oder Ordner hinzu. || No shortcuts yet. Use "Add" to add websites, programs or folders. || 还没有快捷方式。用“添加”来添加网站、程序或文件夹。 || Aún no hay accesos directos. Usa «Añadir» para añadir sitios web, programas o carpetas. || Pas encore de raccourcis. Utilisez « Ajouter » pour ajouter des sites web, programmes ou dossiers. || Ainda não há atalhos. Use "Adicionar" para incluir sites, programas ou pastas. || Ярлыков пока нет. Кнопкой «Добавить» добавьте сайты, программы или папки. || ショートカットはまだありません。「追加」でWebサイト、プログラム、フォルダーを追加できます。
+Passe den Launcher an dich an. Unter jeder Option steht, was sie bewirkt. || Customize the launcher. Under each option you can read what it does. || 按你的喜好自定义启动器。每个选项下方都说明了它的作用。 || Personaliza el launcher. Bajo cada opción verás qué hace. || Personnalisez le launcher. Sous chaque option, vous pouvez lire ce qu'elle fait. || Personalize o launcher. Sob cada opção você lê o que ela faz. || Настройте лаунчер. Под каждой опцией написано, что она делает. || ランチャーをカスタマイズします。各オプションの下に機能の説明があります。
+Programme, die dauerhaft laufen (zum Beispiel Wallpaper Engine), zählen nicht als Spiel. Wallpaper Engine, Lively und Rainmeter sind schon automatisch ausgenommen. || Programs that run permanently (for example Wallpaper Engine) do not count as a game. Wallpaper Engine, Lively and Rainmeter are already excluded automatically. || 持续运行的程序(例如 Wallpaper Engine)不算作游戏。Wallpaper Engine、Lively 和 Rainmeter 已自动排除。 || Los programas que se ejecutan de forma permanente (por ejemplo Wallpaper Engine) no cuentan como juego. Wallpaper Engine, Lively y Rainmeter ya están excluidos automáticamente. || Les programmes qui tournent en permanence (par exemple Wallpaper Engine) ne comptent pas comme un jeu. Wallpaper Engine, Lively et Rainmeter sont déjà exclus automatiquement. || Programas que ficam sempre em execução (por exemplo o Wallpaper Engine) não contam como jogo. Wallpaper Engine, Lively e Rainmeter já são excluídos automaticamente. || Постоянно работающие программы (например, Wallpaper Engine) не считаются игрой. Wallpaper Engine, Lively и Rainmeter уже исключены автоматически. || 常時動作するプログラム(例:Wallpaper Engine)はゲームとして扱いません。Wallpaper Engine、Lively、Rainmeterはすでに自動で除外されています。
+Programme, die mit Windows starten. Abwählen verhindert den Start (nur für deinen Benutzer). || Programs that start with Windows. Turning one off prevents it from starting (your user only). || 随 Windows 启动的程序。取消勾选可阻止其启动(仅对你的用户有效)。 || Programas que se inician con Windows. Desactivar uno impide que arranque (solo para tu usuario). || Programmes qui démarrent avec Windows. Désactiver un programme l'empêche de démarrer (pour votre utilisateur uniquement). || Programas que iniciam com o Windows. Desligar um impede que inicie (apenas para o seu usuário). || Программы, которые запускаются вместе с Windows. Отключение запрещает запуск (только для вашего пользователя). || Windowsと一緒に起動するプログラム。オフにすると起動しなくなります(お使いのユーザーのみ)。
+Schaltet Animationen, Leuchteffekte, Unschärfe, Verlaufsgrafiken und Original-Cover ab. Danach kannst du einzelne Optionen wieder einschalten. || Turns off animations, glow effects, blur, history graphs and original-size covers. Afterwards you can switch single options back on. || 关闭动画、发光特效、模糊、历史曲线和原始尺寸封面。之后你可以逐项重新开启。 || Desactiva animaciones, efectos de brillo, desenfoque, gráficos de historial y portadas a tamaño original. Después puedes volver a activar opciones sueltas. || Désactive animations, effets lumineux, flou, courbes d'historique et jaquettes en taille d'origine. Vous pouvez ensuite réactiver des options une par une. || Desliga animações, efeitos de brilho, desfoque, gráficos de histórico e capas em tamanho original. Depois você pode reativar opções individuais. || Отключает анимации, световые эффекты, размытие, графики истории и обложки в исходном размере. Затем можно по одной включить нужные опции обратно. || アニメーション、発光効果、ぼかし、履歴グラフ、原寸のカバーをオフにします。その後、個別にオンに戻せます。
+Schaltet alle Hintergründe auf echtes Schwarz. OLED-Pixel bleiben aus, das spart Strom und sieht tiefer aus. || Sets all backgrounds to true black. OLED pixels stay off, which saves power and looks deeper. || 将所有背景设为纯黑。OLED 像素保持关闭,省电且更有层次。 || Pone todos los fondos en negro puro. Los píxeles OLED se apagan, lo que ahorra energía y da más profundidad. || Met tous les arrière-plans en noir pur. Les pixels OLED restent éteints, ce qui économise de l'énergie et donne plus de profondeur. || Define todos os fundos como preto puro. Os pixels OLED ficam apagados, o que economiza energia e dá mais profundidade. || Делает все фоны чисто чёрными. OLED-пиксели остаются выключенными: экономия энергии и более глубокий вид. || すべての背景を真っ黒にします。OLEDの画素が消灯するため、省電力で深みのある表示になります。
+Schaltet den Windows-Energiesparplan während des Spiels um und danach wieder zurück. || Switches the Windows power plan during the game and back afterwards. || 游戏期间切换 Windows 电源计划,结束后切换回来。 || Cambia el plan de energía de Windows durante el juego y lo restablece después. || Change le mode d'alimentation de Windows pendant le jeu puis le rétablit. || Troca o plano de energia do Windows durante o jogo e o restaura depois. || Переключает схему питания Windows на время игры и возвращает её после. || プレイ中はWindowsの電源プランを切り替え、終了後に元へ戻します。
+Schließt zum Beispiel Browser oder Chat-Programme, damit das Spiel mehr Leistung hat. || Closes browsers or chat programs, for example, so the game gets more performance. || 例如关闭浏览器或聊天程序,让游戏获得更多性能。 || Cierra, por ejemplo, navegadores o programas de chat para que el juego tenga más rendimiento. || Ferme par exemple les navigateurs ou programmes de discussion pour donner plus de performances au jeu. || Fecha, por exemplo, navegadores ou programas de chat para que o jogo tenha mais desempenho. || Закрывает, например, браузеры или чат-программы, чтобы игре хватало ресурсов. || ブラウザーやチャットアプリなどを閉じて、ゲームに使える性能を増やします。
+Schriftgröße des Namens neben dem Logo. || Font size of the name next to the logo. || 标志旁边名称的字号。 || Tamaño de fuente del nombre junto al logotipo. || Taille de police du nom à côté du logo. || Tamanho da fonte do nome ao lado do logotipo. || Размер шрифта названия рядом с логотипом. || ロゴの横の名前の文字サイズ。
+Setzt Spielzeit, zuletzt gespielt und Starts aller Spiele zurück. Favoriten und Bewertungen bleiben. || Resets playtime, last played and launches of all games. Favorites and ratings are kept. || 重置所有游戏的游戏时间、最近游玩和启动次数。收藏和评分会保留。 || Restablece el tiempo de juego, la última partida y los inicios de todos los juegos. Favoritos y valoraciones se conservan. || Réinitialise le temps de jeu, la dernière partie et les lancements de tous les jeux. Les favoris et notes sont conservés. || Redefine o tempo de jogo, a última vez jogado e os inícios de todos os jogos. Favoritos e avaliações são mantidos. || Сбрасывает время игры, последний запуск и число запусков всех игр. Избранное и оценки сохраняются. || すべてのゲームのプレイ時間、最終プレイ、起動回数をリセットします。お気に入りと評価は残ります。
+Spart Prozessorlast, während der Launcher im Hintergrund wartet. || Saves processor load while the launcher waits in the background. || 启动器在后台等待时降低处理器负载。 || Ahorra carga del procesador mientras el launcher espera en segundo plano. || Économise la charge du processeur pendant que le launcher attend en arrière-plan. || Economiza carga do processador enquanto o launcher espera em segundo plano. || Снижает нагрузку на процессор, пока лаунчер ждёт в фоне. || ランチャーがバックグラウンドで待機している間のCPU負荷を抑えます。
+Speichert alle Einstellungen in einer Datei oder lädt sie wieder, zum Beispiel auf einem neuen PC. || Saves all settings to a file or loads them again, for example on a new PC. || 把所有设置保存到文件,或再次载入,例如在新电脑上。 || Guarda todos los ajustes en un archivo o los vuelve a cargar, por ejemplo en un PC nuevo. || Enregistre tous les paramètres dans un fichier ou les recharge, par exemple sur un nouveau PC. || Salva todas as configurações em um arquivo ou as carrega novamente, por exemplo em um PC novo. || Сохраняет все настройки в файл или загружает их снова, например на новом ПК. || すべての設定をファイルに保存したり、新しいPCなどで読み込んだりします。
+Speichert das Logo als Symbol-Datei oder legt eine Verknüpfung auf dem Desktop an. || Saves the logo as an icon file or creates a shortcut on the desktop. || 将标志保存为图标文件,或在桌面上创建快捷方式。 || Guarda el logotipo como archivo de icono o crea un acceso directo en el escritorio. || Enregistre le logo comme fichier d'icône ou crée un raccourci sur le bureau. || Salva o logotipo como arquivo de ícone ou cria um atalho na área de trabalho. || Сохраняет логотип как файл значка или создаёт ярлык на рабочем столе. || ロゴをアイコンファイルとして保存したり、デスクトップにショートカットを作成したりします。
+Startet den Launcher automatisch, sobald du dich bei Windows anmeldest. || Starts the launcher automatically when you sign in to Windows. || 登录 Windows 时自动启动启动器。 || Inicia el launcher automáticamente al iniciar sesión en Windows. || Démarre le launcher automatiquement à l'ouverture de session Windows. || Inicia o launcher automaticamente quando você entra no Windows. || Автоматически запускает лаунчер при входе в Windows. || Windowsにサインインすると自動でランチャーを起動します。
+Stellt Logo, Name und Farben auf den Originalzustand zurück. || Restores logo, name and colors to their original state. || 将标志、名称和颜色恢复为原始状态。 || Restablece logotipo, nombre y colores a su estado original. || Rétablit le logo, le nom et les couleurs à leur état d'origine. || Restaura logotipo, nome e cores ao estado original. || Возвращает логотип, название и цвета к исходному состоянию. || ロゴ、名前、色を元の状態に戻します。
+Textfarbe des Schriftzugs. || Text color of the lettering. || 文字的颜色。 || Color del texto del rótulo. || Couleur du texte du lettrage. || Cor do texto do letreiro. || Цвет текста надписи. || 文字の色。
+Uhrzeit und Datum auf dem Dashboard. || Time and date on the dashboard. || 仪表盘上的时间和日期。 || Hora y fecha en el panel. || Heure et date sur le tableau de bord. || Hora e data no painel. || Время и дата на панели. || ダッシュボードの時刻と日付。
+Vergrößert oder verkleinert die gesamte Oberfläche in Prozent. || Enlarges or shrinks the whole interface in percent. || 按百分比放大或缩小整个界面。 || Agranda o reduce toda la interfaz en porcentaje. || Agrandit ou réduit toute l'interface en pourcentage. || Amplia ou reduz toda a interface em porcentagem. || Увеличивает или уменьшает весь интерфейс в процентах. || インターフェース全体を割合で拡大・縮小します。
+Verschiebt das Bild um wenige Pixel, damit sich feste Elemente nicht in den Bildschirm einbrennen. || Moves the picture by a few pixels so fixed elements do not burn into the screen. || 将画面移动几个像素,避免固定元素烧屏。 || Desplaza la imagen unos píxeles para que los elementos fijos no se queden marcados en la pantalla. || Décale l'image de quelques pixels pour que les éléments fixes ne se gravent pas dans l'écran. || Desloca a imagem alguns pixels para que elementos fixos não queimem a tela. || Смещает изображение на несколько пикселей, чтобы статичные элементы не выгорали на экране. || 画面を数ピクセルずらして、固定された要素が焼き付くのを防ぎます。
+Verstecke Spiele per Rechtsklick. Hier holst du sie wieder zurück. || Hide games with a right-click. Bring them back here. || 右键即可隐藏游戏,在这里可以恢复。 || Oculta juegos con clic derecho. Aquí los recuperas. || Masquez des jeux par clic droit. Récupérez-les ici. || Oculte jogos com o botão direito. Traga-os de volta aqui. || Скрывайте игры правым щелчком. Здесь их можно вернуть. || 右クリックでゲームを非表示にできます。ここで元に戻せます。
+Vier Kacheln mit Bibliothek, Favoriten, Spielzeit und zuletzt gespieltem Spiel. || Four tiles with library, favorites, playtime and last played game. || 四个磁贴:游戏库、收藏、游戏时间和最近玩过的游戏。 || Cuatro mosaicos con biblioteca, favoritos, tiempo de juego y último juego jugado. || Quatre tuiles avec bibliothèque, favoris, temps de jeu et dernier jeu joué. || Quatro blocos com biblioteca, favoritos, tempo de jogo e último jogo jogado. || Четыре плитки: библиотека, избранное, время игры и последняя игра. || ライブラリ、お気に入り、プレイ時間、最後にプレイしたゲームの4つのタイル。
+Weichzeichner für das Bild. Höhere Werte brauchen etwas mehr Grafikleistung. || Blur for the image. Higher values need a little more graphics power. || 图片的模糊程度。数值越高,需要的显卡性能越多。 || Desenfoque de la imagen. Valores altos requieren algo más de potencia gráfica. || Flou de l'image. Des valeurs élevées demandent un peu plus de puissance graphique. || Desfoque da imagem. Valores maiores exigem um pouco mais de poder gráfico. || Размытие изображения. Большие значения требуют чуть больше мощности видеокарты. || 画像のぼかし。値が高いほどグラフィック性能を少し多く使います。
+Weitere Ordner, die in der Galerie nach Screenshots durchsucht werden. || More folders that the gallery searches for screenshots. || 图库会在这些额外的文件夹中查找截图。 || Más carpetas en las que la galería busca capturas. || Dossiers supplémentaires dans lesquels la galerie recherche des captures d'écran. || Mais pastas em que a galeria procura capturas de tela. || Дополнительные папки, в которых галерея ищет скриншоты. || ギャラリーがスクリーンショットを探す追加フォルダー。
+Welche Tasten bestätigen und zurückgehen. „Automatisch“ erkennt den Controller-Typ selbst. || Which buttons confirm and go back. "Automatic" detects the controller type by itself. || 哪些按键用于确认和返回。“自动”会自行识别手柄类型。 || Qué botones confirman y cuáles vuelven atrás. «Automático» detecta el tipo de mando por sí solo. || Quels boutons valident et lesquels reviennent en arrière. « Automatique » détecte lui-même le type de manette. || Quais botões confirmam e quais voltam. "Automático" detecta o tipo de controle sozinho. || Какие кнопки подтверждают и возвращают назад. «Автоматически» сам определяет тип геймпада. || 決定と戻るに使うボタン。「自動」はコントローラーの種類を自動で判別します。
+Wie breit die ausgeklappte Seitenleiste ist. || How wide the expanded sidebar is. || 展开状态下侧边栏的宽度。 || Ancho de la barra lateral desplegada. || Largeur de la barre latérale dépliée. || Largura da barra lateral expandida. || Ширина развёрнутой боковой панели. || 展開時のサイドバーの幅。
+Wie oft die Systemüberwachung neue Werte holt. Längere Abstände schonen den Prozessor. || How often system monitoring fetches new values. Longer intervals spare the processor. || 系统监控多久获取一次新数值。间隔越长越省处理器。 || Con qué frecuencia la monitorización del sistema obtiene valores nuevos. Intervalos más largos ahorran procesador. || Fréquence à laquelle la surveillance système récupère de nouvelles valeurs. Des intervalles plus longs ménagent le processeur. || Com que frequência o monitoramento do sistema obtém novos valores. Intervalos maiores poupam o processador. || Как часто мониторинг системы получает новые значения. Более редкие обновления экономят процессор. || システムモニターが新しい値を取得する頻度。間隔が長いほどCPUに優しくなります。
+Wie stark die Ecken abgerundet sind. 0 ergibt eckige Karten. || How rounded the corners are. 0 gives square cards. || 圆角的程度。0 表示方形卡片。 || Cuánto se redondean las esquinas. 0 da tarjetas cuadradas. || Degré d'arrondi des coins. 0 donne des cartes carrées. || O quanto os cantos são arredondados. 0 deixa os cartões quadrados. || Насколько скруглены углы. 0 даёт квадратные карточки. || 角の丸みの強さ。0だと角ばったカードになります。
+Wie stark eine Karte wächst, wenn du mit der Maus darüberfährst. || How much a card grows when you move the mouse over it. || 鼠标移到卡片上时,卡片放大的幅度。 || Cuánto crece una tarjeta al pasar el ratón por encima. || De combien une carte grossit quand la souris passe dessus. || O quanto um cartão cresce ao passar o mouse. || Насколько увеличивается карточка при наведении мыши. || マウスを重ねたときにカードが大きくなる度合い。
+Wie viele Kacheln pro Bereich angezeigt werden. || How many tiles are shown per section. || 每个区域显示多少个磁贴。 || Cuántos mosaicos se muestran por sección. || Nombre de tuiles affichées par section. || Quantos blocos são exibidos por seção. || Сколько плиток показывается в каждом разделе. || 各セクションに表示するタイルの数。
+Wähle, welche Programme beim Spielstart sauber geschlossen werden. || Choose which programs are closed cleanly when a game starts. || 选择游戏启动时要正常关闭的程序。 || Elige qué programas se cierran correctamente al iniciar un juego. || Choisissez quels programmes sont fermés proprement au lancement d'un jeu. || Escolha quais programas são fechados corretamente ao iniciar um jogo. || Выберите, какие программы корректно закрываются при запуске игры. || ゲーム起動時に正常終了させるプログラムを選びます。
+Zeichnet die Oberfläche mit dem Prozessor statt mit der Grafikkarte. Hilft bei Darstellungsfehlern und sehr alten Treibern. || Draws the interface with the processor instead of the graphics card. Helps with display errors and very old drivers. || 用处理器而非显卡绘制界面。有助于解决显示错误和过旧的驱动问题。 || Dibuja la interfaz con el procesador en lugar de la tarjeta gráfica. Ayuda con errores de visualización y controladores muy antiguos. || Dessine l'interface avec le processeur au lieu de la carte graphique. Aide en cas d'erreurs d'affichage et de pilotes très anciens. || Desenha a interface com o processador em vez da placa de vídeo. Ajuda com erros de exibição e drivers muito antigos. || Рисует интерфейс процессором вместо видеокарты. Помогает при ошибках отображения и очень старых драйверах. || グラフィックカードの代わりにCPUで画面を描画します。表示の不具合や非常に古いドライバーに有効です。
+Zeigt das Overlay kurz zur Probe an. || Shows the overlay briefly as a test. || 简短显示一下悬浮窗作为测试。 || Muestra el overlay brevemente como prueba. || Affiche brièvement l'overlay à titre de test. || Mostra o overlay rapidamente como teste. || Ненадолго показывает оверлей для проверки. || テストとしてオーバーレイを短時間表示します。
+Zeigt das Symbol unten rechts neben der Uhr. Ein Klick öffnet das Schnell-Panel zum Starten von Spielen und Beenden. || Shows the icon at the bottom right next to the clock. A click opens the quick panel for starting games and quitting. || 在时钟旁的右下角显示图标。点击会打开用于启动游戏和退出的快捷面板。 || Muestra el icono abajo a la derecha, junto al reloj. Un clic abre el panel rápido para iniciar juegos y salir. || Affiche l'icône en bas à droite, à côté de l'horloge. Un clic ouvre le panneau rapide pour lancer des jeux et quitter. || Mostra o ícone no canto inferior direito, ao lado do relógio. Um clique abre o painel rápido para iniciar jogos e sair. || Показывает значок справа внизу рядом с часами. Щелчок открывает быструю панель для запуска игр и выхода. || 右下の時計の隣にアイコンを表示します。クリックすると、ゲームの起動や終了ができるクイックパネルが開きます。
+Zeigt dein zuletzt gespieltes Spiel groß ganz oben auf dem Dashboard. || Shows your last played game large at the top of the dashboard. || 在仪表盘顶部大图显示你最近玩的游戏。 || Muestra en grande, arriba del panel, tu último juego jugado. || Affiche en grand, en haut du tableau de bord, votre dernier jeu joué. || Mostra em destaque, no topo do painel, seu último jogo jogado. || Крупно показывает вашу последнюю игру вверху панели. || 最後にプレイしたゲームをダッシュボードの一番上に大きく表示します。
+Zeigt deine mit einem Stern markierten Spiele. || Shows the games you marked with a star. || 显示你用星标标记的游戏。 || Muestra los juegos que marcaste con una estrella. || Affiche les jeux que vous avez marqués d'une étoile. || Mostra os jogos que você marcou com uma estrela. || Показывает игры, отмеченные звёздочкой. || 星印を付けたゲームを表示します。
+Zeigt deine zuletzt gestarteten Spiele als Kacheln. || Shows your most recently launched games as tiles. || 以磁贴形式显示你最近启动的游戏。 || Muestra tus juegos iniciados más recientemente como mosaicos. || Affiche vos jeux lancés le plus récemment sous forme de tuiles. || Mostra seus jogos iniciados mais recentemente como blocos. || Показывает недавно запущенные игры в виде плиток. || 最近起動したゲームをタイルで表示します。
+Zeigt die zweite Zeile unter dem Namen (standardmäßig „LAUNCHER“). || Shows the second line under the name ("LAUNCHER" by default). || 显示名称下方的第二行文字(默认为“LAUNCHER”)。 || Muestra la segunda línea bajo el nombre («LAUNCHER» por defecto). || Affiche la deuxième ligne sous le nom (« LAUNCHER » par défaut). || Mostra a segunda linha abaixo do nome ("LAUNCHER" por padrão). || Показывает вторую строку под названием (по умолчанию «LAUNCHER»). || 名前の下の2行目を表示します(標準は「LAUNCHER」)。
+Zeigt einen Hinweis im Dashboard, sobald ein neues Gratis-Spiel verfügbar ist. || Shows a notice on the dashboard as soon as a new free game is available. || 一有新的免费游戏就在仪表盘上提示。 || Muestra un aviso en el panel en cuanto hay un nuevo juego gratis. || Affiche une alerte sur le tableau de bord dès qu'un nouveau jeu gratuit est disponible. || Mostra um aviso no painel assim que há um novo jogo grátis. || Показывает уведомление на панели, как только появляется новая бесплатная игра. || 新しい無料ゲームが出ると、ダッシュボードにお知らせを表示します。
+Zeigt einen Hinweis im Dashboard, wenn weniger als 10 % Speicher frei sind. || Shows a notice on the dashboard when less than 10% of storage is free. || 当可用空间少于 10 % 时在仪表盘上提示。 || Muestra un aviso en el panel cuando queda menos del 10 % de espacio libre. || Affiche une alerte sur le tableau de bord quand il reste moins de 10 % d'espace libre. || Mostra um aviso no painel quando restam menos de 10 % de espaço livre. || Показывает уведомление на панели, когда свободно менее 10 % места. || 空き容量が10%未満になると、ダッシュボードにお知らせを表示します。
+Zeigt zum Beispiel „Steam“ und die bisherige Spielzeit unter dem Titel. || Shows, for example, "Steam" and the playtime so far below the title. || 例如在标题下方显示“Steam”和到目前为止的游戏时间。 || Muestra, por ejemplo, «Steam» y el tiempo de juego acumulado bajo el título. || Affiche par exemple « Steam » et le temps de jeu cumulé sous le titre. || Mostra, por exemplo, "Steam" e o tempo de jogo acumulado abaixo do título. || Показывает, например, «Steam» и накопленное время игры под названием. || タイトルの下に「Steam」やこれまでのプレイ時間などを表示します。
+Zeigt zusätzlich die Sekunden in der Uhr. || Also shows the seconds in the clock. || 在时钟中额外显示秒数。 || Muestra además los segundos en el reloj. || Affiche en plus les secondes dans l'horloge. || Mostra também os segundos no relógio. || Дополнительно показывает секунды на часах. || 時計に秒も表示します。
+Ändere den Namen und den Untertitel neben dem Logo. || Change the name and subtitle next to the logo. || 修改标志旁边的名称和副标题。 || Cambia el nombre y el subtítulo junto al logotipo. || Modifiez le nom et le sous-titre à côté du logo. || Altere o nome e o subtítulo ao lado do logotipo. || Измените название и подзаголовок рядом с логотипом. || ロゴの横の名前とサブタイトルを変更します。
+Häkchen = bleibt versteckt. Entferne das Häkchen, um ein Spiel wieder anzuzeigen. || Switch on = stays hidden. Switch it off to show a game again. || 开启 = 保持隐藏。关闭开关即可重新显示游戏。 || Activado = sigue oculto. Desactívalo para volver a mostrar un juego. || Activé = reste masqué. Désactivez pour réafficher un jeu. || Ligado = continua oculto. Desligue para mostrar um jogo novamente. || Включено — остаётся скрытой. Выключите, чтобы показать игру снова. || オン = 非表示のまま。オフにするとゲームが再表示されます。
+Für diese Programme wird keine Spielzeit erfasst. Wallpaper Engine, Lively und Rainmeter sind bereits automatisch ausgenommen. || No playtime is recorded for these programs. Wallpaper Engine, Lively and Rainmeter are already excluded automatically. || 这些程序不会记录游戏时间。Wallpaper Engine、Lively 和 Rainmeter 已自动排除。 || No se registra tiempo de juego para estos programas. Wallpaper Engine, Lively y Rainmeter ya están excluidos automáticamente. || Aucun temps de jeu n'est enregistré pour ces programmes. Wallpaper Engine, Lively et Rainmeter sont déjà exclus automatiquement. || Nenhum tempo de jogo é registrado para estes programas. Wallpaper Engine, Lively e Rainmeter já são excluídos automaticamente. || Для этих программ время игры не учитывается. Wallpaper Engine, Lively и Rainmeter уже исключены автоматически. || これらのプログラムではプレイ時間を記録しません。Wallpaper Engine、Lively、Rainmeterはすでに自動で除外されています。
+
+# ───────── Neue Funktionen: Meldungen, Sicherungen, Animierte Cover ─────────
+Hinweis-Meldungen anzeigen || Show notifications || 显示提示消息 || Mostrar notificaciones || Afficher les notifications || Mostrar notificações || Показывать уведомления || 通知メッセージを表示
+Kleine Einblendungen unten rechts, zum Beispiel bei neuen Spielen, Erfolgen oder Erinnerungen. || Small pop-ups at the bottom right, for example for new games, achievements or reminders. || 右下角的小提示,例如新游戏、成就或提醒。 || Pequeños avisos abajo a la derecha, por ejemplo para juegos nuevos, logros o recordatorios. || Petites fenêtres en bas à droite, par exemple pour les nouveaux jeux, succès ou rappels. || Pequenos avisos no canto inferior direito, por exemplo para novos jogos, conquistas ou lembretes. || Небольшие всплывающие окна справа внизу, например о новых играх, достижениях или напоминаниях. || 右下に表示される小さな通知(新しいゲーム、実績、リマインダーなど)。
+Spiele nur per Doppelklick starten || Launch games only with a double-click || 仅通过双击启动游戏 || Iniciar juegos solo con doble clic || Lancer les jeux uniquement par double-clic || Iniciar jogos apenas com clique duplo || Запускать игры только двойным щелчком || ゲームをダブルクリックでのみ起動
+Verhindert versehentliche Starts: Ein einzelner Klick auf eine Karte startet das Spiel nicht. Der Spielen-Knopf funktioniert weiterhin. || Prevents accidental launches: a single click on a card does not start the game. The Play button still works. || 防止误启动:单击卡片不会启动游戏,“开始游戏”按钮仍然有效。 || Evita inicios accidentales: un solo clic en una tarjeta no inicia el juego. El botón Jugar sigue funcionando. || Évite les lancements accidentels : un simple clic sur une carte ne lance pas le jeu. Le bouton Jouer fonctionne toujours. || Evita inícios acidentais: um único clique em um cartão não inicia o jogo. O botão Jogar continua funcionando. || Защищает от случайных запусков: одиночный щелчок по карточке не запускает игру. Кнопка «Играть» по-прежнему работает. || 誤起動を防ぎます。カードを1回クリックしてもゲームは起動しません。「プレイ」ボタンは引き続き使えます。
+Vor dem Beenden warnen, wenn ein Spiel läuft || Warn before quitting while a game is running || 游戏运行时退出前发出警告 || Avisar antes de salir mientras se ejecuta un juego || Avertir avant de quitter pendant qu'un jeu est lancé || Avisar antes de sair enquanto um jogo estiver em execução || Предупреждать при выходе, пока запущена игра || ゲーム実行中は終了前に警告
+Fragt nach, bevor der Launcher beendet wird, solange er noch die Spielzeit eines laufenden Spiels erfasst. || Asks for confirmation before the launcher quits while it is still tracking the playtime of a running game. || 在启动器仍在记录运行中游戏的游戏时间时,退出前会先确认。 || Pide confirmación antes de cerrar el launcher mientras aún registra el tiempo de un juego en ejecución. || Demande confirmation avant de quitter le launcher tant qu'il enregistre encore le temps de jeu d'un jeu en cours. || Pede confirmação antes de fechar o launcher enquanto ele ainda registra o tempo de um jogo em execução. || Спрашивает подтверждение перед выходом, пока лаунчер ещё учитывает время запущенной игры. || ランチャーが実行中のゲームのプレイ時間をまだ記録している間は、終了前に確認します。
+Animierte Cover von SteamGridDB bevorzugen || Prefer animated covers from SteamGridDB || 优先使用 SteamGridDB 的动画封面 || Preferir portadas animadas de SteamGridDB || Préférer les jaquettes animées de SteamGridDB || Preferir capas animadas do SteamGridDB || Предпочитать анимированные обложки из SteamGridDB || SteamGridDBのアニメーションカバーを優先
+Lädt, wenn vorhanden, animierte Cover (WebP oder APNG). Sie laufen beim Darüberfahren. Braucht mehr Arbeitsspeicher. Danach „Cover neu laden“ klicken. || Loads animated covers (WebP or APNG) when available. They play on hover. Needs more memory. Afterwards click "Reload covers". || 如有动画封面(WebP 或 APNG)则加载。鼠标悬停时播放,占用更多内存。之后请点击“重新加载封面”。 || Carga portadas animadas (WebP o APNG) cuando existen. Se reproducen al pasar el ratón. Usa más memoria. Después pulsa «Recargar portadas». || Charge les jaquettes animées (WebP ou APNG) lorsqu'elles existent. Elles sont lues au survol. Utilise plus de mémoire. Cliquez ensuite sur « Recharger les jaquettes ». || Carrega capas animadas (WebP ou APNG) quando disponíveis. Rodam ao passar o mouse. Usa mais memória. Depois clique em "Recarregar capas". || Загружает анимированные обложки (WebP или APNG), если они есть. Воспроизводятся при наведении. Требует больше памяти. Затем нажмите «Перезагрузить обложки». || 利用可能な場合はアニメーションカバー(WebPまたはAPNG)を読み込みます。マウスを重ねると再生され、メモリを多く使います。その後「カバーを再読み込み」をクリックしてください。
+Fehlerprotokoll und Sicherungen || Error log and backups || 错误日志与备份 || Registro de errores y copias || Journal d'erreurs et sauvegardes || Registro de erros e backups || Журнал ошибок и резервные копии || エラーログとバックアップ
+Bei Problemen hilft das Fehlerprotokoll. Der Launcher sichert deine Einstellungen außerdem täglich und stellt sie bei einer beschädigten Datei automatisch wieder her. || The error log helps when something goes wrong. The launcher also backs up your settings daily and restores them automatically if the file is damaged. || 出现问题时可查看错误日志。启动器还会每天备份你的设置,并在文件损坏时自动恢复。 || El registro de errores ayuda cuando algo falla. El launcher también hace una copia diaria de tus ajustes y los restaura automáticamente si el archivo se daña. || Le journal d'erreurs aide en cas de problème. Le launcher sauvegarde aussi vos paramètres chaque jour et les restaure automatiquement si le fichier est endommagé. || O registro de erros ajuda quando algo dá errado. O launcher também faz backup diário das suas configurações e as restaura automaticamente se o arquivo for danificado. || Журнал ошибок поможет при проблемах. Лаунчер также ежедневно создаёт копии настроек и автоматически восстанавливает их, если файл повреждён. || 問題が起きたときはエラーログが役立ちます。ランチャーは設定を毎日バックアップし、ファイルが破損した場合は自動で復元します。
+Fehlerprotokoll öffnen || Open error log || 打开错误日志 || Abrir registro de errores || Ouvrir le journal d'erreurs || Abrir registro de erros || Открыть журнал ошибок || エラーログを開く
+Einstellungs-Sicherungen öffnen || Open settings backups || 打开设置备份 || Abrir copias de los ajustes || Ouvrir les sauvegardes des paramètres || Abrir backups das configurações || Открыть резервные копии настроек || 設定のバックアップを開く
+Unerwarteter Fehler || Unexpected error || 发生意外错误 || Error inesperado || Erreur inattendue || Erro inesperado || Непредвиденная ошибка || 予期しないエラー
+Details stehen im Fehlerprotokoll (Einstellungen, Daten und Info). || Details are in the error log (Settings, Data and info). || 详情请见错误日志(设置 → 数据与信息)。 || Los detalles están en el registro de errores (Ajustes, Datos e información). || Les détails figurent dans le journal d'erreurs (Paramètres, Données et infos). || Os detalhes estão no registro de erros (Configurações, Dados e informações). || Подробности — в журнале ошибок (Настройки, Данные и сведения). || 詳細はエラーログにあります(設定 → データと情報)。
+Cover-Quelle geändert || Cover source changed || 封面来源已更改 || Origen de portadas cambiado || Source des jaquettes modifiée || Fonte das capas alterada || Источник обложек изменён || カバーの取得元を変更しました
+Klicke auf „Cover neu laden“, damit die Änderung greift. || Click "Reload covers" to apply the change. || 请点击“重新加载封面”使更改生效。 || Pulsa «Recargar portadas» para aplicar el cambio. || Cliquez sur « Recharger les jaquettes » pour appliquer la modification. || Clique em "Recarregar capas" para aplicar a alteração. || Нажмите «Перезагрузить обложки», чтобы применить изменение. || 変更を反映するには「カバーを再読み込み」をクリックしてください。
+Es läuft noch ein Spiel. Wenn du den Launcher beendest, wird die Spielzeit nicht weiter erfasst.\n\nTrotzdem beenden? || A game is still running. If you quit the launcher, its playtime is no longer tracked.\n\nQuit anyway? || 仍有游戏在运行。退出启动器后将不再记录游戏时间。\n\n仍要退出吗? || Todavía hay un juego en ejecución. Si cierras el launcher, ya no se registrará el tiempo de juego.\n\n¿Salir de todos modos? || Un jeu est encore en cours. Si vous quittez le launcher, le temps de jeu ne sera plus enregistré.\n\nQuitter quand même ? || Ainda há um jogo em execução. Se você fechar o launcher, o tempo de jogo deixa de ser registrado.\n\nSair mesmo assim? || Игра всё ещё запущена. Если выйти из лаунчера, время игры больше не будет учитываться.\n\nВсё равно выйти? || ゲームがまだ実行中です。ランチャーを終了すると、プレイ時間は記録されなくなります。\n\nそれでも終了しますか?
+Launcher beenden || Quit launcher || 退出启动器 || Salir del launcher || Quitter le launcher || Sair do launcher || Выйти из лаунчера || ランチャーを終了
+⏱ Spielzeit bearbeiten ... || ⏱ Edit playtime ... || ⏱ 编辑游戏时间 ... || ⏱ Editar tiempo de juego ... || ⏱ Modifier le temps de jeu ... || ⏱ Editar tempo de jogo ... || ⏱ Изменить время игры ... || ⏱ プレイ時間を編集 ...
+Spielzeit bearbeiten || Edit playtime || 编辑游戏时间 || Editar tiempo de juego || Modifier le temps de jeu || Editar tempo de jogo || Изменить время игры || プレイ時間を編集
+Gesamte Spielzeit von „{0}“ in Stunden (zum Beispiel 12,5): || Total playtime of "{0}" in hours (for example 12.5): || “{0}”的总游戏时间(小时,例如 12.5): || Tiempo de juego total de «{0}» en horas (por ejemplo 12,5): || Temps de jeu total de « {0} » en heures (par exemple 12,5) : || Tempo de jogo total de "{0}" em horas (por exemplo 12,5): || Общее время игры в «{0}» в часах (например, 12,5): || 「{0}」の合計プレイ時間(時間単位、例:12.5):
+Bitte gib eine Zahl ein (zum Beispiel 12,5). || Please enter a number (for example 12.5). || 请输入数字(例如 12.5)。 || Introduce un número (por ejemplo 12,5). || Saisissez un nombre (par exemple 12,5). || Digite um número (por exemplo 12,5). || Введите число (например, 12,5). || 数値を入力してください(例:12.5)。
+Einstellungen wiederhergestellt || Settings restored || 设置已恢复 || Ajustes restaurados || Paramètres restaurés || Configurações restauradas || Настройки восстановлены || 設定を復元しました
+Die Einstellungsdatei war beschädigt. Die letzte Sicherung wurde geladen. || The settings file was damaged. The latest backup was loaded. || 设置文件已损坏,已载入最近一次备份。 || El archivo de ajustes estaba dañado. Se cargó la última copia. || Le fichier de paramètres était endommagé. La dernière sauvegarde a été chargée. || O arquivo de configurações estava danificado. O último backup foi carregado. || Файл настроек был повреждён. Загружена последняя резервная копия. || 設定ファイルが破損していました。最新のバックアップを読み込みました。
+Bilder, GIF und WebP || Images, GIF and WebP || 图片、GIF 和 WebP || Imágenes, GIF y WebP || Images, GIF et WebP || Imagens, GIF e WebP || Изображения, GIF и WebP || 画像、GIF、WebP
+Cover: Der Spielname wird an den Steam-Shop gesendet, Bilder kommen von Steam und Epic. Mit einem SteamGridDB-Schlüssel wird der Name auch an SteamGridDB gesendet. Wetter: Dein ungefährer Standort wird über deine IP-Adresse ermittelt (oder dein Ort aus den Einstellungen) und an Open-Meteo gesendet. Alle Hardware-Daten bleiben auf deinem PC. || Covers: the game name is sent to the Steam store, images come from Steam and Epic. With a SteamGridDB key the name is also sent to SteamGridDB. Weather: your approximate location is determined from your IP address (or the place from the settings) and sent to Open-Meteo. All hardware data stays on your PC. || 封面:游戏名称会发送到 Steam 商店,图片来自 Steam 和 Epic。若填写了 SteamGridDB 密钥,名称也会发送到 SteamGridDB。天气:根据你的 IP 地址(或设置中的地点)推算大致位置并发送给 Open-Meteo。所有硬件数据都保留在你的电脑上。 || Portadas: el nombre del juego se envía a la tienda de Steam; las imágenes vienen de Steam y Epic. Con una clave de SteamGridDB, el nombre también se envía a SteamGridDB. Tiempo: tu ubicación aproximada se obtiene de tu dirección IP (o del lugar de los ajustes) y se envía a Open-Meteo. Todos los datos del hardware permanecen en tu PC. || Jaquettes : le nom du jeu est envoyé à la boutique Steam, les images viennent de Steam et d'Epic. Avec une clé SteamGridDB, le nom est aussi envoyé à SteamGridDB. Météo : votre position approximative est déterminée à partir de votre adresse IP (ou du lieu indiqué dans les paramètres) et envoyée à Open-Meteo. Toutes les données matérielles restent sur votre PC. || Capas: o nome do jogo é enviado à loja da Steam e as imagens vêm da Steam e da Epic. Com uma chave do SteamGridDB, o nome também é enviado ao SteamGridDB. Clima: sua localização aproximada é obtida pelo endereço IP (ou pelo local nas configurações) e enviada ao Open-Meteo. Todos os dados de hardware ficam no seu PC. || Обложки: название игры отправляется в магазин Steam, изображения берутся из Steam и Epic. При наличии ключа SteamGridDB название также отправляется в SteamGridDB. Погода: ваше примерное местоположение определяется по IP-адресу (или по месту из настроек) и отправляется в Open-Meteo. Все данные об оборудовании остаются на вашем ПК. || カバー:ゲーム名はSteamストアに送信され、画像はSteamとEpicから取得されます。SteamGridDBのキーを設定すると、ゲーム名はSteamGridDBにも送信されます。天気:おおよその位置情報はIPアドレス(または設定の場所)から判定され、Open-Meteoに送信されます。ハードウェア情報はすべてPC内に残ります。
+Tipp: Ziehe ein Bild, GIF oder WebP direkt auf eine Spielkarte oder wähle per Rechtsklick „Eigenes Cover festlegen“. Animierte Cover laufen beim Darüberfahren. || Tip: Drag an image, GIF or WebP onto a game card or choose "Set custom cover" with a right-click. Animated covers play on hover. || 提示:把图片、GIF 或 WebP 拖到游戏卡片上,或右键选择“设置自定义封面”。动画封面在悬停时播放。 || Consejo: arrastra una imagen, GIF o WebP sobre una tarjeta de juego o elige «Establecer portada propia» con clic derecho. Las portadas animadas se reproducen al pasar el ratón. || Astuce : faites glisser une image, un GIF ou un WebP sur une carte de jeu ou choisissez « Définir une jaquette perso » par clic droit. Les jaquettes animées sont lues au survol. || Dica: arraste uma imagem, GIF ou WebP sobre um cartão de jogo ou escolha "Definir capa própria" com o botão direito. Capas animadas rodam ao passar o mouse. || Совет: перетащите изображение, GIF или WebP на карточку игры либо выберите правым щелчком «Задать свою обложку». Анимированные обложки воспроизводятся при наведении. || ヒント:画像、GIF、WebPをゲームカードにドラッグするか、右クリックで「カスタムカバーを設定」を選びます。アニメーションカバーはマウスを重ねると再生されます。
+
+
+# ───────── Wunschliste, Sensoren, Profile, Updates, Einrichtung (Ergänzung) ─────────
+Wunschliste || Wishlist || 愿望单 || Lista de deseos || Liste de souhaits || Lista de desejos || Список желаемого || ウィッシュリスト
+Trage Steam-Spiele ein, die du gern hättest. Der Launcher prüft die Preise und meldet sich, sobald dein Zielpreis erreicht ist. || Add Steam games you would like to have. The launcher checks the prices and lets you know as soon as your target price is reached. || 添加你想要的 Steam 游戏。启动器会检查价格,并在达到你的目标价时通知你。 || Añade juegos de Steam que te gustaría tener. El launcher comprueba los precios y te avisa en cuanto se alcanza tu precio objetivo. || Ajoutez les jeux Steam que vous aimeriez avoir. Le launcher vérifie les prix et vous prévient dès que votre prix cible est atteint. || Adicione jogos da Steam que você gostaria de ter. O launcher verifica os preços e avisa assim que o preço desejado for atingido. || Добавьте игры Steam, которые хотели бы получить. Лаунчер проверяет цены и сообщит, как только будет достигнута ваша целевая цена. || 欲しいSteamゲームを追加してください。ランチャーが価格を確認し、目標価格に達したらお知らせします。
+🔄 Preise prüfen || 🔄 Check prices || 🔄 检查价格 || 🔄 Comprobar precios || 🔄 Vérifier les prix || 🔄 Verificar preços || 🔄 Проверить цены || 🔄 価格を確認
+Preise werden geprüft ... || Checking prices ... || 正在检查价格 ... || Comprobando precios ... || Vérification des prix ... || Verificando preços ... || Проверка цен ... || 価格を確認中 ...
+Zuletzt geprüft: || Last checked: || 上次检查: || Última comprobación: || Dernière vérification : || Última verificação: || Последняя проверка: || 最終確認:
+Noch keine Spiele auf der Wunschliste. Füge ein Steam-Spiel hinzu, der Launcher meldet sich, sobald der Preis fällt. || No games on the wishlist yet. Add a Steam game and the launcher will let you know as soon as the price drops. || 愿望单里还没有游戏。添加一款 Steam 游戏,价格下降时启动器会通知你。 || Aún no hay juegos en la lista de deseos. Añade un juego de Steam y el launcher te avisará en cuanto baje el precio. || Aucun jeu dans la liste de souhaits. Ajoutez un jeu Steam et le launcher vous préviendra dès que le prix baisse. || Ainda não há jogos na lista de desejos. Adicione um jogo da Steam e o launcher avisa assim que o preço cair. || В списке желаемого пока нет игр. Добавьте игру Steam, и лаунчер сообщит, как только цена снизится. || ウィッシュリストにまだゲームがありません。Steamのゲームを追加すると、値下げ時にお知らせします。
+Zielpreis || Target price || 目标价格 || Precio objetivo || Prix cible || Preço desejado || Целевая цена || 目標価格
+Zielpreis: || Target price: || 目标价格: || Precio objetivo: || Prix cible : || Preço desejado: || Целевая цена: || 目標価格:
+Ziel: ab 20 % Rabatt || Target: from 20 % off || 目标:折扣达 20 % 以上 || Objetivo: desde un 20 % de descuento || Cible : à partir de 20 % de réduction || Meta: a partir de 20 % de desconto || Цель: скидка от 20 % || 目標:20 %以上の値引き
+Ziel erreicht || Target reached || 已达到目标 || Objetivo alcanzado || Cible atteinte || Meta atingida || Цель достигнута || 目標達成
+Kostenlos || Free || 免费 || Gratis || Gratuit || Grátis || Бесплатно || 無料
+Preisalarm || Price alert || 价格提醒 || Alerta de precio || Alerte de prix || Alerta de preço || Уведомление о цене || 価格アラート
+🛒 Im Steam-Shop öffnen || 🛒 Open in Steam store || 🛒 在 Steam 商店中打开 || 🛒 Abrir en la tienda de Steam || 🛒 Ouvrir dans la boutique Steam || 🛒 Abrir na loja da Steam || 🛒 Открыть в магазине Steam || 🛒 Steamストアで開く
+🎯 Zielpreis ändern ... || 🎯 Change target price ... || 🎯 更改目标价格 ... || 🎯 Cambiar precio objetivo ... || 🎯 Modifier le prix cible ... || 🎯 Alterar preço desejado ... || 🎯 Изменить целевую цену ... || 🎯 目標価格を変更 ...
+Name des Spiels (genau wie im Steam-Shop): || Name of the game (exactly as in the Steam store): || 游戏名称(与 Steam 商店完全一致): || Nombre del juego (exactamente como en la tienda de Steam): || Nom du jeu (exactement comme dans la boutique Steam) : || Nome do jogo (exatamente como na loja da Steam): || Название игры (точно как в магазине Steam): || ゲーム名(Steamストアと同じ表記):
+Dieses Spiel steht schon auf der Wunschliste. || This game is already on the wishlist. || 该游戏已在愿望单中。 || Este juego ya está en la lista de deseos. || Ce jeu est déjà dans la liste de souhaits. || Este jogo já está na lista de desejos. || Эта игра уже в списке желаемого. || このゲームはすでにウィッシュリストにあります。
+Das Spiel wurde im Steam-Shop nicht gefunden. Prüfe die Schreibweise, der Name muss genau stimmen. || The game was not found in the Steam store. Check the spelling, the name must match exactly. || 在 Steam 商店中未找到该游戏。请检查拼写,名称必须完全一致。 || No se encontró el juego en la tienda de Steam. Revisa la ortografía; el nombre debe coincidir exactamente. || Le jeu est introuvable dans la boutique Steam. Vérifiez l'orthographe, le nom doit être exact. || O jogo não foi encontrado na loja da Steam. Verifique a grafia; o nome deve ser exato. || Игра не найдена в магазине Steam. Проверьте написание: название должно совпадать точно. || Steamストアでゲームが見つかりませんでした。綴りを確認してください。名前は正確に一致する必要があります。
+Zielpreis für „{0}“ (zum Beispiel 14,99). Leer lassen = bei jedem Rabatt ab 20 % benachrichtigen: || Target price for "{0}" (for example 14.99). Leave empty = notify at any discount from 20 %: || “{0}”的目标价格(例如 14.99)。留空 = 折扣达 20 % 以上时通知: || Precio objetivo de «{0}» (por ejemplo 14,99). Vacío = avisar con cualquier descuento desde el 20 %: || Prix cible pour « {0} » (par exemple 14,99). Vide = prévenir pour toute réduction à partir de 20 % : || Preço desejado para "{0}" (por exemplo 14,99). Vazio = avisar em qualquer desconto a partir de 20 %: || Целевая цена для «{0}» (например, 14,99). Пусто = уведомлять о скидке от 20 %: || 「{0}」の目標価格(例:14.99)。空欄 = 20 %以上の値引きで通知:
+Was hat „{0}“ gekostet? (zum Beispiel 29,99, leer = nicht angeben): || What did "{0}" cost? (for example 29.99, empty = not specified): || “{0}”花了多少钱?(例如 29.99,留空 = 不填写): || ¿Cuánto costó «{0}»? (por ejemplo 29,99; vacío = sin indicar): || Combien a coûté « {0} » ? (par exemple 29,99, vide = non indiqué) : || Quanto custou "{0}"? (por exemplo 29,99; vazio = não informar): || Сколько стоила «{0}»? (например, 29,99; пусто = не указывать): || 「{0}」の価格は?(例:29.99、空欄 = 未入力):
+Kaufpreis || Purchase price || 购买价格 || Precio de compra || Prix d'achat || Preço de compra || Цена покупки || 購入価格
+Kaufpreis: || Purchase price: || 购买价格: || Precio de compra: || Prix d'achat : || Preço de compra: || Цена покупки: || 購入価格:
+Kosten pro Stunde: || Cost per hour: || 每小时成本: || Coste por hora: || Coût par heure : || Custo por hora: || Стоимость часа: || 1時間あたりのコスト:
+💶 Kaufpreis eintragen ... || 💶 Enter purchase price ... || 💶 填写购买价格 ... || 💶 Indicar precio de compra ... || 💶 Saisir le prix d'achat ... || 💶 Informar preço de compra ... || 💶 Указать цену покупки ... || 💶 購入価格を入力 ...
+⚙ Spielprofil ... || ⚙ Game profile ... || ⚙ 游戏配置 ... || ⚙ Perfil del juego ... || ⚙ Profil du jeu ... || ⚙ Perfil do jogo ... || ⚙ Профиль игры ... || ⚙ ゲームプロファイル ...
+Spielprofil: {0} || Game profile: {0} || 游戏配置:{0} || Perfil del juego: {0} || Profil du jeu : {0} || Perfil do jogo: {0} || Профиль игры: {0} || ゲームプロファイル:{0}
+Lege fest, was für dieses Spiel gilt. „Standard“ übernimmt die allgemeine Einstellung. || Choose what applies to this game. "Default" uses the general setting. || 设置此游戏的专属选项。“默认”沿用全局设置。 || Define qué se aplica a este juego. «Predeterminado» usa el ajuste general. || Définissez ce qui s'applique à ce jeu. « Par défaut » reprend le réglage général. || Defina o que vale para este jogo. "Padrão" usa a configuração geral. || Задайте, что действует для этой игры. «Стандарт» использует общую настройку. || このゲームに適用する内容を設定します。「標準」は全体設定を使います。
+Standard || Default || 默认 || Predeterminado || Par défaut || Padrão || Стандарт || 標準
+Immer an || Always on || 始终开启 || Siempre activado || Toujours activé || Sempre ligado || Всегда включено || 常にオン
+Immer aus || Always off || 始终关闭 || Siempre desactivado || Toujours désactivé || Sempre desligado || Всегда выключено || 常にオフ
+Höchstleistung während des Spiels || High performance while playing || 游戏时使用高性能 || Alto rendimiento durante el juego || Hautes performances pendant le jeu || Alto desempenho durante o jogo || Высокая производительность во время игры || プレイ中は高パフォーマンス
+Schaltet den Windows-Energiesparplan auf „Höchstleistung“, solange dieses Spiel läuft. || Switches the Windows power plan to "High performance" while this game is running. || 此游戏运行期间,将 Windows 电源计划切换为“高性能”。 || Cambia el plan de energía de Windows a «Alto rendimiento» mientras este juego esté en ejecución. || Passe le mode d'alimentation de Windows sur « Hautes performances » tant que ce jeu est lancé. || Troca o plano de energia do Windows para "Alto desempenho" enquanto este jogo estiver em execução. || Переключает схему питания Windows на «Высокая производительность», пока эта игра запущена. || このゲームの実行中はWindowsの電源プランを「高パフォーマンス」に切り替えます。
+Programme beim Start schließen || Close programs on start || 启动时关闭程序 || Cerrar programas al iniciar || Fermer les programmes au lancement || Fechar programas ao iniciar || Закрывать программы при запуске || 起動時にプログラムを閉じる
+Schließt die in den Einstellungen gewählten Programme, bevor dieses Spiel startet. || Closes the programs chosen in the settings before this game starts. || 在此游戏启动前,关闭设置中选定的程序。 || Cierra los programas elegidos en los ajustes antes de que se inicie este juego. || Ferme les programmes choisis dans les paramètres avant le lancement de ce jeu. || Fecha os programas escolhidos nas configurações antes de este jogo iniciar. || Закрывает выбранные в настройках программы перед запуском этой игры. || このゲームの起動前に、設定で選んだプログラムを閉じます。
+Fehlende Spiele || Missing games || 缺失的游戏 || Juegos que faltan || Jeux manquants || Jogos ausentes || Отсутствующие игры || 見つからないゲーム
+Diese Spiele wurden nicht mehr gefunden. Markierte Einträge werden aus der Liste entfernt. || These games were no longer found. Checked entries are removed from the list. || 以下游戏已找不到。已勾选的条目将从列表中移除。 || Estos juegos ya no se encuentran. Las entradas marcadas se quitarán de la lista. || Ces jeux sont introuvables. Les entrées cochées seront retirées de la liste. || Estes jogos não foram mais encontrados. As entradas marcadas serão removidas da lista. || Эти игры больше не найдены. Отмеченные записи будут удалены из списка. || これらのゲームは見つかりませんでした。チェックした項目はリストから削除されます。
+{#0} manuell hinzugefügte Spiele wurden nicht mehr gefunden. || {0} manually added games were no longer found. || 有 {0} 个手动添加的游戏已找不到。 || Ya no se encuentran {0} juegos añadidos manualmente. || {0} jeux ajoutés manuellement sont introuvables. || {0} jogos adicionados manualmente não foram mais encontrados. || Не найдено добавленных вручную игр: {0}. || 手動で追加した{0}個のゲームが見つかりません。
+Aufräumen || Clean up || 清理 || Limpiar || Nettoyer || Limpar || Очистить || 整理
+🌡 Temperaturen und Lüfter || 🌡 Temperatures and fans || 🌡 温度与风扇 || 🌡 Temperaturas y ventiladores || 🌡 Températures et ventilateurs || 🌡 Temperaturas e ventoinhas || 🌡 Температуры и вентиляторы || 🌡 温度とファン
+Temperaturen und Lüfter anzeigen || Show temperatures and fans || 显示温度与风扇 || Mostrar temperaturas y ventiladores || Afficher les températures et ventilateurs || Mostrar temperaturas e ventoinhas || Показывать температуры и вентиляторы || 温度とファンを表示
+Zeigt in der Systemüberwachung die Temperaturen von Prozessor und Grafikkarte sowie die Lüfterdrehzahlen. Manche Sensoren brauchen Administratorrechte. || Shows processor and graphics card temperatures and fan speeds in system monitoring. Some sensors need administrator rights. || 在系统监控中显示处理器和显卡的温度以及风扇转速。部分传感器需要管理员权限。 || Muestra en la monitorización del sistema las temperaturas del procesador y la tarjeta gráfica y las velocidades de los ventiladores. Algunos sensores requieren derechos de administrador. || Affiche dans la surveillance système les températures du processeur et de la carte graphique ainsi que la vitesse des ventilateurs. Certains capteurs nécessitent des droits d'administrateur. || Mostra no monitoramento do sistema as temperaturas do processador e da placa de vídeo e as velocidades das ventoinhas. Alguns sensores exigem direitos de administrador. || Показывает в мониторинге системы температуры процессора и видеокарты и скорость вентиляторов. Некоторым датчикам нужны права администратора. || システムモニターにCPUとグラフィックカードの温度、ファンの回転数を表示します。一部のセンサーには管理者権限が必要です。
+Administratorrechte || Administrator rights || 管理员权限 || Derechos de administrador || Droits d'administrateur || Direitos de administrador || Права администратора || 管理者権限
+Startet den Launcher neu und fragt dabei nach Administratorrechten, damit alle Sensoren gelesen werden können. || Restarts the launcher and asks for administrator rights so that all sensors can be read. || 重新启动启动器并请求管理员权限,以便读取所有传感器。 || Reinicia el launcher y solicita derechos de administrador para poder leer todos los sensores. || Redémarre le launcher en demandant les droits d'administrateur pour pouvoir lire tous les capteurs. || Reinicia o launcher e pede direitos de administrador para que todos os sensores possam ser lidos. || Перезапускает лаунчер с запросом прав администратора, чтобы можно было считать все датчики. || ランチャーを再起動し、すべてのセンサーを読み取れるよう管理者権限を要求します。
+Als Administrator neu starten || Restart as administrator || 以管理员身份重新启动 || Reiniciar como administrador || Redémarrer en tant qu'administrateur || Reiniciar como administrador || Перезапустить от имени администратора || 管理者として再起動
+Administrator || Administrator || 管理员 || Administrador || Administrateur || Administrador || Администратор || 管理者
+Der Launcher läuft bereits mit Administratorrechten. || The launcher is already running with administrator rights. || 启动器已在以管理员权限运行。 || El launcher ya se ejecuta con derechos de administrador. || Le launcher s'exécute déjà avec les droits d'administrateur. || O launcher já está em execução com direitos de administrador. || Лаунчер уже запущен с правами администратора. || ランチャーはすでに管理者権限で実行されています。
+Aktualisiert alle 2 Sekunden. || Updated every 2 seconds. || 每 2 秒刷新一次。 || Se actualiza cada 2 segundos. || Actualisé toutes les 2 secondes. || Atualizado a cada 2 segundos. || Обновляется каждые 2 секунды. || 2秒ごとに更新されます。
+Die Sensoren konnten nicht gelesen werden. Details stehen im Fehlerprotokoll. || The sensors could not be read. Details are in the error log. || 无法读取传感器。详情请见错误日志。 || No se pudieron leer los sensores. Los detalles están en el registro de errores. || Les capteurs n'ont pas pu être lus. Les détails figurent dans le journal d'erreurs. || Não foi possível ler os sensores. Os detalhes estão no registro de erros. || Не удалось считать датчики. Подробности — в журнале ошибок. || センサーを読み取れませんでした。詳細はエラーログにあります。
+Keine Sensoren gefunden. Starte den Launcher als Administrator, damit mehr Werte verfügbar sind. || No sensors found. Start the launcher as administrator to make more values available. || 未找到传感器。请以管理员身份启动启动器,以获取更多数值。 || No se encontraron sensores. Inicia el launcher como administrador para disponer de más valores. || Aucun capteur trouvé. Lancez le launcher en administrateur pour obtenir plus de valeurs. || Nenhum sensor encontrado. Inicie o launcher como administrador para ter mais valores. || Датчики не найдены. Запустите лаунчер от имени администратора, чтобы получить больше значений. || センサーが見つかりません。管理者としてランチャーを起動すると、より多くの値が取得できます。
+Prozessor || Processor || 处理器 || Procesador || Processeur || Processador || Процессор || プロセッサ
+Grafikkarte || Graphics card || 显卡 || Tarjeta gráfica || Carte graphique || Placa de vídeo || Видеокарта || グラフィックカード
+Mainboard || Motherboard || 主板 || Placa base || Carte mère || Placa-mãe || Материнская плата || マザーボード
+📅 Aktivität (letzte 26 Wochen) || 📅 Activity (last 26 weeks) || 📅 活动(最近 26 周) || 📅 Actividad (últimas 26 semanas) || 📅 Activité (26 dernières semaines) || 📅 Atividade (últimas 26 semanas) || 📅 Активность (последние 26 недель) || 📅 アクティビティ(直近26週間)
+Noch keine Aktivität. Jeder Tag mit Spielzeit färbt hier ein Feld. || No activity yet. Every day with playtime colors a square here. || 还没有活动。每个有游戏时间的日子都会在这里点亮一个方格。 || Aún no hay actividad. Cada día con tiempo de juego colorea un cuadro aquí. || Pas encore d'activité. Chaque jour avec du temps de jeu colorie une case ici. || Ainda não há atividade. Cada dia com tempo de jogo colore um quadrado aqui. || Активности пока нет. Каждый день с игровым временем закрашивает здесь клетку. || まだアクティビティがありません。プレイした日ごとにここのマスが色づきます。
+Tage mit Spielzeit in den letzten 26 Wochen || days with playtime in the last 26 weeks || 最近 26 周内有游戏时间的天数 || días con tiempo de juego en las últimas 26 semanas || jours avec du temps de jeu ces 26 dernières semaines || dias com tempo de jogo nas últimas 26 semanas || дн. с игровым временем за последние 26 недель || 直近26週間でプレイした日数
+📸 Als Bild speichern || 📸 Save as image || 📸 保存为图片 || 📸 Guardar como imagen || 📸 Enregistrer comme image || 📸 Salvar como imagem || 📸 Сохранить как изображение || 📸 画像として保存
+Bild speichern || Save image || 保存图片 || Guardar imagen || Enregistrer l'image || Salvar imagem || Сохранить изображение || 画像を保存
+Bild gespeichert || Image saved || 图片已保存 || Imagen guardada || Image enregistrée || Imagem salva || Изображение сохранено || 画像を保存しました
+Neuigkeiten || News || 新闻 || Novedades || Actualités || Novidades || Новости || ニュース
+🏷 Genre || 🏷 Genre || 🏷 类型 || 🏷 Género || 🏷 Genre || 🏷 Gênero || 🏷 Жанр || 🏷 ジャンル
+✖ Alle Genres || ✖ All genres || ✖ 所有类型 || ✖ Todos los géneros || ✖ Tous les genres || ✖ Todos os gêneros || ✖ Все жанры || ✖ すべてのジャンル
+Noch keine Spielinfos geladen || No game info loaded yet || 尚未加载游戏信息 || Aún no se ha cargado información de juegos || Aucune info de jeu chargée pour l'instant || Nenhuma informação de jogo carregada ainda || Информация об играх пока не загружена || ゲーム情報はまだ読み込まれていません
+Spielinfos von Steam laden (Beschreibung, Genre, Neuigkeiten) || Load game info from Steam (description, genre, news) || 从 Steam 加载游戏信息(简介、类型、新闻) || Cargar información de juegos de Steam (descripción, género, novedades) || Charger les infos des jeux depuis Steam (description, genre, actualités) || Carregar informações de jogos da Steam (descrição, gênero, novidades) || Загружать сведения об играх из Steam (описание, жанр, новости) || Steamからゲーム情報を読み込む(説明、ジャンル、ニュース)
+Lädt im Hintergrund Infos zu deinen Steam-Spielen. Damit funktionieren der Genre-Filter und die Neuigkeiten im Detailfenster. || Loads info about your Steam games in the background. This powers the genre filter and the news in the details window. || 在后台加载你的 Steam 游戏信息。类型筛选和详情窗口中的新闻依赖于此。 || Carga en segundo plano información de tus juegos de Steam. Con ella funcionan el filtro por género y las novedades de la ventana de detalles. || Charge en arrière-plan des infos sur vos jeux Steam. Elles alimentent le filtre par genre et les actualités de la fenêtre de détails. || Carrega em segundo plano informações dos seus jogos da Steam. Elas alimentam o filtro por gênero e as novidades na janela de detalhes. || Загружает в фоне сведения о ваших играх Steam. Они нужны для фильтра по жанру и новостей в окне сведений. || Steamゲームの情報をバックグラウンドで読み込みます。ジャンルフィルターと詳細ウィンドウのニュースに使われます。
+Design teilen || Share design || 分享设计 || Compartir diseño || Partager le design || Compartilhar design || Поделиться дизайном || デザインを共有
+Design als Datei || Design as a file || 设计文件 || Diseño como archivo || Design sous forme de fichier || Design como arquivo || Дизайн в виде файла || デザインをファイルで
+Speichert Farben, Logo und Layout in einer Datei, die du weitergeben oder auf einem anderen PC laden kannst. || Saves colors, logo and layout in a file that you can share or load on another PC. || 将颜色、标志和布局保存为文件,可分享或在其他电脑上载入。 || Guarda colores, logotipo y diseño en un archivo que puedes compartir o cargar en otro PC. || Enregistre couleurs, logo et mise en page dans un fichier que vous pouvez partager ou charger sur un autre PC. || Salva cores, logotipo e layout em um arquivo que você pode compartilhar ou carregar em outro PC. || Сохраняет цвета, логотип и макет в файл, которым можно поделиться или загрузить на другом ПК. || 色、ロゴ、レイアウトをファイルに保存します。他のPCで共有・読み込みできます。
+Design exportieren ... || Export design ... || 导出设计 ... || Exportar diseño ... || Exporter le design ... || Exportar design ... || Экспортировать дизайн ... || デザインをエクスポート ...
+Design importieren ... || Import design ... || 导入设计 ... || Importar diseño ... || Importer un design ... || Importar design ... || Импортировать дизайн ... || デザインをインポート ...
+Design exportieren || Export design || 导出设计 || Exportar diseño || Exporter le design || Exportar design || Экспортировать дизайн || デザインをエクスポート
+Design importieren || Import design || 导入设计 || Importar diseño || Importer un design || Importar design || Импортировать дизайн || デザインをインポート
+Design gespeichert || Design saved || 设计已保存 || Diseño guardado || Design enregistré || Design salvo || Дизайн сохранён || デザインを保存しました
+Design geladen || Design loaded || 设计已载入 || Diseño cargado || Design chargé || Design carregado || Дизайн загружен || デザインを読み込みました
+Updates || Updates || 更新 || Actualizaciones || Mises à jour || Atualizações || Обновления || アップデート
+Beim Start nach Updates suchen || Check for updates on startup || 启动时检查更新 || Buscar actualizaciones al iniciar || Rechercher des mises à jour au démarrage || Procurar atualizações ao iniciar || Проверять обновления при запуске || 起動時にアップデートを確認
+Prüft höchstens einmal am Tag, ob es eine neuere Version gibt, und zeigt dann einen Hinweis mit Link. || Checks at most once a day whether a newer version exists and then shows a notice with a link. || 每天最多检查一次是否有新版本,并显示带链接的提示。 || Comprueba como máximo una vez al día si hay una versión más reciente y muestra un aviso con enlace. || Vérifie au plus une fois par jour s'il existe une version plus récente et affiche alors un message avec un lien. || Verifica no máximo uma vez por dia se há uma versão mais nova e mostra um aviso com link. || Проверяет не чаще раза в день, есть ли новая версия, и показывает уведомление со ссылкой. || 1日1回まで新しいバージョンがあるか確認し、リンク付きのお知らせを表示します。
+Update-Quelle (GitHub: Benutzer/Repository) || Update source (GitHub: user/repository) || 更新来源(GitHub:用户/仓库) || Origen de actualizaciones (GitHub: usuario/repositorio) || Source des mises à jour (GitHub : utilisateur/dépôt) || Fonte de atualizações (GitHub: usuário/repositório) || Источник обновлений (GitHub: пользователь/репозиторий) || アップデートの取得元(GitHub:ユーザー/リポジトリ)
+Hier steht, wo die neuesten Versionen veröffentlicht werden. Ohne Eintrag wird nicht gesucht. || This is where the latest versions are published. Without an entry nothing is searched. || 这里填写最新版本的发布位置。未填写则不会检查。 || Aquí se indica dónde se publican las versiones más recientes. Sin entrada no se busca. || Indique ici où sont publiées les versions récentes. Sans entrée, aucune recherche n'est faite. || Aqui fica o local onde as versões mais recentes são publicadas. Sem entrada, nada é procurado. || Здесь указано, где публикуются новые версии. Без записи проверка не выполняется. || 最新バージョンの公開場所です。未入力の場合は確認しません。
+Jetzt prüfen || Check now || 立即检查 || Comprobar ahora || Vérifier maintenant || Verificar agora || Проверить сейчас || 今すぐ確認
+Suche läuft ... || Searching ... || 正在检查 ... || Buscando ... || Recherche en cours ... || Procurando ... || Идёт проверка ... || 確認中 ...
+Trage zuerst eine Update-Quelle ein (Benutzer/Repository). || First enter an update source (user/repository). || 请先填写更新来源(用户/仓库)。 || Introduce primero un origen de actualizaciones (usuario/repositorio). || Saisissez d'abord une source de mises à jour (utilisateur/dépôt). || Informe primeiro uma fonte de atualizações (usuário/repositório). || Сначала укажите источник обновлений (пользователь/репозиторий). || 先にアップデートの取得元(ユーザー/リポジトリ)を入力してください。
+Es wurde keine Version gefunden. || No version was found. || 未找到任何版本。 || No se encontró ninguna versión. || Aucune version trouvée. || Nenhuma versão foi encontrada. || Версия не найдена. || バージョンが見つかりませんでした。
+Du hast die neueste Version. || You have the latest version. || 你已是最新版本。 || Tienes la versión más reciente. || Vous avez la dernière version. || Você tem a versão mais recente. || У вас последняя версия. || 最新バージョンです。
+Die Suche ist fehlgeschlagen. Prüfe deine Internetverbindung. || The search failed. Check your internet connection. || 检查失败。请检查你的网络连接。 || La búsqueda falló. Comprueba tu conexión a internet. || La recherche a échoué. Vérifiez votre connexion internet. || A busca falhou. Verifique sua conexão com a internet. || Не удалось выполнить проверку. Проверьте подключение к интернету. || 確認に失敗しました。インターネット接続を確認してください。
+Version {0} ist verfügbar. || Version {0} is available. || 版本 {0} 已发布。 || La versión {0} está disponible. || La version {0} est disponible. || A versão {0} está disponível. || Доступна версия {0}. || バージョン{0}が利用可能です。
+Herunterladen || Download || 下载 || Descargar || Télécharger || Baixar || Скачать || ダウンロード
+Sicherungsordner (Cloud) || Backup folder (cloud) || 备份文件夹(云端) || Carpeta de copias (nube) || Dossier de sauvegarde (cloud) || Pasta de backup (nuvem) || Папка резервных копий (облако) || バックアップフォルダー(クラウド)
+Zusätzlicher Sicherungsordner || Additional backup folder || 额外备份文件夹 || Carpeta de copias adicional || Dossier de sauvegarde supplémentaire || Pasta de backup adicional || Дополнительная папка резервных копий || 追加のバックアップフォルダー
+Spielstände und Einstellungen werden zusätzlich in diesen Ordner kopiert. Wähle zum Beispiel einen Ordner in OneDrive oder Dropbox, dann sind deine Daten auch online gesichert. || Game saves and settings are additionally copied into this folder. Choose a folder in OneDrive or Dropbox, for example, and your data is also backed up online. || 存档和设置会额外复制到此文件夹。例如选择 OneDrive 或 Dropbox 中的文件夹,你的数据就会同时备份到线上。 || Las partidas guardadas y los ajustes se copian además en esta carpeta. Elige, por ejemplo, una carpeta de OneDrive o Dropbox y tus datos quedarán también guardados en línea. || Les sauvegardes et paramètres sont en plus copiés dans ce dossier. Choisissez par exemple un dossier OneDrive ou Dropbox : vos données seront aussi sauvegardées en ligne. || Saves e configurações também são copiados para esta pasta. Escolha, por exemplo, uma pasta do OneDrive ou Dropbox, e seus dados ficam salvos também online. || Сохранения и настройки дополнительно копируются в эту папку. Выберите, например, папку OneDrive или Dropbox — и ваши данные будут сохранены и онлайн. || セーブデータと設定がこのフォルダーにも追加でコピーされます。OneDriveやDropboxのフォルダーを選ぶと、データがオンラインにも保存されます。
+Kein Ordner festgelegt || No folder set || 未设置文件夹 || Ninguna carpeta definida || Aucun dossier défini || Nenhuma pasta definida || Папка не выбрана || フォルダー未設定
+Ordner für Sicherungen auswählen (zum Beispiel in OneDrive oder Dropbox) || Choose a folder for backups (for example in OneDrive or Dropbox) || 选择备份文件夹(例如 OneDrive 或 Dropbox 中) || Elige una carpeta para las copias (por ejemplo en OneDrive o Dropbox) || Choisissez un dossier pour les sauvegardes (par exemple dans OneDrive ou Dropbox) || Escolha uma pasta para os backups (por exemplo no OneDrive ou Dropbox) || Выберите папку для резервных копий (например, в OneDrive или Dropbox) || バックアップ用のフォルダーを選択(例:OneDriveやDropbox内)
+Ordner wählen ... || Choose folder ... || 选择文件夹 ... || Elegir carpeta ... || Choisir un dossier ... || Escolher pasta ... || Выбрать папку ... || フォルダーを選択 ...
+Jetzt alles sichern || Back up everything now || 立即备份全部 || Hacer copia de todo ahora || Tout sauvegarder maintenant || Fazer backup de tudo agora || Сохранить всё сейчас || 今すぐすべてバックアップ
+Entfernen || Remove || 移除 || Quitar || Supprimer || Remover || Удалить || 削除
+Sicherung || Backup || 备份 || Copia de seguridad || Sauvegarde || Backup || Резервная копия || バックアップ
+Sicherung abgeschlossen || Backup finished || 备份完成 || Copia completada || Sauvegarde terminée || Backup concluído || Резервное копирование завершено || バックアップが完了しました
+Wähle zuerst einen Sicherungsordner. || Choose a backup folder first. || 请先选择备份文件夹。 || Elige primero una carpeta de copias. || Choisissez d'abord un dossier de sauvegarde. || Escolha primeiro uma pasta de backup. || Сначала выберите папку для резервных копий. || 先にバックアップフォルダーを選択してください。
+Klang-Effekte || Sound effects || 音效 || Efectos de sonido || Effets sonores || Efeitos sonoros || Звуковые эффекты || サウンドエフェクト
+Leise Töne beim Navigieren, Starten und bei Meldungen. Standardmäßig ausgeschaltet. || Soft sounds when navigating, launching and for notifications. Off by default. || 导航、启动和提示时播放轻柔的声音。默认关闭。 || Sonidos suaves al navegar, iniciar y en las notificaciones. Desactivado por defecto. || Sons discrets lors de la navigation, du lancement et des notifications. Désactivé par défaut. || Sons suaves ao navegar, iniciar e nas notificações. Desligado por padrão. || Тихие звуки при навигации, запуске и уведомлениях. По умолчанию выключено. || ナビゲーション、起動、通知時に小さな音を鳴らします。初期設定ではオフです。
+Einrichtungs-Assistent starten || Start setup assistant || 启动设置向导 || Iniciar asistente de configuración || Lancer l'assistant de configuration || Iniciar assistente de configuração || Запустить мастер настройки || セットアップウィザードを開始
+Willkommen beim DFP Pro Launcher || Welcome to DFP Pro Launcher || 欢迎使用 DFP Pro Launcher || Te damos la bienvenida a DFP Pro Launcher || Bienvenue dans DFP Pro Launcher || Bem-vindo ao DFP Pro Launcher || Добро пожаловать в DFP Pro Launcher || DFP Pro Launcherへようこそ
+Willkommen! || Welcome! || 欢迎! || ¡Bienvenido! || Bienvenue ! || Bem-vindo! || Добро пожаловать! || ようこそ!
+Wähle deine Sprache. Alles lässt sich später in den Einstellungen ändern. || Choose your language. Everything can be changed later in the settings. || 请选择语言。之后都可以在设置中更改。 || Elige tu idioma. Todo se puede cambiar más tarde en los ajustes. || Choisissez votre langue. Tout peut être modifié plus tard dans les paramètres. || Escolha seu idioma. Tudo pode ser alterado depois nas configurações. || Выберите язык. Всё можно изменить позже в настройках. || 言語を選んでください。すべて後から設定で変更できます。
+Wie sollen wir dich nennen? || What should we call you? || 我们该怎么称呼你? || ¿Cómo quieres que te llamemos? || Comment devons-nous vous appeler ? || Como devemos chamar você? || Как к вам обращаться? || お名前を教えてください
+Der Name erscheint im Dashboard. Suche dir außerdem eine Farbe aus. || The name appears on the dashboard. Also pick a color. || 名称会显示在仪表盘上。再选一种颜色吧。 || El nombre aparece en el panel. Elige también un color. || Le nom apparaît sur le tableau de bord. Choisissez aussi une couleur. || O nome aparece no painel. Escolha também uma cor. || Имя отображается на панели. Выберите также цвет. || 名前はダッシュボードに表示されます。色も選んでください。
+Cover und Online-Funktionen || Covers and online features || 封面与在线功能 || Portadas y funciones en línea || Jaquettes et fonctions en ligne || Capas e recursos online || Обложки и онлайн-функции || カバーとオンライン機能
+Für Cover, Wetter und Angebote braucht der Launcher das Internet. Mit einem kostenlosen SteamGridDB-Schlüssel (steamgriddb.com) bekommst du besonders schöne Cover. Beides ist freiwillig. || The launcher needs the internet for covers, weather and deals. With a free SteamGridDB key (steamgriddb.com) you get especially nice covers. Both are optional. || 封面、天气和优惠需要联网。使用免费的 SteamGridDB 密钥(steamgriddb.com)可获得更精美的封面。两者都是可选的。 || El launcher necesita internet para portadas, tiempo y ofertas. Con una clave gratuita de SteamGridDB (steamgriddb.com) obtienes portadas especialmente bonitas. Ambas cosas son opcionales. || Le launcher a besoin d'internet pour les jaquettes, la météo et les offres. Avec une clé SteamGridDB gratuite (steamgriddb.com), vous obtenez de très belles jaquettes. Les deux sont facultatifs. || O launcher precisa da internet para capas, clima e ofertas. Com uma chave gratuita do SteamGridDB (steamgriddb.com) você obtém capas especialmente bonitas. Ambos são opcionais. || Для обложек, погоды и предложений лаунчеру нужен интернет. С бесплатным ключом SteamGridDB (steamgriddb.com) обложки получаются особенно красивыми. И то и другое необязательно. || カバー、天気、セールにはインターネットが必要です。無料のSteamGridDBキー(steamgriddb.com)を使うと、特にきれいなカバーが得られます。どちらも任意です。
+Alles bereit! || All set! || 一切就绪! || ¡Todo listo! || Tout est prêt ! || Tudo pronto! || Всё готово! || 準備完了!
+Der Launcher sucht jetzt deine Spiele von Steam, Epic, GOG, EA, Ubisoft, Battle.net, Rockstar und Xbox. Weitere Spiele ziehst du einfach per Drag-and-drop ins Fenster. Strg+K öffnet die Suche. || The launcher now searches for your games from Steam, Epic, GOG, EA, Ubisoft, Battle.net, Rockstar and Xbox. Simply drag and drop other games into the window. Ctrl+K opens the search. || 启动器现在会查找你来自 Steam、Epic、GOG、EA、Ubisoft、Battle.net、Rockstar 和 Xbox 的游戏。其他游戏直接拖入窗口即可。Ctrl+K 打开搜索。 || El launcher busca ahora tus juegos de Steam, Epic, GOG, EA, Ubisoft, Battle.net, Rockstar y Xbox. Otros juegos se añaden arrastrándolos a la ventana. Ctrl+K abre la búsqueda. || Le launcher recherche maintenant vos jeux Steam, Epic, GOG, EA, Ubisoft, Battle.net, Rockstar et Xbox. Pour les autres jeux, faites-les simplement glisser dans la fenêtre. Ctrl+K ouvre la recherche. || O launcher agora procura seus jogos da Steam, Epic, GOG, EA, Ubisoft, Battle.net, Rockstar e Xbox. Outros jogos são adicionados arrastando-os para a janela. Ctrl+K abre a busca. || Лаунчер ищет ваши игры из Steam, Epic, GOG, EA, Ubisoft, Battle.net, Rockstar и Xbox. Остальные игры просто перетащите в окно. Ctrl+K открывает поиск. || ランチャーがSteam、Epic、GOG、EA、Ubisoft、Battle.net、Rockstar、Xboxのゲームを検索します。ほかのゲームはウィンドウにドラッグ&ドロップするだけです。Ctrl+Kで検索を開きます。
+Überspringen || Skip || 跳过 || Omitir || Passer || Pular || Пропустить || スキップ
+Weiter || Next || 下一步 || Siguiente || Suivant || Avançar || Далее || 次へ
+Los geht's || Let's go || 开始吧 || ¡Vamos! || C'est parti || Vamos lá || Поехали || 始めよう
+Zurück || Back || 返回 || Atrás || Retour || Voltar || Назад || 戻る
+Favorit || Favorite || 收藏 || Favorito || Favori || Favorito || Избранное || お気に入り
+Filter || Filter || 筛选 || Filtro || Filtre || Filtro || Фильтр || フィルター
+Strg + K   Suche und Schnellstart\nStrg + F   Spiele durchsuchen\nStrg + R   Spiele neu scannen\nStrg + 1 bis 9   Bereiche öffnen\nStrg + ,   Einstellungen\nF11   Controller-Modus\nEsc   Controller-Modus oder Suche schließen || Ctrl + K   Search and quick launch\nCtrl + F   Search games\nCtrl + R   Rescan games\nCtrl + 1 to 9   Open sections\nCtrl + ,   Settings\nF11   Controller mode\nEsc   Close controller mode or search || Ctrl + K   搜索与快速启动\nCtrl + F   搜索游戏\nCtrl + R   重新扫描游戏\nCtrl + 1 到 9   打开栏目\nCtrl + ,   设置\nF11   手柄模式\nEsc   关闭手柄模式或搜索 || Ctrl + K   Búsqueda e inicio rápido\nCtrl + F   Buscar juegos\nCtrl + R   Volver a escanear juegos\nCtrl + 1 a 9   Abrir secciones\nCtrl + ,   Ajustes\nF11   Modo mando\nEsc   Cerrar modo mando o búsqueda || Ctrl + K   Recherche et lancement rapide\nCtrl + F   Rechercher des jeux\nCtrl + R   Réanalyser les jeux\nCtrl + 1 à 9   Ouvrir des sections\nCtrl + ,   Paramètres\nF11   Mode manette\nÉchap   Fermer le mode manette ou la recherche || Ctrl + K   Busca e início rápido\nCtrl + F   Pesquisar jogos\nCtrl + R   Buscar jogos novamente\nCtrl + 1 a 9   Abrir seções\nCtrl + ,   Configurações\nF11   Modo controle\nEsc   Fechar modo controle ou busca || Ctrl + K   Поиск и быстрый запуск\nCtrl + F   Поиск игр\nCtrl + R   Повторное сканирование игр\nCtrl + 1–9   Открыть разделы\nCtrl + ,   Настройки\nF11   Режим геймпада\nEsc   Закрыть режим геймпада или поиск || Ctrl + K   検索とクイック起動\nCtrl + F   ゲームを検索\nCtrl + R   ゲームを再スキャン\nCtrl + 1〜9   セクションを開く\nCtrl + ,   設定\nF11   コントローラーモード\nEsc   コントローラーモードまたは検索を閉じる
+
+
+# ───────── Streamer-Modus und Komfort (Ergänzung) ─────────
+Streamer || Streamer || 主播 || Streamer || Streamer || Streamer || Стример || 配信者
+Streamer-Modus || Streamer mode || 主播模式 || Modo streamer || Mode streamer || Modo streamer || Режим стримера || 配信者モード
+Streamer-Modus einschalten || Turn on streamer mode || 开启主播模式 || Activar el modo streamer || Activer le mode streamer || Ativar o modo streamer || Включить режим стримера || 配信者モードをオンにする
+Verbirgt private Angaben, damit nichts davon aus Versehen im Stream oder in einer Aufnahme zu sehen ist. Schnell umschalten geht mit Strg+Umschalt+S im Launcher oder Strg+Alt+S überall (wenn der globale Hotkey aktiv ist). Auch das Schnell-Panel am Infobereich-Symbol hat einen Knopf dafür. || Hides private information so that nothing is shown by accident in a stream or recording. Switch quickly with Ctrl+Shift+S in the launcher or Ctrl+Alt+S anywhere (if the global hotkey is active). The quick panel at the tray icon also has a button for it. || 隐藏私人信息,避免在直播或录像中意外泄露。在启动器内按 Ctrl+Shift+S 可快速切换,全局热键开启时按 Ctrl+Alt+S 随处可用。托盘图标的快速面板里也有对应按钮。 || Oculta información privada para que nada se vea por error en un directo o grabación. Cambia rápido con Ctrl+Mayús+S en el launcher o con Ctrl+Alt+S en cualquier sitio (si el atajo global está activo). El panel rápido del icono de la bandeja también tiene un botón. || Masque les informations privées pour que rien ne s'affiche par erreur dans un stream ou un enregistrement. Basculez vite avec Ctrl+Maj+S dans le launcher ou Ctrl+Alt+S partout (si le raccourci global est actif). Le panneau rapide de l'icône de la zone de notification a aussi un bouton. || Oculta informações privadas para que nada apareça sem querer em uma transmissão ou gravação. Alterne rápido com Ctrl+Shift+S no launcher ou Ctrl+Alt+S em qualquer lugar (se o atalho global estiver ativo). O painel rápido do ícone da bandeja também tem um botão. || Скрывает личные данные, чтобы ничего не попало случайно в трансляцию или запись. Быстро переключать: Ctrl+Shift+S в лаунчере или Ctrl+Alt+S где угодно (если включена глобальная горячая клавиша). Есть кнопка и в быстрой панели значка в трее. || 配信や録画に個人情報が映り込まないよう隠します。ランチャー内ではCtrl+Shift+S、どこからでもCtrl+Alt+S(グローバルホットキーが有効な場合)で素早く切り替えられます。通知領域アイコンのクイックパネルにもボタンがあります。
+Automatisch einschalten, wenn OBS oder eine andere Streaming-Software läuft || Turn on automatically when OBS or other streaming software is running || 检测到 OBS 或其他直播软件运行时自动开启 || Activar automáticamente cuando se ejecute OBS u otro software de streaming || Activer automatiquement quand OBS ou un autre logiciel de streaming est lancé || Ativar automaticamente quando o OBS ou outro software de streaming estiver em execução || Включать автоматически, когда запущен OBS или другая программа для стриминга || OBSなどの配信ソフトが起動したら自動でオンにする
+Erkennt OBS, Streamlabs, Twitch Studio, XSplit, vMix und Prism. Der Modus geht wieder aus, sobald das Programm beendet wird. || Detects OBS, Streamlabs, Twitch Studio, XSplit, vMix and Prism. The mode turns off again as soon as the program is closed. || 可识别 OBS、Streamlabs、Twitch Studio、XSplit、vMix 和 Prism。程序关闭后,模式会自动关闭。 || Detecta OBS, Streamlabs, Twitch Studio, XSplit, vMix y Prism. El modo se desactiva en cuanto se cierra el programa. || Détecte OBS, Streamlabs, Twitch Studio, XSplit, vMix et Prism. Le mode se désactive dès que le programme est fermé. || Detecta OBS, Streamlabs, Twitch Studio, XSplit, vMix e Prism. O modo desliga de novo assim que o programa for fechado. || Распознаёт OBS, Streamlabs, Twitch Studio, XSplit, vMix и Prism. Режим выключается, как только программа закрыта. || OBS、Streamlabs、Twitch Studio、XSplit、vMix、Prismを検出します。プログラムを終了するとモードも自動でオフになります。
+Was verborgen wird || What gets hidden || 隐藏的内容 || Qué se oculta || Ce qui est masqué || O que é ocultado || Что скрывается || 隠される内容
+Die Bereiche werden unscharf dargestellt oder durch neutrale Angaben ersetzt. Das gilt nur, solange der Streamer-Modus aktiv ist. || The areas are blurred or replaced with neutral values. This only applies while streamer mode is active. || 相关区域会被模糊或替换为中性内容,仅在主播模式开启时生效。 || Las zonas se muestran borrosas o se sustituyen por valores neutros. Solo vale mientras el modo streamer esté activo. || Les zones sont floutées ou remplacées par des valeurs neutres. Cela ne s'applique que tant que le mode streamer est actif. || As áreas são desfocadas ou substituídas por valores neutros. Vale apenas enquanto o modo streamer estiver ativo. || Области размываются или заменяются нейтральными значениями. Действует только при включённом режиме стримера. || 該当部分はぼかされるか、中立的な表示に置き換えられます。配信者モードがオンの間だけ有効です。
+Namen verbergen || Hide name || 隐藏名称 || Ocultar nombre || Masquer le nom || Ocultar nome || Скрывать имя || 名前を隠す
+Ersetzt deinen Benutzernamen in der Seitenleiste und der Begrüßung durch „Gamer“ und verwischt das Namensfeld in den Einstellungen. || Replaces your user name in the sidebar and greeting with "Gamer" and blurs the name field in the settings. || 将侧边栏和问候语中的用户名替换为“Gamer”,并模糊设置中的名称输入框。 || Sustituye tu nombre de usuario en la barra lateral y el saludo por «Gamer» y difumina el campo del nombre en los ajustes. || Remplace votre nom d'utilisateur dans la barre latérale et le message d'accueil par « Gamer » et floute le champ du nom dans les paramètres. || Substitui seu nome de usuário na barra lateral e na saudação por "Gamer" e desfoca o campo do nome nas configurações. || Заменяет ваше имя в боковой панели и приветствии на «Gamer» и размывает поле имени в настройках. || サイドバーとあいさつ内のユーザー名を「Gamer」に置き換え、設定の名前欄をぼかします。
+Wetter und Standort verbergen || Hide weather and location || 隐藏天气与位置 || Ocultar tiempo y ubicación || Masquer météo et position || Ocultar clima e local || Скрывать погоду и местоположение || 天気と場所を隠す
+Verwischt die Wetterkarte und das Feld für den Wetter-Ort, denn sie verraten ungefähr, wo du wohnst. || Blurs the weather card and the weather location field, as they reveal roughly where you live. || 模糊天气卡片和天气地点输入框,因为它们会泄露你大致的居住地。 || Difumina la tarjeta del tiempo y el campo de ubicación, porque revelan aproximadamente dónde vives. || Floute la carte météo et le champ du lieu, car ils révèlent à peu près où vous habitez. || Desfoca o cartão do clima e o campo do local, pois revelam aproximadamente onde você mora. || Размывает карточку погоды и поле места: они примерно показывают, где вы живёте. || 天気カードと場所の入力欄をぼかします。おおよその居住地が分かってしまうためです。
+Spielzeit und Statistiken verbergen || Hide playtime and statistics || 隐藏游戏时间与统计 || Ocultar tiempo de juego y estadísticas || Masquer temps de jeu et statistiques || Ocultar tempo de jogo e estatísticas || Скрывать время игры и статистику || プレイ時間と統計を隠す
+Verwischt die Statistik-Seite und die Kacheln im Dashboard und blendet Spielzeiten auf den Karten und im Detailfenster aus. || Blurs the statistics page and the dashboard tiles and hides playtimes on the cards and in the details window. || 模糊统计页面和仪表盘磁贴,并在卡片和详情窗口中隐藏游戏时间。 || Difumina la página de estadísticas y los mosaicos del panel y oculta los tiempos de juego en las tarjetas y en la ventana de detalles. || Floute la page des statistiques et les tuiles du tableau de bord et masque les temps de jeu sur les cartes et dans la fenêtre de détails. || Desfoca a página de estatísticas e os blocos do painel e oculta os tempos de jogo nos cartões e na janela de detalhes. || Размывает страницу статистики и плитки панели и скрывает время игры на карточках и в окне сведений. || 統計ページとダッシュボードのタイルをぼかし、カードと詳細ウィンドウのプレイ時間を非表示にします。
+Zuletzt gespielt, Favoriten und Weiterspielen-Banner verbergen || Hide recently played, favorites and the continue-playing banner || 隐藏最近游玩、收藏和“继续游戏”横幅 || Ocultar jugados recientemente, favoritos y el banner de seguir jugando || Masquer joués récemment, favoris et la bannière « Continuer à jouer » || Ocultar jogados recentemente, favoritos e o banner de continuar jogando || Скрывать недавние игры, избранное и баннер «Продолжить игру» || 最近プレイ・お気に入り・続きをプレイのバナーを隠す
+Damit niemand sieht, was du sonst noch spielst. || So nobody sees what else you play. || 避免别人看到你还玩些什么。 || Para que nadie vea qué más juegas. || Pour que personne ne voie à quoi vous jouez d'autre. || Para que ninguém veja o que mais você joga. || Чтобы никто не видел, во что вы ещё играете. || ほかに何をプレイしているか見られないようにします。
+Pfade, Dateinamen und Schlüssel verbergen || Hide paths, file names and keys || 隐藏路径、文件名和密钥 || Ocultar rutas, nombres de archivo y claves || Masquer chemins, noms de fichiers et clés || Ocultar caminhos, nomes de arquivo e chaves || Скрывать пути, имена файлов и ключи || パス・ファイル名・キーを隠す
+Verwischt Downloads, Anwendungen, Speicher, den SteamGridDB-Schlüssel, Ordnerpfade und die Update-Quelle. Pfade enthalten oft deinen Windows-Benutzernamen. || Blurs downloads, applications, storage, the SteamGridDB key, folder paths and the update source. Paths often contain your Windows user name. || 模糊下载、应用程序、存储、SteamGridDB 密钥、文件夹路径和更新来源。路径中常包含你的 Windows 用户名。 || Difumina descargas, aplicaciones, almacenamiento, la clave de SteamGridDB, rutas de carpetas y el origen de actualizaciones. Las rutas suelen contener tu nombre de usuario de Windows. || Floute téléchargements, applications, stockage, la clé SteamGridDB, chemins de dossiers et la source de mises à jour. Les chemins contiennent souvent votre nom d'utilisateur Windows. || Desfoca downloads, aplicativos, armazenamento, a chave do SteamGridDB, caminhos de pastas e a fonte de atualizações. Os caminhos costumam conter seu nome de usuário do Windows. || Размывает загрузки, приложения, хранилище, ключ SteamGridDB, пути к папкам и источник обновлений. Пути часто содержат ваше имя пользователя Windows. || ダウンロード、アプリ、ストレージ、SteamGridDBキー、フォルダーのパス、アップデート取得元をぼかします。パスにはWindowsのユーザー名が含まれることが多いためです。
+Screenshots und Wunschliste verbergen || Hide screenshots and wishlist || 隐藏截图与愿望单 || Ocultar capturas y lista de deseos || Masquer captures d'écran et liste de souhaits || Ocultar capturas de tela e lista de desejos || Скрывать скриншоты и список желаемого || スクリーンショットとウィッシュリストを隠す
+Verwischt die Galerie und die Wunschliste. || Blurs the gallery and the wishlist. || 模糊图库和愿望单。 || Difumina la galería y la lista de deseos. || Floute la galerie et la liste de souhaits. || Desfoca a galeria e a lista de desejos. || Размывает галерею и список желаемого. || ギャラリーとウィッシュリストをぼかします。
+Meldungen || Notifications || 提示消息 || Notificaciones || Notifications || Notificações || Уведомления || 通知
+Meldungen und Hinweise stumm schalten || Mute notifications and notices || 屏蔽提示与通知 || Silenciar notificaciones y avisos || Couper les notifications et avis || Silenciar notificações e avisos || Отключить уведомления и подсказки || 通知とお知らせをミュート
+Unterdrückt Hinweis-Meldungen, Banner und Preisalarme im Streamer-Modus. Pausen- und Tageslimit-Erinnerungen bleiben erhalten. || Suppresses notifications, banners and price alerts in streamer mode. Break and daily-limit reminders are kept. || 在主播模式下屏蔽提示消息、横幅和价格提醒。休息和每日限额提醒仍会显示。 || Suprime notificaciones, banners y alertas de precio en el modo streamer. Los recordatorios de pausa y de límite diario se mantienen. || Supprime notifications, bannières et alertes de prix en mode streamer. Les rappels de pause et de limite quotidienne sont conservés. || Suprime notificações, banners e alertas de preço no modo streamer. Lembretes de pausa e de limite diário continuam. || В режиме стримера подавляет уведомления, баннеры и оповещения о ценах. Напоминания о перерыве и дневном лимите остаются. || 配信者モード中は通知、バナー、価格アラートを抑えます。休憩と1日の上限のリマインダーは表示されます。
+Streamer-Modus aktiv || Streamer mode on || 主播模式已开启 || Modo streamer activo || Mode streamer actif || Modo streamer ativo || Режим стримера включён || 配信者モード オン
+Private Angaben sind jetzt verborgen. || Private information is now hidden. || 私人信息现已隐藏。 || La información privada ya está oculta. || Les informations privées sont maintenant masquées. || As informações privadas agora estão ocultas. || Личные данные теперь скрыты. || 個人情報を隠しました。
+Eine Streaming-Software läuft. Private Angaben sind verborgen. || Streaming software is running. Private information is hidden. || 检测到直播软件正在运行,私人信息已隐藏。 || Hay software de streaming en ejecución. La información privada está oculta. || Un logiciel de streaming est lancé. Les informations privées sont masquées. || Um software de streaming está em execução. As informações privadas estão ocultas. || Запущена программа для стриминга. Личные данные скрыты. || 配信ソフトが起動しています。個人情報を隠しました。
+Streamer-Modus aus || Streamer mode off || 主播模式已关闭 || Modo streamer desactivado || Mode streamer désactivé || Modo streamer desligado || Режим стримера выключен || 配信者モード オフ
+Alle Angaben sind wieder sichtbar. || All information is visible again. || 所有信息已重新显示。 || Toda la información vuelve a ser visible. || Toutes les informations sont de nouveau visibles. || Todas as informações estão visíveis novamente. || Все данные снова видны. || すべての情報が再び表示されます。
+📡 Streamer-Modus || 📡 Streamer mode || 📡 主播模式 || 📡 Modo streamer || 📡 Mode streamer || 📡 Modo streamer || 📡 Режим стримера || 📡 配信者モード
+📡 Streamer-Modus (automatisch) || 📡 Streamer mode (automatic) || 📡 主播模式(自动) || 📡 Modo streamer (automático) || 📡 Mode streamer (automatique) || 📡 Modo streamer (automático) || 📡 Режим стримера (авто) || 📡 配信者モード(自動)
+📡 Streamer-Modus umschalten || 📡 Toggle streamer mode || 📡 切换主播模式 || 📡 Alternar modo streamer || 📡 Basculer le mode streamer || 📡 Alternar modo streamer || 📡 Переключить режим стримера || 📡 配信者モードを切り替え
+Streamer-Modus umschalten || Toggle streamer mode || 切换主播模式 || Alternar modo streamer || Basculer le mode streamer || Alternar modo streamer || Переключить режим стримера || 配信者モードを切り替え
+Verbirgt private Angaben || Hides private information || 隐藏私人信息 || Oculta información privada || Masque les informations privées || Oculta informações privadas || Скрывает личные данные || 個人情報を隠します
+Klicken zum Ausschalten || Click to turn off || 点击关闭 || Haz clic para desactivar || Cliquez pour désactiver || Clique para desligar || Нажмите, чтобы выключить || クリックしてオフにする
+Controller-Modus || Controller mode || 手柄模式 || Modo mando || Mode manette || Modo controle || Режим геймпада || コントローラーモード
+Einstellungen durchsuchen ... || Search settings ... || 搜索设置 ... || Buscar en los ajustes ... || Rechercher dans les paramètres ... || Pesquisar nas configurações ... || Поиск по настройкам ... || 設定を検索 ...
+Launcher nach dem Spiel wieder öffnen || Reopen the launcher after the game || 游戏结束后重新打开启动器 || Reabrir el launcher tras el juego || Rouvrir le launcher après le jeu || Reabrir o launcher após o jogo || Снова открывать лаунчер после игры || ゲーム終了後にランチャーを再表示
+Holt den Launcher nach vorn, sobald dein Spiel beendet ist. Praktisch zusammen mit „Launcher nach dem Spielstart minimieren“. || Brings the launcher to the front as soon as your game ends. Handy together with "Minimize launcher after game start". || 游戏结束后立即把启动器带到前台。与“游戏启动后最小化启动器”搭配很方便。 || Trae el launcher al frente en cuanto termina tu juego. Útil junto con «Minimizar el launcher tras iniciar el juego». || Ramène le launcher au premier plan dès la fin de votre jeu. Pratique avec « Réduire le launcher après le lancement du jeu ». || Traz o launcher para a frente assim que o jogo terminar. Útil junto com "Minimizar o launcher após iniciar o jogo". || Выводит лаунчер на передний план, как только игра завершится. Удобно вместе с «Сворачивать лаунчер после запуска игры». || ゲームが終了したらランチャーを前面に表示します。「ゲーム起動後にランチャーを最小化」と組み合わせると便利です。
+Beim Schließen nachfragen || Ask when closing || 关闭时询问 || Preguntar al cerrar || Demander à la fermeture || Perguntar ao fechar || Спрашивать при закрытии || 閉じるときに確認
+Fragt, ob der Launcher im Hintergrund weiterlaufen oder beendet werden soll, wenn du das Fenster schließt. || Asks whether the launcher should keep running in the background or quit when you close the window. || 关闭窗口时询问启动器是继续在后台运行还是退出。 || Pregunta si el launcher debe seguir en segundo plano o cerrarse al cerrar la ventana. || Demande si le launcher doit continuer en arrière-plan ou se fermer quand vous fermez la fenêtre. || Pergunta se o launcher deve continuar em segundo plano ou fechar quando você fecha a janela. || Спрашивает, продолжать ли работу лаунчера в фоне или выйти, когда вы закрываете окно. || ウィンドウを閉じたとき、バックグラウンドで動作を続けるか終了するかを確認します。
+Soll der Launcher im Hintergrund weiterlaufen?\n\nJa: Im Infobereich weiterlaufen\nNein: Launcher beenden\nAbbrechen: Fenster offen lassen || Should the launcher keep running in the background?\n\nYes: Keep running in the notification area\nNo: Quit the launcher\nCancel: Keep the window open || 启动器是否继续在后台运行?\n\n是:在通知区域继续运行\n否:退出启动器\n取消:保持窗口打开 || ¿Debe el launcher seguir en segundo plano?\n\nSí: seguir en la bandeja\nNo: cerrar el launcher\nCancelar: dejar la ventana abierta || Le launcher doit-il continuer en arrière-plan ?\n\nOui : continuer dans la zone de notification\nNon : quitter le launcher\nAnnuler : laisser la fenêtre ouverte || O launcher deve continuar em segundo plano?\n\nSim: continuar na bandeja\nNão: fechar o launcher\nCancelar: manter a janela aberta || Оставить лаунчер работать в фоне?\n\nДа: продолжить в области уведомлений\nНет: выйти из лаунчера\nОтмена: оставить окно открытым || ランチャーをバックグラウンドで動作させますか?\n\nはい:通知領域で動作を続ける\nいいえ:ランチャーを終了\nキャンセル:ウィンドウを開いたままにする
+Launcher schließen || Close launcher || 关闭启动器 || Cerrar el launcher || Fermer le launcher || Fechar o launcher || Закрыть лаунчер || ランチャーを閉じる
+Einzelklick auf das Infobereich-Symbol öffnet den Launcher || A single click on the tray icon opens the launcher || 单击托盘图标直接打开启动器 || Un solo clic en el icono de la bandeja abre el launcher || Un simple clic sur l'icône de la zone de notification ouvre le launcher || Um clique no ícone da bandeja abre o launcher || Один щелчок по значку в трее открывает лаунчер || 通知領域アイコンの1回クリックでランチャーを開く
+Aus: Ein Klick öffnet das kleine Schnell-Panel, ein Doppelklick den Launcher. || Off: a click opens the small quick panel, a double-click opens the launcher. || 关闭时:单击打开小型快速面板,双击打开启动器。 || Desactivado: un clic abre el pequeño panel rápido y un doble clic abre el launcher. || Désactivé : un clic ouvre le petit panneau rapide, un double-clic ouvre le launcher. || Desligado: um clique abre o pequeno painel rápido e um clique duplo abre o launcher. || Выключено: щелчок открывает быструю панель, двойной щелчок — лаунчер. || オフ:1回クリックでクイックパネル、ダブルクリックでランチャーを開きます。
+Tippen startet die Suche || Typing starts the search || 直接输入即开始搜索 || Escribir inicia la búsqueda || Taper lance la recherche || Digitar inicia a busca || Набор текста запускает поиск || 入力するだけで検索を開始
+In der Spieleliste genügt es, einfach loszutippen. Die Eingabe landet im Suchfeld. || In the game list you can simply start typing. The input goes into the search box. || 在游戏列表中直接输入即可,内容会进入搜索框。 || En la lista de juegos basta con empezar a escribir. Lo escrito va al cuadro de búsqueda. || Dans la liste des jeux, il suffit de commencer à taper. La saisie va dans le champ de recherche. || Na lista de jogos basta começar a digitar. O texto vai para a caixa de busca. || В списке игр достаточно просто начать печатать. Текст попадает в поле поиска. || ゲーム一覧では、そのまま入力するだけで構いません。入力内容は検索欄に入ります。
+Favoriten immer oben anzeigen || Always show favorites first || 始终将收藏置顶 || Mostrar siempre los favoritos arriba || Toujours afficher les favoris en premier || Sempre mostrar os favoritos primeiro || Всегда показывать избранное сверху || お気に入りを常に先頭に表示
+Deine Favoriten stehen in der Spieleliste ganz oben, danach folgt die gewählte Sortierung. || Your favorites appear at the very top of the game list, followed by the chosen sorting. || 收藏的游戏显示在列表最上方,其余按所选排序。 || Tus favoritos aparecen arriba del todo en la lista de juegos; después sigue el orden elegido. || Vos favoris apparaissent tout en haut de la liste des jeux, puis le tri choisi s'applique. || Seus favoritos aparecem no topo da lista de jogos, seguidos da ordenação escolhida. || Избранное стоит в самом верху списка игр, затем идёт выбранная сортировка. || お気に入りがゲーム一覧の一番上に表示され、その後に選択した並び順が続きます。
+Alphabet-Leiste anzeigen || Show alphabet bar || 显示字母栏 || Mostrar barra alfabética || Afficher la barre alphabétique || Mostrar barra alfabética || Показывать алфавитную полосу || アルファベットバーを表示
+Eine schmale A–Z-Leiste am rechten Rand der Spieleliste zum schnellen Springen. Erscheint nur bei Sortierung nach Name und größeren Bibliotheken. || A slim A–Z bar at the right edge of the game list for quick jumping. Only appears when sorted by name and with larger libraries. || 游戏列表右侧的窄条 A–Z 栏,用于快速跳转。仅在按名称排序且游戏库较大时出现。 || Una barra A–Z estrecha en el borde derecho de la lista de juegos para saltar rápido. Solo aparece con orden por nombre y bibliotecas grandes. || Une fine barre A–Z au bord droit de la liste des jeux pour naviguer vite. Elle n'apparaît qu'avec un tri par nom et une grande bibliothèque. || Uma barra A–Z fina na borda direita da lista de jogos para saltar rápido. Só aparece com ordenação por nome e bibliotecas maiores. || Узкая полоса A–Z у правого края списка игр для быстрых переходов. Появляется только при сортировке по имени и в больших библиотеках. || ゲーム一覧の右端に表示される細いA–Zバーで、素早く移動できます。名前順の並びで、ライブラリが大きい場合のみ表示されます。
+☑ Auswahl bearbeiten || ☑ Edit selection || ☑ 批量编辑 || ☑ Editar selección || ☑ Modifier la sélection || ☑ Editar seleção || ☑ Изменить выбор || ☑ 選択して編集
+Mehrere Spiele bearbeiten || Edit several games || 批量编辑游戏 || Editar varios juegos || Modifier plusieurs jeux || Editar vários jogos || Изменить несколько игр || 複数のゲームを編集
+Wähle die Spiele aus, auf die die Aktion angewendet wird. Es werden nur die aktuell angezeigten Spiele aufgelistet. || Choose the games the action is applied to. Only the currently shown games are listed. || 选择要应用该操作的游戏。仅列出当前显示的游戏。 || Elige los juegos a los que se aplica la acción. Solo se listan los juegos mostrados actualmente. || Choisissez les jeux auxquels l'action s'applique. Seuls les jeux actuellement affichés sont listés. || Escolha os jogos aos quais a ação se aplica. Somente os jogos exibidos no momento são listados. || Выберите игры, к которым применить действие. Показаны только игры, отображаемые сейчас. || 操作を適用するゲームを選んでください。現在表示されているゲームのみ一覧に出ます。
+★ Zu Favoriten hinzufügen || ★ Add to favorites || ★ 添加到收藏 || ★ Añadir a favoritos || ★ Ajouter aux favoris || ★ Adicionar aos favoritos || ★ Добавить в избранное || ★ お気に入りに追加
+☆ Aus Favoriten entfernen || ☆ Remove from favorites || ☆ 从收藏中移除 || ☆ Quitar de favoritos || ☆ Retirer des favoris || ☆ Remover dos favoritos || ☆ Убрать из избранного || ☆ お気に入りから削除
+📁 Zur Sammlung || 📁 To collection || 📁 加入收藏集 || 📁 A la colección || 📁 Vers la collection || 📁 Para a coleção || 📁 В коллекцию || 📁 コレクションへ
+Fertig || Done || 完成 || Listo || Terminé || Concluído || Готово || 完了
+Spiele geändert || games changed || 个游戏已更改 || juegos modificados || jeux modifiés || jogos alterados || игр изменено || 本のゲームを変更しました
+Spielbericht nach jeder Sitzung || Report after every session || 每次游戏后生成报告 || Informe tras cada sesión || Rapport après chaque session || Relatório após cada sessão || Отчёт после каждой сессии || セッションごとにレポートを表示
+Zeigt nach einem längeren Spiel, wie stark Prozessor, Grafikkarte und Arbeitsspeicher im Durchschnitt und im Höchstwert ausgelastet waren. || After a longer game, shows how heavily the processor, graphics card and memory were used on average and at peak. || 较长时间游戏后,显示处理器、显卡和内存的平均与峰值占用情况。 || Tras una partida larga, muestra cuánto se usaron el procesador, la tarjeta gráfica y la memoria de media y como máximo. || Après une longue session, affiche l'utilisation moyenne et maximale du processeur, de la carte graphique et de la mémoire. || Após um jogo mais longo, mostra o quanto o processador, a placa de vídeo e a memória foram usados, na média e no pico. || После продолжительной игры показывает среднюю и пиковую загрузку процессора, видеокарты и памяти. || 長めのプレイ後に、CPU・GPU・メモリの平均使用率と最大使用率を表示します。
+Spielbericht || Session report || 游戏报告 || Informe de sesión || Rapport de session || Relatório de sessão || Отчёт о сессии || セッションレポート
+Std. || h || 小时 || h || h || h || ч || 時間
+max. || max. || 最高 || máx. || max. || máx. || макс. || 最大
+Prozessor || Processor || 处理器 || Procesador || Processeur || Processador || Процессор || プロセッサ
+Grafikkarte || Graphics card || 显卡 || Tarjeta gráfica || Carte graphique || Placa de vídeo || Видеокарта || グラフィックカード
+Meldungen des Launchers während des Spielens unterdrücken || Suppress launcher notifications while playing || 游戏期间屏蔽启动器提示 || Suprimir las notificaciones del launcher mientras juegas || Supprimer les notifications du launcher pendant le jeu || Suprimir notificações do launcher durante o jogo || Подавлять уведомления лаунчера во время игры || プレイ中はランチャーの通知を抑える
+Hinweis-Meldungen, Banner und Preisalarme warten, bis dein Spiel beendet ist. Pausen- und Tageslimit-Erinnerungen bleiben erhalten. || Notifications, banners and price alerts wait until your game has ended. Break and daily-limit reminders are kept. || 提示消息、横幅和价格提醒会等到游戏结束后再显示。休息和每日限额提醒仍会显示。 || Las notificaciones, banners y alertas de precio esperan a que termine tu juego. Los recordatorios de pausa y de límite diario se mantienen. || Les notifications, bannières et alertes de prix attendent la fin de votre jeu. Les rappels de pause et de limite quotidienne sont conservés. || Notificações, banners e alertas de preço esperam até o jogo terminar. Lembretes de pausa e de limite diário continuam. || Уведомления, баннеры и оповещения о ценах ждут окончания игры. Напоминания о перерыве и дневном лимите остаются. || 通知、バナー、価格アラートはゲーム終了まで待機します。休憩と1日の上限のリマインダーは表示されます。
+Tageslimit || Daily limit || 每日限额 || Límite diario || Limite quotidienne || Limite diário || Дневной лимит || 1日の上限
+Erinnert dich, sobald du heute so viele Stunden gespielt hast. 0 schaltet das Limit aus. || Reminds you as soon as you have played this many hours today. 0 turns the limit off. || 今天游戏达到这么多小时时提醒你。0 表示关闭限额。 || Te avisa en cuanto hayas jugado hoy tantas horas. 0 desactiva el límite. || Vous prévient dès que vous avez joué autant d'heures aujourd'hui. 0 désactive la limite. || Avisa assim que você jogar tantas horas hoje. 0 desativa o limite. || Напомнит, когда вы сегодня сыграете столько часов. 0 отключает лимит. || 今日のプレイ時間がこの時間に達したらお知らせします。0で上限をオフにします。
+Tageslimit erreicht || Daily limit reached || 已达到每日限额 || Límite diario alcanzado || Limite quotidienne atteinte || Limite diário atingido || Дневной лимит достигнут || 1日の上限に達しました
+⏳ Tageslimit erreicht || ⏳ Daily limit reached || ⏳ 已达到每日限额 || ⏳ Límite diario alcanzado || ⏳ Limite quotidienne atteinte || ⏳ Limite diário atingido || ⏳ Дневной лимит достигнут || ⏳ 1日の上限に到達
+Du hast heute || You have played || 你今天已玩了 || Hoy has jugado || Aujourd'hui, vous avez joué || Hoje você jogou || Сегодня вы сыграли || 今日は
+gespielt. || today. || 。 || . || . || . || . || プレイしました。
+Pause? || Break? || 休息一下? || ¿Una pausa? || Une pause ? || Uma pausa? || Перерыв? || 休憩しませんか?
+Overlay anpassen || Customize overlay || 自定义悬浮窗 || Personalizar el overlay || Personnaliser l'overlay || Personalizar o overlay || Настройка оверлея || オーバーレイをカスタマイズ
+Das Mini-Overlay erscheint über deinem Spiel, wenn es in den Einstellungen unter „Spielzeit und Erinnerungen“ eingeschaltet ist. || The mini overlay appears above your game when it is turned on in the settings under "Playtime and reminders". || 当在设置的“游戏时间与提醒”中开启后,迷你悬浮窗会显示在游戏上方。 || El mini overlay aparece sobre tu juego cuando está activado en los ajustes, en «Tiempo de juego y recordatorios». || Le mini-overlay apparaît au-dessus de votre jeu lorsqu'il est activé dans les paramètres sous « Temps de jeu et rappels ». || O mini overlay aparece sobre o seu jogo quando está ligado nas configurações em "Tempo de jogo e lembretes". || Мини-оверлей отображается поверх игры, если он включён в настройках в разделе «Время игры и напоминания». || 設定の「プレイ時間とリマインダー」でオンにすると、ミニオーバーレイがゲームの上に表示されます。
+Durchsichtigkeit des Overlays || Overlay transparency || 悬浮窗透明度 || Transparencia del overlay || Transparence de l'overlay || Transparência do overlay || Прозрачность оверлея || オーバーレイの透明度
+Niedrigere Werte machen das Overlay durchsichtiger und weniger auffällig. || Lower values make the overlay more transparent and less noticeable. || 数值越低,悬浮窗越透明、越不显眼。 || Valores más bajos hacen el overlay más transparente y menos llamativo. || Des valeurs plus basses rendent l'overlay plus transparent et plus discret. || Valores menores deixam o overlay mais transparente e menos chamativo. || Чем ниже значение, тем прозрачнее и незаметнее оверлей. || 値を下げると、オーバーレイが透けて目立たなくなります。
+Größe des Overlays || Overlay size || 悬浮窗大小 || Tamaño del overlay || Taille de l'overlay || Tamanho do overlay || Размер оверлея || オーバーレイのサイズ
+Vergrößert oder verkleinert das Overlay in Prozent. || Enlarges or shrinks the overlay in percent. || 按百分比放大或缩小悬浮窗。 || Agranda o reduce el overlay en porcentaje. || Agrandit ou réduit l'overlay en pourcentage. || Amplia ou reduz o overlay em porcentagem. || Увеличивает или уменьшает оверлей в процентах. || オーバーレイを割合で拡大・縮小します。
+Prozessor-Auslastung anzeigen || Show processor usage || 显示处理器占用 || Mostrar uso del procesador || Afficher l'utilisation du processeur || Mostrar uso do processador || Показывать загрузку процессора || CPU使用率を表示
+Zeigt die CPU-Last im Overlay. || Shows the CPU load in the overlay. || 在悬浮窗中显示 CPU 负载。 || Muestra la carga de CPU en el overlay. || Affiche la charge du processeur dans l'overlay. || Mostra a carga da CPU no overlay. || Показывает загрузку CPU в оверлее. || オーバーレイにCPU負荷を表示します。
+Grafikkarten-Auslastung anzeigen || Show graphics card usage || 显示显卡占用 || Mostrar uso de la tarjeta gráfica || Afficher l'utilisation de la carte graphique || Mostrar uso da placa de vídeo || Показывать загрузку видеокарты || GPU使用率を表示
+Zeigt die GPU-Last im Overlay, wenn Windows sie liefert. || Shows the GPU load in the overlay if Windows provides it. || 若 Windows 提供数据,则在悬浮窗中显示 GPU 负载。 || Muestra la carga de GPU en el overlay si Windows la proporciona. || Affiche la charge du GPU dans l'overlay si Windows la fournit. || Mostra a carga da GPU no overlay se o Windows a fornecer. || Показывает загрузку GPU в оверлее, если Windows её предоставляет. || Windowsが提供する場合、オーバーレイにGPU負荷を表示します。
+Arbeitsspeicher anzeigen || Show memory || 显示内存 || Mostrar memoria || Afficher la mémoire || Mostrar memória || Показывать память || メモリを表示
+Zeigt die RAM-Belegung im Overlay. || Shows the RAM usage in the overlay. || 在悬浮窗中显示内存占用。 || Muestra el uso de RAM en el overlay. || Affiche l'utilisation de la RAM dans l'overlay. || Mostra o uso de RAM no overlay. || Показывает использование ОЗУ в оверлее. || オーバーレイにRAM使用量を表示します。
+Uhrzeit anzeigen || Show time || 显示时间 || Mostrar hora || Afficher l'heure || Mostrar hora || Показывать время || 時刻を表示
+Zeigt die aktuelle Uhrzeit im Overlay. || Shows the current time in the overlay. || 在悬浮窗中显示当前时间。 || Muestra la hora actual en el overlay. || Affiche l'heure actuelle dans l'overlay. || Mostra a hora atual no overlay. || Показывает текущее время в оверлее. || オーバーレイに現在の時刻を表示します。
+Arbeitsspeicher || Memory || 内存 || Memoria || Mémoire || Memória || Память || メモリ
+Speicher des Launchers || Launcher memory || 启动器内存 || Memoria del launcher || Mémoire du launcher || Memória do launcher || Память лаунчера || ランチャーのメモリ
+Gibt zwischengespeicherte Bilder und Animationen frei. Sinnvoll, wenn der Launcher mit sehr vielen Covern viel Speicher belegt. || Frees cached images and animations. Useful when the launcher uses a lot of memory with very many covers. || 释放缓存的图片和动画。当封面很多、启动器占用内存较高时很有用。 || Libera imágenes y animaciones en caché. Útil cuando el launcher usa mucha memoria con muchísimas portadas. || Libère les images et animations en cache. Utile quand le launcher utilise beaucoup de mémoire avec de très nombreuses jaquettes. || Libera imagens e animações em cache. Útil quando o launcher usa muita memória com muitas capas. || Освобождает кэшированные изображения и анимации. Полезно, если лаунчер занимает много памяти из-за множества обложек. || キャッシュされた画像とアニメーションを解放します。カバーが非常に多くメモリ使用量が大きいときに役立ちます。
+Arbeitsspeicher freigeben || Free memory || 释放内存 || Liberar memoria || Libérer la mémoire || Liberar memória || Освободить память || メモリを解放
+Aktuell belegt: || Currently in use: || 当前占用: || Actualmente en uso: || Actuellement utilisé : || Em uso agora: || Сейчас занято: || 現在の使用量:
+
+
+# ───────── Mod-Ordner, Discord, Widgets, Schemas, Willkommen (Ergänzung) ─────────
+Mod-Ordner öffnen || Open mod folder || 打开 Mod 文件夹 || Abrir carpeta de mods || Ouvrir le dossier des mods || Abrir pasta de mods || Открыть папку модов || Modフォルダーを開く
+🧩 Mod-Ordner öffnen || 🧩 Open mod folder || 🧩 打开 Mod 文件夹 || 🧩 Abrir carpeta de mods || 🧩 Ouvrir le dossier des mods || 🧩 Abrir pasta de mods || 🧩 Открыть папку модов || 🧩 Modフォルダーを開く
+🧩 Mod-Ordner festlegen ... || 🧩 Set mod folder ... || 🧩 设置 Mod 文件夹 ... || 🧩 Definir carpeta de mods ... || 🧩 Définir le dossier des mods ... || 🧩 Definir pasta de mods ... || 🧩 Указать папку модов ... || 🧩 Modフォルダーを設定 ...
+↺ Mod-Ordner zurücksetzen || ↺ Reset mod folder || ↺ 重置 Mod 文件夹 || ↺ Restablecer carpeta de mods || ↺ Réinitialiser le dossier des mods || ↺ Redefinir pasta de mods || ↺ Сбросить папку модов || ↺ Modフォルダーをリセット
+Mod-Ordner dieses Spiels auswählen || Choose the mod folder of this game || 选择此游戏的 Mod 文件夹 || Elige la carpeta de mods de este juego || Choisissez le dossier des mods de ce jeu || Escolha a pasta de mods deste jogo || Выберите папку модов этой игры || このゲームのModフォルダーを選択
+Mod-Ordner-Knopf auf den Covern anzeigen || Show mod folder button on covers || 在封面上显示 Mod 文件夹按钮 || Mostrar botón de carpeta de mods en las portadas || Afficher le bouton du dossier des mods sur les jaquettes || Mostrar botão da pasta de mods nas capas || Показывать кнопку папки модов на обложках || カバーにModフォルダーのボタンを表示
+Bei Spielen mit erkanntem Mod-Ordner erscheint beim Darüberfahren ein kleiner Knopf 🧩 unten rechts im Cover, der den Ordner öffnet. Per Rechtsklick kannst du einen Ordner selbst festlegen. || For games with a detected mod folder, a small 🧩 button appears at the bottom right of the cover on hover and opens the folder. You can set a folder yourself with a right-click. || 对于检测到 Mod 文件夹的游戏,鼠标悬停时封面右下角会出现一个 🧩 小按钮,点击即可打开该文件夹。你也可以右键自行指定文件夹。 || En los juegos con carpeta de mods detectada, al pasar el ratón aparece un pequeño botón 🧩 abajo a la derecha de la portada que abre la carpeta. Con clic derecho puedes definir una carpeta tú mismo. || Pour les jeux dont le dossier des mods est détecté, un petit bouton 🧩 apparaît en bas à droite de la jaquette au survol et ouvre le dossier. Un clic droit permet de définir un dossier vous-même. || Em jogos com pasta de mods detectada, um pequeno botão 🧩 aparece no canto inferior direito da capa ao passar o mouse e abre a pasta. Com o botão direito você pode definir uma pasta por conta própria. || Для игр с найденной папкой модов при наведении в правом нижнем углу обложки появляется маленькая кнопка 🧩, открывающая папку. Правым щелчком можно указать папку самостоятельно. || Modフォルダーが検出されたゲームでは、マウスを重ねるとカバー右下に小さな🧩ボタンが表示され、フォルダーを開けます。右クリックで自分でフォルダーを指定することもできます。
+Discord-Benachrichtigung || Discord notification || Discord 通知 || Notificación de Discord || Notification Discord || Notificação do Discord || Уведомление в Discord || Discord通知
+Der Launcher kann eine Nachricht in einen Discord-Kanal deiner Wahl schicken, wenn du ein Spiel startest oder beendest. Dafür legst du in Discord einen Webhook an (Kanal bearbeiten, Integrationen, Webhooks). Gesendet wird nur, was du hier einschaltest, und nur an die Adresse, die du einträgst. || The launcher can send a message to a Discord channel of your choice when you start or end a game. For that you create a webhook in Discord (edit channel, integrations, webhooks). Only what you turn on here is sent, and only to the address you enter. || 当你启动或结束游戏时,启动器可以向你选择的 Discord 频道发送消息。为此你需要在 Discord 中创建 Webhook(编辑频道、集成、Webhook)。只会发送你在此处开启的内容,并且只发送到你填写的地址。 || El launcher puede enviar un mensaje a un canal de Discord de tu elección cuando inicies o termines un juego. Para ello creas un webhook en Discord (editar canal, integraciones, webhooks). Solo se envía lo que actives aquí y solo a la dirección que introduzcas. || Le launcher peut envoyer un message dans un canal Discord de votre choix quand vous lancez ou terminez un jeu. Pour cela, créez un webhook dans Discord (modifier le canal, intégrations, webhooks). Seul ce que vous activez ici est envoyé, et uniquement à l'adresse que vous saisissez. || O launcher pode enviar uma mensagem a um canal do Discord de sua escolha quando você inicia ou encerra um jogo. Para isso, crie um webhook no Discord (editar canal, integrações, webhooks). Só é enviado o que você ativar aqui, e apenas para o endereço que você informar. || Лаунчер может отправлять сообщение в выбранный вами канал Discord, когда вы запускаете или завершаете игру. Для этого создайте в Discord вебхук (изменить канал, интеграции, вебхуки). Отправляется только то, что вы включите здесь, и только по указанному вами адресу. || ゲームの開始時や終了時に、選んだDiscordチャンネルへメッセージを送信できます。Discordでウェブフック(チャンネルの編集、連携サービス、ウェブフック)を作成してください。ここでオンにした内容だけが、入力したアドレスにのみ送信されます。
+Discord-Benachrichtigung einschalten || Turn on Discord notification || 开启 Discord 通知 || Activar la notificación de Discord || Activer la notification Discord || Ativar a notificação do Discord || Включить уведомление в Discord || Discord通知をオンにする
+Ohne gültige Webhook-Adresse wird nichts gesendet. Die Adresse bleibt auf deinem PC gespeichert und wird im Streamer-Modus verwischt. || Nothing is sent without a valid webhook address. The address stays stored on your PC and is blurred in streamer mode. || 没有有效的 Webhook 地址就不会发送任何内容。该地址仅保存在你的电脑上,在主播模式下会被模糊。 || Sin una dirección de webhook válida no se envía nada. La dirección se guarda en tu PC y se difumina en el modo streamer. || Sans adresse de webhook valide, rien n'est envoyé. L'adresse reste enregistrée sur votre PC et est floutée en mode streamer. || Sem um endereço de webhook válido, nada é enviado. O endereço fica salvo no seu PC e é desfocado no modo streamer. || Без действительного адреса вебхука ничего не отправляется. Адрес хранится на вашем ПК и размывается в режиме стримера. || 有効なウェブフックのアドレスがない場合は何も送信されません。アドレスはPC内に保存され、配信者モードではぼかされます。
+Webhook-Adresse || Webhook address || Webhook 地址 || Dirección del webhook || Adresse du webhook || Endereço do webhook || Адрес вебхука || ウェブフックのアドレス
+Sie beginnt mit https://discord.com/api/webhooks/ und gehört zu einem Kanal, in dem du Nachrichten erlaubst. Behandle sie wie ein Passwort. || It starts with https://discord.com/api/webhooks/ and belongs to a channel where you allow messages. Treat it like a password. || 它以 https://discord.com/api/webhooks/ 开头,属于你允许发送消息的频道。请像对待密码一样保管它。 || Empieza por https://discord.com/api/webhooks/ y pertenece a un canal en el que permites mensajes. Trátala como una contraseña. || Elle commence par https://discord.com/api/webhooks/ et appartient à un canal où vous autorisez les messages. Traitez-la comme un mot de passe. || Ela começa com https://discord.com/api/webhooks/ e pertence a um canal em que você permite mensagens. Trate-a como uma senha. || Он начинается с https://discord.com/api/webhooks/ и принадлежит каналу, в котором вы разрешаете сообщения. Относитесь к нему как к паролю. || https://discord.com/api/webhooks/ で始まり、メッセージを許可したチャンネルのものです。パスワードのように扱ってください。
+Test-Nachricht senden || Send test message || 发送测试消息 || Enviar mensaje de prueba || Envoyer un message de test || Enviar mensagem de teste || Отправить тестовое сообщение || テストメッセージを送信
+Beim Spielstart benachrichtigen || Notify when a game starts || 游戏启动时通知 || Notificar al iniciar un juego || Notifier au lancement d'un jeu || Notificar ao iniciar um jogo || Уведомлять при запуске игры || ゲーム開始時に通知
+Sendet „… spielt jetzt …“ mit Spielname, Quelle und, bei Steam-Spielen, dem Titelbild. || Sends "... is now playing ..." with game name, source and, for Steam games, the header image. || 发送“……正在玩……”,包含游戏名称、来源,Steam 游戏还会带上标题图片。 || Envía «... está jugando a ...» con el nombre del juego, el origen y, en juegos de Steam, la imagen de cabecera. || Envoie « ... joue à ... » avec le nom du jeu, la source et, pour les jeux Steam, l'image d'en-tête. || Envia "... está jogando ..." com o nome do jogo, a origem e, em jogos da Steam, a imagem de cabeçalho. || Отправляет «… играет в …» с названием игры, источником и, для игр Steam, заглавным изображением. || 「…が…をプレイ中」というメッセージを、ゲーム名、ストア、Steamゲームの場合はヘッダー画像付きで送信します。
+Beim Spielende benachrichtigen || Notify when a game ends || 游戏结束时通知 || Notificar al terminar un juego || Notifier à la fin d'un jeu || Notificar ao encerrar um jogo || Уведомлять при завершении игры || ゲーム終了時に通知
+Sendet nach dem Beenden eine Nachricht mit der Spielzeit dieser Sitzung. || Sends a message with the playtime of this session after the game ends. || 游戏结束后发送一条包含本次游戏时长的消息。 || Tras terminar, envía un mensaje con el tiempo de juego de esta sesión. || Après la fin du jeu, envoie un message avec le temps de jeu de cette session. || Após o término, envia uma mensagem com o tempo de jogo desta sessão. || После завершения отправляет сообщение с временем игры за эту сессию. || 終了後に、このセッションのプレイ時間を記したメッセージを送信します。
+Meinen Benutzernamen mitsenden || Include my user name || 一并发送我的用户名 || Incluir mi nombre de usuario || Inclure mon nom d'utilisateur || Incluir meu nome de usuário || Отправлять моё имя пользователя || ユーザー名を含める
+Aus: Die Nachricht nennt statt deines Namens nur „Jemand“. || Off: the message says only "Someone" instead of your name. || 关闭时:消息中只显示“有人”,而不显示你的名字。 || Desactivado: el mensaje dice solo «Alguien» en lugar de tu nombre. || Désactivé : le message indique seulement « Quelqu'un » au lieu de votre nom. || Desligado: a mensagem diz apenas "Alguém" em vez do seu nome. || Выключено: в сообщении будет только «Кто-то» вместо вашего имени. || オフ:名前の代わりに「誰か」とだけ表示されます。
+Jemand || Someone || 有人 || Alguien || Quelqu'un || Alguém || Кто-то || 誰か
+{0} spielt jetzt {1} || {0} is now playing {1} || {0} 正在玩 {1} || {0} está jugando a {1} || {0} joue à {1} || {0} está jogando {1} || {0} играет в {1} || {0}が{1}をプレイ中
+{0} hat {1} beendet || {0} finished {1} || {0} 结束了 {1} || {0} ha terminado {1} || {0} a terminé {1} || {0} encerrou {1} || {0} закончил(а) {1} || {0}が{1}を終了しました
+Spielzeit dieser Sitzung: {0} || Playtime of this session: {0} || 本次游戏时长:{0} || Tiempo de juego de esta sesión: {0} || Temps de jeu de cette session : {0} || Tempo de jogo desta sessão: {0} || Время игры за эту сессию: {0} || このセッションのプレイ時間:{0}
+Test erfolgreich || Test successful || 测试成功 || Prueba correcta || Test réussi || Teste bem-sucedido || Тест успешен || テスト成功
+Dein DFP Pro Launcher ist mit diesem Discord-Kanal verbunden. || Your DFP Pro Launcher is connected to this Discord channel. || 你的 DFP Pro Launcher 已连接到此 Discord 频道。 || Tu DFP Pro Launcher está conectado a este canal de Discord. || Votre DFP Pro Launcher est connecté à ce canal Discord. || Seu DFP Pro Launcher está conectado a este canal do Discord. || Ваш DFP Pro Launcher подключён к этому каналу Discord. || DFP Pro LauncherがこのDiscordチャンネルに接続されました。
+Das ist keine gültige Discord-Webhook-Adresse. || That is not a valid Discord webhook address. || 这不是有效的 Discord Webhook 地址。 || Esa no es una dirección de webhook de Discord válida. || Ce n'est pas une adresse de webhook Discord valide. || Esse não é um endereço de webhook do Discord válido. || Это не действительный адрес вебхука Discord. || 有効なDiscordウェブフックのアドレスではありません。
+Webhook entfernt. || Webhook removed. || 已移除 Webhook。 || Webhook eliminado. || Webhook supprimé. || Webhook removido. || Вебхук удалён. || ウェブフックを削除しました。
+Gespeichert. || Saved. || 已保存。 || Guardado. || Enregistré. || Salvo. || Сохранено. || 保存しました。
+Sende Test-Nachricht ... || Sending test message ... || 正在发送测试消息 ... || Enviando mensaje de prueba ... || Envoi du message de test ... || Enviando mensagem de teste ... || Отправка тестового сообщения ... || テストメッセージを送信中 ...
+Test-Nachricht gesendet. Schau in deinen Discord-Kanal. || Test message sent. Check your Discord channel. || 测试消息已发送。请查看你的 Discord 频道。 || Mensaje de prueba enviado. Mira tu canal de Discord. || Message de test envoyé. Regardez votre canal Discord. || Mensagem de teste enviada. Veja seu canal do Discord. || Тестовое сообщение отправлено. Загляните в свой канал Discord. || テストメッセージを送信しました。Discordのチャンネルを確認してください。
+Discord hat die Nachricht abgelehnt: || Discord rejected the message: || Discord 拒绝了该消息: || Discord rechazó el mensaje: || Discord a refusé le message : || O Discord recusou a mensagem: || Discord отклонил сообщение: || Discordがメッセージを拒否しました:
+Senden fehlgeschlagen. Prüfe deine Internetverbindung. || Sending failed. Check your internet connection. || 发送失败。请检查你的网络连接。 || Error al enviar. Comprueba tu conexión a internet. || Échec de l'envoi. Vérifiez votre connexion internet. || Falha ao enviar. Verifique sua conexão com a internet. || Не удалось отправить. Проверьте подключение к интернету. || 送信に失敗しました。インターネット接続を確認してください。
+Widgets anordnen || Arrange widgets || 排列小组件 || Ordenar widgets || Organiser les widgets || Organizar widgets || Расположение виджетов || ウィジェットを並べ替え
+Wähle, welche Bereiche auf dem Dashboard erscheinen, und verschiebe sie mit den Pfeilen. Neu sind Wochenziel, Als Nächstes spielen, Wunschliste und Schnellzugriff. || Choose which sections appear on the dashboard and move them with the arrows. New are weekly goal, play next, wishlist and quick access. || 选择仪表盘上显示哪些区域,并用箭头移动它们。新增了每周目标、接下来玩、愿望单和快速访问。 || Elige qué secciones aparecen en el panel y muévelas con las flechas. Son nuevos el objetivo semanal, jugar a continuación, la lista de deseos y el acceso rápido. || Choisissez quelles sections apparaissent sur le tableau de bord et déplacez-les avec les flèches. Nouveautés : objectif hebdomadaire, à jouer ensuite, liste de souhaits et accès rapide. || Escolha quais seções aparecem no painel e mova-as com as setas. Novidades: meta semanal, jogar a seguir, lista de desejos e acesso rápido. || Выберите, какие разделы показывать на панели, и перемещайте их стрелками. Новые: недельная цель, во что играть дальше, список желаемого и быстрый доступ. || ダッシュボードに表示するセクションを選び、矢印で移動します。週間目標、次にプレイ、ウィッシュリスト、クイックアクセスが新しく加わりました。
+Weiterspielen-Banner || Continue-playing banner || “继续游戏”横幅 || Banner de seguir jugando || Bannière « Continuer à jouer » || Banner de continuar jogando || Баннер «Продолжить игру» || 続きをプレイのバナー
+Uhr und Wetter || Clock and weather || 时钟与天气 || Reloj y tiempo || Horloge et météo || Relógio e clima || Часы и погода || 時計と天気
+Statistik-Kacheln || Statistics tiles || 统计磁贴 || Mosaicos de estadísticas || Tuiles de statistiques || Blocos de estatísticas || Плитки статистики || 統計タイル
+Wochenziel || Weekly goal || 每周目标 || Objetivo semanal || Objectif hebdomadaire || Meta semanal || Недельная цель || 週間目標
+Als Nächstes spielen || Play next || 接下来玩 || Jugar a continuación || À jouer ensuite || Jogar a seguir || Во что играть дальше || 次にプレイ
+🎯 Wochenziel || 🎯 Weekly goal || 🎯 每周目标 || 🎯 Objetivo semanal || 🎯 Objectif hebdomadaire || 🎯 Meta semanal || 🎯 Недельная цель || 🎯 週間目標
+📋 Als Nächstes spielen || 📋 Play next || 📋 接下来玩 || 📋 Jugar a continuación || 📋 À jouer ensuite || 📋 Jogar a seguir || 📋 Во что играть дальше || 📋 次にプレイ
+💝 Wunschliste || 💝 Wishlist || 💝 愿望单 || 💝 Lista de deseos || 💝 Liste de souhaits || 💝 Lista de desejos || 💝 Список желаемого || 💝 ウィッシュリスト
+🔗 Schnellzugriff || 🔗 Quick access || 🔗 快速访问 || 🔗 Acceso rápido || 🔗 Accès rapide || 🔗 Acesso rápido || 🔗 Быстрый доступ || 🔗 クイックアクセス
+🔗 Schnellzugriff verwalten || 🔗 Manage quick access || 🔗 管理快速访问 || 🔗 Gestionar acceso rápido || 🔗 Gérer l'accès rapide || 🔗 Gerenciar acesso rápido || 🔗 Управление быстрым доступом || 🔗 クイックアクセスを管理
+Lege in den Einstellungen unter „Spiele und Cover“ ein Wochenziel fest. || Set a weekly goal in the settings under "Games and covers". || 请在设置的“游戏与封面”中设定每周目标。 || Define un objetivo semanal en los ajustes, en «Juegos y portadas». || Définissez un objectif hebdomadaire dans les paramètres sous « Jeux et jaquettes ». || Defina uma meta semanal nas configurações em "Jogos e capas". || Задайте недельную цель в настройках, в разделе «Игры и обложки». || 設定の「ゲームとカバー」で週間目標を設定してください。
+Dein Backlog ist leer. Markiere Spiele per Rechtsklick mit „Will ich spielen“. || Your backlog is empty. Mark games with "Want to play" via right-click. || 你的待玩列表是空的。右键点击游戏并标记为“想玩”。 || Tu pendiente está vacío. Marca juegos con «Quiero jugar» mediante clic derecho. || Votre backlog est vide. Marquez des jeux avec « À jouer » par clic droit. || Seu backlog está vazio. Marque jogos com "Quero jogar" pelo botão direito. || Ваш бэклог пуст. Отмечайте игры правым щелчком как «Хочу сыграть». || バックログは空です。ゲームを右クリックして「プレイしたい」に設定してください。
+Noch keine Spiele auf der Wunschliste. || No games on the wishlist yet. || 愿望单里还没有游戏。 || Aún no hay juegos en la lista de deseos. || Aucun jeu dans la liste de souhaits. || Ainda não há jogos na lista de desejos. || В списке желаемого пока нет игр. || ウィッシュリストにまだゲームがありません。
+Noch keine Verknüpfungen. || No shortcuts yet. || 还没有快捷方式。 || Aún no hay accesos directos. || Pas encore de raccourcis. || Ainda não há atalhos. || Ярлыков пока нет. || ショートカットはまだありません。
+Ansichts-Schemas || View schemes || 视图方案 || Esquemas de vista || Schémas d'affichage || Esquemas de visualização || Схемы отображения || 表示スキーム
+Mit einem Klick wechselst du zwischen fertigen Ansichten. Sie ändern Dashboard-Widgets, sichtbare Bereiche, Kartenlayout, Abstände und Animationen. Deine Farben bleiben unverändert. Danach kannst du jede Einstellung weiter anpassen. || Switch between ready-made views with one click. They change dashboard widgets, visible sections, card layout, spacing and animations. Your colors stay unchanged. Afterwards you can keep adjusting every setting. || 一键切换预设视图。它们会更改仪表盘小组件、可见栏目、卡片布局、间距和动画,但不会改变你的颜色。之后你仍可继续调整每项设置。 || Cambia con un clic entre vistas ya preparadas. Modifican los widgets del panel, las secciones visibles, el diseño de tarjetas, los espacios y las animaciones. Tus colores no cambian. Después puedes seguir ajustando cada opción. || Passez d'une vue prête à l'emploi à l'autre en un clic. Elles modifient les widgets du tableau de bord, les sections visibles, la disposition des cartes, les espacements et les animations. Vos couleurs restent inchangées. Ensuite, vous pouvez continuer à ajuster chaque réglage. || Alterne com um clique entre visualizações prontas. Elas alteram widgets do painel, seções visíveis, layout dos cartões, espaçamentos e animações. Suas cores permanecem. Depois você pode continuar ajustando cada opção. || Одним щелчком переключайтесь между готовыми видами. Они меняют виджеты панели, видимые разделы, макет карточек, отступы и анимации. Ваши цвета остаются прежними. После этого можно дальше настраивать каждый параметр. || ワンクリックで用意済みの表示に切り替えます。ダッシュボードのウィジェット、表示するセクション、カードのレイアウト、間隔、アニメーションが変わります。色は変わりません。その後も各設定を調整できます。
+Standard || Default || 默认 || Predeterminado || Par défaut || Padrão || Стандарт || 標準
+Die ursprüngliche Ansicht mit allen Standard-Einstellungen. || The original view with all default settings. || 原始视图,使用所有默认设置。 || La vista original con todos los ajustes predeterminados. || La vue d'origine avec tous les réglages par défaut. || A visualização original com todas as configurações padrão. || Исходный вид со всеми стандартными настройками. || すべて初期設定の元の表示です。
+Minimalistisch || Minimalist || 极简 || Minimalista || Minimaliste || Minimalista || Минимализм || ミニマル
+Nur das Wesentliche: Seitenleiste eingeklappt, wenige Bereiche, keine Animationen. || Just the essentials: collapsed sidebar, few sections, no animations. || 只保留必要内容:侧边栏折叠、栏目很少、无动画。 || Solo lo esencial: barra lateral plegada, pocas secciones y sin animaciones. || L'essentiel seulement : barre latérale réduite, peu de sections, pas d'animations. || Só o essencial: barra lateral recolhida, poucas seções e sem animações. || Только главное: свёрнутая боковая панель, мало разделов, без анимаций. || 必要最小限:サイドバーを折りたたみ、セクションは少なめ、アニメーションなし。
+Aufgeräumt || Tidy || 整洁 || Ordenado || Épuré || Organizado || Аккуратный || すっきり
+Ruhige Oberfläche mit Banner, „Zuletzt gespielt“ und Favoriten. Selten genutzte Bereiche sind ausgeblendet. || A calm interface with banner, "Recently played" and favorites. Rarely used sections are hidden. || 平静的界面,包含横幅、“最近玩过”和收藏。很少使用的栏目已隐藏。 || Interfaz tranquila con banner, «Jugados recientemente» y favoritos. Las secciones poco usadas están ocultas. || Interface calme avec bannière, « Joués récemment » et favoris. Les sections rarement utilisées sont masquées. || Interface tranquila com banner, "Jogados recentemente" e favoritos. Seções pouco usadas ficam ocultas. || Спокойный интерфейс с баннером, «Недавно сыгранными» и избранным. Редко используемые разделы скрыты. || バナー、「最近プレイ」、お気に入りのある落ち着いた画面です。あまり使わないセクションは非表示になります。
+Informativ || Informative || 信息丰富 || Informativo || Informatif || Informativo || Информативный || 情報重視
+Alles auf einen Blick: Detailkacheln, Statistik, Wochenziel, Backlog, Wunschliste und Schnellzugriff. || Everything at a glance: detail tiles, statistics, weekly goal, backlog, wishlist and quick access. || 一目了然:详情卡片、统计、每周目标、待玩列表、愿望单和快速访问。 || Todo de un vistazo: mosaicos detallados, estadísticas, objetivo semanal, pendiente, lista de deseos y acceso rápido. || Tout en un coup d'œil : tuiles détaillées, statistiques, objectif hebdomadaire, backlog, liste de souhaits et accès rapide. || Tudo de relance: blocos detalhados, estatísticas, meta semanal, backlog, lista de desejos e acesso rápido. || Всё на одном экране: подробные плитки, статистика, недельная цель, бэклог, список желаемого и быстрый доступ. || 詳細タイル、統計、週間目標、バックログ、ウィッシュリスト、クイックアクセスなど、すべてを一目で確認できます。
+Kompakt || Compact || 紧凑 || Compacto || Compact || Compacto || Компактный || コンパクト
+Viele Spiele auf wenig Platz: Liste, eingeklappte Seitenleiste und schmale Abstände. || Many games in little space: list, collapsed sidebar and narrow spacing. || 小空间容纳更多游戏:列表、折叠侧边栏和较小间距。 || Muchos juegos en poco espacio: lista, barra lateral plegada y espacios estrechos. || Beaucoup de jeux dans peu d'espace : liste, barre latérale réduite et espacements étroits. || Muitos jogos em pouco espaço: lista, barra lateral recolhida e espaçamentos estreitos. || Много игр на малой площади: список, свёрнутая боковая панель и узкие отступы. || 少ない面積に多くのゲームを表示:リスト、折りたたんだサイドバー、狭い間隔。
+Wohnzimmer || Living room || 客厅模式 || Salón || Salon || Sala de estar || Гостиная || リビング
+Große Karten und große Schrift für Fernseher und Controller. || Large cards and large text for TV and controller. || 为电视和手柄准备的大卡片与大字体。 || Tarjetas y texto grandes para televisor y mando. || Grandes cartes et grande police pour la télé et la manette. || Cartões e texto grandes para TV e controle. || Крупные карточки и шрифт для телевизора и геймпада. || テレビとコントローラー向けの大きなカードと文字です。
+Schema angewendet || Scheme applied || 方案已应用 || Esquema aplicado || Schéma appliqué || Esquema aplicado || Схема применена || スキームを適用しました
+Schema zurückgesetzt || Scheme reverted || 方案已撤销 || Esquema revertido || Schéma annulé || Esquema revertido || Схема отменена || スキームを元に戻しました
+Klicken zum Rückgängigmachen || Click to undo || 点击撤销 || Haz clic para deshacer || Cliquez pour annuler || Clique para desfazer || Нажмите, чтобы отменить || クリックして元に戻す
+Die vorherigen Einstellungen sind wieder aktiv. || The previous settings are active again. || 已恢复之前的设置。 || Los ajustes anteriores vuelven a estar activos. || Les paramètres précédents sont de nouveau actifs. || As configurações anteriores estão ativas novamente. || Предыдущие настройки снова активны. || 以前の設定に戻りました。
+Willkommensanimation beim Start || Welcome animation at startup || 启动时显示欢迎动画 || Animación de bienvenida al iniciar || Animation de bienvenue au démarrage || Animação de boas-vindas ao iniciar || Анимация приветствия при запуске || 起動時のウェルカムアニメーション
+Zeigt beim Start kurz dein Logo und begrüßt dich mit deinem Namen. Ein Klick überspringt sie. || Briefly shows your logo at startup and greets you by name. A click skips it. || 启动时短暂显示你的标志并用你的名字问候你。点击可跳过。 || Muestra brevemente tu logotipo al iniciar y te saluda por tu nombre. Un clic la omite. || Affiche brièvement votre logo au démarrage et vous salue par votre nom. Un clic la passe. || Mostra brevemente seu logotipo ao iniciar e cumprimenta você pelo nome. Um clique a pula. || При запуске ненадолго показывает ваш логотип и приветствует вас по имени. Щелчок пропускает анимацию. || 起動時にロゴを短く表示し、名前であいさつします。クリックでスキップできます。
+
+Guten Morgen || Good morning || 早上好 || Buenos días || Bonjour || Bom dia || Доброе утро || おはようございます
+Guten Tag || Good afternoon || 你好 || Buenas tardes || Bon après-midi || Boa tarde || Добрый день || こんにちは
+Guten Abend || Good evening || 晚上好 || Buenas noches || Bonsoir || Boa noite || Добрый вечер || こんばんは
+Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite || Доброй ночи || おやすみなさい
+
+""";
+    }
+
+    internal static class NativeExtras
+    {
+        [Interop.DllImport("user32.dll")]
+        [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
+        internal static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+
+        [Interop.DllImport("user32.dll")]
+        [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
+        internal static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+    }
+
+    public class WishItem
+    {
+        public string Name { get; set; } = string.Empty;
+        public string AppId { get; set; } = string.Empty;
+        public double TargetPrice { get; set; }
+        public double FinalPrice { get; set; }
+        public double InitialPrice { get; set; }
+        public int Discount { get; set; }
+        public bool Free { get; set; }
+        public string PriceText { get; set; } = string.Empty;
+        public DateTime Checked { get; set; }
+        public double NotifiedPrice { get; set; }
+    }
+
+    public class GameInfoEntry
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public List<string> Genres { get; set; } = new();
+        public string Release { get; set; } = string.Empty;
+        public string Developer { get; set; } = string.Empty;
+        public string Lang { get; set; } = string.Empty;
+        public DateTime Updated { get; set; }
+    }
+
+    public class ThemePack
+    {
+        public string BackgroundColor { get; set; } = "#0F111A";
+        public string AccentColor { get; set; } = "#8B5CF6";
+        public int CardWidth { get; set; } = 220;
+        public int CardCorner { get; set; } = 14;
+        public int CardSpacing { get; set; } = 12;
+        public int CardAspect { get; set; } = 136;
+        public int UiScale { get; set; } = 100;
+        public int HoverZoom { get; set; } = 105;
+        public bool GlassEffect { get; set; }
+        public bool OledMode { get; set; }
+        public int SidebarWidth { get; set; } = 250;
+        public int NavFontSize { get; set; } = 14;
+        public int NavItemPadding { get; set; } = 8;
+        public string BrandDesign { get; set; } = "original";
+        public string BrandNameColor { get; set; } = "white";
+        public int BrandLogoSize { get; set; } = 54;
+        public int BrandNameSize { get; set; } = 20;
+        public string BrandName { get; set; } = "DFP PRO";
+        public string BrandSubtitle { get; set; } = "LAUNCHER";
+    }
+
+    public class QuickLink
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Target { get; set; } = string.Empty;
+        public string Icon { get; set; } = string.Empty;   // Emoji, Bilddatei oder leer (= Symbol der Datei)
+    }
+
+    // ───────────────────────────── Modelle für Komfort, Controller und GIF-Cover ─────────────────────────────
+
+    /// <summary>Spielt animierte GIFs ab (WPF kann das nicht von Haus aus). Teilbilder werden zusammengesetzt.</summary>
+    public sealed class GifAnimator
+    {
+        private readonly List<BitmapSource> frames = new();
+        private readonly List<int> delays = new();
+        private DispatcherTimer? timer;
+        private System.Windows.Controls.Image? target;
+        private int index;
+
+        public BitmapSource? FirstFrame => frames.Count > 0 ? frames[0] : null;
+
+        /// <summary>Liest die Anzeigedauer eines Einzelbilds (ms). Die Formate nennen die Eigenschaft unterschiedlich, daher per Reflexion.</summary>
+        private static int ReadDelayMs(object frameMetadata, string extension)
+        {
+            try
+            {
+                string method = extension == ".gif" ? "GetGifMetadata" : extension == ".webp" ? "GetWebpMetadata" : "GetPngMetadata";
+                var helper = typeof(SixLabors.ImageSharp.Image).Assembly.GetType("SixLabors.ImageSharp.MetadataExtensions");
+                var getter = helper?.GetMethods().FirstOrDefault(m => m.Name == method
+                    && m.GetParameters().Length == 1 && m.GetParameters()[0].ParameterType.Name == "ImageFrameMetadata");
+                object? meta = getter?.Invoke(null, new[] { frameMetadata });
+                if (meta == null) return 80;
+
+                foreach (string name in new[] { "FrameDelay", "FrameDuration" })
+                {
+                    object? value = meta.GetType().GetProperty(name)?.GetValue(meta);
+                    if (value == null) continue;
+
+                    double number = value switch
+                    {
+                        int i => i,
+                        uint u => u,
+                        long l => l,
+                        double d => d,
+                        _ => Convert.ToDouble(value.GetType().GetMethod("ToDouble")?.Invoke(value, null) ?? 0.0)
+                    };
+
+                    double ms = extension == ".gif" ? number * 10 : extension == ".webp" ? number : number * 1000;
+                    return (int)Math.Clamp(ms, 20, 5000);
+                }
+            }
+            catch { }
+
+            return 80;
+        }
+
+        public static GifAnimator? TryLoad(string path, int maxWidth)
+        {
+            try
+            {
+                if (new FileInfo(path).Length > 30L * 1024 * 1024) return null;
+
+                string extension = System.IO.Path.GetExtension(path).ToLowerInvariant();
+                var options = new SixLabors.ImageSharp.Formats.DecoderOptions { MaxFrames = 150 };
+                using var image = SixLabors.ImageSharp.Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(options, path);
+
+                int total = image.Frames.Count;
+                if (total < 2) return null;
+
+                int stride = (int)Math.Ceiling(total / 90.0);   // höchstens etwa 90 Bilder im Speicher
+                int width = Math.Max(1, Math.Min(maxWidth, image.Width));
+                var animator = new GifAnimator();
+                int pendingDelay = 0;
+
+                for (int i = 0; i < total; i++)
+                {
+                    pendingDelay += ReadDelayMs(image.Frames[i].Metadata, extension);
+                    if (i % stride != 0) continue;
+
+                    using var single = image.Frames.CloneFrame(i);
+                    using var stream = new MemoryStream();
+                    single.Save(stream, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
+                    stream.Position = 0;
+
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.StreamSource = stream;
+                    bitmap.DecodePixelWidth = width;
+                    bitmap.EndInit();
+                    bitmap.Freeze();
+
+                    animator.frames.Add(bitmap);
+                    animator.delays.Add(pendingDelay);
+                    pendingDelay = 0;
+                }
+
+                return animator.frames.Count > 1 ? animator : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public void Attach(System.Windows.Controls.Image image)
+        {
+            Detach();
+            if (frames.Count < 2) return;
+
+            target = image;
+            index = 0;
+            image.Source = frames[0];
+
+            timer ??= new DispatcherTimer();
+            timer.Tick -= OnTick;
+            timer.Tick += OnTick;
+            timer.Interval = TimeSpan.FromMilliseconds(delays[0]);
+            timer.Start();
+        }
+
+        public void Detach()
+        {
+            timer?.Stop();
+            if (target != null && frames.Count > 0) target.Source = frames[0];
+            target = null;
+        }
+
+        private void OnTick(object? sender, EventArgs e)
+        {
+            if (target == null || frames.Count == 0) return;
+
+            index = (index + 1) % frames.Count;
+            target.Source = frames[index];
+            if (timer != null) timer.Interval = TimeSpan.FromMilliseconds(delays[index]);
+        }
+    }
+
+    /// <summary>Anbindung an die Windows-Joystick-Schnittstelle (PlayStation-, Switch- und generische Gamepads).</summary>
+    internal static class NativePad
+    {
+        [Interop.StructLayout(Interop.LayoutKind.Sequential)]
+        internal struct JoyInfoEx
+        {
+            public uint dwSize;
+            public uint dwFlags;
+            public uint dwXpos;
+            public uint dwYpos;
+            public uint dwZpos;
+            public uint dwRpos;
+            public uint dwUpos;
+            public uint dwVpos;
+            public uint dwButtons;
+            public uint dwButtonNumber;
+            public uint dwPOV;
+            public uint dwReserved1;
+            public uint dwReserved2;
+        }
+
+        [Interop.StructLayout(Interop.LayoutKind.Sequential, CharSet = Interop.CharSet.Unicode)]
+        internal struct JoyCaps
+        {
+            public ushort wMid;
+            public ushort wPid;
+            [Interop.MarshalAs(Interop.UnmanagedType.ByValTStr, SizeConst = 32)]
+            public string szPname;
+            public uint wXmin, wXmax, wYmin, wYmax, wZmin, wZmax;
+            public uint wNumButtons, wPeriodMin, wPeriodMax;
+            public uint wRmin, wRmax, wUmin, wUmax, wVmin, wVmax;
+            public uint wCaps, wMaxAxes, wNumAxes, wMaxButtons;
+            [Interop.MarshalAs(Interop.UnmanagedType.ByValTStr, SizeConst = 32)]
+            public string szRegKey;
+            [Interop.MarshalAs(Interop.UnmanagedType.ByValTStr, SizeConst = 260)]
+            public string szOEMVxD;
+        }
+
+        [Interop.DllImport("winmm.dll")]
+        internal static extern uint joyGetNumDevs();
+
+        [Interop.DllImport("winmm.dll")]
+        internal static extern uint joyGetPosEx(uint uJoyID, ref JoyInfoEx pji);
+
+        [Interop.DllImport("winmm.dll", CharSet = Interop.CharSet.Unicode, EntryPoint = "joyGetDevCapsW")]
+        internal static extern uint joyGetDevCapsW(uint uJoyID, ref JoyCaps pjc, uint cbjc);
+    }
+
+    /// <summary>Farben für das dunkle Menü des Infobereich-Symbols.</summary>
+    internal sealed class DarkMenuColors : Forms.ProfessionalColorTable
+    {
+        private static readonly System.Drawing.Color Surface = System.Drawing.Color.FromArgb(22, 27, 40);
+        private static readonly System.Drawing.Color Border = System.Drawing.Color.FromArgb(42, 49, 66);
+        private static readonly System.Drawing.Color Highlight = System.Drawing.Color.FromArgb(52, 60, 82);
+
+        public override System.Drawing.Color ToolStripDropDownBackground => Surface;
+        public override System.Drawing.Color ImageMarginGradientBegin => Surface;
+        public override System.Drawing.Color ImageMarginGradientMiddle => Surface;
+        public override System.Drawing.Color ImageMarginGradientEnd => Surface;
+        public override System.Drawing.Color MenuBorder => Border;
+        public override System.Drawing.Color MenuItemBorder => Highlight;
+        public override System.Drawing.Color MenuItemSelected => Highlight;
+        public override System.Drawing.Color MenuItemSelectedGradientBegin => Highlight;
+        public override System.Drawing.Color MenuItemSelectedGradientEnd => Highlight;
+        public override System.Drawing.Color SeparatorDark => Border;
+        public override System.Drawing.Color SeparatorLight => Border;
+    }
+
+    internal sealed class DarkMenuRenderer : Forms.ToolStripProfessionalRenderer
+    {
+        public DarkMenuRenderer() : base(new DarkMenuColors()) { }
+    }
+
+    // ───────────────────────────── Hauptfenster ─────────────────────────────
+
+    public partial class MainWindow : Window
+    {
+        private const string AutostartName = "DFP Pro Launcher";
+        private const double GigaByte = 1024.0 * 1024.0 * 1024.0;
+        private const int SparkPoints = 60;
+
+        // PowerShell-Skripte (werden per -EncodedCommand ausgeführt, daher keine Quoting-Probleme)
+        private const string HardwareScript = """
+            $ErrorActionPreference = 'SilentlyContinue'
+            [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
+            $cpu   = @(Get-CimInstance Win32_Processor | Select-Object Name, Manufacturer, NumberOfCores, NumberOfLogicalProcessors, MaxClockSpeed, L2CacheSize, L3CacheSize)
+            $ram   = @(Get-CimInstance Win32_PhysicalMemory | Select-Object Manufacturer, PartNumber, Capacity, Speed, ConfiguredClockSpeed, DeviceLocator, SMBIOSMemoryType)
+            $gpu   = @(Get-CimInstance Win32_VideoController | Select-Object Name, CurrentRefreshRate)
+            $board = @(Get-CimInstance Win32_BaseBoard | Select-Object Manufacturer, Product)
+            $bios  = @(Get-CimInstance Win32_BIOS | Select-Object Manufacturer, SMBIOSBIOSVersion, @{n='ReleaseDate';e={ if ($_.ReleaseDate) { $_.ReleaseDate.ToString('dd.MM.yyyy') } else { '' } }})
+            $disks = @(Get-PhysicalDisk | Select-Object FriendlyName, Size, @{n='MediaType';e={[string]$_.MediaType}}, @{n='BusType';e={[string]$_.BusType}})
+            $os    = @(Get-CimInstance Win32_OperatingSystem | Select-Object Caption, BuildNumber, OSArchitecture)
+            $sound = @(Get-CimInstance Win32_SoundDevice | Select-Object Name)
+            $net   = @(Get-CimInstance Win32_NetworkAdapter -Filter 'PhysicalAdapter=True AND NetEnabled=True' | Select-Object Name)
+            $mon   = @(Get-CimInstance -Namespace root\wmi -ClassName WmiMonitorID | ForEach-Object {
+                [PSCustomObject]@{
+                    Name  = (-join ([char[]]($_.UserFriendlyName | Where-Object { $_ -ne 0 })))
+                    Maker = (-join ([char[]]($_.ManufacturerName | Where-Object { $_ -ne 0 })))
+                }
+            })
+
+            [PSCustomObject]@{ cpu = $cpu; ram = $ram; gpu = $gpu; board = $board; bios = $bios; disks = $disks; os = $os; sound = $sound; net = $net; monitors = $mon } | ConvertTo-Json -Depth 4 -Compress
+            """;
+
+        private const string XboxScript = """
+            $ErrorActionPreference = 'SilentlyContinue'
+            [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+            $items = @(Get-AppxPackage | Where-Object { $_.InstallLocation -and (Test-Path (Join-Path $_.InstallLocation 'MicrosoftGame.config')) } | ForEach-Object {
+                [PSCustomObject]@{ Name = $_.Name; Family = $_.PackageFamilyName; Full = $_.PackageFullName; Location = $_.InstallLocation }
+            })
+            ConvertTo-Json -InputObject $items -Compress
+            """;
+
+        private static readonly string[] SortLabels = { "Name (A–Z)", "Zuletzt gespielt", "Meist gestartet", "Zuletzt hinzugefügt", "Beste Bewertung", "Meiste Spielzeit" };
+        private static CultureInfo GermanCulture => Loc.Culture;
+
+        private static readonly string SettingsDir = System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Game_launcher");
+        private static readonly string SettingsFilePath = System.IO.Path.Combine(SettingsDir, "settings.json");
+        private static readonly string CoversDir = System.IO.Path.Combine(SettingsDir, "covers");
+        private static readonly string LegacySettingsPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.json");
+        private static readonly string DownloadsPath = System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+        private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+        private static readonly System.Net.Http.HttpClient Http = CreateHttpClient();
+
+        private static readonly Dictionary<string, string> PowerPlanNames = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["a1841308-3541-4fab-bc81-f71556f20b4a"] = "Energiesparen",
+            ["381b4222-f694-41f0-9685-ff5bb260df2e"] = "Ausbalanciert",
+            ["8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c"] = "Höchstleistung",
+            ["e9a42b02-d5df-448d-aa00-03f14749eb61"] = "Ultimative Leistung"
+        };
+
+        // PCI-Hersteller-IDs der Grafikkarten-Hersteller (Subsystem-Vendor)
+        private static readonly Dictionary<string, string> BoardVendors = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["1458"] = "Gigabyte",
+            ["1043"] = "ASUS",
+            ["1462"] = "MSI",
+            ["3842"] = "EVGA",
+            ["19DA"] = "Zotac",
+            ["196E"] = "PNY",
+            ["1569"] = "Palit",
+            ["10B0"] = "Gainward",
+            ["1682"] = "XFX",
+            ["1DA2"] = "Sapphire",
+            ["148C"] = "PowerColor",
+            ["1849"] = "ASRock",
+            ["1B4C"] = "KFA2 / Galax",
+            ["7377"] = "Colorful",
+            ["10DE"] = "NVIDIA",
+            ["1002"] = "AMD",
+            ["8086"] = "Intel",
+            ["1028"] = "Dell",
+            ["103C"] = "HP",
+            ["17AA"] = "Lenovo"
+        };
+
+        // Farben (einmal erzeugt und eingefroren)
+        private static SolidColorBrush BrushCardBg = MakeBrush("#131722");
+        private static SolidColorBrush BrushCardBorder = MakeBrush("#1F2937");
+        private static SolidColorBrush BrushFooter = MakeBrush("#181D2A");
+        private static SolidColorBrush BrushTileHover = MakeBrush("#1B2132");
+        private static readonly SolidColorBrush BrushPlaceholder = MakeBrush("#374151");
+        private static readonly SolidColorBrush BrushSubtle = MakeBrush("#6B7280");
+        private static readonly SolidColorBrush BrushOverlay = MakeBrush("#99000000");
+        private static readonly SolidColorBrush BrushGold = MakeBrush("#FBBF24");
+        private static readonly SolidColorBrush BrushAmber = MakeBrush("#F59E0B");
+        private static readonly SolidColorBrush BrushRed = MakeBrush("#EF4444");
+        private static readonly SolidColorBrush BrushCpu = MakeBrush("#60A5FA");
+        private static readonly SolidColorBrush BrushRam = MakeBrush("#A78BFA");
+        private static readonly SolidColorBrush BrushGpu = MakeBrush("#34D399");
+
+        private List<GameItem> allGames = new();
+        private AppSettings settings = new();
+        private string currentFilter = "all";
+        private bool isScanning;
+        private bool isLoadingSettings = true;
+        private bool hardwareBusy;
+        private string cpuDisplayName = string.Empty;
+        private string ramSummary = string.Empty;
+
+        private (double Lat, double Lon, string Name)? weatherLocation;
+        private string weatherLocationKey = string.Empty;
+
+        private readonly Dictionary<string, BitmapImage> imageCache = new(StringComparer.OrdinalIgnoreCase);
+        private readonly DispatcherTimer applyTimer = new();
+        private readonly DispatcherTimer clockTimer = new();
+        private readonly DispatcherTimer weatherTimer = new();
+
+        // Systemüberwachung
+        private readonly DispatcherTimer systemTimer = new();
+        private PerformanceCounter? cpuCounter;
+        private PerformanceCounter? cpuFreqCounter;
+        private PerformanceCounter? ramCounter;
+        private readonly Dictionary<string, PerformanceCounter> gpuCounters = new();
+        private readonly List<double> cpuHistory = new();
+        private readonly List<double> ramHistory = new();
+        private readonly List<double> gpuHistory = new();
+        private int gpuRefreshCountdown;
+        private double totalRamMB;
+        private double baseCpuMhz;
+
+        public MainWindow()
+        {
+            // Nur eine Instanz: ein zweiter Start holt das bereits laufende Fenster nach vorn
+            if (!AcquireSingleInstance()) Environment.Exit(0);
+
+            ApplyRenderModeEarly();
+            InitializeComponent();
+            LoadSettings();
+            InitLanguage();
+            RestoreWindowBounds();
+            InitSystemMonitoring();
+            ApplyViewSettings();
+
+            BuildToolTiles();
+            BuildLinkTiles();
+            RefreshApps();
+            ApplyTileNames(ReadGpuAdapters());
+
+            // Änderungen an Reglern werden gesammelt angewendet
+            applyTimer.Interval = TimeSpan.FromMilliseconds(350);
+            applyTimer.Tick += (s, e) =>
+            {
+                applyTimer.Stop();
+                SaveSettings();
+                ApplyViewSettings();
+                ApplyFilter();
+                RefreshDashboard();
+            };
+
+            clockTimer.Interval = TimeSpan.FromSeconds(1);
+            clockTimer.Tick += (s, e) => UpdateClock();
+            clockTimer.Start();
+
+            weatherTimer.Interval = TimeSpan.FromMinutes(20);
+            weatherTimer.Tick += async (s, e) => await RefreshWeatherAsync();
+            weatherTimer.Start();
+
+            InitFeatures();
+            InitExtras();
+            InitComfort();
+            InitExtras3();
+            InitExtras4();
+            InitExtras5();
+            InitExtras6();
+            InitExtras7();
+            InitExtras8();
+
+            isLoadingSettings = false;
+            RefreshDashboard();
+            UpdateClock();
+            ShowStartPage();
+
+            Loaded += async (s, e) =>
+            {
+                _ = RefreshWeatherAsync();
+                _ = RefreshHardwareAsync();
+                await LoadInstalledGamesAsync();
+            };
+            Closing += (s, e) => SaveWindowBounds();
+            Closed += (s, e) => DisposeMonitoring();
+        }
+
+        // ───────────────────────────── Hilfsmethoden ─────────────────────────────
+
+        private static System.Net.Http.HttpClient CreateHttpClient()
+        {
+            var client = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromSeconds(12) };
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("DFP-Pro-Launcher/1.0");
+            return client;
+        }
+
+        private static MessageBoxResult Msg(string text, string title = "DFP Pro Launcher",
+            MessageBoxButton buttons = MessageBoxButton.OK, MessageBoxImage icon = MessageBoxImage.Information)
+            => ShowDarkMessage(Loc.T(text), Loc.T(title), buttons, icon);
+
+        private static SolidColorBrush MakeBrush(string? hex, string fallback = "#000000")
+        {
+            SolidColorBrush brush;
+            try
+            {
+                brush = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(hex ?? fallback));
+            }
+            catch
+            {
+                brush = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(fallback));
+            }
+            brush.Freeze();
+            return brush;
+        }
+
+        private static string FormatBytes(long bytes)
+        {
+            string[] units = { "B", "KB", "MB", "GB", "TB" };
+            double size = bytes;
+            int unit = 0;
+            while (size >= 1024 && unit < units.Length - 1)
+            {
+                size /= 1024;
+                unit++;
+            }
+            return unit == 0 ? $"{size:F0} {units[unit]}" : $"{size:F1} {units[unit]}";
+        }
+
+        /// <summary>Datenträger werden vom Hersteller dezimal angegeben (1 TB = 1000 GB).</summary>
+        private static string FormatDiskSize(long bytes)
+        {
+            double gb = bytes / 1e9;
+            return gb >= 1000 ? $"{gb / 1000.0:F1} TB" : $"{gb:F0} GB";
+        }
+
+        private static string FormatRelative(DateTime time)
+        {
+            var span = DateTime.Now - time;
+            if (span.TotalMinutes < 1) return "gerade eben";
+            if (span.TotalMinutes < 60) return $"vor {(int)span.TotalMinutes} Min.";
+            if (span.TotalHours < 24) return $"vor {(int)span.TotalHours} Std.";
+            if (span.TotalDays < 2) return "gestern";
+            if (span.TotalDays < 30) return $"vor {(int)span.TotalDays} Tagen";
+            return time.ToString("dd.MM.yyyy");
+        }
+
+        private static string GetGreeting()
+        {
+            int hour = DateTime.Now.Hour;
+            return hour switch
+            {
+                >= 5 and < 11 => "Guten Morgen",
+                >= 11 and < 18 => "Guten Tag",
+                >= 18 and < 23 => "Guten Abend",
+                _ => "Gute Nacht"
+            };
+        }
+
+        private void OpenShell(string target, string? arguments = null)
+        {
+            try
+            {
+                var info = new ProcessStartInfo(target) { UseShellExecute = true };
+                if (arguments != null) info.Arguments = arguments;
+                Process.Start(info);
+            }
+            catch (Exception ex)
+            {
+                Msg($"Konnte nicht geöffnet werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private static (int ExitCode, string Output) RunHidden(string file, string arguments)
+        {
+            try
+            {
+                using var process = Process.Start(new ProcessStartInfo(file, arguments)
+                {
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true
+                });
+                if (process == null) return (-1, string.Empty);
+
+                string output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit(5000);
+                return (process.ExitCode, output);
+            }
+            catch
+            {
+                return (-1, string.Empty);
+            }
+        }
+
+        private static (int ExitCode, string Output) RunPowerShell(string script, int timeoutMs)
+        {
+            try
+            {
+                string encoded = Convert.ToBase64String(System.Text.Encoding.Unicode.GetBytes(script));
+                using var process = Process.Start(new ProcessStartInfo("powershell.exe",
+                    $"-NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand {encoded}")
+                {
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    StandardOutputEncoding = System.Text.Encoding.UTF8
+                });
+                if (process == null) return (-1, string.Empty);
+
+                var outputTask = process.StandardOutput.ReadToEndAsync();
+                if (!process.WaitForExit(timeoutMs))
+                {
+                    try { process.Kill(); } catch { }
+                    return (-1, string.Empty);
+                }
+                return (process.ExitCode, outputTask.GetAwaiter().GetResult());
+            }
+            catch
+            {
+                return (-1, string.Empty);
+            }
+        }
+
+        private static string GetJsonString(JsonElement element, string property)
+        {
+            return element.TryGetProperty(property, out var value) && value.ValueKind == JsonValueKind.String
+                ? value.GetString() ?? string.Empty
+                : string.Empty;
+        }
+
+        private static long JsonLong(JsonElement element, string property)
+        {
+            if (!element.TryGetProperty(property, out var value)) return 0;
+            if (value.ValueKind == JsonValueKind.Number && value.TryGetInt64(out long number)) return number;
+            if (value.ValueKind == JsonValueKind.String && long.TryParse(value.GetString(), out long parsed)) return parsed;
+            return 0;
+        }
+
+        private static IEnumerable<JsonElement> JsonItems(JsonElement root, string name)
+        {
+            if (!root.TryGetProperty(name, out var element)) yield break;
+
+            if (element.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in element.EnumerateArray()) yield return item;
+            }
+            else if (element.ValueKind == JsonValueKind.Object)
+            {
+                yield return element;
+            }
+        }
+
+        private static string CleanName(string raw)
+        {
+            string text = Regex.Replace(raw, @"\((R|TM|r|tm)\)|®|™", string.Empty);
+            return Regex.Replace(text, @"\s+", " ").Trim();
+        }
+
+        // ───────────────────────────── Einstellungen & Theme ─────────────────────────────
+
+        private void LoadSettings()
+        {
+            try
+            {
+                string? source = File.Exists(SettingsFilePath) ? SettingsFilePath
+                               : File.Exists(LegacySettingsPath) ? LegacySettingsPath
+                               : null;
+
+                if (source != null)
+                    settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(source)) ?? new AppSettings();
+            }
+            catch
+            {
+                settings = TryRestoreSettingsBackup() ?? new AppSettings();
+            }
+
+            if (string.IsNullOrWhiteSpace(settings.UserName)) settings.UserName = "Gamer";
+            settings.WeatherCity ??= string.Empty;
+            settings.ManualGames ??= new List<ManualGame>();
+            settings.ManualApps ??= new List<ManualApp>();
+            settings.GameStates ??= new Dictionary<string, GameState>();
+            settings.SteamIds ??= new Dictionary<string, int>();
+            settings.HiddenSections ??= new List<string>();
+            settings.CollectionNames ??= new List<string>();
+            settings.PlayLog ??= new Dictionary<string, double>();
+            settings.SeenFreeGames ??= new List<string>();
+            settings.DefaultCompanions ??= new List<string>();
+            settings.Achievements ??= new Dictionary<string, string>();
+            settings.Releases ??= new List<ReleaseEntry>();
+            settings.ScreenshotFolders ??= new List<string>();
+            settings.WeeklyGoalHours = Math.Clamp(settings.WeeklyGoalHours, 0, 40);
+            settings.BreakReminderMinutes = Math.Clamp(settings.BreakReminderMinutes, 0, 240);
+            settings.PreviousPowerPlan ??= string.Empty;
+            settings.BackgroundImagePath ??= string.Empty;
+            if (settings.CardLayout != "detail" && settings.CardLayout != "list") settings.CardLayout = "cards";
+            settings.BgDim = Math.Clamp(settings.BgDim, 0, 90);
+            settings.BgBlur = Math.Clamp(settings.BgBlur, 0, 30);
+            settings.OverlayCorner = Math.Clamp(settings.OverlayCorner, 0, 3);
+            settings.Language ??= "auto";
+            settings.CloseApps ??= new List<string>();
+
+            // Windows-Einstellung "Animationen anzeigen" respektieren (einmalig beim ersten Start)
+            if (!settings.MotionChecked)
+            {
+                settings.MotionChecked = true;
+                if (!SystemParameters.ClientAreaAnimation)
+                {
+                    settings.PageAnimations = false;
+                    settings.CardAnimations = false;
+                    settings.SmoothMetrics = false;
+                    settings.HoverGlow = false;
+                    settings.AnimatedBackground = false;
+                }
+            }
+
+            settings.CardWidth = Math.Clamp(settings.CardWidth, 160, 300);
+            settings.CardCorner = Math.Clamp(settings.CardCorner, 0, 28);
+            settings.UiScale = Math.Clamp(settings.UiScale, 80, 130);
+            settings.HoverZoom = Math.Clamp(settings.HoverZoom, 100, 112);
+            settings.RecentCount = Math.Clamp(settings.RecentCount, 3, 12);
+            settings.NavOrder ??= new List<string>();
+            settings.CardSpacing = Math.Clamp(settings.CardSpacing, 4, 28);
+            settings.CardAspect = Math.Clamp(settings.CardAspect, 100, 170);
+            settings.SidebarWidth = Math.Clamp(settings.SidebarWidth, 200, 340);
+            settings.NavFontSize = Math.Clamp(settings.NavFontSize, 11, 20);
+            settings.NavItemPadding = Math.Clamp(settings.NavItemPadding, 4, 16);
+            settings.BrandLogoSize = Math.Clamp(settings.BrandLogoSize, 32, 96);
+            settings.BrandNameSize = Math.Clamp(settings.BrandNameSize, 12, 30);
+            settings.QuickTileSize = Math.Clamp(settings.QuickTileSize, 150, 260);
+            settings.TrackingIgnored ??= new List<string>();
+            settings.QuickLinks ??= new List<QuickLink>();
+            settings.SteamGridDbKey ??= string.Empty;
+            settings.Wishlist ??= new List<WishItem>();
+            settings.GameInfo ??= new Dictionary<string, GameInfoEntry>();
+            settings.UpdateRepo ??= string.Empty;
+            settings.CloudBackupFolder ??= string.Empty;
+            settings.DailyLimitHours = Math.Clamp(settings.DailyLimitHours, 0, 12);
+            settings.OverlayOpacity = Math.Clamp(settings.OverlayOpacity, 30, 100);
+            settings.OverlayScale = Math.Clamp(settings.OverlayScale, 70, 200);
+            settings.DashboardOrder ??= new List<string>();
+            settings.DashboardHidden ??= new List<string>();
+            settings.DiscordWebhook ??= string.Empty;
+            if (!new[] { 500, 1000, 2000, 5000 }.Contains(settings.MonitorIntervalMs)) settings.MonitorIntervalMs = 1000;
+
+            ApplyTheme();
+            UpdateUserNameDisplay();
+            PopulateControlsFromSettings();
+        }
+
+        private void SaveSettings()
+        {
+            try
+            {
+                Directory.CreateDirectory(SettingsDir);
+                lock (settings.SteamIds)
+                {
+                    string json = JsonSerializer.Serialize(settings, JsonOptions);
+                    string temp = SettingsFilePath + ".tmp";
+                    File.WriteAllText(temp, json);
+                    File.Move(temp, SettingsFilePath, true);
+                }
+            }
+            catch { }
+        }
+
+        private void PopulateControlsFromSettings()
+        {
+            SliderCardSize.Value = settings.CardWidth;
+            SliderCorner.Value = settings.CardCorner;
+            SliderScale.Value = settings.UiScale;
+            SliderZoom.Value = settings.HoverZoom;
+            SliderRecent.Value = settings.RecentCount;
+
+            ChkHover.IsChecked = settings.HoverAnimations;
+            ChkShowNames.IsChecked = settings.ShowCardNames;
+            ChkShowSource.IsChecked = settings.ShowCardSource;
+            ChkShowClock.IsChecked = settings.ShowClock;
+            ChkClock24.IsChecked = settings.Clock24h;
+            ChkClockSeconds.IsChecked = settings.ClockSeconds;
+            ChkShowWeather.IsChecked = settings.ShowWeather;
+            ChkFahrenheit.IsChecked = settings.Fahrenheit;
+            ChkShowStats.IsChecked = settings.ShowStats;
+            ChkShowRecent.IsChecked = settings.ShowRecent;
+            ChkShowFavorites.IsChecked = settings.ShowFavorites;
+            ChkFullRes.IsChecked = settings.FullResCovers;
+            ChkSparklines.IsChecked = settings.ShowSparklines;
+            ChkMinimize.IsChecked = settings.MinimizeOnLaunch;
+            ChkTopmost.IsChecked = settings.AlwaysOnTop;
+            ChkRememberWindow.IsChecked = settings.RememberWindow;
+            ChkOnline.IsChecked = settings.OnlineFeatures;
+            ChkAutostart.IsChecked = IsAutostartEnabled();
+
+            ChipMon500.IsChecked = settings.MonitorIntervalMs == 500;
+            ChipMon1000.IsChecked = settings.MonitorIntervalMs == 1000;
+            ChipMon2000.IsChecked = settings.MonitorIntervalMs == 2000;
+            ChipMon5000.IsChecked = settings.MonitorIntervalMs == 5000;
+            ChipStartDashboard.IsChecked = settings.StartPage != "games";
+            ChipStartGames.IsChecked = settings.StartPage == "games";
+
+            TxtWeatherCity.Text = settings.WeatherCity;
+            PopulateFeatureSettings();
+            PopulateExtraSettings();
+            UpdateSliderLabels();
+        }
+
+        private void ReadSettingsFromControls()
+        {
+            settings.CardWidth = (int)Math.Round(SliderCardSize.Value);
+            settings.CardCorner = (int)Math.Round(SliderCorner.Value);
+            settings.UiScale = (int)Math.Round(SliderScale.Value);
+            settings.HoverZoom = (int)Math.Round(SliderZoom.Value);
+            settings.RecentCount = (int)Math.Round(SliderRecent.Value);
+
+            settings.HoverAnimations = ChkHover.IsChecked == true;
+            settings.ShowCardNames = ChkShowNames.IsChecked == true;
+            settings.ShowCardSource = ChkShowSource.IsChecked == true;
+            settings.ShowClock = ChkShowClock.IsChecked == true;
+            settings.Clock24h = ChkClock24.IsChecked == true;
+            settings.ClockSeconds = ChkClockSeconds.IsChecked == true;
+            settings.ShowWeather = ChkShowWeather.IsChecked == true;
+            settings.Fahrenheit = ChkFahrenheit.IsChecked == true;
+            settings.ShowStats = ChkShowStats.IsChecked == true;
+            settings.ShowRecent = ChkShowRecent.IsChecked == true;
+            settings.ShowFavorites = ChkShowFavorites.IsChecked == true;
+            settings.FullResCovers = ChkFullRes.IsChecked == true;
+            settings.ShowSparklines = ChkSparklines.IsChecked == true;
+            settings.MinimizeOnLaunch = ChkMinimize.IsChecked == true;
+            settings.AlwaysOnTop = ChkTopmost.IsChecked == true;
+            settings.RememberWindow = ChkRememberWindow.IsChecked == true;
+            settings.OnlineFeatures = ChkOnline.IsChecked == true;
+
+            settings.MonitorIntervalMs = ChipMon500.IsChecked == true ? 500
+                                       : ChipMon2000.IsChecked == true ? 2000
+                                       : ChipMon5000.IsChecked == true ? 5000
+                                       : 1000;
+            settings.StartPage = ChipStartGames.IsChecked == true ? "games" : "dashboard";
+            ReadFeatureSettings();
+            ReadExtraSettings();
+        }
+
+        private void UpdateSliderLabels()
+        {
+            TxtCardSizeValue.Text = $"{settings.CardWidth} px";
+            TxtCornerValue.Text = $"{settings.CardCorner} px";
+            TxtScaleValue.Text = $"{settings.UiScale} %";
+            TxtZoomValue.Text = $"{settings.HoverZoom} %";
+            TxtRecentValue.Text = $"{settings.RecentCount} Spiele";
+            UpdateFeatureSliderLabels();
+            UpdateExtraSliderLabels();
+            UpdateExtra3SliderLabels();
+            UpdateExtra4SliderLabels();
+            UpdateExtra7SliderLabels();
+        }
+
+        /// <summary>Wendet alle Einstellungen an, die das Aussehen und die Widgets betreffen.</summary>
+        private void ApplyViewSettings()
+        {
+            double scale = settings.UiScale / 100.0;
+            RootGrid.LayoutTransform = settings.UiScale == 100
+                ? System.Windows.Media.Transform.Identity
+                : new ScaleTransform(scale, scale);
+
+            Topmost = settings.AlwaysOnTop;
+            ApplyBrand();
+            ApplyNavSizes();
+            ApplyStreamerMode();
+            UpdateAlphaBar();
+            if (trayIcon != null) trayIcon.Visible = settings.ShowTrayIcon || settings.MinimizeToTray;
+            systemTimer.Interval = TimeSpan.FromMilliseconds(settings.MonitorIntervalMs);
+
+            ClockCard.Visibility = settings.ShowClock ? Visibility.Visible : Visibility.Collapsed;
+            WeatherCard.Visibility = settings.ShowWeather ? Visibility.Visible : Visibility.Collapsed;
+            ColWeather.Width = settings.ShowWeather ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+            ClockCard.Margin = settings.ShowWeather ? new Thickness(0, 0, 12, 0) : new Thickness(0);
+            WidgetsRow.Visibility = settings.ShowClock || settings.ShowWeather ? Visibility.Visible : Visibility.Collapsed;
+
+            StatsGrid.Visibility = settings.ShowStats ? Visibility.Visible : Visibility.Collapsed;
+            RecentSection.Visibility = settings.ShowRecent ? Visibility.Visible : Visibility.Collapsed;
+
+            var sparkVisibility = settings.ShowSparklines ? Visibility.Visible : Visibility.Collapsed;
+            CanvasCpu.Visibility = sparkVisibility;
+            CanvasRam.Visibility = sparkVisibility;
+            CanvasGpu.Visibility = sparkVisibility;
+
+            ApplyAppearance();
+        }
+
+        private void UpdateUserNameDisplay()
+        {
+            TxtUserName.Text = DisplayUserName();
+            TxtSettingsUserName.Text = settings.UserName;
+        }
+
+        private static bool TryPickColor(string currentHex, out string newHex)
+        {
+            using var dialog = new Forms.ColorDialog { FullOpen = true };
+
+            try
+            {
+                var c = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(currentHex);
+                dialog.Color = System.Drawing.Color.FromArgb(c.R, c.G, c.B);
+            }
+            catch { }
+
+            if (dialog.ShowDialog() == Forms.DialogResult.OK)
+            {
+                newHex = $"#{dialog.Color.R:X2}{dialog.Color.G:X2}{dialog.Color.B:X2}";
+                return true;
+            }
+
+            newHex = currentHex;
+            return false;
+        }
+
+        private static bool IsAutostartEnabled()
+        {
+            try
+            {
+                using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run");
+                return key?.GetValue(AutostartName) != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static void SetAutostart(bool enable)
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
+            if (key == null) return;
+
+            if (enable && Environment.ProcessPath is string exe)
+                key.SetValue(AutostartName, $"\"{exe}\"");
+            else
+                key.DeleteValue(AutostartName, false);
+        }
+
+        private void RestoreWindowBounds()
+        {
+            if (!settings.RememberWindow || settings.WinWidth < 600 || settings.WinHeight < 400) return;
+
+            double left = settings.WinLeft;
+            double top = settings.WinTop;
+            bool onScreen =
+                left + 100 > SystemParameters.VirtualScreenLeft &&
+                left < SystemParameters.VirtualScreenLeft + SystemParameters.VirtualScreenWidth - 100 &&
+                top + 50 > SystemParameters.VirtualScreenTop &&
+                top < SystemParameters.VirtualScreenTop + SystemParameters.VirtualScreenHeight - 100;
+            if (!onScreen) return;
+
+            WindowStartupLocation = WindowStartupLocation.Manual;
+            Left = left;
+            Top = top;
+            Width = settings.WinWidth;
+            Height = settings.WinHeight;
+            if (settings.WinMaximized) WindowState = WindowState.Maximized;
+        }
+
+        private void SaveWindowBounds()
+        {
+            if (!settings.RememberWindow) return;
+
+            Rect bounds = WindowState == WindowState.Normal ? new Rect(Left, Top, Width, Height) : RestoreBounds;
+            settings.WinLeft = bounds.Left;
+            settings.WinTop = bounds.Top;
+            settings.WinWidth = bounds.Width;
+            settings.WinHeight = bounds.Height;
+            settings.WinMaximized = WindowState == WindowState.Maximized;
+            SaveSettings();
+        }
+
+        private void ShowStartPage()
+        {
+            if (settings.StartPage != "games") return;
+
+            ShowView(ViewGames);
+            NavGamesBtn.IsChecked = true;
+        }
+
+        private void BtnSaveUserName_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(TxtSettingsUserName.Text)) return;
+
+            settings.UserName = TxtSettingsUserName.Text.Trim();
+            SaveSettings();
+            UpdateUserNameDisplay();
+            RefreshDashboard();
+            Msg("Name erfolgreich gespeichert!");
+        }
+
+        private void BtnPickBgColor_Click(object sender, RoutedEventArgs e)
+        {
+            if (!TryPickColor(settings.BackgroundColor, out string hex)) return;
+            settings.BackgroundColor = hex;
+            SaveSettings();
+            ApplyTheme();
+        }
+
+        private void BtnPickPlayColor_Click(object sender, RoutedEventArgs e)
+        {
+            if (!TryPickColor(settings.AccentColor, out string hex)) return;
+            settings.AccentColor = hex;
+            SaveSettings();
+            ApplyTheme();
+        }
+
+        private void BtnResetTheme_Click(object sender, RoutedEventArgs e)
+        {
+            settings.BackgroundColor = "#0F111A";
+            settings.AccentColor = "#8B5CF6";
+            SaveSettings();
+            ApplyTheme();
+        }
+
+        private void Slider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (isLoadingSettings) return;
+
+            ReadSettingsFromControls();
+            UpdateSliderLabels();
+
+            // Erst anwenden, wenn der Regler kurz still steht
+            applyTimer.Stop();
+            applyTimer.Start();
+        }
+
+        private void Option_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+
+            ReadSettingsFromControls();
+            SaveSettings();
+            ApplyViewSettings();
+            ApplyFilter();
+            RefreshDashboard();
+            UpdateClock();
+
+            if (ReferenceEquals(sender, ChkOled))
+            {
+                RebuildStaticTiles();
+                RefreshBoard();
+                BuildCollectionChips();
+            }
+            if (ReferenceEquals(sender, ChkSensors)) ApplySensorSettings();
+
+            if (ReferenceEquals(sender, ChkSgdbAnimated))
+                ShowToast("🖼", "Cover-Quelle geändert", "Klicke auf „Cover neu laden“, damit die Änderung greift.", 6);
+
+            if (ReferenceEquals(sender, ChkSoftware))
+                Msg("Die Änderung wird nach einem Neustart des Launchers wirksam.");
+
+            if (ReferenceEquals(sender, ChkShowWeather) || ReferenceEquals(sender, ChkFahrenheit) || ReferenceEquals(sender, ChkOnline))
+                _ = RefreshWeatherAsync();
+        }
+
+        private void ChkAutostart_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+
+            try
+            {
+                SetAutostart(ChkAutostart.IsChecked == true);
+            }
+            catch (Exception ex)
+            {
+                Msg($"Autostart konnte nicht geändert werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnApplyCity_Click(object sender, RoutedEventArgs e)
+        {
+            settings.WeatherCity = TxtWeatherCity.Text.Trim();
+            weatherLocation = null;
+            SaveSettings();
+            _ = RefreshWeatherAsync();
+        }
+
+        private async void BtnReloadCovers_Click(object sender, RoutedEventArgs e)
+        {
+            var answer = Msg("Alle gespeicherten Cover löschen und neu herunterladen?", "Cover neu laden",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (answer != MessageBoxResult.Yes) return;
+
+            try { if (Directory.Exists(CoversDir)) Directory.Delete(CoversDir, true); } catch { }
+
+            lock (settings.SteamIds)
+            {
+                foreach (var key in settings.SteamIds.Where(p => p.Value <= 0).Select(p => p.Key).ToList())
+                    settings.SteamIds.Remove(key);
+            }
+
+            imageCache.Clear();
+            foreach (var game in allGames) game.CoverPath = string.Empty;
+            ApplyFilter();
+
+            await DownloadCoversAsync(allGames);
+        }
+
+        private void BtnResetHistory_Click(object sender, RoutedEventArgs e)
+        {
+            var answer = Msg("Verlauf (Zuletzt gespielt, Startzähler und Spielzeit) wirklich zurücksetzen?\nFavoriten, Bewertungen und Notizen bleiben erhalten.",
+                "Verlauf zurücksetzen", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (answer != MessageBoxResult.Yes) return;
+
+            foreach (var state in settings.GameStates.Values)
+            {
+                state.LastPlayed = null;
+                state.LaunchCount = 0;
+                state.PlaySeconds = 0;
+            }
+            foreach (var game in allGames)
+            {
+                game.LastPlayed = null;
+                game.LaunchCount = 0;
+                game.PlaySeconds = 0;
+            }
+            settings.PlayLog.Clear();
+
+            SaveSettings();
+            ApplyFilter();
+            RefreshDashboard();
+        }
+
+        private void BtnOpenSettingsFolder_Click(object sender, RoutedEventArgs e)
+        {
+            Directory.CreateDirectory(SettingsDir);
+            OpenShell(SettingsDir);
+        }
+
+        // ───────────────────────────── Navigation ─────────────────────────────
+
+        private void NavDashboard_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(ViewDashboard);
+            RefreshDashboard(true);
+            UpdateClock();
+        }
+
+        private void NavApps_Click(object sender, RoutedEventArgs e) => ShowView(ViewApps);
+        private void NavTools_Click(object sender, RoutedEventArgs e) => ShowView(ViewTools);
+        private void NavSettings_Click(object sender, RoutedEventArgs e) => ShowView(ViewSettings);
+
+        private void NavLinks_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(ViewLinks);
+            BuildLinkTiles();
+        }
+
+        private void NavDownloads_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(ViewDownloads);
+            RefreshDownloads();
+        }
+
+        private void NavSystem_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(ViewSystem);
+            if (HardwareList.ItemsSource == null) _ = RefreshHardwareAsync();
+        }
+
+        private void NavStorage_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(ViewStorage);
+            RefreshDrives();
+        }
+
+        private async void NavOptimization_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(ViewOptimization);
+            RefreshAutostart();
+            await RefreshPowerPlanAsync();
+        }
+
+        // ───────────────────────────── Dashboard, Uhr & Wetter ─────────────────────────────
+
+        private void UpdateClock()
+        {
+            if (!settings.ShowClock || ViewDashboard.Visibility != Visibility.Visible) return;
+
+            var now = DateTime.Now;
+            string format = settings.Clock24h
+                ? (settings.ClockSeconds ? "HH:mm:ss" : "HH:mm")
+                : (settings.ClockSeconds ? "hh:mm:ss tt" : "hh:mm tt");
+
+            TxtClock.Text = now.ToString(format, CultureInfo.InvariantCulture);
+            TxtClockDate.Text = now.ToString("D", GermanCulture);
+            TxtClockWeek.Text = $"Kalenderwoche {ISOWeek.GetWeekOfYear(now)}";
+        }
+
+        private static (string Icon, string Text) DescribeWeather(int code, bool isDay) => code switch
+        {
+            0 => (isDay ? "☀" : "🌙", "Klarer Himmel"),
+            1 => (isDay ? "🌤" : "🌙", "Überwiegend klar"),
+            2 => ("⛅", "Teilweise bewölkt"),
+            3 => ("☁", "Bedeckt"),
+            45 or 48 => ("🌫", "Nebel"),
+            51 or 53 or 55 => ("🌦", "Nieselregen"),
+            56 or 57 => ("🌧", "Gefrierender Nieselregen"),
+            61 or 63 or 65 => ("🌧", "Regen"),
+            66 or 67 => ("🌧", "Gefrierender Regen"),
+            71 or 73 or 75 => ("❄", "Schneefall"),
+            77 => ("❄", "Schneegriesel"),
+            80 or 81 or 82 => ("🌦", "Regenschauer"),
+            85 or 86 => ("🌨", "Schneeschauer"),
+            95 => ("⛈", "Gewitter"),
+            96 or 99 => ("⛈", "Gewitter mit Hagel"),
+            _ => ("🌡", "Unbekannt")
+        };
+
+        private void SetWeather(string icon, string temp, string description, string details, string range)
+        {
+            TxtWeatherIcon.Text = icon;
+            TxtWeatherTemp.Text = temp;
+            TxtWeatherDesc.Text = description;
+            TxtWeatherDetails.Text = details;
+            TxtWeatherRange.Text = range;
+        }
+
+        private async Task<(double Lat, double Lon, string Name)?> ResolveLocationAsync()
+        {
+            string city = settings.WeatherCity.Trim();
+            if (weatherLocation != null && weatherLocationKey == city) return weatherLocation;
+
+            try
+            {
+                if (city.Length > 0)
+                {
+                    string url = $"https://geocoding-api.open-meteo.com/v1/search?name={Uri.EscapeDataString(city)}&count=1&language=de&format=json";
+                    using var doc = JsonDocument.Parse(await Http.GetStringAsync(url));
+
+                    if (doc.RootElement.TryGetProperty("results", out var results) && results.GetArrayLength() > 0)
+                    {
+                        var first = results[0];
+                        weatherLocation = (first.GetProperty("latitude").GetDouble(),
+                                           first.GetProperty("longitude").GetDouble(),
+                                           GetJsonString(first, "name"));
+                    }
+                    else
+                    {
+                        weatherLocation = null;
+                    }
+                }
+                else
+                {
+                    // Ungefährer Standort über die IP-Adresse
+                    using var doc = JsonDocument.Parse(await Http.GetStringAsync("https://ipwho.is/"));
+                    var root = doc.RootElement;
+
+                    if (root.TryGetProperty("success", out var ok) && ok.ValueKind == JsonValueKind.False)
+                        weatherLocation = null;
+                    else
+                        weatherLocation = (root.GetProperty("latitude").GetDouble(),
+                                           root.GetProperty("longitude").GetDouble(),
+                                           GetJsonString(root, "city"));
+                }
+
+                weatherLocationKey = city;
+            }
+            catch
+            {
+                weatherLocation = null;
+            }
+
+            return weatherLocation;
+        }
+
+        private async Task RefreshWeatherAsync()
+        {
+            if (!settings.ShowWeather) return;
+
+            if (!settings.OnlineFeatures)
+            {
+                SetWeather("🌐", "–", "Online-Funktionen sind deaktiviert", "Aktiviere sie in den Einstellungen.", string.Empty);
+                return;
+            }
+
+            try
+            {
+                var location = await ResolveLocationAsync();
+                if (location == null)
+                {
+                    SetWeather("❓", "–", "Standort nicht gefunden", "Gib in den Einstellungen einen Ort an.", string.Empty);
+                    return;
+                }
+
+                string lat = location.Value.Lat.ToString(CultureInfo.InvariantCulture);
+                string lon = location.Value.Lon.ToString(CultureInfo.InvariantCulture);
+                string unit = settings.Fahrenheit ? "fahrenheit" : "celsius";
+                string url = "https://api.open-meteo.com/v1/forecast" +
+                             $"?latitude={lat}&longitude={lon}" +
+                             "&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,is_day" +
+                             "&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1&wind_speed_unit=kmh" +
+                             $"&temperature_unit={unit}";
+
+                using var doc = JsonDocument.Parse(await Http.GetStringAsync(url));
+                var current = doc.RootElement.GetProperty("current");
+                var daily = doc.RootElement.GetProperty("daily");
+
+                double temp = current.GetProperty("temperature_2m").GetDouble();
+                double feels = current.GetProperty("apparent_temperature").GetDouble();
+                double humidity = current.GetProperty("relative_humidity_2m").GetDouble();
+                double wind = current.GetProperty("wind_speed_10m").GetDouble();
+                int code = current.GetProperty("weather_code").GetInt32();
+                bool isDay = current.TryGetProperty("is_day", out var dayValue) && dayValue.GetInt32() == 1;
+                double max = daily.GetProperty("temperature_2m_max")[0].GetDouble();
+                double min = daily.GetProperty("temperature_2m_min")[0].GetDouble();
+
+                string symbol = settings.Fahrenheit ? "°F" : "°C";
+                var (icon, text) = DescribeWeather(code, isDay);
+                string place = location.Value.Name;
+
+                SetWeather(icon,
+                    $"{temp:F0}{symbol}",
+                    place.Length > 0 ? $"{text}  ·  {place}" : text,
+                    $"Gefühlt {feels:F0}{symbol}  ·  Wind {wind:F0} km/h  ·  Luftfeuchte {humidity:F0} %",
+                    $"Heute  {min:F0}{symbol} bis {max:F0}{symbol}");
+            }
+            catch
+            {
+                SetWeather("⚠", "–", "Wetter nicht erreichbar", "Prüfe deine Internetverbindung.", string.Empty);
+            }
+        }
+
+        private void BtnRandomGame_Click(object sender, RoutedEventArgs e) => ShowRoulette();
+
+        // ───────────────────────────── Systemüberwachung ─────────────────────────────
+
+        private static PerformanceCounter? TryCreateCounter(string category, string counter, string instance = "")
+        {
+            try
+            {
+                return string.IsNullOrEmpty(instance)
+                    ? new PerformanceCounter(category, counter)
+                    : new PerformanceCounter(category, counter, instance);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private void InitSystemMonitoring()
+        {
+            cpuCounter = TryCreateCounter("Processor", "% Processor Time", "_Total");
+            cpuFreqCounter = TryCreateCounter("Processor Information", "% Processor Performance", "_Total");
+            ramCounter = TryCreateCounter("Memory", "Available MBytes");
+
+            try { cpuCounter?.NextValue(); } catch { }
+            try { cpuFreqCounter?.NextValue(); } catch { }
+
+            try { totalRamMB = GC.GetGCMemoryInfo().TotalAvailableMemoryBytes / (1024.0 * 1024.0); }
+            catch { totalRamMB = 0; }
+
+            try
+            {
+                baseCpuMhz = Convert.ToDouble(Registry.GetValue(
+                    @"HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\System\CentralProcessor\0", "~MHz", 0));
+            }
+            catch { baseCpuMhz = 0; }
+
+            try
+            {
+                string raw = Registry.GetValue(@"HKEY_LOCAL_MACHINE\HARDWARE\DESCRIPTION\System\CentralProcessor\0",
+                    "ProcessorNameString", null) as string ?? string.Empty;
+                cpuDisplayName = CleanName(raw);
+            }
+            catch { cpuDisplayName = string.Empty; }
+
+            systemTimer.Interval = TimeSpan.FromSeconds(1.0);
+            systemTimer.Tick += (s, e) => UpdateSystemMetrics();
+            systemTimer.Start();
+        }
+
+        private void RefreshGpuCounters()
+        {
+            try
+            {
+                if (!PerformanceCounterCategory.Exists("GPU Engine")) return;
+
+                var category = new PerformanceCounterCategory("GPU Engine");
+                var names = category.GetInstanceNames()
+                    .Where(n => n.EndsWith("engtype_3D", StringComparison.OrdinalIgnoreCase))
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                foreach (var gone in gpuCounters.Keys.Where(k => !names.Contains(k)).ToList())
+                {
+                    gpuCounters[gone].Dispose();
+                    gpuCounters.Remove(gone);
+                }
+
+                foreach (var name in names)
+                {
+                    if (gpuCounters.ContainsKey(name)) continue;
+                    gpuCounters[name] = new PerformanceCounter("GPU Engine", "Utilization Percentage", name, true);
+                }
+            }
+            catch { }
+        }
+
+        private static void AddHistory(List<double> history, double value)
+        {
+            history.Add(value);
+            while (history.Count > SparkPoints) history.RemoveAt(0);
+        }
+
+        private static System.Windows.Media.Brush LoadBrush(double percent, System.Windows.Media.Brush normal)
+            => percent >= 90 ? BrushRed : percent >= 75 ? BrushAmber : normal;
+
+        /// <summary>Zeichnet den Kreisbogen (0–100 %) für das Ring-Diagramm.</summary>
+        private static void SetArc(System.Windows.Shapes.Path path, double percent)
+        {
+            const double radius = 69;
+            const double center = 75;
+
+            percent = Math.Clamp(percent, 0, 100);
+            if (percent < 0.5)
+            {
+                path.Data = null;
+                return;
+            }
+            if (percent > 99.9) percent = 99.9;
+
+            double angle = percent / 100.0 * 2 * Math.PI;
+            var start = new System.Windows.Point(center, center - radius);
+            var end = new System.Windows.Point(center + radius * Math.Sin(angle), center - radius * Math.Cos(angle));
+
+            var figure = new PathFigure { StartPoint = start, IsClosed = false };
+            figure.Segments.Add(new ArcSegment(end, new System.Windows.Size(radius, radius), 0,
+                angle > Math.PI, SweepDirection.Clockwise, true));
+
+            path.Data = new PathGeometry(new[] { figure });
+        }
+
+        private static void UpdateSparkline(Canvas canvas, System.Windows.Shapes.Polygon polygon, List<double> history)
+        {
+            if (history.Count < 2) return;
+
+            double width = canvas.ActualWidth > 0 ? canvas.ActualWidth : 240;
+            double height = canvas.Height;
+            double step = width / (SparkPoints - 1);
+            double startX = width - (history.Count - 1) * step;
+
+            var points = new PointCollection { new System.Windows.Point(startX, height) };
+            for (int i = 0; i < history.Count; i++)
+            {
+                double y = height - Math.Clamp(history[i], 0, 100) / 100.0 * height;
+                points.Add(new System.Windows.Point(startX + i * step, y));
+            }
+            points.Add(new System.Windows.Point(width, height));
+
+            polygon.Points = points;
+        }
+
+        private void DisposeMonitoring()
+        {
+            systemTimer.Stop();
+            clockTimer.Stop();
+            weatherTimer.Stop();
+            cpuCounter?.Dispose();
+            cpuFreqCounter?.Dispose();
+            ramCounter?.Dispose();
+            foreach (var counter in gpuCounters.Values) counter.Dispose();
+            gpuCounters.Clear();
+        }
+
+        // ───────────────────────────── Hardware auslesen ─────────────────────────────
+
+        private static List<GpuAdapter> ReadGpuAdapters()
+        {
+            var list = new List<GpuAdapter>();
+
+            try
+            {
+                using var classKey = Registry.LocalMachine.OpenSubKey(
+                    @"SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}");
+                if (classKey == null) return list;
+
+                foreach (string sub in classKey.GetSubKeyNames())
+                {
+                    if (sub.Length != 4 || !sub.All(char.IsDigit)) continue;
+
+                    using var key = classKey.OpenSubKey(sub);
+                    if (key == null) continue;
+                    if (key.GetValue("DriverDesc") is not string name || string.IsNullOrWhiteSpace(name)) continue;
+                    if (Regex.IsMatch(name, "Basic|Remote|Virtual", RegexOptions.IgnoreCase)) continue;
+
+                    var adapter = new GpuAdapter
+                    {
+                        Name = CleanName(name),
+                        Driver = key.GetValue("DriverVersion") as string ?? string.Empty
+                    };
+
+                    // Der Hersteller der Karte (z.B. Gigabyte, ASUS, MSI) steckt in der Subsystem-ID
+                    string matching = key.GetValue("MatchingDeviceId") as string ?? string.Empty;
+                    var subsys = Regex.Match(matching, "subsys_[0-9a-f]{4}([0-9a-f]{4})", RegexOptions.IgnoreCase);
+                    if (subsys.Success && BoardVendors.TryGetValue(subsys.Groups[1].Value, out var vendor))
+                        adapter.Vendor = vendor;
+
+                    object? memory = key.GetValue("HardwareInformation.qwMemorySize");
+                    if (memory is long qword)
+                        adapter.VramBytes = qword;
+                    else if (key.GetValue("HardwareInformation.MemorySize") is byte[] bytes && bytes.Length >= 4)
+                        adapter.VramBytes = BitConverter.ToUInt32(bytes, 0);
+
+                    list.Add(adapter);
+                }
+            }
+            catch { }
+
+            return list;
+        }
+
+        private static GpuAdapter? PickPrimaryGpu(List<GpuAdapter> adapters)
+        {
+            return adapters.FirstOrDefault(a => Regex.IsMatch(a.Name, "NVIDIA|GeForce|RTX|GTX|Radeon RX|Radeon Pro|Arc"))
+                   ?? adapters.FirstOrDefault();
+        }
+
+        private static string DescribeGpu(GpuAdapter gpu)
+        {
+            string text = gpu.Name;
+
+            if (gpu.Vendor.Length > 0 && !gpu.Name.Contains(gpu.Vendor, StringComparison.OrdinalIgnoreCase))
+                text += $"  ·  {gpu.Vendor}";
+            if (gpu.VramBytes > 0)
+                text += $"  ·  {Math.Round(gpu.VramBytes / GigaByte):F0} GB";
+
+            return text;
+        }
+
+        private static string MemoryType(int smbios) => smbios switch
+        {
+            20 => "DDR",
+            21 => "DDR2",
+            24 => "DDR3",
+            26 => "DDR4",
+            30 => "LPDDR4",
+            34 => "DDR5",
+            35 => "LPDDR5",
+            _ => string.Empty
+        };
+
+        private static string FormatKb(long kb) => kb >= 1024 ? $"{kb / 1024.0:F0} MB" : $"{kb} KB";
+
+        private void ApplyTileNames(List<GpuAdapter> adapters)
+        {
+            if (cpuDisplayName.Length > 0)
+            {
+                TxtCpuName.Text = cpuDisplayName;
+                TxtCpuName.ToolTip = cpuDisplayName;
+            }
+
+            string ram = ramSummary.Length > 0
+                ? ramSummary
+                : totalRamMB > 0 ? $"{totalRamMB / 1024.0:F0} GB Arbeitsspeicher" : string.Empty;
+            TxtRamName.Text = ram;
+            TxtRamName.ToolTip = ram;
+
+            var gpu = PickPrimaryGpu(adapters);
+            string gpuText = gpu != null ? DescribeGpu(gpu) : "Keine Grafikkarte erkannt";
+            TxtGpuName.Text = gpuText;
+            TxtGpuName.ToolTip = gpuText;
+        }
+
+        private async Task RefreshHardwareAsync()
+        {
+            if (hardwareBusy) return;
+            hardwareBusy = true;
+            TxtHardwareStatus.Text = "Hardware wird ausgelesen ...";
+            BtnRefreshHardware.IsEnabled = false;
+
+            try
+            {
+                var adapters = await Task.Run(() => ReadGpuAdapters());
+                var result = await Task.Run(() => RunPowerShell(HardwareScript, 90000));
+
+                JsonDocument? doc = null;
+                try
+                {
+                    int start = result.Output.IndexOf('{');
+                    int end = result.Output.LastIndexOf('}');
+                    if (start >= 0 && end > start)
+                        doc = JsonDocument.Parse(result.Output.Substring(start, end - start + 1));
+                }
+                catch
+                {
+                    doc = null;
+                }
+
+                try
+                {
+                    HardwareList.ItemsSource = BuildHardwareGroups(doc?.RootElement, adapters);
+                }
+                finally
+                {
+                    doc?.Dispose();
+                }
+
+                ApplyTileNames(adapters);
+                TxtHardwareStatus.Text = $"Zuletzt ausgelesen um {DateTime.Now:HH:mm} Uhr";
+            }
+            catch (Exception ex)
+            {
+                TxtHardwareStatus.Text = "Auslesen fehlgeschlagen: " + ex.Message;
+            }
+            finally
+            {
+                hardwareBusy = false;
+                BtnRefreshHardware.IsEnabled = true;
+            }
+        }
+
+        private async void BtnRefreshHardware_Click(object sender, RoutedEventArgs e) => await RefreshHardwareAsync();
+
+        private List<HardwareGroup> BuildHardwareGroups(JsonElement? root, List<GpuAdapter> adapters)
+        {
+            var groups = new List<HardwareGroup>();
+
+            HardwareGroup NewGroup(string title)
+            {
+                var group = new HardwareGroup { Title = title };
+                groups.Add(group);
+                return group;
+            }
+
+            void Row(HardwareGroup group, string label, string? value)
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    group.Rows.Add(new InfoRow { Label = label, Value = value.Trim() });
+            }
+
+            IEnumerable<JsonElement> Items(string name) =>
+                root.HasValue ? JsonItems(root.Value, name) : Enumerable.Empty<JsonElement>();
+
+            // ── System ──
+            var system = NewGroup("System");
+            var os = Items("os").FirstOrDefault();
+            bool hasOs = os.ValueKind == JsonValueKind.Object;
+            int build = Environment.OSVersion.Version.Build;
+
+            Row(system, "Computername", Environment.MachineName);
+            Row(system, "Betriebssystem", hasOs ? GetJsonString(os, "Caption") : (build >= 22000 ? "Windows 11" : "Windows 10"));
+            Row(system, "Build", hasOs ? GetJsonString(os, "BuildNumber") : build.ToString());
+            Row(system, "Architektur", hasOs ? GetJsonString(os, "OSArchitecture") : (Environment.Is64BitOperatingSystem ? "64-Bit" : "32-Bit"));
+
+            var uptime = TimeSpan.FromMilliseconds(Environment.TickCount64);
+            Row(system, "Laufzeit seit Start", uptime.TotalDays >= 1
+                ? $"{(int)uptime.TotalDays} Tg. {uptime.Hours} Std. {uptime.Minutes} Min."
+                : $"{uptime.Hours} Std. {uptime.Minutes} Min.");
+
+            // ── Prozessor ──
+            var cpuGroup = NewGroup("Prozessor");
+            var cpu = Items("cpu").FirstOrDefault();
+            bool hasCpu = cpu.ValueKind == JsonValueKind.Object;
+
+            Row(cpuGroup, "Modell", cpuDisplayName.Length > 0 ? cpuDisplayName : (hasCpu ? CleanName(GetJsonString(cpu, "Name")) : string.Empty));
+            if (hasCpu)
+            {
+                Row(cpuGroup, "Hersteller", GetJsonString(cpu, "Manufacturer"));
+                Row(cpuGroup, "Kerne / Threads", $"{JsonLong(cpu, "NumberOfCores")} Kerne / {JsonLong(cpu, "NumberOfLogicalProcessors")} Threads");
+
+                long maxMhz = JsonLong(cpu, "MaxClockSpeed");
+                if (maxMhz > 0) Row(cpuGroup, "Takt", $"{maxMhz / 1000.0:F2} GHz");
+
+                long l2 = JsonLong(cpu, "L2CacheSize");
+                long l3 = JsonLong(cpu, "L3CacheSize");
+                if (l2 > 0 || l3 > 0)
+                    Row(cpuGroup, "Cache", $"L2 {FormatKb(l2)}  ·  L3 {FormatKb(l3)}");
+            }
+            else
+            {
+                Row(cpuGroup, "Threads", Environment.ProcessorCount.ToString());
+            }
+
+            // ── Arbeitsspeicher ──
+            var ramGroup = NewGroup("Arbeitsspeicher");
+            var modules = Items("ram").ToList();
+            long total = modules.Sum(m => JsonLong(m, "Capacity"));
+            if (total == 0) total = (long)(totalRamMB * 1024 * 1024);
+
+            Row(ramGroup, "Gesamt", total > 0 ? $"{total / GigaByte:F0} GB" : null);
+
+            int moduleIndex = 1;
+            foreach (var module in modules)
+            {
+                long capacity = JsonLong(module, "Capacity");
+                long speed = JsonLong(module, "ConfiguredClockSpeed");
+                if (speed == 0) speed = JsonLong(module, "Speed");
+
+                string type = MemoryType((int)JsonLong(module, "SMBIOSMemoryType"));
+                string slot = GetJsonString(module, "DeviceLocator");
+                if (slot.Length == 0) slot = $"Modul {moduleIndex}";
+
+                string detail = $"{capacity / GigaByte:F0} GB";
+                if (type.Length > 0) detail += $" {type}";
+                if (speed > 0) detail += type.Length > 0 ? $"-{speed}" : $" {speed} MT/s";
+
+                string part = GetJsonString(module, "PartNumber").Trim();
+                Row(ramGroup, slot, part.Length > 0 ? $"{detail}  ·  {part}" : detail);
+                moduleIndex++;
+            }
+
+            if (modules.Count > 0)
+            {
+                var first = modules[0];
+                long firstSpeed = JsonLong(first, "ConfiguredClockSpeed");
+                if (firstSpeed == 0) firstSpeed = JsonLong(first, "Speed");
+                string firstType = MemoryType((int)JsonLong(first, "SMBIOSMemoryType"));
+
+                string kind = firstType.Length > 0 ? (firstSpeed > 0 ? $"{firstType}-{firstSpeed}" : firstType) : string.Empty;
+                ramSummary = $"{total / GigaByte:F0} GB {kind}".Trim() +
+                             (modules.Count > 1 ? $"  ({modules.Count} × {JsonLong(first, "Capacity") / GigaByte:F0} GB)" : string.Empty);
+            }
+
+            // ── Grafikkarte(n) ──
+            int gpuIndex = 1;
+            foreach (var adapter in adapters)
+            {
+                var gpuGroup = NewGroup(adapters.Count > 1 ? $"Grafikkarte {gpuIndex}" : "Grafikkarte");
+                Row(gpuGroup, "Modell", adapter.Name);
+                Row(gpuGroup, "Kartenhersteller", adapter.Vendor);
+                if (adapter.VramBytes > 0) Row(gpuGroup, "Videospeicher", $"{Math.Round(adapter.VramBytes / GigaByte):F0} GB");
+                Row(gpuGroup, "Treiberversion", adapter.Driver);
+                gpuIndex++;
+            }
+
+            // ── Anzeige ──
+            var display = NewGroup("Anzeige");
+            int monitorIndex = 1;
+            foreach (var monitor in Items("monitors"))
+            {
+                string name = GetJsonString(monitor, "Name");
+                if (name.Length == 0) name = GetJsonString(monitor, "Maker");
+                Row(display, $"Monitor {monitorIndex}", name);
+                monitorIndex++;
+            }
+
+            long refresh = Items("gpu").Select(g => JsonLong(g, "CurrentRefreshRate")).FirstOrDefault(v => v > 0);
+            int screenIndex = 1;
+            foreach (var screen in Forms.Screen.AllScreens)
+            {
+                string resolution = $"{screen.Bounds.Width} × {screen.Bounds.Height}";
+                if (screen.Primary && refresh > 0) resolution += $" @ {refresh} Hz";
+                if (screen.Primary) resolution += "  (Hauptanzeige)";
+                Row(display, $"Auflösung {screenIndex}", resolution);
+                screenIndex++;
+            }
+
+            // ── Mainboard & BIOS ──
+            var boardGroup = NewGroup("Mainboard und BIOS");
+            var board = Items("board").FirstOrDefault();
+            if (board.ValueKind == JsonValueKind.Object)
+            {
+                Row(boardGroup, "Hersteller", GetJsonString(board, "Manufacturer"));
+                Row(boardGroup, "Modell", GetJsonString(board, "Product"));
+            }
+            var bios = Items("bios").FirstOrDefault();
+            if (bios.ValueKind == JsonValueKind.Object)
+            {
+                Row(boardGroup, "BIOS-Hersteller", GetJsonString(bios, "Manufacturer"));
+                Row(boardGroup, "BIOS-Version", GetJsonString(bios, "SMBIOSBIOSVersion"));
+                Row(boardGroup, "BIOS-Datum", GetJsonString(bios, "ReleaseDate"));
+            }
+
+            // ── Laufwerke ──
+            var diskGroup = NewGroup("Laufwerke");
+            foreach (var disk in Items("disks"))
+            {
+                var parts = new List<string> { FormatDiskSize(JsonLong(disk, "Size")) };
+                string media = GetJsonString(disk, "MediaType");
+                string bus = GetJsonString(disk, "BusType");
+                if (media.Length > 0 && !media.Equals("Unspecified", StringComparison.OrdinalIgnoreCase)) parts.Add(media);
+                if (bus.Length > 0 && !bus.Equals("Unknown", StringComparison.OrdinalIgnoreCase)) parts.Add(bus);
+                Row(diskGroup, GetJsonString(disk, "FriendlyName"), string.Join("  ·  ", parts));
+            }
+
+            // ── Audio & Netzwerk ──
+            var other = NewGroup("Audio und Netzwerk");
+            int soundIndex = 1;
+            foreach (var sound in Items("sound"))
+                Row(other, $"Audio {soundIndex++}", GetJsonString(sound, "Name"));
+            int netIndex = 1;
+            foreach (var adapter in Items("net"))
+                Row(other, $"Netzwerk {netIndex++}", GetJsonString(adapter, "Name"));
+
+            return groups.Where(g => g.Rows.Count > 0).ToList();
+        }
+
+        // ───────────────────────────── Speicher ─────────────────────────────
+
+        private void RefreshDrives()
+        {
+            var models = new List<DriveInfoModel>();
+
+            foreach (var drive in DriveInfo.GetDrives())
+            {
+                try
+                {
+                    if (!drive.IsReady) continue;
+
+                    double total = drive.TotalSize / GigaByte;
+                    double free = drive.AvailableFreeSpace / GigaByte;
+                    double used = total - free;
+                    double percent = total > 0 ? used / total * 100.0 : 0;
+                    string label = string.IsNullOrWhiteSpace(drive.VolumeLabel) ? "Lokaler Datenträger" : drive.VolumeLabel;
+
+                    models.Add(new DriveInfoModel
+                    {
+                        DriveName = $"{drive.Name} ({label})",
+                        InfoText = $"{used:F1} GB belegt von {total:F1} GB  ·  {free:F1} GB frei",
+                        PercentText = $"{percent:F0}% belegt",
+                        UsedPercent = percent,
+                        BarBrush = LoadBrush(percent, BrushRam)
+                    });
+                }
+                catch { }
+            }
+
+            DrivesControl.ItemsSource = models;
+        }
+
+        private static long GetDirectorySize(string path)
+        {
+            long total = 0;
+            try
+            {
+                var options = new EnumerationOptions
+                {
+                    RecurseSubdirectories = true,
+                    IgnoreInaccessible = true,
+                    AttributesToSkip = FileAttributes.ReparsePoint
+                };
+                foreach (var file in new DirectoryInfo(path).EnumerateFiles("*", options))
+                    total += file.Length;
+            }
+            catch { }
+            return total;
+        }
+
+        private async void BtnCalcGameSizes_Click(object sender, RoutedEventArgs e)
+        {
+            BtnCalcGameSizes.IsEnabled = false;
+            TxtGameSizesInfo.Text = "Berechne ... das kann bei vielen Spielen einen Moment dauern.";
+
+            var targets = allGames
+                .Where(g => !string.IsNullOrEmpty(g.InstallDir) && Directory.Exists(g.InstallDir))
+                .Select(g => (g.Name, g.InstallDir))
+                .ToList();
+
+            var results = await Task.Run(() => targets
+                .Select(t => (t.Name, Size: GetDirectorySize(t.InstallDir)))
+                .OrderByDescending(r => r.Size)
+                .ToList());
+
+            long max = results.Count > 0 ? results.Max(r => r.Size) : 0;
+
+            GameSizesControl.ItemsSource = results.Select(r => new GameSizeModel
+            {
+                Name = r.Name,
+                SizeText = FormatBytes(r.Size),
+                Percent = max > 0 ? r.Size * 100.0 / max : 0
+            }).ToList();
+
+            TxtGameSizesInfo.Text = results.Count == 0
+                ? "Keine installierten Spiele gefunden."
+                : $"{results.Count} Spiele  ·  zusammen {FormatBytes(results.Sum(r => r.Size))}";
+
+            BtnCalcGameSizes.IsEnabled = true;
+        }
+
+        // ───────────────────────────── Optimierung ─────────────────────────────
+
+        private async Task RefreshPowerPlanAsync()
+        {
+            var result = await Task.Run(() => RunHidden("powercfg", "/getactivescheme"));
+            var match = Regex.Match(result.Output, @"[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}");
+
+            string name = !match.Success ? "unbekannt"
+                        : PowerPlanNames.TryGetValue(match.Value, out var known) ? known
+                        : "Benutzerdefiniert";
+
+            TxtPowerPlan.Text = $"Aktiver Plan: {name}";
+        }
+
+        private async void BtnPowerPlan_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not System.Windows.Controls.Button button || button.Tag is not string guid) return;
+
+            var result = await Task.Run(() => RunHidden("powercfg", $"/setactive {guid}"));
+            if (result.ExitCode != 0)
+                Msg("Dieser Energiesparplan ist auf deinem PC nicht verfügbar.", "Energiesparplan",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+
+            await RefreshPowerPlanAsync();
+        }
+
+        private async void BtnCleanTemp_Click(object sender, RoutedEventArgs e)
+        {
+            var answer = Msg("Temporäre Dateien (älter als 24 Stunden) aus dem Temp-Ordner löschen?",
+                "Optimierung", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (answer != MessageBoxResult.Yes) return;
+
+            var button = sender as System.Windows.Controls.Button;
+            if (button != null) button.IsEnabled = false;
+
+            var (count, bytes) = await Task.Run(() => CleanTempFiles());
+
+            if (button != null) button.IsEnabled = true;
+            Msg($"{count} Dateien gelöscht – {FormatBytes(bytes)} freigegeben.", "Optimierung");
+        }
+
+        private static (int Count, long Bytes) CleanTempFiles()
+        {
+            int count = 0;
+            long bytes = 0;
+            var cutoff = DateTime.Now.AddHours(-24);
+
+            var options = new EnumerationOptions
+            {
+                RecurseSubdirectories = true,
+                IgnoreInaccessible = true,
+                AttributesToSkip = FileAttributes.Hidden | FileAttributes.System | FileAttributes.ReparsePoint
+            };
+
+            try
+            {
+                foreach (var file in Directory.EnumerateFiles(System.IO.Path.GetTempPath(), "*", options))
+                {
+                    try
+                    {
+                        var info = new FileInfo(file);
+                        if (info.LastWriteTime >= cutoff) continue;
+
+                        long length = info.Length;
+                        info.Delete();
+                        count++;
+                        bytes += length;
+                    }
+                    catch { } // in Benutzung oder keine Berechtigung → überspringen
+                }
+            }
+            catch { }
+
+            return (count, bytes);
+        }
+
+        private async void BtnEmptyRecycle_Click(object sender, RoutedEventArgs e)
+        {
+            var answer = Msg("Papierkorb wirklich endgültig leeren?", "Papierkorb",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (answer != MessageBoxResult.Yes) return;
+
+            // 7 = ohne Rückfrage, ohne Fortschrittsfenster, ohne Ton
+            int result = await Task.Run(() => NativeMethods.SHEmptyRecycleBin(IntPtr.Zero, null, 7));
+
+            Msg(result == 0 ? "Der Papierkorb wurde geleert." : "Der Papierkorb ist bereits leer.", "Papierkorb");
+        }
+
+        private void BtnOpenSetting_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Button { Tag: string target })
+                OpenShell(target);
+        }
+
+        // ───────────────────────────── Tools & Links ─────────────────────────────
+
+        private Border CreateTile(string emoji, ImageSource? image, string title, string subtitle, Action onClick,
+            System.Windows.Controls.ContextMenu? menu = null, double width = 200)
+        {
+            var tile = new Border
+            {
+                Width = width,
+                Height = 118,
+                Margin = new Thickness(0, 0, 12, 12),
+                Padding = new Thickness(16),
+                Background = BrushCardBg,
+                BorderBrush = BrushCardBorder,
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(14),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                ContextMenu = menu
+            };
+
+            var stack = new StackPanel();
+
+            if (image != null)
+            {
+                stack.Children.Add(new System.Windows.Controls.Image
+                {
+                    Source = image,
+                    Width = 32,
+                    Height = 32,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                    Margin = new Thickness(0, 0, 0, 8)
+                });
+            }
+            else
+            {
+                stack.Children.Add(new TextBlock
+                {
+                    Text = emoji,
+                    FontSize = 26,
+                    FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                    Foreground = System.Windows.Media.Brushes.White,
+                    Margin = new Thickness(0, 0, 0, 4)
+                });
+            }
+
+            stack.Children.Add(new TextBlock
+            {
+                Text = title,
+                Foreground = System.Windows.Media.Brushes.White,
+                FontWeight = FontWeights.SemiBold,
+                FontSize = 14,
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+            stack.Children.Add(new TextBlock
+            {
+                Text = subtitle,
+                Foreground = BrushSubtle,
+                FontSize = 12,
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+
+            tile.Child = stack;
+
+            tile.MouseEnter += (s, e) => tile.Background = BrushTileHover;
+            tile.MouseLeave += (s, e) => tile.Background = BrushCardBg;
+            tile.MouseLeftButtonUp += (s, e) => onClick();
+
+            return tile;
+        }
+
+        private void BuildToolTiles()
+        {
+            string pictures = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+            string screenshots = System.IO.Path.Combine(pictures, "Screenshots");
+            string screenshotTarget = Directory.Exists(screenshots) ? screenshots : pictures;
+
+            var tools = new (string Icon, string Title, string Text, string Target)[]
+            {
+                ("🖼", "Screenshots", "Ordner öffnen", screenshotTarget),
+                ("✂", "Snipping Tool", "Bildschirmausschnitt", "ms-screenclip:"),
+                ("🩺", "DxDiag", "DirectX-Diagnose", "dxdiag.exe"),
+                ("📋", "Task-Manager", "Windows Task-Manager", "taskmgr.exe"),
+                ("📈", "Ressourcenmonitor", "Detaillierte Auslastung", "resmon.exe"),
+                ("ℹ", "Systeminfo", "Hardware und System", "msinfo32.exe"),
+                ("🔧", "Geräte-Manager", "Treiber verwalten", "devmgmt.msc"),
+                ("🌐", "Netzwerk", "Netzwerkverbindungen", "ncpa.cpl"),
+                ("🔊", "Sound", "Audioeinstellungen", "ms-settings:sound"),
+                ("🖥", "Anzeige", "Auflösung und Bildrate", "ms-settings:display"),
+                ("🕹", "Spielmodus", "Windows Game Mode", "ms-settings:gaming-gamemode"),
+                ("🚀", "Autostart-Apps", "Programme beim Start", "ms-settings:startupapps"),
+                ("🔄", "Windows Update", "Updates suchen", "ms-settings:windowsupdate")
+            };
+
+            toolEntries = tools;
+
+            foreach (var tool in tools)
+            {
+                string target = tool.Target;
+                ToolsContainer.Children.Add(CreateTile(tool.Icon, null, tool.Title, tool.Text, () => OpenShell(target)));
+            }
+        }
+
+        // ───────────────────────────── Anwendungen ─────────────────────────────
+
+        private List<AppEntry> LoadApps()
+        {
+            var apps = new List<AppEntry>();
+
+            string programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+            string programFilesX86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+            string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+
+            void AddApp(string name, string? arguments, params string[] candidates)
+            {
+                string? exe = candidates.FirstOrDefault(File.Exists);
+                if (exe == null) return;
+
+                apps.Add(new AppEntry
+                {
+                    Name = name,
+                    ExePath = exe,
+                    Arguments = arguments ?? string.Empty,
+                    Icon = ExtractIcon(exe)
+                });
+            }
+
+            string? steamPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam", "SteamPath", null) as string;
+            if (!string.IsNullOrEmpty(steamPath))
+                AddApp("Steam", null, System.IO.Path.GetFullPath(System.IO.Path.Combine(steamPath, "steam.exe")));
+
+            AddApp("Epic Games Launcher", null,
+                System.IO.Path.Combine(programFilesX86, "Epic Games", "Launcher", "Portal", "Binaries", "Win64", "EpicGamesLauncher.exe"),
+                System.IO.Path.Combine(programFilesX86, "Epic Games", "Launcher", "Portal", "Binaries", "Win32", "EpicGamesLauncher.exe"));
+            AddApp("Battle.net", null, System.IO.Path.Combine(programFilesX86, "Battle.net", "Battle.net Launcher.exe"));
+            AddApp("Discord", "--processStart Discord.exe", System.IO.Path.Combine(local, "Discord", "Update.exe"));
+            AddApp("Spotify", null,
+                System.IO.Path.Combine(roaming, "Spotify", "Spotify.exe"),
+                System.IO.Path.Combine(local, "Microsoft", "WindowsApps", "Spotify.exe"));
+            AddApp("OBS Studio", null, System.IO.Path.Combine(programFiles, "obs-studio", "bin", "64bit", "obs64.exe"));
+            AddApp("Google Chrome", null,
+                System.IO.Path.Combine(programFiles, "Google", "Chrome", "Application", "chrome.exe"),
+                System.IO.Path.Combine(programFilesX86, "Google", "Chrome", "Application", "chrome.exe"));
+            AddApp("Microsoft Edge", null,
+                System.IO.Path.Combine(programFilesX86, "Microsoft", "Edge", "Application", "msedge.exe"),
+                System.IO.Path.Combine(programFiles, "Microsoft", "Edge", "Application", "msedge.exe"));
+            AddApp("Firefox", null, System.IO.Path.Combine(programFiles, "Mozilla Firefox", "firefox.exe"));
+
+            foreach (var manual in settings.ManualApps)
+            {
+                if (!File.Exists(manual.ExePath)) continue;
+
+                apps.Add(new AppEntry
+                {
+                    Name = manual.Name,
+                    ExePath = manual.ExePath,
+                    IsManual = true,
+                    Icon = ExtractIcon(manual.ExePath)
+                });
+            }
+
+            return apps;
+        }
+
+        private void RefreshApps()
+        {
+            AppsContainer.Children.Clear();
+            var apps = LoadApps();
+            cachedApps = apps;
+
+            foreach (var app in apps)
+            {
+                System.Windows.Controls.ContextMenu? menu = null;
+                if (app.IsManual)
+                {
+                    menu = CreateMenu();
+                    AddMenuItem(menu, "🗑  Aus Liste entfernen", () => RemoveManualApp(app));
+                }
+
+                AppsContainer.Children.Add(CreateTile("🧩", app.Icon, app.Name,
+                    app.IsManual ? "Eigene App" : "Erkannt", () => LaunchApp(app), menu, 190));
+            }
+
+            TxtAppsEmpty.Visibility = apps.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void LaunchApp(AppEntry app)
+        {
+            try
+            {
+                var info = new ProcessStartInfo(app.ExePath)
+                {
+                    UseShellExecute = true,
+                    WorkingDirectory = System.IO.Path.GetDirectoryName(app.ExePath) ?? string.Empty
+                };
+                if (!string.IsNullOrEmpty(app.Arguments)) info.Arguments = app.Arguments;
+                Process.Start(info);
+            }
+            catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+            {
+                // Administrator-Abfrage abgebrochen
+            }
+            catch (Exception ex)
+            {
+                Msg($"App konnte nicht gestartet werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnAddApp_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Programme (*.exe)|*.exe",
+                Title = "App auswählen"
+            };
+            if (dialog.ShowDialog() != true) return;
+
+            if (settings.ManualApps.Any(a => string.Equals(a.ExePath, dialog.FileName, StringComparison.OrdinalIgnoreCase)))
+            {
+                Msg("Diese App ist bereits in der Liste.");
+                return;
+            }
+
+            settings.ManualApps.Add(new ManualApp
+            {
+                Name = System.IO.Path.GetFileNameWithoutExtension(dialog.FileName),
+                ExePath = dialog.FileName
+            });
+            SaveSettings();
+            RefreshApps();
+        }
+
+        private void RemoveManualApp(AppEntry app)
+        {
+            settings.ManualApps.RemoveAll(a => string.Equals(a.ExePath, app.ExePath, StringComparison.OrdinalIgnoreCase));
+            SaveSettings();
+            RefreshApps();
+        }
+
+        // ───────────────────────────── Downloads ─────────────────────────────
+
+        private void RefreshDownloads()
+        {
+            var list = new List<FileEntry>();
+
+            try
+            {
+                if (Directory.Exists(DownloadsPath))
+                {
+                    var files = new DirectoryInfo(DownloadsPath)
+                        .EnumerateFiles()
+                        .Where(f => (f.Attributes & FileAttributes.Hidden) == 0)
+                        .OrderByDescending(f => f.LastWriteTime)
+                        .Take(40);
+
+                    foreach (var file in files)
+                    {
+                        list.Add(new FileEntry
+                        {
+                            Name = file.Name,
+                            FullPath = file.FullName,
+                            SizeText = FormatBytes(file.Length),
+                            DateText = file.LastWriteTime.ToString("dd.MM.yyyy HH:mm")
+                        });
+                    }
+                }
+            }
+            catch { }
+
+            GridDownloads.ItemsSource = list;
+            TxtDownloadsInfo.Text = $"{list.Count} neueste Dateien aus {DownloadsPath}";
+        }
+
+        private void OpenSelectedDownload()
+        {
+            if (GridDownloads.SelectedItem is FileEntry entry) OpenShell(entry.FullPath);
+        }
+
+        private void GridDownloads_DoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e) => OpenSelectedDownload();
+        private void BtnOpenDownload_Click(object sender, RoutedEventArgs e) => OpenSelectedDownload();
+        private void BtnRefreshDownloads_Click(object sender, RoutedEventArgs e) => RefreshDownloads();
+
+        private void BtnShowDownload_Click(object sender, RoutedEventArgs e)
+        {
+            if (GridDownloads.SelectedItem is FileEntry entry)
+                OpenShell("explorer.exe", $"/select,\"{entry.FullPath}\"");
+        }
+
+        private void BtnOpenDownloadsFolder_Click(object sender, RoutedEventArgs e)
+        {
+            if (Directory.Exists(DownloadsPath)) OpenShell(DownloadsPath);
+        }
+
+        // ───────────────────────────── Spiele-Scan ─────────────────────────────
+
+        private async Task LoadInstalledGamesAsync()
+        {
+            if (isScanning) return;
+            isScanning = true;
+            TxtGameCount.Text = "Spiele werden gesucht ...";
+
+            List<GameItem> games;
+            try
+            {
+                var manualGames = settings.ManualGames.ToList();
+
+                games = await Task.Run(() =>
+                {
+                    var found = new Dictionary<string, GameItem>(StringComparer.OrdinalIgnoreCase);
+
+                    ScanSteamGames(found);
+                    ScanEpicGames(found, LoadEpicCoverMap());
+                    ScanRockstarGames(found);
+                    ScanXboxGames(found);
+                    ScanGogGames(found);
+                    ScanEaGames(found);
+                    ScanUbisoftGames(found);
+                    ScanBattleNetGames(found);
+
+                    foreach (var manual in manualGames)
+                    {
+                        if (string.IsNullOrWhiteSpace(manual.Name) || found.ContainsKey(manual.Name)) continue;
+
+                        found[manual.Name] = new GameItem
+                        {
+                            Name = manual.Name,
+                            ExecutablePath = manual.ExecutablePath,
+                            Source = "Manuell",
+                            LocalIcon = ExtractIcon(manual.ExecutablePath)
+                        };
+                    }
+
+                    foreach (var game in found.Values) AssignCachedCover(game);
+                    return found.Values.ToList();
+                });
+            }
+            finally
+            {
+                isScanning = false;
+            }
+
+            ApplyGameStates(games);
+            allGames = games;
+
+            playCardEntrance = !silentRescan;
+            ApplyFilter();
+            RefreshDashboard();
+
+            _ = DownloadCoversAsync(games);
+            _ = AfterScanAsync();
+        }
+
+        private static bool IsLikelyGameExe(string file)
+        {
+            string name = System.IO.Path.GetFileNameWithoutExtension(file).ToLowerInvariant();
+            string[] unwanted =
+            {
+                "unins", "setup", "crash", "redist", "dxsetup", "installer",
+                "helper", "report", "easyanticheat", "battleye"
+            };
+            return !unwanted.Any(u => name.Contains(u));
+        }
+
+        /// <summary>Sucht die wahrscheinlichste Haupt-.exe (erst im Hauptordner, dann bis Tiefe 3).</summary>
+        private static string FindMainExe(string directory)
+        {
+            try
+            {
+                var options = new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = false };
+                var candidates = Directory.EnumerateFiles(directory, "*.exe", options).Where(IsLikelyGameExe).ToList();
+
+                if (candidates.Count == 0)
+                {
+                    options.RecurseSubdirectories = true;
+                    options.MaxRecursionDepth = 3;
+                    candidates = Directory.EnumerateFiles(directory, "*.exe", options).Where(IsLikelyGameExe).ToList();
+                }
+
+                return candidates.OrderByDescending(f => new FileInfo(f).Length).FirstOrDefault() ?? string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        private static ImageSource? ExtractIcon(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path)) return null;
+
+            try
+            {
+                using var icon = System.Drawing.Icon.ExtractAssociatedIcon(path);
+                if (icon == null) return null;
+
+                var source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
+                    icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                source.Freeze(); // nötig, weil ggf. im Hintergrund-Thread erzeugt
+                return source;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static List<string> SteamCoverUrls(string appId) => new()
+        {
+            $"https://cdn.akamai.steamstatic.com/steam/apps/{appId}/library_600x900_2x.jpg",
+            $"https://cdn.akamai.steamstatic.com/steam/apps/{appId}/library_600x900.jpg",
+            $"https://cdn.akamai.steamstatic.com/steam/apps/{appId}/header.jpg"
+        };
+
+        private static void ScanSteamGames(Dictionary<string, GameItem> found)
+        {
+            try
+            {
+                string? steamPath =
+                    Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam", "SteamPath", null) as string
+                    ?? Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam", "InstallPath", null) as string;
+
+                if (string.IsNullOrEmpty(steamPath) || !Directory.Exists(steamPath)) return;
+
+                var libraries = new List<string> { System.IO.Path.GetFullPath(System.IO.Path.Combine(steamPath, "steamapps")) };
+                string vdfFile = System.IO.Path.Combine(steamPath, "steamapps", "libraryfolders.vdf");
+
+                if (File.Exists(vdfFile))
+                {
+                    foreach (Match match in Regex.Matches(File.ReadAllText(vdfFile), @"""path""\s+""([^""]+)"""))
+                    {
+                        string libraryRoot = match.Groups[1].Value.Replace(@"\\", @"\");
+                        string steamApps = System.IO.Path.GetFullPath(System.IO.Path.Combine(libraryRoot, "steamapps"));
+
+                        if (Directory.Exists(steamApps) && !libraries.Contains(steamApps, StringComparer.OrdinalIgnoreCase))
+                            libraries.Add(steamApps);
+                    }
+                }
+
+                foreach (string library in libraries)
+                {
+                    if (!Directory.Exists(library)) continue;
+
+                    foreach (string acf in Directory.EnumerateFiles(library, "appmanifest_*.acf"))
+                    {
+                        try
+                        {
+                            string text = File.ReadAllText(acf);
+                            var nameMatch = Regex.Match(text, @"""name""\s+""([^""]+)""");
+                            var dirMatch = Regex.Match(text, @"""installdir""\s+""([^""]+)""");
+                            var idMatch = Regex.Match(text, @"""appid""\s+""([^""]+)""");
+
+                            if (!nameMatch.Success || !dirMatch.Success || !idMatch.Success) continue;
+
+                            string gameName = nameMatch.Groups[1].Value;
+                            if (gameName.StartsWith("Steamworks") || gameName.StartsWith("Proton") ||
+                                gameName.StartsWith("Steam Linux Runtime") || gameName.Contains("Redistributable"))
+                                continue;
+
+                            string installDir = System.IO.Path.Combine(library, "common", dirMatch.Groups[1].Value);
+                            if (!Directory.Exists(installDir) || found.ContainsKey(gameName)) continue;
+
+                            string appId = idMatch.Groups[1].Value;
+                            string exePath = FindMainExe(installDir);
+
+                            found[gameName] = new GameItem
+                            {
+                                Name = gameName,
+                                ExecutablePath = exePath,
+                                InstallDir = installDir,
+                                AppId = appId,
+                                LaunchUri = $"steam://rungameid/{appId}",
+                                CoverUrls = SteamCoverUrls(appId),
+                                Source = "Steam",
+                                LocalIcon = ExtractIcon(exePath)
+                            };
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        /// <summary>Liest die Cover-Adressen aus dem Katalog-Cache des Epic Games Launchers.</summary>
+        private static Dictionary<string, string> LoadEpicCoverMap()
+        {
+            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            try
+            {
+                string file = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                    "Epic", "EpicGamesLauncher", "Data", "Catalog", "catcache.bin");
+                if (!File.Exists(file)) return map;
+
+                string base64;
+                using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (var reader = new StreamReader(stream))
+                {
+                    base64 = reader.ReadToEnd().Trim();
+                }
+
+                using var doc = JsonDocument.Parse(Convert.FromBase64String(base64));
+                if (doc.RootElement.ValueKind != JsonValueKind.Array) return map;
+
+                string[] preferredTypes = { "DieselGameBoxTall", "OfferImageTall", "Thumbnail" };
+
+                foreach (var item in doc.RootElement.EnumerateArray())
+                {
+                    string id = GetJsonString(item, "id");
+                    if (id.Length == 0 || !item.TryGetProperty("keyImages", out var images) || images.ValueKind != JsonValueKind.Array)
+                        continue;
+
+                    foreach (string wanted in preferredTypes)
+                    {
+                        string url = string.Empty;
+                        foreach (var image in images.EnumerateArray())
+                        {
+                            if (GetJsonString(image, "type") == wanted)
+                            {
+                                url = GetJsonString(image, "url");
+                                break;
+                            }
+                        }
+
+                        if (url.Length > 0)
+                        {
+                            map[id] = url;
+                            break;
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            return map;
+        }
+
+        private static void ScanEpicGames(Dictionary<string, GameItem> found, Dictionary<string, string> coverMap)
+        {
+            try
+            {
+                string manifestDir = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                    "Epic", "EpicGamesLauncher", "Data", "Manifests");
+
+                if (!Directory.Exists(manifestDir)) return;
+
+                foreach (string itemFile in Directory.EnumerateFiles(manifestDir, "*.item"))
+                {
+                    try
+                    {
+                        using var document = JsonDocument.Parse(File.ReadAllText(itemFile));
+                        var root = document.RootElement;
+
+                        string gameName = GetJsonString(root, "DisplayName");
+                        string launchExe = GetJsonString(root, "LaunchExecutable");
+                        string installDir = GetJsonString(root, "InstallLocation");
+                        string appName = GetJsonString(root, "AppName");
+                        string catalogId = GetJsonString(root, "CatalogItemId");
+
+                        if (gameName == "" || launchExe == "" || installDir == "" || found.ContainsKey(gameName)) continue;
+
+                        string fullExePath = System.IO.Path.Combine(installDir, launchExe);
+                        if (!File.Exists(fullExePath)) continue;
+
+                        var game = new GameItem
+                        {
+                            Name = gameName,
+                            ExecutablePath = fullExePath,
+                            InstallDir = installDir,
+                            LaunchUri = appName == ""
+                                ? null
+                                : $"com.epicgames.launcher://apps/{appName}?action=launch&silent=true",
+                            Source = "Epic Games",
+                            LocalIcon = ExtractIcon(fullExePath)
+                        };
+
+                        if (catalogId.Length > 0 && coverMap.TryGetValue(catalogId, out var coverUrl))
+                            game.CoverUrls.Add(coverUrl);
+
+                        found[gameName] = game;
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+        }
+
+        private static void ScanRockstarGames(Dictionary<string, GameItem> found)
+        {
+            try
+            {
+                using var rootKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Rockstar Games");
+                if (rootKey == null) return;
+
+                foreach (string subkeyName in rootKey.GetSubKeyNames())
+                {
+                    if (subkeyName.Contains("Launcher", StringComparison.OrdinalIgnoreCase) ||
+                        subkeyName.Contains("Social Club", StringComparison.OrdinalIgnoreCase) ||
+                        found.ContainsKey(subkeyName))
+                        continue;
+
+                    using var subKey = rootKey.OpenSubKey(subkeyName);
+                    if (subKey == null) continue;
+
+                    string? folder = subKey.GetValue("InstallFolder") as string ?? subKey.GetValue("FolderHandled") as string;
+                    if (string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder)) continue;
+
+                    // GTA V muss über PlayGTAV.exe gestartet werden
+                    string exePath = System.IO.Path.Combine(folder, "PlayGTAV.exe");
+                    if (!File.Exists(exePath))
+                    {
+                        exePath = Directory.EnumerateFiles(folder, "*.exe", SearchOption.TopDirectoryOnly)
+                            .Where(f => IsLikelyGameExe(f)
+                                     && !System.IO.Path.GetFileNameWithoutExtension(f).Contains("launcher", StringComparison.OrdinalIgnoreCase)
+                                     && !System.IO.Path.GetFileNameWithoutExtension(f).Contains("social", StringComparison.OrdinalIgnoreCase))
+                            .OrderByDescending(f => new FileInfo(f).Length)
+                            .FirstOrDefault() ?? string.Empty;
+                    }
+
+                    if (!File.Exists(exePath)) continue;
+
+                    found[subkeyName] = new GameItem
+                    {
+                        Name = subkeyName,
+                        ExecutablePath = exePath,
+                        InstallDir = folder,
+                        Source = "Rockstar",
+                        LocalIcon = ExtractIcon(exePath)
+                    };
+                }
+            }
+            catch { }
+        }
+
+        /// <summary>Findet Spiele der Xbox-App / des Microsoft Stores (Game Pass).</summary>
+        private static void ScanXboxGames(Dictionary<string, GameItem> found)
+        {
+            try
+            {
+                var result = RunPowerShell(XboxScript, 60000);
+                int start = result.Output.IndexOf('[');
+                int end = result.Output.LastIndexOf(']');
+                if (start < 0 || end <= start) return;
+
+                using var doc = JsonDocument.Parse(result.Output.Substring(start, end - start + 1));
+                if (doc.RootElement.ValueKind != JsonValueKind.Array) return;
+
+                foreach (var package in doc.RootElement.EnumerateArray())
+                {
+                    try
+                    {
+                        string location = GetJsonString(package, "Location");
+                        string family = GetJsonString(package, "Family");
+                        string full = GetJsonString(package, "Full");
+                        string configPath = System.IO.Path.Combine(location, "MicrosoftGame.config");
+
+                        if (location.Length == 0 || family.Length == 0 || !File.Exists(configPath)) continue;
+
+                        var config = System.Xml.Linq.XDocument.Load(configPath).Root;
+                        var visuals = config?.Element("ShellVisuals");
+                        var executable = config?.Element("ExecutableList")?.Elements("Executable").FirstOrDefault();
+
+                        string name = visuals?.Attribute("DefaultDisplayName")?.Value ?? string.Empty;
+                        if (name.Length == 0 || name.StartsWith("ms-resource:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Anzeigename steht dann im Ordnernamen (z.B. D:\XboxGames\Forza Horizon 5\Content)
+                            name = string.Equals(System.IO.Path.GetFileName(location), "Content", StringComparison.OrdinalIgnoreCase)
+                                ? new DirectoryInfo(location).Parent?.Name ?? GetJsonString(package, "Name")
+                                : GetJsonString(package, "Name");
+                        }
+                        if (name.Length == 0 || found.ContainsKey(name)) continue;
+
+                        string exeName = executable?.Attribute("Name")?.Value ?? string.Empty;
+                        string appId = executable?.Attribute("Id")?.Value ?? "Game";
+                        string exePath = exeName.Length > 0 ? System.IO.Path.Combine(location, exeName) : string.Empty;
+
+                        string fallbackCover = string.Empty;
+                        foreach (string attribute in new[] { "Square480x480Logo", "Square150x150Logo", "StoreLogo" })
+                        {
+                            string? logo = visuals?.Attribute(attribute)?.Value;
+                            if (string.IsNullOrEmpty(logo)) continue;
+
+                            string candidate = System.IO.Path.Combine(location, logo);
+                            if (File.Exists(candidate))
+                            {
+                                fallbackCover = candidate;
+                                break;
+                            }
+                        }
+
+                        found[name] = new GameItem
+                        {
+                            Name = name,
+                            ExecutablePath = exePath,
+                            InstallDir = location,
+                            LaunchUri = $"shell:AppsFolder\\{family}!{appId}",
+                            PackageFullName = full,
+                            FallbackCoverPath = fallbackCover,
+                            Source = "Xbox",
+                            LocalIcon = File.Exists(exePath) ? ExtractIcon(exePath) : null
+                        };
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+        }
+
+        // ───────────────────────────── Cover (immer in bester Auflösung) ─────────────────────────────
+
+        private static string CoverFilePath(GameItem game)
+        {
+            string safe = Regex.Replace($"{game.Source}_{game.Name}", @"[^\w\-]+", "_");
+            if (safe.Length > 100) safe = safe.Substring(0, 100);
+            return System.IO.Path.Combine(CoversDir, safe + ".jpg");
+        }
+
+        private static void AssignCachedCover(GameItem game)
+        {
+            try
+            {
+                string? cached = FindCachedCover(game);
+                if (cached != null) game.CoverPath = cached;
+            }
+            catch { }
+        }
+
+        private static string NormalizeTitle(string title)
+            => Regex.Replace(title.ToLowerInvariant(), "[^a-z0-9]", string.Empty);
+
+        /// <summary>Sucht ein Spiel im Steam-Shop und gibt die AppID zurück (leer = nicht gefunden).</summary>
+        private async Task<string> FindSteamAppIdAsync(string name)
+        {
+            lock (settings.SteamIds)
+            {
+                if (settings.SteamIds.TryGetValue(name, out int cached))
+                    return cached > 0 ? cached.ToString() : string.Empty;
+            }
+
+            string id = string.Empty;
+            try
+            {
+                string url = $"https://store.steampowered.com/api/storesearch/?term={Uri.EscapeDataString(name)}&l=german&cc=DE";
+                using var doc = JsonDocument.Parse(await Http.GetStringAsync(url));
+
+                if (doc.RootElement.TryGetProperty("items", out var items) && items.ValueKind == JsonValueKind.Array)
+                {
+                    string wanted = NormalizeTitle(name);
+                    foreach (var item in items.EnumerateArray())
+                    {
+                        if (NormalizeTitle(GetJsonString(item, "name")) != wanted) continue;
+
+                        if (item.TryGetProperty("id", out var idElement) && idElement.TryGetInt32(out int number))
+                        {
+                            id = number.ToString();
+                            break;
+                        }
+                    }
+                }
+
+                // Auch "nicht gefunden" merken, damit nicht bei jedem Start erneut gesucht wird
+                lock (settings.SteamIds)
+                {
+                    settings.SteamIds[name] = id.Length > 0 ? int.Parse(id) : -1;
+                }
+            }
+            catch
+            {
+                // Netzwerkfehler: nicht merken, beim nächsten Mal erneut versuchen
+            }
+
+            return id;
+        }
+
+        private static async Task<bool> TryDownloadAsync(IEnumerable<string> urls, string targetFile)
+        {
+            foreach (string url in urls)
+            {
+                try
+                {
+                    using var response = await Http.GetAsync(url);
+                    if (!response.IsSuccessStatusCode) continue;
+
+                    byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+                    if (bytes.Length < 1500) continue;
+
+                    await File.WriteAllBytesAsync(targetFile, bytes);
+                    return true;
+                }
+                catch { }
+            }
+            return false;
+        }
+
+        private async Task FetchCoverAsync(GameItem game)
+        {
+            string file = CoverFilePath(game);
+
+            IEnumerable<string> Allowed(IEnumerable<string> urls) =>
+                settings.FullResCovers ? urls : urls.Where(u => !u.Contains("_2x", StringComparison.Ordinal));
+
+            if (settings.OnlineFeatures)
+            {
+                var sgdb = await FindSgdbCoverAsync(game);
+                if (sgdb != null)
+                {
+                    string gridExt = GridExtension(sgdb.Value.Url);
+                    string targetExt = sgdb.Value.Animated ? (gridExt == ".png" ? ".apng" : gridExt) : ".jpg";
+                    string target = System.IO.Path.ChangeExtension(file, targetExt);
+                    if (await TryDownloadAsync(new[] { sgdb.Value.Url }, target))
+                    {
+                        RemoveOtherCoverVariants(game, target);
+                        game.CoverPath = target;
+                        return;
+                    }
+                }
+
+                if (game.CoverUrls.Count > 0 && await TryDownloadAsync(Allowed(game.CoverUrls), file))
+                {
+                    game.CoverPath = file;
+                    return;
+                }
+
+                // Nicht-Steam-Spiele: passendes Cover über den Steam-Shop finden
+                if (game.Source != "Steam")
+                {
+                    string appId = await FindSteamAppIdAsync(game.Name);
+                    if (appId.Length > 0 && await TryDownloadAsync(Allowed(SteamCoverUrls(appId)), file))
+                    {
+                        game.CoverPath = file;
+                        return;
+                    }
+                }
+            }
+
+            if (game.FallbackCoverPath.Length > 0 && File.Exists(game.FallbackCoverPath))
+                game.CoverPath = game.FallbackCoverPath;
+        }
+
+        private async Task DownloadCoversAsync(List<GameItem> games)
+        {
+            var pending = games.Where(g => string.IsNullOrEmpty(g.CoverPath)).ToList();
+            if (pending.Count == 0) return;
+
+            try { Directory.CreateDirectory(CoversDir); } catch { }
+
+            int completed = 0;
+            coversLoading = true;
+            using var gate = new System.Threading.SemaphoreSlim(4);
+
+            var tasks = pending.Select(async game =>
+            {
+                await gate.WaitAsync();
+                try
+                {
+                    await FetchCoverAsync(game);
+                }
+                catch { }
+                finally
+                {
+                    gate.Release();
+
+                    int done = System.Threading.Interlocked.Increment(ref completed);
+                    coversLoading = done < pending.Count;
+                    if (done % 8 == 0 || done == pending.Count)
+                    {
+                        await Dispatcher.InvokeAsync(() =>
+                        {
+                            ApplyFilter();
+                            RefreshDashboard();
+                        });
+                    }
+                }
+            }).ToList();
+
+            await Task.WhenAll(tasks);
+            SaveSettings();
+        }
+
+        private BitmapImage? GetCachedImage(string path)
+        {
+            string key = $"{path}|{settings.FullResCovers}|{settings.PerformanceMode}";
+            if (imageCache.TryGetValue(key, out var cached)) return cached;
+
+            try
+            {
+                if (path.EndsWith(".webp", StringComparison.OrdinalIgnoreCase))
+                {
+                    var still = DecodeStillWithImageSharp(path, settings.PerformanceMode ? 320 : settings.FullResCovers ? 0 : 600);
+                    if (still != null) imageCache[key] = still;
+                    return still;
+                }
+
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.UriSource = new Uri(path);
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                if (settings.PerformanceMode) image.DecodePixelWidth = 320;
+                else if (!settings.FullResCovers) image.DecodePixelWidth = 600;
+                image.EndInit();
+                image.Freeze();
+
+                imageCache[key] = image;
+                return image;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        // ───────────────────────────── Spiele anzeigen, starten, deinstallieren ─────────────────────────────
+
+        private void LaunchGame(GameItem game)
+        {
+            PlayUiSound("launch");
+            try
+            {
+                if (!string.IsNullOrEmpty(game.LaunchUri))
+                {
+                    Process.Start(new ProcessStartInfo(game.LaunchUri) { UseShellExecute = true });
+                }
+                else if (File.Exists(game.ExecutablePath))
+                {
+                    var startInfo = new ProcessStartInfo(game.ExecutablePath)
+                    {
+                        UseShellExecute = true,
+                        WorkingDirectory = System.IO.Path.GetDirectoryName(game.ExecutablePath) ?? string.Empty
+                    };
+                    if (!string.IsNullOrWhiteSpace(game.LaunchArgs)) startInfo.Arguments = game.LaunchArgs;
+                    if (game.RunAsAdmin) startInfo.Verb = "runas";
+                    Process.Start(startInfo);
+                }
+                else
+                {
+                    Msg($"Die Datei wurde nicht gefunden:\n{game.ExecutablePath}", "Fehler",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+            catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+            {
+                return; // Administrator-Abfrage abgebrochen
+            }
+            catch (Exception ex)
+            {
+                Msg($"Spiel konnte nicht gestartet werden:\n{ex.Message}", "Fehler",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            RegisterLaunch(game);
+        }
+
+        private void RegisterLaunch(GameItem game)
+        {
+            StartCompanions(game);
+
+            game.LastPlayed = DateTime.Now;
+            game.LaunchCount++;
+            SaveGameState(game);
+            CheckAchievements(false);
+
+            if (settings.MinimizeOnLaunch) WindowState = WindowState.Minimized;
+
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                ApplyFilter();
+                RefreshDashboard();
+            }));
+        }
+
+        private void ToggleFavorite(GameItem game)
+        {
+            game.IsFavorite = !game.IsFavorite;
+            SaveGameState(game);
+            ApplyFilter();
+            RefreshDashboard();
+        }
+
+        private void OpenGameLocation(GameItem game)
+        {
+            if (File.Exists(game.ExecutablePath))
+                OpenShell("explorer.exe", $"/select,\"{game.ExecutablePath}\"");
+            else if (Directory.Exists(game.InstallDir))
+                OpenShell(game.InstallDir);
+        }
+
+        private static (string File, string Args) SplitCommand(string command)
+        {
+            command = command.Trim();
+
+            if (command.StartsWith('"'))
+            {
+                int closing = command.IndexOf('"', 1);
+                if (closing > 0)
+                    return (command.Substring(1, closing - 1), command.Substring(closing + 1).Trim());
+            }
+
+            int exe = command.IndexOf(".exe", StringComparison.OrdinalIgnoreCase);
+            if (exe > 0)
+                return (command.Substring(0, exe + 4), command.Substring(exe + 4).Trim());
+
+            return (command, string.Empty);
+        }
+
+        /// <summary>Sucht in der Windows-Programmliste nach dem Deinstallationsprogramm eines Spiels.</summary>
+        private static string? FindUninstallCommand(GameItem game)
+        {
+            string[] subPaths =
+            {
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
+                @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"
+            };
+            string installDir = game.InstallDir.TrimEnd('\\', '/');
+
+            foreach (var hive in new[] { Registry.LocalMachine, Registry.CurrentUser })
+            {
+                foreach (string subPath in subPaths)
+                {
+                    using var root = hive.OpenSubKey(subPath);
+                    if (root == null) continue;
+
+                    foreach (string name in root.GetSubKeyNames())
+                    {
+                        using var key = root.OpenSubKey(name);
+                        if (key == null) continue;
+
+                        string uninstall = key.GetValue("UninstallString") as string ?? string.Empty;
+                        if (uninstall.Length == 0) continue;
+
+                        string display = key.GetValue("DisplayName") as string ?? string.Empty;
+                        string location = (key.GetValue("InstallLocation") as string ?? string.Empty).TrimEnd('\\', '/');
+
+                        bool nameMatch = display.Length > 0 && string.Equals(display, game.Name, StringComparison.OrdinalIgnoreCase);
+                        bool pathMatch = installDir.Length > 0 && location.Length > 0
+                                         && string.Equals(location, installDir, StringComparison.OrdinalIgnoreCase);
+
+                        if (nameMatch || pathMatch) return uninstall;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private async void UninstallGame(GameItem game)
+        {
+            var answer = Msg($"„{game.Name}“ wirklich deinstallieren?\n\nDas Spiel wird von deinem PC entfernt.",
+                "Deinstallieren", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (answer != MessageBoxResult.Yes) return;
+
+            // Vorsichtshalber den Spielstand sichern, bevor das Spiel entfernt wird
+            if (!string.IsNullOrEmpty(game.SavePath)) await BackupSavesAsync(game, true);
+
+            try
+            {
+                // Steam: Deinstallations-Dialog von Steam öffnen
+                if (game.Source == "Steam" && game.AppId.Length > 0)
+                {
+                    OpenShell($"steam://uninstall/{game.AppId}");
+                    Msg("Steam öffnet jetzt die Deinstallation.\nKlicke danach auf „Neu scannen“, um die Liste zu aktualisieren.");
+                    return;
+                }
+
+                // Xbox / Microsoft Store: Paket entfernen
+                if (game.Source == "Xbox" && game.PackageFullName.Length > 0)
+                {
+                    string script = $"$ErrorActionPreference = 'Stop'; Remove-AppxPackage -Package '{game.PackageFullName}'";
+                    var result = await Task.Run(() => RunPowerShell(script, 180000));
+
+                    if (result.ExitCode == 0)
+                    {
+                        allGames.Remove(game);
+                        ApplyFilter();
+                        RefreshDashboard();
+                        Msg($"„{game.Name}“ wurde deinstalliert.");
+                    }
+                    else
+                    {
+                        Msg("Die automatische Deinstallation hat nicht funktioniert.\nWindows öffnet jetzt die App-Verwaltung.",
+                            "Deinstallieren", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        OpenShell("ms-settings:appsfeatures");
+                    }
+                    return;
+                }
+
+                // Alle anderen: Deinstallationsprogramm aus der Windows-Programmliste
+                string? command = FindUninstallCommand(game);
+                if (command != null)
+                {
+                    var (file, args) = SplitCommand(command);
+                    Process.Start(new ProcessStartInfo(file, args) { UseShellExecute = true });
+                    Msg("Das Deinstallationsprogramm wurde gestartet.\nKlicke danach auf „Neu scannen“, um die Liste zu aktualisieren.");
+                    return;
+                }
+
+                if (game.Source == "Epic Games")
+                {
+                    OpenShell("com.epicgames.launcher://");
+                    Msg("Epic Games erlaubt keine Deinstallation von außen.\nDer Epic Games Launcher wurde geöffnet: Bibliothek → Spiel → ⋯ → Deinstallieren.");
+                    return;
+                }
+
+                Msg("Für dieses Spiel wurde kein Deinstallationsprogramm gefunden.\nWindows öffnet jetzt die App-Verwaltung.",
+                    "Deinstallieren", MessageBoxButton.OK, MessageBoxImage.Warning);
+                OpenShell("ms-settings:appsfeatures");
+            }
+            catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+            {
+                // Administrator-Abfrage abgebrochen
+            }
+            catch (Exception ex)
+            {
+                Msg($"Deinstallation fehlgeschlagen:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private static void AddMenuItem(System.Windows.Controls.ContextMenu menu, string header, Action action)
+        {
+            var item = new System.Windows.Controls.MenuItem { Header = Loc.T(header) };
+            item.Click += (s, e) => action();
+            menu.Items.Add(item);
+        }
+
+        private IEnumerable<GameItem> SortGames(IEnumerable<GameItem> games) => settings.SortMode switch
+        {
+            1 => games.OrderByDescending(g => g.LastPlayed ?? DateTime.MinValue)
+                      .ThenBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase),
+            2 => games.OrderByDescending(g => g.LaunchCount)
+                      .ThenBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase),
+            3 => games.OrderByDescending(g => g.FirstSeen ?? DateTime.MinValue)
+                      .ThenBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase),
+            4 => games.OrderByDescending(g => g.Rating)
+                      .ThenByDescending(g => g.PlaySeconds)
+                      .ThenBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase),
+            5 => games.OrderByDescending(g => g.PlaySeconds)
+                      .ThenBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase),
+            _ => games.OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase)
+        };
+
+        private void ApplyFilter()
+        {
+            if (GamesContainer == null || TxtSearch == null || TxtGameCount == null || BtnSort == null) return;
+
+            bool showHidden = currentFilter == "hidden";
+            IEnumerable<GameItem> query = allGames.Where(g => g.Hidden == showHidden);
+            int baseCount = allGames.Count(g => g.Hidden == showHidden);
+
+            if (currentFilter == "fav")
+                query = query.Where(g => g.IsFavorite);
+            else if (currentFilter == "new")
+                query = query.Where(IsNewGame);
+            else if (currentFilter == "unplayed")
+                query = query.Where(g => g.PlaySeconds < 60 && g.LaunchCount == 0);
+            else if (currentFilter.StartsWith("col:"))
+                query = query.Where(g => g.Collections.Contains(currentFilter.Substring(4)));
+            else if (currentFilter != "all" && currentFilter != "hidden")
+                query = query.Where(g => g.Source == currentFilter);
+
+            if (genreFilter.Length > 0)
+                query = query.Where(g => GameHasGenre(g, genreFilter));
+
+            string text = TxtSearch.Text == SearchPlaceholder ? string.Empty : TxtSearch.Text.Trim();
+            if (text.Length > 0)
+                query = query.Where(g => g.Name.Contains(text, StringComparison.OrdinalIgnoreCase));
+
+            var sorted = SortGames(query);
+            if (settings.FavoritesFirst) sorted = sorted.OrderByDescending(g => g.IsFavorite);
+            var visible = sorted.ToList();
+
+            BtnSort.Content = $"Sortierung: {SortLabels[Math.Clamp(settings.SortMode, 0, SortLabels.Length - 1)]}";
+            TxtGameCount.Text = visible.Count == baseCount
+                ? $"{baseCount} Spiele"
+                : $"{visible.Count} von {baseCount} Spielen";
+
+            DisplayGames(visible);
+        }
+
+        private void RemoveManualGame(GameItem game)
+        {
+            settings.ManualGames.RemoveAll(m =>
+                string.Equals(m.ExecutablePath, game.ExecutablePath, StringComparison.OrdinalIgnoreCase));
+            SaveSettings();
+
+            allGames.Remove(game);
+            ApplyFilter();
+            RefreshDashboard();
+        }
+
+        private void BtnAddGame_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Ausführbare Dateien (*.exe)|*.exe",
+                Title = "Spiel-Anwendung auswählen"
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            string exePath = dialog.FileName;
+
+            if (allGames.Any(g => string.Equals(g.ExecutablePath, exePath, StringComparison.OrdinalIgnoreCase)))
+            {
+                Msg("Dieses Spiel ist bereits in der Liste.");
+                return;
+            }
+
+            string name = System.IO.Path.GetFileNameWithoutExtension(exePath);
+
+            settings.ManualGames.Add(new ManualGame { Name = name, ExecutablePath = exePath });
+            SaveSettings();
+
+            var game = new GameItem
+            {
+                Name = name,
+                ExecutablePath = exePath,
+                Source = "Manuell",
+                LocalIcon = ExtractIcon(exePath)
+            };
+            AssignCachedCover(game);
+            ApplyGameStates(new[] { game });
+            allGames.Add(game);
+
+            ApplyFilter();
+            RefreshDashboard();
+
+            _ = DownloadCoversAsync(new List<GameItem> { game });
+        }
+
+        private async void BtnRescanGames_Click(object sender, RoutedEventArgs e)
+        {
+            if (isScanning) return;
+
+            imageCache.Clear();
+
+            await LoadInstalledGamesAsync();
+            Msg($"Spiele-Scan abgeschlossen!\n{allGames.Count} Spiele gefunden.");
+        }
+
+        private void BtnSort_Click(object sender, RoutedEventArgs e)
+        {
+            settings.SortMode = (settings.SortMode + 1) % SortLabels.Length;
+            SaveSettings();
+            playCardEntrance = true;
+            ApplyFilter();
+        }
+
+        private void Filter_Checked(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.RadioButton { Tag: string tag })
+            {
+                currentFilter = tag;
+                playCardEntrance = true;
+                ApplyFilter();
+            }
+        }
+
+        private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e) => ApplyFilter();
+
+        private void TxtSearch_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (TxtSearch.Text == SearchPlaceholder) TxtSearch.Text = string.Empty;
+        }
+
+        private void TxtSearch_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(TxtSearch.Text)) TxtSearch.Text = SearchPlaceholder;
+        }
+
+        private const string GuidPattern = @"[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}";
+        private const string HighPerformancePlan = "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c";
+
+        private static readonly (string Name, string Bg, string Accent)[] ThemePresets =
+        {
+            ("Dunkel", "#0F111A", "#8B5CF6"),
+            ("Pechschwarz", "#000000", "#A78BFA"),
+            ("Cyberpunk", "#0D0221", "#FF2E97"),
+            ("Wald", "#0A1411", "#34D399"),
+            ("Ozean", "#07121F", "#38BDF8"),
+            ("Sonnenuntergang", "#17100F", "#FB923C"),
+            ("Rosé", "#150D14", "#F472B6"),
+            ("Blutrot", "#120709", "#EF4444")
+        };
+
+        private static readonly (string Icon, string Title, string Key)[] PageEntries =
+        {
+            ("🏠", "Dashboard", "dashboard"),
+            ("🎮", "Spiele", "games"),
+            ("📈", "Statistik", "stats"),
+            ("🎁", "Angebote", "deals"),
+            ("📋", "Backlog und Planer", "backlog"),
+            ("🖼", "Galerie", "gallery"),
+            ("🧩", "Anwendungen", "apps"),
+            ("🔗", "Schnellzugriff", "links"),
+            ("💝", "Wunschliste", "wishlist"),
+            ("⬇", "Downloads", "downloads"),
+            ("📊", "Systemüberwachung", "system"),
+            ("💾", "Speicher", "storage"),
+            ("⚡", "Optimierung", "optimization"),
+            ("🛠", "Tools", "tools"),
+            ("⚙", "Einstellungen", "settings")
+        };
+
+        private bool playCardEntrance;
+        private bool coversLoading;
+        private bool exitRequested;
+        private bool trayHintShown;
+        private string loadedBackgroundPath = string.Empty;
+
+        private (string Icon, string Title, string Text, string Target)[] toolEntries =
+            Array.Empty<(string Icon, string Title, string Text, string Target)>();
+        private List<AppEntry> cachedApps = new();
+        private List<GameItem> visibleGames = new();
+
+        // Weiche Ring-Animation
+        private readonly DispatcherTimer ringTimer = new();
+        private readonly double[] ringTarget = new double[3];
+        private readonly double[] ringShown = new double[3];
+        private bool gpuAvailable;
+        private MetricsSample? lastSample;
+        private DateTime lastSampleTime = DateTime.MinValue;
+
+        // Spielzeit
+        private readonly DispatcherTimer playTimer = new();
+        private readonly Dictionary<GameItem, int> activeSessions = new();
+        private readonly Dictionary<GameItem, DateTime> sessionStart = new();
+        private int playSaveCounter;
+        private bool profileActive;
+
+        // Mini-Overlay
+        private Window? overlayWindow;
+        private TextBlock? overlayGameText;
+        private TextBlock? overlayStatsText;
+        private DateTime overlayTestUntil = DateTime.MinValue;
+
+        // Controller-Modus
+        private readonly DispatcherTimer controllerTimer = new();
+        private bool controllerMode;
+        private int controllerIndex;
+        private int controllerSkip;
+        private ushort lastButtons;
+        private WindowState savedWindowState = WindowState.Normal;
+        private WindowStyle savedWindowStyle = WindowStyle.SingleBorderWindow;
+
+        // Spotlight-Suche
+        private readonly List<SpotlightEntry> spotlightEntries = new();
+        private int spotlightIndex;
+
+        // Infobereich
+        private Forms.NotifyIcon? trayIcon;
+
+        private void InitFeatures()
+        {
+            try { Icon = BitmapFrame.Create(CreateLogoBitmap(64)); } catch { }
+
+            BuildThemePresets();
+            BuildCollectionChips();
+
+            ringTimer.Interval = TimeSpan.FromMilliseconds(30);
+            ringTimer.Tick += (s, e) => RingTick();
+            ringTimer.Start();
+
+            playTimer.Interval = TimeSpan.FromSeconds(10);
+            playTimer.Tick += async (s, e) => await PlaytimeTickAsync();
+            playTimer.Start();
+
+            controllerTimer.Interval = TimeSpan.FromMilliseconds(60);
+            controllerTimer.Tick += (s, e) => ControllerTick();
+            controllerTimer.Start();
+
+            SourceInitialized += (s, e) => ApplyWindowEffects();
+            PreviewKeyDown += MainWindow_PreviewKeyDown;
+            Closing += OnClosingFeatures;
+            Closed += (s, e) =>
+            {
+                trayIcon?.Dispose();
+                overlayWindow?.Close();
+            };
+            Loaded += (s, e) =>
+            {
+                SetupTray();
+                ApplyAppearance();
+
+                if (settings.StartMinimized)
+                {
+                    if (settings.MinimizeToTray && trayIcon != null) HideToTray();
+                    else WindowState = WindowState.Minimized;
+                }
+            };
+        }
+
+        // ───────────────────────────── Hilfsfunktionen ─────────────────────────────
+
+        private static System.Windows.Media.Color ParseColor(string? hex, string fallback)
+        {
+            try
+            {
+                return (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(hex ?? fallback);
+            }
+            catch
+            {
+                return (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(fallback);
+            }
+        }
+
+        private static SolidColorBrush MakeAlphaBrush(string? hex, byte alpha)
+        {
+            var color = ParseColor(hex, "#0F111A");
+            var brush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(alpha, color.R, color.G, color.B));
+            brush.Freeze();
+            return brush;
+        }
+
+        private System.Windows.Media.Color GetAccentColor()
+            => Resources["AccentBrush"] is SolidColorBrush brush ? brush.Color : ParseColor(settings.AccentColor, "#8B5CF6");
+
+        private static string FormatPlaytime(long seconds)
+        {
+            if (seconds < 60) return seconds <= 0 ? "0 Min." : "< 1 Min.";
+
+            double minutes = seconds / 60.0;
+            if (minutes < 60) return $"{minutes:F0} Min.";
+
+            double hours = minutes / 60.0;
+            return hours < 100 ? $"{hours:F1} Std." : $"{hours:F0} Std.";
+        }
+
+        private static string FormatPlaytimeLong(long seconds)
+        {
+            long hours = seconds / 3600;
+            long minutes = seconds % 3600 / 60;
+            return hours > 0 ? $"{hours} Std. {minutes} Min." : $"{minutes} Min.";
+        }
+
+        private static bool HasCover(GameItem game)
+            => !string.IsNullOrEmpty(EffectiveCover(game)) && File.Exists(EffectiveCover(game));
+
+        /// <summary>Einfache Animation von einem Wert zum anderen (mit sanftem Auslaufen).</summary>
+        private void Tween(double from, double to, int durationMs, Action<double> apply, Action? done = null)
+        {
+            var start = DateTime.UtcNow;
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
+            timer.Tick += (s, e) =>
+            {
+                double t = Math.Min(1.0, (DateTime.UtcNow - start).TotalMilliseconds / durationMs);
+                double eased = 1 - Math.Pow(1 - t, 3);
+                apply(from + (to - from) * eased);
+
+                if (t >= 1.0)
+                {
+                    timer.Stop();
+                    done?.Invoke();
+                }
+            };
+            timer.Start();
+        }
+
+        private void CountUp(TextBlock block, int target)
+        {
+            if (!settings.PageAnimations || target <= 0)
+            {
+                block.Text = target.ToString();
+                return;
+            }
+
+            Tween(0, target, 650, value => block.Text = ((int)Math.Round(value)).ToString(), () => block.Text = target.ToString());
+        }
+
+        private BitmapSource CreateLogoBitmap(int size)
+        {
+            var logo = (FrameworkElement)FindResource("DfpLogo");
+            logo.Width = size;
+            logo.Height = size;
+            logo.Measure(new System.Windows.Size(size, size));
+            logo.Arrange(new Rect(0, 0, size, size));
+            logo.UpdateLayout();
+
+            var bitmap = new RenderTargetBitmap(size, size, 96, 96, PixelFormats.Pbgra32);
+            bitmap.Render(logo);
+            bitmap.Freeze();
+            return bitmap;
+        }
+
+        private static System.Drawing.Icon BitmapSourceToIcon(BitmapSource source)
+        {
+            using var stream = new MemoryStream();
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(source));
+            encoder.Save(stream);
+            stream.Position = 0;
+
+            using var bitmap = new System.Drawing.Bitmap(stream);
+            IntPtr handle = bitmap.GetHicon();
+            using var temporary = System.Drawing.Icon.FromHandle(handle);
+            return (System.Drawing.Icon)temporary.Clone();
+        }
+
+        // ───────────────────────────── Navigation & Seitenübergänge ─────────────────────────────
+
+        private void ShowView(FrameworkElement activeView)
+        {
+            var views = new FrameworkElement[]
+            {
+                ViewDashboard, ViewGames, ViewStats, ViewApps, ViewLinks, ViewWishlist, ViewDownloads, ViewSystem,
+                ViewStorage, ViewOptimization, ViewTools, ViewSettings, ViewDeals, ViewBacklog, ViewGallery
+            };
+
+            foreach (var view in views)
+                view.Visibility = Visibility.Collapsed;
+
+            activeView.Visibility = Visibility.Visible;
+            AnimateIn(activeView);
+        }
+
+        private void AnimateIn(FrameworkElement view)
+        {
+            if (!settings.PageAnimations)
+            {
+                view.BeginAnimation(UIElement.OpacityProperty, null);
+                view.Opacity = 1;
+                view.RenderTransform = System.Windows.Media.Transform.Identity;
+                return;
+            }
+
+            var slide = new TranslateTransform(0, 18);
+            view.RenderTransform = slide;
+            view.Opacity = 0;
+
+            view.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(260)));
+            slide.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(18, 0, TimeSpan.FromMilliseconds(340))
+            {
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            });
+        }
+
+        private void NavGames_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(ViewGames);
+            playCardEntrance = true;
+            ApplyFilter();
+        }
+
+        private void NavStats_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(ViewStats);
+            RefreshStats(true);
+        }
+
+        private void NavigateTo(string key)
+        {
+            var args = new RoutedEventArgs();
+
+            switch (key)
+            {
+                case "dashboard": NavDashboardBtn.IsChecked = true; NavDashboard_Click(this, args); break;
+                case "games": NavGamesBtn.IsChecked = true; NavGames_Click(this, args); break;
+                case "stats": NavStatsBtn.IsChecked = true; NavStats_Click(this, args); break;
+                case "apps": NavAppsBtn.IsChecked = true; NavApps_Click(this, args); break;
+                case "links": NavLinksBtn.IsChecked = true; NavLinks_Click(this, args); break;
+                case "wishlist": NavWishBtn.IsChecked = true; NavWishlist_Click(this, args); break;
+                case "downloads": NavDownloadsBtn.IsChecked = true; NavDownloads_Click(this, args); break;
+                case "system": NavSystemBtn.IsChecked = true; NavSystem_Click(this, args); break;
+                case "storage": NavStorageBtn.IsChecked = true; NavStorage_Click(this, args); break;
+                case "optimization": NavOptimizationBtn.IsChecked = true; NavOptimization_Click(this, args); break;
+                case "tools": NavToolsBtn.IsChecked = true; NavTools_Click(this, args); break;
+                case "deals": NavDealsBtn.IsChecked = true; NavDeals_Click(this, args); break;
+                case "backlog": NavBacklogBtn.IsChecked = true; NavBacklog_Click(this, args); break;
+                case "gallery": NavGalleryBtn.IsChecked = true; NavGallery_Click(this, args); break;
+                case "settings": NavSettingsBtn.IsChecked = true; NavSettings_Click(this, args); break;
+            }
+        }
+
+        // ───────────────────────────── Aussehen: Theme, Hintergrund, Sidebar ─────────────────────────────
+
+        private static bool SupportsGlass() => Environment.OSVersion.Version.Build >= 22621;
+
+        private bool HasBackgroundImage()
+            => !string.IsNullOrEmpty(settings.BackgroundImagePath) && File.Exists(settings.BackgroundImagePath);
+
+        private void ApplyTheme()
+        {
+            ApplySurfaceBrushes();
+            bool glass = settings.GlassEffect && SupportsGlass();
+            bool translucent = glass || HasBackgroundImage();
+
+            Resources["AppBackgroundBrush"] = glass
+                ? MakeAlphaBrush(EffectiveBackground(), 0xC8)
+                : MakeBrush(EffectiveBackground(), "#0F111A");
+            Resources["AccentBrush"] = MakeBrush(settings.AccentColor, "#8B5CF6");
+            Resources["SidebarBrush"] = MakeAlphaBrush(settings.OledMode ? "#000000" : "#0B0E16", translucent ? (byte)0xD2 : (byte)0xFF);
+
+            if (BackgroundGlow != null) ApplyGlowBackground();
+        }
+
+        private void ApplyAppearance()
+        {
+            ApplyTheme();
+            ApplyBackgroundImage();
+            ApplyGlowBackground();
+            ApplySidebar(false);
+            ApplyNavVisibility();
+            ApplyWindowEffects();
+            RegisterGlobalHotkey();
+            ApplyPixelShift();
+
+            if (trayIcon != null) trayIcon.Visible = settings.ShowTrayIcon || settings.MinimizeToTray;
+        }
+
+        private void ApplyBackgroundImage()
+        {
+            if (!HasBackgroundImage())
+            {
+                BackgroundImage.Source = null;
+                BackgroundImage.Visibility = Visibility.Collapsed;
+                BackgroundDim.Visibility = Visibility.Collapsed;
+                loadedBackgroundPath = string.Empty;
+                return;
+            }
+
+            if (loadedBackgroundPath != settings.BackgroundImagePath)
+            {
+                try
+                {
+                    var image = new BitmapImage();
+                    image.BeginInit();
+                    image.UriSource = new Uri(settings.BackgroundImagePath);
+                    image.CacheOption = BitmapCacheOption.OnLoad;
+                    image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                    image.DecodePixelWidth = 1920;
+                    image.EndInit();
+                    image.Freeze();
+
+                    BackgroundImage.Source = image;
+                    loadedBackgroundPath = settings.BackgroundImagePath;
+                }
+                catch
+                {
+                    BackgroundImage.Source = null;
+                    loadedBackgroundPath = string.Empty;
+                }
+            }
+
+            BackgroundImage.Visibility = Visibility.Visible;
+            BackgroundImage.Margin = new Thickness(-settings.BgBlur);
+            BackgroundImage.Effect = settings.BgBlur > 0
+                ? new System.Windows.Media.Effects.BlurEffect { Radius = settings.BgBlur }
+                : null;
+
+            BackgroundDim.Visibility = Visibility.Visible;
+            BackgroundDim.Opacity = settings.BgDim / 100.0;
+        }
+
+        private void ApplyGlowBackground()
+        {
+            if (!settings.AnimatedBackground)
+            {
+                BackgroundGlow.Visibility = Visibility.Collapsed;
+                BackgroundGlow.Background = null;
+                return;
+            }
+
+            var accent = GetAccentColor();
+            var brush = new RadialGradientBrush
+            {
+                RadiusX = 0.75,
+                RadiusY = 0.75,
+                Center = new System.Windows.Point(0.25, 0.3),
+                GradientOrigin = new System.Windows.Point(0.25, 0.3)
+            };
+            brush.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x3C, accent.R, accent.G, accent.B), 0));
+            brush.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, accent.R, accent.G, accent.B), 1));
+
+            BackgroundGlow.Background = brush;
+            BackgroundGlow.Visibility = Visibility.Visible;
+
+            var move = new PointAnimation(new System.Windows.Point(0.2, 0.25), new System.Windows.Point(0.85, 0.75), TimeSpan.FromSeconds(16))
+            {
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever,
+                EasingFunction = new SineEase()
+            };
+            brush.BeginAnimation(RadialGradientBrush.CenterProperty, move);
+            brush.BeginAnimation(RadialGradientBrush.GradientOriginProperty, move);
+        }
+
+        private void ApplyWindowEffects()
+        {
+            IntPtr hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+            if (hwnd == IntPtr.Zero) return;
+
+            try
+            {
+                int dark = 1;
+                NativeFeatures.DwmSetWindowAttribute(hwnd, 20, ref dark, sizeof(int)); // dunkle Titelleiste
+
+                bool glass = settings.GlassEffect && SupportsGlass();
+                int backdrop = glass ? 2 : 1; // 2 = Mica, 1 = aus
+                NativeFeatures.DwmSetWindowAttribute(hwnd, 38, ref backdrop, sizeof(int));
+
+                var source = System.Windows.Interop.HwndSource.FromHwnd(hwnd);
+                if (source?.CompositionTarget != null)
+                {
+                    source.CompositionTarget.BackgroundColor = glass
+                        ? System.Windows.Media.Colors.Transparent
+                        : System.Windows.SystemColors.WindowColor;
+                }
+
+                var margins = glass
+                    ? new NativeFeatures.Margins { Left = -1, Right = -1, Top = -1, Bottom = -1 }
+                    : new NativeFeatures.Margins();
+                NativeFeatures.DwmExtendFrameIntoClientArea(hwnd, ref margins);
+            }
+            catch { }
+        }
+
+        private void ApplySidebar(bool animate)
+        {
+            bool collapsed = settings.SidebarCollapsed;
+            double target = controllerMode ? 0 : collapsed ? 90 : settings.SidebarWidth;
+            var textVisibility = collapsed ? Visibility.Collapsed : Visibility.Visible;
+
+            BrandText.Visibility = textVisibility;
+            UserCard.Visibility = textVisibility;
+            SidebarFooterText.Visibility = textVisibility;
+            SidebarCredit.Visibility = textVisibility;
+            ApplyBrand();
+            BtnSidebar.Content = collapsed ? "»" : "«";
+
+            foreach (var item in NavPanel.Children.OfType<System.Windows.Controls.RadioButton>())
+            {
+                if (item.Content is StackPanel panel && panel.Children.Count > 1)
+                {
+                    panel.Children[1].Visibility = textVisibility;
+                    item.ToolTip = collapsed && panel.Children[1] is TextBlock label ? label.Text : null;
+                }
+            }
+
+            if (animate && settings.PageAnimations)
+                Tween(ColSidebar.Width.Value, target, 240, value => ColSidebar.Width = new GridLength(value));
+            else
+                ColSidebar.Width = new GridLength(target);
+        }
+
+        private void BtnSidebar_Click(object sender, RoutedEventArgs e)
+        {
+            settings.SidebarCollapsed = !settings.SidebarCollapsed;
+            SaveSettings();
+            ApplySidebar(true);
+        }
+
+        private void BuildThemePresets()
+        {
+            ThemePresetsPanel.Children.Clear();
+
+            foreach (var preset in ThemePresets)
+            {
+                var swatch = new Border
+                {
+                    Width = 26,
+                    Height = 26,
+                    CornerRadius = new CornerRadius(13),
+                    BorderBrush = BrushCardBorder,
+                    BorderThickness = new Thickness(1),
+                    Background = new LinearGradientBrush(ParseColor(preset.Bg, "#0F111A"), ParseColor(preset.Accent, "#8B5CF6"), 45)
+                };
+
+                var content = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
+                content.Children.Add(swatch);
+                content.Children.Add(new TextBlock
+                {
+                    Text = preset.Name,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                    Margin = new Thickness(10, 0, 0, 0)
+                });
+
+                var button = new System.Windows.Controls.Button
+                {
+                    Content = content,
+                    Background = MakeBrush("#1F2937"),
+                    Margin = new Thickness(0, 0, 8, 8),
+                    Padding = new Thickness(12, 8, 14, 8)
+                };
+
+                string bg = preset.Bg;
+                string accent = preset.Accent;
+                button.Click += (s, e) =>
+                {
+                    settings.BackgroundColor = bg;
+                    settings.AccentColor = accent;
+                    SaveSettings();
+                    ApplyTheme();
+                };
+
+                ThemePresetsPanel.Children.Add(button);
+            }
+        }
+
+        private void BtnPickBgImage_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Bilder (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp",
+                Title = "Hintergrundbild wählen"
+            };
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                Directory.CreateDirectory(SettingsDir);
+                string target = System.IO.Path.Combine(SettingsDir, "background" + System.IO.Path.GetExtension(dialog.FileName).ToLowerInvariant());
+                File.Copy(dialog.FileName, target, true);
+
+                settings.BackgroundImagePath = target;
+                loadedBackgroundPath = string.Empty;
+                SaveSettings();
+                ApplyViewSettings();
+            }
+            catch (Exception ex)
+            {
+                Msg($"Das Bild konnte nicht geladen werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnClearBgImage_Click(object sender, RoutedEventArgs e)
+        {
+            settings.BackgroundImagePath = string.Empty;
+            loadedBackgroundPath = string.Empty;
+            SaveSettings();
+            ApplyViewSettings();
+        }
+
+        // ───────────────────────────── Einstellungen (neue Optionen) ─────────────────────────────
+
+        private void PopulateFeatureSettings()
+        {
+            SliderBgDim.Value = settings.BgDim;
+            SliderBgBlur.Value = settings.BgBlur;
+
+            ChkPageAnim.IsChecked = settings.PageAnimations;
+            ChkCardAnim.IsChecked = settings.CardAnimations;
+            ChkSmooth.IsChecked = settings.SmoothMetrics;
+            ChkGlow.IsChecked = settings.HoverGlow;
+            ChkAnimBg.IsChecked = settings.AnimatedBackground;
+            ChkGlass.IsChecked = settings.GlassEffect;
+            ChkHero.IsChecked = settings.ShowHero;
+
+            ChipLayoutCards.IsChecked = settings.CardLayout != "detail" && settings.CardLayout != "list";
+            ChipLayoutDetail.IsChecked = settings.CardLayout == "detail";
+            ChipLayoutList.IsChecked = settings.CardLayout == "list";
+
+
+            ChkTrack.IsChecked = settings.TrackPlaytime;
+            ChkProfile.IsChecked = settings.GamingProfile;
+            ChkOverlay.IsChecked = settings.ShowOverlay;
+            ChipOv0.IsChecked = settings.OverlayCorner == 0;
+            ChipOv1.IsChecked = settings.OverlayCorner == 1;
+            ChipOv2.IsChecked = settings.OverlayCorner == 2;
+            ChipOv3.IsChecked = settings.OverlayCorner == 3;
+            ChkController.IsChecked = settings.ControllerSupport;
+            ChkTray.IsChecked = settings.MinimizeToTray;
+            ChkStartMin.IsChecked = settings.StartMinimized;
+        }
+
+        private void ReadFeatureSettings()
+        {
+            settings.BgDim = (int)Math.Round(SliderBgDim.Value);
+            settings.BgBlur = (int)Math.Round(SliderBgBlur.Value);
+
+            settings.PageAnimations = ChkPageAnim.IsChecked == true;
+            settings.CardAnimations = ChkCardAnim.IsChecked == true;
+            settings.SmoothMetrics = ChkSmooth.IsChecked == true;
+            settings.HoverGlow = ChkGlow.IsChecked == true;
+            settings.AnimatedBackground = ChkAnimBg.IsChecked == true;
+            settings.GlassEffect = ChkGlass.IsChecked == true;
+            settings.ShowHero = ChkHero.IsChecked == true;
+
+            settings.CardLayout = ChipLayoutList.IsChecked == true ? "list"
+                                : ChipLayoutDetail.IsChecked == true ? "detail"
+                                : "cards";
+
+
+            settings.TrackPlaytime = ChkTrack.IsChecked == true;
+            settings.GamingProfile = ChkProfile.IsChecked == true;
+            settings.ShowOverlay = ChkOverlay.IsChecked == true;
+            settings.OverlayCorner = ChipOv0.IsChecked == true ? 0
+                                   : ChipOv2.IsChecked == true ? 2
+                                   : ChipOv3.IsChecked == true ? 3
+                                   : 1;
+            settings.ControllerSupport = ChkController.IsChecked == true;
+            settings.MinimizeToTray = ChkTray.IsChecked == true;
+            settings.StartMinimized = ChkStartMin.IsChecked == true;
+        }
+
+        private void UpdateFeatureSliderLabels()
+        {
+            TxtBgDimValue.Text = $"{settings.BgDim} %";
+            TxtBgBlurValue.Text = $"{settings.BgBlur} px";
+        }
+
+        private void BtnTestOverlay_Click(object sender, RoutedEventArgs e)
+        {
+            overlayTestUntil = DateTime.Now.AddSeconds(8);
+            UpdateOverlayVisibility();
+
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(8.5) };
+            timer.Tick += (s, args) =>
+            {
+                timer.Stop();
+                UpdateOverlayVisibility();
+            };
+            timer.Start();
+        }
+
+        private void BtnExportSettings_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                FileName = "DFP_Pro_Launcher_Einstellungen.json",
+                Filter = "Einstellungen (*.json)|*.json"
+            };
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                SaveSettings();
+                File.Copy(SettingsFilePath, dialog.FileName, true);
+                Msg("Die Einstellungen wurden gesichert.");
+            }
+            catch (Exception ex)
+            {
+                Msg($"Sichern fehlgeschlagen:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnImportSettings_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = "Einstellungen (*.json)|*.json",
+                Title = "Einstellungen laden"
+            };
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                var check = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(dialog.FileName));
+                if (check == null) throw new InvalidDataException("Die Datei enthält keine gültigen Einstellungen.");
+
+                Directory.CreateDirectory(SettingsDir);
+                File.Copy(dialog.FileName, SettingsFilePath, true);
+                Msg("Die Einstellungen wurden geladen.\nBitte starte den Launcher neu, damit alles übernommen wird.");
+            }
+            catch (Exception ex)
+            {
+                Msg($"Laden fehlgeschlagen:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void SaveLogoIcon(string path)
+        {
+            var bitmap = CreateLogoBitmap(256);
+            using var png = new MemoryStream();
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(bitmap));
+            encoder.Save(png);
+            byte[] data = png.ToArray();
+
+            using var file = File.Create(path);
+            using var writer = new BinaryWriter(file);
+            writer.Write((ushort)0);          // reserviert
+            writer.Write((ushort)1);          // Typ: Symbol
+            writer.Write((ushort)1);          // Anzahl Bilder
+            writer.Write((byte)0);            // Breite 256
+            writer.Write((byte)0);            // Höhe 256
+            writer.Write((byte)0);            // Farben
+            writer.Write((byte)0);            // reserviert
+            writer.Write((ushort)1);          // Ebenen
+            writer.Write((ushort)32);         // Bits pro Pixel
+            writer.Write((uint)data.Length);  // Größe
+            writer.Write((uint)22);           // Startposition der Bilddaten
+            writer.Write(data);
+        }
+
+        private void BtnExportLogo_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                FileName = "DFP_Pro_Launcher.ico",
+                Filter = "Symbol (*.ico)|*.ico"
+            };
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                SaveLogoIcon(dialog.FileName);
+                Msg("Das Logo wurde als Symbol gespeichert.");
+            }
+            catch (Exception ex)
+            {
+                Msg($"Speichern fehlgeschlagen:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnCreateShortcut_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string? exe = Environment.ProcessPath;
+                if (string.IsNullOrEmpty(exe)) throw new InvalidOperationException("Der Programmpfad ist unbekannt.");
+
+                Directory.CreateDirectory(SettingsDir);
+                string icon = System.IO.Path.Combine(SettingsDir, "DFP_Pro_Launcher.ico");
+                SaveLogoIcon(icon);
+
+                string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                string link = System.IO.Path.Combine(desktop, "DFP Pro Launcher.lnk");
+
+                Type? shellType = Type.GetTypeFromProgID("WScript.Shell");
+                if (shellType == null) throw new InvalidOperationException("Windows-Skripthost nicht verfügbar.");
+
+                dynamic shell = Activator.CreateInstance(shellType)!;
+                dynamic shortcut = shell.CreateShortcut(link);
+                shortcut.TargetPath = exe;
+                shortcut.WorkingDirectory = System.IO.Path.GetDirectoryName(exe);
+                shortcut.IconLocation = icon;
+                shortcut.Description = "DFP Pro Launcher";
+                shortcut.Save();
+
+                Msg("Die Verknüpfung mit deinem Logo wurde auf dem Desktop erstellt.");
+            }
+            catch (Exception ex)
+            {
+                Msg($"Verknüpfung fehlgeschlagen:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ───────────────────────────── Spielstatus speichern ─────────────────────────────
+
+        private void ApplyGameStates(IEnumerable<GameItem> games)
+        {
+            foreach (var game in games)
+            {
+                if (!settings.GameStates.TryGetValue(game.Name, out var state))
+                {
+                    // Neu installierte Spiele merken (beim allerersten Scan nicht, sonst wäre alles "neu")
+                    if (settings.InitialScanDone)
+                    {
+                        game.FirstSeen = DateTime.Now;
+                        CopyStateToSettings(game);
+                    }
+                    continue;
+                }
+
+                game.IsFavorite = state.IsFavorite;
+                game.LastPlayed = state.LastPlayed;
+                game.LaunchCount = state.LaunchCount;
+                game.PlaySeconds = state.PlaySeconds;
+                game.Rating = state.Rating;
+                game.Notes = state.Notes ?? string.Empty;
+                game.Collections = state.Collections ?? new List<string>();
+                game.FirstSeen = state.FirstSeen;
+                game.Status = state.Status ?? string.Empty;
+                game.SavePath = state.SavePath ?? string.Empty;
+                game.LaunchArgs = state.LaunchArgs ?? string.Empty;
+                game.RunAsAdmin = state.RunAsAdmin;
+                game.CompanionApps = state.CompanionApps ?? new List<string>();
+                game.Hidden = state.Hidden;
+                game.CustomCover = state.CustomCover ?? string.Empty;
+                game.Price = state.Price;
+                game.ProfileMode = state.ProfileMode ?? "global";
+                game.CloseMode = state.CloseMode ?? "global";
+                game.ModPath = state.ModPath ?? string.Empty;
+            }
+        }
+
+        private void CopyStateToSettings(GameItem game)
+        {
+            if (!settings.GameStates.TryGetValue(game.Name, out var state))
+            {
+                state = new GameState();
+                settings.GameStates[game.Name] = state;
+            }
+
+            state.IsFavorite = game.IsFavorite;
+            state.LastPlayed = game.LastPlayed;
+            state.LaunchCount = game.LaunchCount;
+            state.PlaySeconds = game.PlaySeconds;
+            state.Rating = game.Rating;
+            state.Notes = game.Notes;
+            state.Collections = game.Collections.ToList();
+            state.FirstSeen = game.FirstSeen;
+            state.Status = game.Status;
+            state.SavePath = game.SavePath;
+            state.LaunchArgs = game.LaunchArgs;
+            state.RunAsAdmin = game.RunAsAdmin;
+            state.CompanionApps = game.CompanionApps.ToList();
+            state.Hidden = game.Hidden;
+            state.CustomCover = game.CustomCover;
+            state.Price = game.Price;
+            state.ProfileMode = game.ProfileMode;
+            state.CloseMode = game.CloseMode;
+            state.ModPath = game.ModPath;
+        }
+
+        private void SaveGameState(GameItem game)
+        {
+            CopyStateToSettings(game);
+            SaveSettings();
+        }
+
+        // ───────────────────────────── Dashboard ─────────────────────────────
+
+        private void RefreshDashboardCore(bool animate = false)
+        {
+            if (TxtGreeting == null || RecentContainer == null) return;
+
+            bool play = animate && settings.PageAnimations;
+
+            TxtGreeting.Text = $"{GetGreeting()}, {DisplayUserName()}";
+            TxtDate.Text = DateTime.Now.ToString("D", GermanCulture);
+
+            int favoriteCount = VisibleGames.Count(g => g.IsFavorite);
+            if (play)
+            {
+                CountUp(TxtStatGames, VisibleGames.Count());
+                CountUp(TxtStatFavs, favoriteCount);
+            }
+            else
+            {
+                TxtStatGames.Text = VisibleGames.Count().ToString();
+                TxtStatFavs.Text = favoriteCount.ToString();
+            }
+            TxtStatPlaytime.Text = FormatPlaytime(VisibleGames.Where(g => !IsTrackingIgnored(g)).Sum(g => g.PlaySeconds));
+
+            var played = VisibleGames
+                .Where(g => g.LastPlayed.HasValue)
+                .OrderByDescending(g => g.LastPlayed)
+                .ToList();
+
+            TxtStatLast.Text = played.Count > 0 ? played[0].Name : "–";
+
+            var favorites = VisibleGames
+                .Where(g => g.IsFavorite)
+                .OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase)
+                .Take(settings.RecentCount)
+                .ToList();
+
+            BuildHero(played.FirstOrDefault() ?? favorites.FirstOrDefault(), play);
+
+            RecentContainer.Children.Clear();
+            RecentContainer.Margin = new Thickness(-settings.CardSpacing, 0, 0, 12);
+            int index = 0;
+            foreach (var game in played.Take(settings.RecentCount))
+                RecentContainer.Children.Add(CreateGameCard(game, 180, play ? index++ : -1));
+            TxtRecentEmpty.Visibility = played.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+            FavoritesContainer.Children.Clear();
+            FavoritesContainer.Margin = new Thickness(-settings.CardSpacing, 0, 0, 12);
+            index = 0;
+            foreach (var game in favorites)
+                FavoritesContainer.Children.Add(CreateGameCard(game, 180, play ? index++ : -1));
+            FavSection.Visibility = settings.ShowFavorites && favorites.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void BuildHero(GameItem? game, bool animate)
+        {
+            if (!settings.ShowHero || game == null)
+            {
+                HeroHost.Content = null;
+                HeroHost.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            HeroHost.Visibility = Visibility.Visible;
+            BitmapImage? cover = HasCover(game) ? GetCachedImage(EffectiveCover(game)) : null;
+            var themeColor = ParseColor(settings.BackgroundColor, "#0F111A");
+
+            var hero = new Border
+            {
+                Height = 240,
+                CornerRadius = new CornerRadius(18),
+                BorderBrush = BrushCardBorder,
+                BorderThickness = new Thickness(1),
+                Background = BrushCardBg
+            };
+
+            var wide = GetHeroImage(game);
+            if (wide == null) _ = EnsureHeroAsync(game);
+            var backdrop = wide ?? cover;
+            if (backdrop != null)
+            {
+                hero.Background = new ImageBrush(backdrop)
+                {
+                    Stretch = Stretch.UniformToFill,
+                    AlignmentY = wide != null ? AlignmentY.Center : AlignmentY.Top,
+                    Opacity = 0.55
+                };
+            }
+
+            var shade = new LinearGradientBrush
+            {
+                StartPoint = new System.Windows.Point(0, 0),
+                EndPoint = new System.Windows.Point(1, 0)
+            };
+            shade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xF5, themeColor.R, themeColor.G, themeColor.B), 0.0));
+            shade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xB0, themeColor.R, themeColor.G, themeColor.B), 0.55));
+            shade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x30, themeColor.R, themeColor.G, themeColor.B), 1.0));
+
+            var layout = new Grid { Background = shade };
+            layout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            var poster = new Border
+            {
+                Width = 126,
+                Height = 189,
+                Margin = new Thickness(26, 0, 24, 0),
+                CornerRadius = new CornerRadius(12),
+                Background = BrushCardBg,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center
+            };
+            if (cover != null)
+                poster.Background = new ImageBrush(cover) { Stretch = Stretch.UniformToFill };
+            else
+                poster.Child = new TextBlock
+                {
+                    Text = game.Name.Length > 0 ? game.Name.Substring(0, 1).ToUpperInvariant() : "?",
+                    FontSize = 54,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = BrushPlaceholder,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center
+                };
+            layout.Children.Add(poster);
+
+            var texts = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(0, 0, 26, 0) };
+            Grid.SetColumn(texts, 1);
+
+            var label = new TextBlock { Text = "WEITERSPIELEN", FontSize = 12, FontWeight = FontWeights.SemiBold };
+            label.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
+            texts.Children.Add(label);
+
+            texts.Children.Add(new TextBlock
+            {
+                Text = game.Name,
+                FontSize = 30,
+                FontWeight = FontWeights.Bold,
+                Foreground = System.Windows.Media.Brushes.White,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                Margin = new Thickness(0, 4, 0, 4)
+            });
+
+            var meta = new List<string> { game.Source };
+            if (game.PlaySeconds >= 60 && !SHide(settings.StreamHideStats)) meta.Add(FormatPlaytime(game.PlaySeconds) + " gespielt");
+            if (game.LastPlayed.HasValue) meta.Add("zuletzt " + FormatRelative(game.LastPlayed.Value));
+            texts.Children.Add(new TextBlock
+            {
+                Text = string.Join("  ·  ", meta),
+                Foreground = MakeBrush("#D1D5DB"),
+                FontSize = 13,
+                Margin = new Thickness(0, 0, 0, 18)
+            });
+
+            var buttons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
+            var play = new System.Windows.Controls.Button { Content = "▶  Weiterspielen", Padding = new Thickness(22, 11, 22, 11), Margin = new Thickness(0, 0, 10, 0) };
+            play.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            play.Click += (s, e) => LaunchGame(game);
+            var details = new System.Windows.Controls.Button { Content = "Details", Padding = new Thickness(18, 11, 18, 11) };
+            details.Click += (s, e) => ShowGameDetails(game);
+            buttons.Children.Add(play);
+            buttons.Children.Add(details);
+            texts.Children.Add(buttons);
+            layout.Children.Add(texts);
+
+            hero.Child = layout;
+            HeroHost.Content = hero;
+
+            if (animate)
+            {
+                hero.Opacity = 0;
+                hero.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(420)));
+            }
+        }
+
+        private void BtnSpotlight_Click(object sender, RoutedEventArgs e) => OpenSpotlight();
+        private void BtnController_Click(object sender, RoutedEventArgs e) => ToggleControllerMode();
+
+        // ───────────────────────────── Systemüberwachung (weich animiert) ─────────────────────────────
+
+        private MetricsSample SampleMetrics()
+        {
+            // Zähler nur selten abfragen, damit sich Dashboard, Ansicht und Overlay nicht gegenseitig stören
+            if (lastSample != null && (DateTime.Now - lastSampleTime).TotalMilliseconds < 400)
+                return lastSample;
+
+            var sample = new MetricsSample();
+
+            try
+            {
+                sample.Cpu = Math.Min(100f, cpuCounter?.NextValue() ?? 0f);
+                float cpuPerf = cpuFreqCounter?.NextValue() ?? 100f;
+                sample.Mhz = baseCpuMhz > 0 ? baseCpuMhz * cpuPerf / 100.0 : 0;
+
+                if (ramCounter != null && totalRamMB > 0)
+                {
+                    sample.UsedMb = Math.Max(0, totalRamMB - ramCounter.NextValue());
+                    sample.Ram = Math.Min(100, sample.UsedMb / totalRamMB * 100.0);
+                }
+
+                if (gpuRefreshCountdown-- <= 0)
+                {
+                    RefreshGpuCounters();
+                    gpuRefreshCountdown = 5;
+                }
+
+                var perEngine = new Dictionary<string, double>();
+                foreach (var pair in gpuCounters)
+                {
+                    try
+                    {
+                        int idx = pair.Key.IndexOf("_luid_", StringComparison.OrdinalIgnoreCase);
+                        string engine = idx >= 0 ? pair.Key.Substring(idx) : pair.Key;
+                        perEngine.TryGetValue(engine, out double current);
+                        perEngine[engine] = current + pair.Value.NextValue();
+                    }
+                    catch { }
+                }
+
+                sample.HasGpu = gpuCounters.Count > 0;
+                sample.Gpu = perEngine.Count > 0 ? Math.Min(100, perEngine.Values.Max()) : 0;
+            }
+            catch { }
+
+            lastSample = sample;
+            lastSampleTime = DateTime.Now;
+            return sample;
+        }
+
+        private void UpdateSystemMetrics()
+        {
+            bool onSystem = ViewSystem.Visibility == Visibility.Visible;
+            bool onDashboard = ViewDashboard.Visibility == Visibility.Visible;
+            bool overlayActive = overlayWindow != null && overlayWindow.IsVisible;
+            if (!overlayActive && (!IsVisible || WindowState == WindowState.Minimized)) return;
+
+            // Nur messen, wenn man es auch sieht – spart Ressourcen während des Spielens.
+            if (!onSystem && !onDashboard && !overlayActive) return;
+
+            var m = SampleMetrics();
+
+            if (onDashboard)
+            {
+                TxtMiniCpu.Text = $"CPU {m.Cpu:F0}%";
+                TxtMiniRam.Text = $"RAM {m.Ram:F0}%";
+                TxtMiniGpu.Text = m.HasGpu ? $"GPU {m.Gpu:F0}%" : "GPU –";
+            }
+
+            if (overlayActive) UpdateOverlayContent(m);
+
+            if (!onSystem) return;
+
+            gpuAvailable = m.HasGpu;
+            ringTarget[0] = m.Cpu;
+            ringTarget[1] = m.Ram;
+            ringTarget[2] = m.Gpu;
+
+            if (!settings.SmoothMetrics)
+            {
+                for (int i = 0; i < 3; i++) ringShown[i] = ringTarget[i];
+                ApplyRings();
+            }
+
+            TxtCpuSub.Text = m.Mhz > 0 ? $"{m.Mhz:F0} MHz" : "Auslastung";
+            TxtRamSub.Text = totalRamMB > 0 ? $"{m.UsedMb / 1024.0:F1} / {totalRamMB / 1024.0:F0} GB" : "Auslastung";
+            TxtGpuSub.Text = m.HasGpu ? "3D-Last" : "nicht verfügbar";
+
+            AddHistory(cpuHistory, m.Cpu);
+            AddHistory(ramHistory, m.Ram);
+            AddHistory(gpuHistory, m.Gpu);
+
+            if (settings.ShowSparklines)
+            {
+                UpdateSparkline(CanvasCpu, PolyCpu, cpuHistory);
+                UpdateSparkline(CanvasRam, PolyRam, ramHistory);
+                UpdateSparkline(CanvasGpu, PolyGpu, gpuHistory);
+            }
+        }
+
+        private void RingTick()
+        {
+            if (ViewSystem.Visibility != Visibility.Visible) return;
+
+            bool changed = false;
+            for (int i = 0; i < 3; i++)
+            {
+                double diff = ringTarget[i] - ringShown[i];
+                if (Math.Abs(diff) < 0.05)
+                {
+                    if (ringShown[i] != ringTarget[i])
+                    {
+                        ringShown[i] = ringTarget[i];
+                        changed = true;
+                    }
+                    continue;
+                }
+
+                ringShown[i] += diff * (settings.SmoothMetrics ? 0.12 : 1.0);
+                changed = true;
+            }
+
+            if (changed) ApplyRings();
+        }
+
+        private void ApplyRings()
+        {
+            TxtCpuPercent.Text = $"{ringShown[0]:F0}%";
+            SetArc(ArcCpu, ringShown[0]);
+            ArcCpu.Stroke = LoadBrush(ringShown[0], BrushCpu);
+
+            TxtRamPercent.Text = $"{ringShown[1]:F0}%";
+            SetArc(ArcRam, ringShown[1]);
+            ArcRam.Stroke = LoadBrush(ringShown[1], BrushRam);
+
+            TxtGpuPercent.Text = gpuAvailable ? $"{ringShown[2]:F0}%" : "–";
+            SetArc(ArcGpu, gpuAvailable ? ringShown[2] : 0);
+            ArcGpu.Stroke = LoadBrush(ringShown[2], BrushGpu);
+        }
+
+        // ───────────────────────────── Spielkarten, Detailkarten & Liste ─────────────────────────────
+
+        private void PlayEntrance(UIElement element, ScaleTransform? scale, int index)
+        {
+            if (index < 0 || !settings.CardAnimations) return;
+
+            var delay = TimeSpan.FromMilliseconds(Math.Min(index, 20) * 35);
+            element.Opacity = 0;
+            element.BeginAnimation(UIElement.OpacityProperty,
+                new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(280)) { BeginTime = delay });
+
+            if (scale == null) return;
+
+            scale.ScaleX = 0.92;
+            scale.ScaleY = 0.92;
+            var pop = new DoubleAnimation(0.92, 1.0, TimeSpan.FromMilliseconds(320))
+            {
+                BeginTime = delay,
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            scale.BeginAnimation(ScaleTransform.ScaleXProperty, pop);
+            scale.BeginAnimation(ScaleTransform.ScaleYProperty, pop);
+        }
+
+        private UIElement CreateShimmer()
+        {
+            var move = new TranslateTransform(-1, 0);
+            var brush = new LinearGradientBrush
+            {
+                StartPoint = new System.Windows.Point(0, 0),
+                EndPoint = new System.Windows.Point(1, 0),
+                RelativeTransform = move
+            };
+            brush.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0, 255, 255, 255), 0.0));
+            brush.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(42, 255, 255, 255), 0.5));
+            brush.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0, 255, 255, 255), 1.0));
+
+            move.BeginAnimation(TranslateTransform.XProperty,
+                new DoubleAnimation(-1, 1, TimeSpan.FromSeconds(1.4)) { RepeatBehavior = RepeatBehavior.Forever });
+
+            return new Border { Background = brush, IsHitTestVisible = false };
+        }
+
+        private string BuildMetaText(GameItem game)
+        {
+            if (game.PlaySeconds >= 60 && !SHide(settings.StreamHideStats)) return $"{game.Source}  ·  {FormatPlaytime(game.PlaySeconds)}";
+            if (game.LastPlayed.HasValue) return $"{game.Source}  ·  {FormatRelative(game.LastPlayed.Value)}";
+            return game.Source;
+        }
+
+        private System.Windows.Controls.ContextMenu BuildGameMenu(GameItem game)
+        {
+            var menu = CreateMenu();
+
+            AddMenuItem(menu, "▶  Spielen", () => LaunchGame(game));
+            AddMenuItem(menu, game.IsFavorite ? "★  Aus Favoriten entfernen" : "☆  Zu Favoriten hinzufügen", () => ToggleFavorite(game));
+            AddMenuItem(menu, "📝  Details, Bewertung und Notizen ...", () => ShowGameDetails(game));
+
+            var collections = new System.Windows.Controls.MenuItem { Header = Loc.T("📁  Sammlungen") };
+            foreach (string name in settings.CollectionNames)
+            {
+                string collection = name;
+                var item = new System.Windows.Controls.MenuItem
+                {
+                    Header = collection,
+                    IsCheckable = true,
+                    IsChecked = game.Collections.Contains(collection)
+                };
+                item.Click += (s, e) => ToggleCollection(game, collection);
+                collections.Items.Add(item);
+            }
+            if (settings.CollectionNames.Count > 0) collections.Items.Add(new System.Windows.Controls.Separator());
+
+            var create = new System.Windows.Controls.MenuItem { Header = Loc.T("＋  Neue Sammlung ...") };
+            create.Click += (s, e) => CreateCollectionFor(game);
+            collections.Items.Add(create);
+            menu.Items.Add(collections);
+
+            var statusMenu = new System.Windows.Controls.MenuItem { Header = Loc.T("📋  Status (Backlog)") };
+            foreach (var (statusKey, statusTitle) in StatusOptions)
+            {
+                string key = statusKey;
+                var statusItem = new System.Windows.Controls.MenuItem { Header = Loc.T(statusTitle), IsCheckable = true, IsChecked = game.Status == key };
+                statusItem.Click += (s, e) => SetStatus(game, game.Status == key ? string.Empty : key);
+                statusMenu.Items.Add(statusItem);
+            }
+            menu.Items.Add(statusMenu);
+
+            var saves = new System.Windows.Controls.MenuItem { Header = Loc.T("💾  Spielstände") };
+            AddSubItem(saves, "Jetzt sichern", () => _ = BackupNowAsync(game));
+            AddSubItem(saves, "Wiederherstellen ...", () => ShowRestoreDialog(game));
+            AddSubItem(saves, "Spielstand-Ordner festlegen ...", () => ChooseSavePath(game));
+            menu.Items.Add(saves);
+
+            AddMenuItem(menu, "⚙  Startoptionen und Begleitprogramme ...", () => ShowLaunchOptions(game));
+
+            if (!string.IsNullOrEmpty(game.InstallDir) || File.Exists(game.ExecutablePath))
+                AddMenuItem(menu, "📂  Speicherort öffnen", () => OpenGameLocation(game));
+            AddMenuItem(menu, "🖼  Eigenes Cover festlegen ...", () => ChooseCustomCover(game));
+            if (!string.IsNullOrEmpty(game.CustomCover))
+                AddMenuItem(menu, "↺  Cover zurücksetzen", () => ResetCustomCover(game));
+            AddMenuItem(menu, game.Hidden ? "👁  Wieder anzeigen" : "🙈  Verstecken", () => ToggleHidden(game));
+            AddMenuItem(menu, IsTrackingIgnored(game) && !BuiltInIgnored.Any(p => game.Name.Contains(p, StringComparison.OrdinalIgnoreCase)) && game.AppId != "431960"
+                ? "⏱  Spielzeit wieder erfassen" : "⏱  Spielzeit nicht erfassen", () => ToggleTrackingIgnored(game));
+            AddMenuItem(menu, "⏱  Spielzeit bearbeiten ...", () => EditPlaytime(game));
+            AddMenuItem(menu, "💶  Kaufpreis eintragen ...", () => EditPrice(game));
+            AddMenuItem(menu, "⚙  Spielprofil ...", () => ShowGameProfile(game));
+            if (modFolders.TryGetValue(game.Name, out var modFolderPath))
+                AddMenuItem(menu, "🧩  Mod-Ordner öffnen", () => OpenShell(modFolderPath));
+            AddMenuItem(menu, "🧩  Mod-Ordner festlegen ...", () => PickModFolder(game));
+            if (!string.IsNullOrEmpty(game.ModPath))
+                AddMenuItem(menu, "↺  Mod-Ordner zurücksetzen", () => ResetModFolder(game));
+            AddMenuItem(menu, "🗑  Deinstallieren ...", () => UninstallGame(game));
+            if (game.Source == "Manuell")
+                AddMenuItem(menu, "✖  Aus Liste entfernen", () => RemoveManualGame(game));
+
+            return menu;
+        }
+
+        private void DisplayGames(List<GameItem> games)
+        {
+            if (GamesListContainer == null) return;
+
+            bool animate = playCardEntrance && settings.CardAnimations;
+            playCardEntrance = false;
+
+            string layout = controllerMode ? "cards" : settings.CardLayout;
+            visibleGames = games;
+            UpdateAlphaBar();
+
+            GamesContainer.Children.Clear();
+            GamesListContainer.Children.Clear();
+            GamesContainer.Margin = new Thickness(-settings.CardSpacing, 0, 0, 0);
+
+            if (games.Count == 0)
+            {
+                GamesContainer.Visibility = Visibility.Visible;
+                GamesListContainer.Visibility = Visibility.Collapsed;
+                GamesContainer.Children.Add(new TextBlock
+                {
+                    Text = allGames.Count == 0 && !isScanning
+                        ? "Noch keine Spiele gefunden. Füge Spiele mit „Spiel hinzufügen“ hinzu oder starte einen neuen Scan."
+                        : "Keine Treffer.",
+                    Foreground = BrushSubtle,
+                    Margin = new Thickness(12, 8, 0, 0)
+                });
+                return;
+            }
+
+            GamesContainer.Visibility = layout == "list" ? Visibility.Collapsed : Visibility.Visible;
+            GamesListContainer.Visibility = layout == "list" ? Visibility.Visible : Visibility.Collapsed;
+
+            double width = controllerMode ? Math.Max(settings.CardWidth, 240) : settings.CardWidth;
+            int index = 0;
+
+            foreach (var game in games)
+            {
+                int anim = animate ? index : -1;
+
+                if (layout == "list")
+                    GamesListContainer.Children.Add(CreateGameRow(game, true, anim));
+                else if (layout == "detail")
+                    GamesContainer.Children.Add(CreateGameRow(game, false, anim));
+                else
+                    GamesContainer.Children.Add(CreateGameCard(game, width, anim));
+
+                index++;
+            }
+
+            if (controllerMode) HighlightControllerSelection();
+        }
+
+        private Border CreateGameCard(GameItem game, double width, int animIndex = -1)
+        {
+            double height = Math.Round(width * settings.CardAspect / 100.0);
+            double radius = settings.CardCorner;
+            double zoom = settings.HoverZoom / 100.0;
+            var scale = new ScaleTransform(1.0, 1.0);
+
+            // Äußerer Rahmen: trägt Zoom, Leuchtrand und Rechtsklick-Menü
+            var outer = new Border
+            {
+                Width = width,
+                Height = height,
+                Margin = new Thickness(settings.CardSpacing),
+                CornerRadius = new CornerRadius(radius),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                RenderTransformOrigin = new System.Windows.Point(0.5, 0.5),
+                RenderTransform = scale,
+                ContextMenu = BuildGameMenu(game),
+                ToolTip = !string.IsNullOrEmpty(game.InstallDir) ? game.InstallDir
+                        : !string.IsNullOrEmpty(game.ExecutablePath) ? game.ExecutablePath
+                        : game.Name
+            };
+
+            // Innere Karte: abgerundet zugeschnitten
+            var card = new Border
+            {
+                Background = BrushCardBg,
+                CornerRadius = new CornerRadius(radius),
+                Clip = new RectangleGeometry(new Rect(0, 0, width, height), radius, radius)
+            };
+            outer.Child = card;
+
+            var grid = new Grid();
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            // ── Bildbereich ──
+            var imageArea = new Grid();
+
+            imageArea.Children.Add(new TextBlock
+            {
+                Text = game.Name.Length > 0 ? game.Name.Substring(0, 1).ToUpperInvariant() : "?",
+                FontSize = width * 0.3,
+                FontWeight = FontWeights.Bold,
+                Foreground = BrushPlaceholder,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center
+            });
+
+            BitmapImage? cover = HasCover(game) ? GetCachedImage(EffectiveCover(game)) : null;
+
+            if (cover != null)
+            {
+                bool isLogo = EffectiveCover(game) == game.FallbackCoverPath;   // kleine Xbox-Logos nicht abschneiden
+                var coverImage = new System.Windows.Controls.Image
+                {
+                    Source = cover,
+                    Stretch = isLogo ? Stretch.Uniform : Stretch.UniformToFill,
+                    Margin = isLogo ? new Thickness(width * 0.12) : new Thickness(0)
+                };
+                RenderOptions.SetBitmapScalingMode(coverImage, BitmapScalingMode.HighQuality);
+                imageArea.Children.Add(coverImage);
+                if (IsAnimatedCover(EffectiveCover(game))) AttachGif(coverImage, outer, EffectiveCover(game));
+            }
+            else
+            {
+                if (game.LocalIcon != null)
+                {
+                    imageArea.Children.Add(new System.Windows.Controls.Image
+                    {
+                        Source = game.LocalIcon,
+                        Stretch = Stretch.Uniform,
+                        Margin = new Thickness(width * 0.16)
+                    });
+                }
+
+                if (coversLoading && settings.OnlineFeatures && settings.CardAnimations)
+                    imageArea.Children.Add(CreateShimmer());
+            }
+
+            // Favoriten-Stern (oben rechts)
+            var star = new Border
+            {
+                Width = 30,
+                Height = 30,
+                CornerRadius = new CornerRadius(15),
+                Background = BrushOverlay,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+                VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                Margin = new Thickness(8),
+                Opacity = game.IsFavorite ? 1 : 0,
+                Cursor = System.Windows.Input.Cursors.Hand,
+                Child = new TextBlock
+                {
+                    Text = game.IsFavorite ? "★" : "☆",
+                    FontSize = 17,
+                    Foreground = game.IsFavorite ? BrushGold : System.Windows.Media.Brushes.White,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                    Margin = new Thickness(0, -1, 0, 0)
+                }
+            };
+            star.MouseLeftButtonDown += (s, e) =>
+            {
+                e.Handled = true; // nicht gleichzeitig das Spiel starten
+                Dispatcher.BeginInvoke(new Action(() => ToggleFavorite(game)));
+            };
+            imageArea.Children.Add(star);
+
+            // Abzeichen oben links: "NEU" und Backlog-Status
+            var badges = new StackPanel
+            {
+                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                Margin = new Thickness(8)
+            };
+            if (IsNewGame(game)) badges.Children.Add(CreateBadge("NEU", true));
+            if (game.Status.Length > 0) badges.Children.Add(CreateBadge(StatusIcon(game.Status), false));
+            if (badges.Children.Count > 0) imageArea.Children.Add(badges);
+
+            // "Spielen"-Button (erscheint beim Hover)
+            var playButton = new System.Windows.Controls.Button
+            {
+                Content = "▶ SPIELEN",
+                Width = Math.Round(width * 0.6),
+                Height = 38,
+                Foreground = System.Windows.Media.Brushes.White,
+                FontWeight = FontWeights.Bold,
+                FontSize = 13,
+                Opacity = 0,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center
+            };
+            playButton.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            imageArea.Children.Add(playButton);
+
+            Grid.SetRow(imageArea, 0);
+            grid.Children.Add(imageArea);
+
+            // ── Fußzeile: Name + Quelle ──
+            var footerPanel = new StackPanel();
+            if (settings.ShowCardNames)
+            {
+                footerPanel.Children.Add(new TextBlock
+                {
+                    Text = game.Name,
+                    Foreground = System.Windows.Media.Brushes.White,
+                    FontWeight = FontWeights.SemiBold,
+                    FontSize = 13,
+                    TextAlignment = TextAlignment.Center,
+                    TextTrimming = TextTrimming.CharacterEllipsis
+                });
+            }
+            if (settings.ShowCardSource)
+            {
+                footerPanel.Children.Add(new TextBlock
+                {
+                    Text = BuildMetaText(game),
+                    Foreground = BrushSubtle,
+                    FontSize = 11,
+                    TextAlignment = TextAlignment.Center,
+                    TextTrimming = TextTrimming.CharacterEllipsis,
+                    Margin = new Thickness(0, settings.ShowCardNames ? 2 : 0, 0, 0)
+                });
+            }
+
+            var footer = new Border
+            {
+                Background = BrushFooter,
+                Padding = new Thickness(10, 8, 10, 8),
+                Child = footerPanel,
+                Visibility = footerPanel.Children.Count > 0 ? Visibility.Visible : Visibility.Collapsed
+            };
+            Grid.SetRow(footer, 1);
+            grid.Children.Add(footer);
+
+            card.Child = grid;
+
+            // ── Einblend-Animation ──
+            PlayEntrance(outer, scale, animIndex);
+
+            // ── Hover ──
+            outer.MouseEnter += (s, e) =>
+            {
+                if (settings.HoverAnimations)
+                {
+                    scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(zoom, TimeSpan.FromMilliseconds(150)));
+                    scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(zoom, TimeSpan.FromMilliseconds(150)));
+                }
+                if (settings.HoverGlow)
+                {
+                    outer.Effect = new System.Windows.Media.Effects.DropShadowEffect
+                    {
+                        Color = GetAccentColor(),
+                        BlurRadius = 30,
+                        ShadowDepth = 0,
+                        Opacity = 0.75
+                    };
+                }
+                playButton.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(1.0, TimeSpan.FromMilliseconds(150)));
+                if (!game.IsFavorite)
+                    star.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(1.0, TimeSpan.FromMilliseconds(150)));
+            };
+
+            outer.MouseLeave += (s, e) =>
+            {
+                if (settings.HoverAnimations)
+                {
+                    scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(1.0, TimeSpan.FromMilliseconds(150)));
+                    scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(1.0, TimeSpan.FromMilliseconds(150)));
+                }
+                if (!controllerMode) outer.Effect = null;
+                playButton.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0.0, TimeSpan.FromMilliseconds(150)));
+                if (!game.IsFavorite)
+                    star.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0.0, TimeSpan.FromMilliseconds(150)));
+            };
+
+            // ── Starten ──
+            outer.MouseLeftButtonDown += (s, e) =>
+            {
+                if (!settings.DoubleClickLaunch || e.ClickCount >= 2) LaunchGame(game);
+            };
+            HookCoverDrop(outer, game);
+            AddModButton(imageArea, outer, game);
+            playButton.Click += (s, e) =>
+            {
+                e.Handled = true;
+                LaunchGame(game);
+            };
+
+            return outer;
+        }
+
+        /// <summary>Breite Detailkarte (compact = false) oder schlanke Listenzeile (compact = true).</summary>
+        private Border CreateGameRow(GameItem game, bool compact, int animIndex)
+        {
+            double radius = Math.Min(settings.CardCorner, compact ? 12 : 18);
+            double height = compact ? 70 : 150;
+            double coverWidth = compact ? 42 : 100;
+            double coverHeight = height - 16;
+
+            var row = new Border
+            {
+                Height = height,
+                Width = compact ? double.NaN : 430,
+                Margin = compact ? new Thickness(0, 0, 0, 8) : new Thickness(12, 0, 0, 12),
+                Padding = new Thickness(8),
+                Background = BrushCardBg,
+                BorderBrush = BrushCardBorder,
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(radius),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                ContextMenu = BuildGameMenu(game)
+            };
+
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            // Cover
+            var coverBox = new Border
+            {
+                Width = coverWidth,
+                Height = coverHeight,
+                CornerRadius = new CornerRadius(8),
+                Background = BrushFooter,
+                Margin = new Thickness(0, 0, 14, 0),
+                Clip = new RectangleGeometry(new Rect(0, 0, coverWidth, coverHeight), 8, 8)
+            };
+            BitmapImage? cover = HasCover(game) ? GetCachedImage(EffectiveCover(game)) : null;
+            if (cover != null)
+            {
+                bool isLogo = EffectiveCover(game) == game.FallbackCoverPath;
+                var image = new System.Windows.Controls.Image
+                {
+                    Source = cover,
+                    Stretch = isLogo ? Stretch.Uniform : Stretch.UniformToFill
+                };
+                RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+                coverBox.Child = image;
+                if (IsAnimatedCover(EffectiveCover(game))) AttachGif(image, row, EffectiveCover(game));
+            }
+            else
+            {
+                coverBox.Child = new TextBlock
+                {
+                    Text = game.Name.Length > 0 ? game.Name.Substring(0, 1).ToUpperInvariant() : "?",
+                    FontSize = compact ? 20 : 34,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = BrushPlaceholder,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center
+                };
+            }
+            grid.Children.Add(coverBox);
+
+            // Infos
+            var info = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center };
+            Grid.SetColumn(info, 1);
+            info.Children.Add(new TextBlock
+            {
+                Text = game.Name,
+                Foreground = System.Windows.Media.Brushes.White,
+                FontWeight = FontWeights.SemiBold,
+                FontSize = compact ? 15 : 17,
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+            info.Children.Add(new TextBlock
+            {
+                Text = BuildMetaText(game),
+                Foreground = BrushSubtle,
+                FontSize = 12,
+                Margin = new Thickness(0, 3, 0, 0),
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+
+            if (!compact)
+            {
+                if (game.Rating > 0)
+                {
+                    info.Children.Add(new TextBlock
+                    {
+                        Text = new string('★', game.Rating) + new string('☆', 5 - game.Rating),
+                        Foreground = BrushGold,
+                        FontSize = 14,
+                        Margin = new Thickness(0, 6, 0, 0)
+                    });
+                }
+                if (game.LastPlayed.HasValue)
+                {
+                    info.Children.Add(new TextBlock
+                    {
+                        Text = "Zuletzt gespielt " + FormatRelative(game.LastPlayed.Value),
+                        Foreground = BrushSubtle,
+                        FontSize = 12,
+                        Margin = new Thickness(0, 6, 0, 0)
+                    });
+                }
+                if (game.Collections.Count > 0)
+                {
+                    info.Children.Add(new TextBlock
+                    {
+                        Text = "📁 " + string.Join(", ", game.Collections),
+                        Foreground = BrushSubtle,
+                        FontSize = 12,
+                        Margin = new Thickness(0, 4, 0, 0),
+                        TextTrimming = TextTrimming.CharacterEllipsis
+                    });
+                }
+            }
+            grid.Children.Add(info);
+
+            // Aktionen
+            var actions = new StackPanel
+            {
+                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                Margin = new Thickness(10, 0, 6, 0)
+            };
+            Grid.SetColumn(actions, 2);
+
+            var starText = new TextBlock
+            {
+                Text = game.IsFavorite ? "★" : "☆",
+                FontSize = 22,
+                Foreground = game.IsFavorite ? BrushGold : BrushSubtle,
+                Cursor = System.Windows.Input.Cursors.Hand,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                Margin = new Thickness(0, 0, 14, 0)
+            };
+            starText.MouseLeftButtonDown += (s, e) =>
+            {
+                e.Handled = true;
+                Dispatcher.BeginInvoke(new Action(() => ToggleFavorite(game)));
+            };
+            actions.Children.Add(starText);
+
+            var play = new System.Windows.Controls.Button { Content = "▶  Spielen", Padding = new Thickness(16, 8, 16, 8) };
+            play.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            play.Click += (s, e) =>
+            {
+                e.Handled = true;
+                LaunchGame(game);
+            };
+            actions.Children.Add(play);
+            grid.Children.Add(actions);
+
+            row.Child = grid;
+
+            PlayEntrance(row, null, animIndex);
+
+            row.MouseEnter += (s, e) => row.Background = BrushTileHover;
+            row.MouseLeave += (s, e) => row.Background = BrushCardBg;
+            row.MouseLeftButtonDown += (s, e) =>
+            {
+                if (!settings.DoubleClickLaunch || e.ClickCount >= 2) LaunchGame(game);
+            };
+            HookCoverDrop(row, game);
+
+            return row;
+        }
+
+        // ───────────────────────────── Sammlungen, Bewertung & Notizen ─────────────────────────────
+
+        private void BuildCollectionChips()
+        {
+            foreach (var chip in FilterChips.Children.OfType<System.Windows.Controls.RadioButton>()
+                         .Where(c => c.Tag is string tag && tag.StartsWith("col:")).ToList())
+            {
+                FilterChips.Children.Remove(chip);
+            }
+
+            foreach (string name in settings.CollectionNames)
+            {
+                string collection = name;
+                var chip = new System.Windows.Controls.RadioButton
+                {
+                    Content = "📁 " + collection,
+                    Tag = "col:" + collection,
+                    GroupName = "Filter",
+                    Style = (Style)FindResource("ChipStyle")
+                };
+                chip.Checked += Filter_Checked;
+
+                var menu = CreateMenu();
+                AddMenuItem(menu, "🗑  Sammlung löschen", () => DeleteCollection(collection));
+                chip.ContextMenu = menu;
+
+                FilterChips.Children.Add(chip);
+            }
+        }
+
+        private void ToggleCollection(GameItem game, string collection)
+        {
+            if (!game.Collections.Remove(collection)) game.Collections.Add(collection);
+            SaveGameState(game);
+            ApplyFilter();
+        }
+
+        private void CreateCollectionFor(GameItem game)
+        {
+            string? name = PromptText("Neue Sammlung", "Name der Sammlung (zum Beispiel „Backlog“ oder „Koop“):", string.Empty);
+            if (name == null) return;
+
+            if (!settings.CollectionNames.Contains(name, StringComparer.OrdinalIgnoreCase))
+            {
+                settings.CollectionNames.Add(name);
+                BuildCollectionChips();
+            }
+
+            string existing = settings.CollectionNames.First(n => string.Equals(n, name, StringComparison.OrdinalIgnoreCase));
+            if (!game.Collections.Contains(existing)) game.Collections.Add(existing);
+            SaveGameState(game);
+            ApplyFilter();
+        }
+
+        private void DeleteCollection(string name)
+        {
+            var answer = Msg($"Die Sammlung „{name}“ löschen?\nDie Spiele selbst bleiben erhalten.", "Sammlung löschen",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (answer != MessageBoxResult.Yes) return;
+
+            settings.CollectionNames.Remove(name);
+            foreach (var game in allGames)
+            {
+                if (game.Collections.Remove(name)) CopyStateToSettings(game);
+            }
+            SaveSettings();
+
+            if (currentFilter == "col:" + name)
+            {
+                currentFilter = "all";
+                var all = FilterChips.Children.OfType<System.Windows.Controls.RadioButton>().FirstOrDefault(c => c.Tag as string == "all");
+                if (all != null) all.IsChecked = true;
+            }
+
+            BuildCollectionChips();
+            ApplyFilter();
+        }
+
+        private Window CreateDialog(string title, double width, out StackPanel panel)
+        {
+            panel = new StackPanel { Margin = new Thickness(24) };
+
+            var dialog = new Window
+            {
+                Title = title,
+                Width = width,
+                SizeToContent = SizeToContent.Height,
+                Owner = IsVisible ? this : null,
+                WindowStartupLocation = IsVisible ? WindowStartupLocation.CenterOwner : WindowStartupLocation.CenterScreen,
+                ResizeMode = ResizeMode.NoResize,
+                ShowInTaskbar = false,
+                Content = panel
+            };
+            dialog.Resources.MergedDictionaries.Add(Resources);
+            dialog.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AppBackgroundBrush");
+            dialog.SourceInitialized += (s, e) =>
+            {
+                TranslateTree(dialog);
+                dialog.Title = Loc.T(dialog.Title);
+
+                IntPtr handle = new System.Windows.Interop.WindowInteropHelper(dialog).Handle;
+                int dark = 1;
+                NativeFeatures.DwmSetWindowAttribute(handle, 20, ref dark, sizeof(int));
+            };
+
+            return dialog;
+        }
+
+        private string? PromptText(string title, string label, string initial)
+        {
+            var dialog = CreateDialog(title, 460, out var panel);
+
+            panel.Children.Add(new TextBlock { Text = label, Foreground = BrushSubtle, TextWrapping = TextWrapping.Wrap });
+
+            var input = new System.Windows.Controls.TextBox { Text = initial, Height = 38, Margin = new Thickness(0, 10, 0, 18) };
+            panel.Children.Add(input);
+
+            string? result = null;
+            var buttons = new StackPanel
+            {
+                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right
+            };
+            var cancel = new System.Windows.Controls.Button { Content = "Abbrechen", Margin = new Thickness(0, 0, 10, 0), IsCancel = true };
+            var ok = new System.Windows.Controls.Button { Content = "OK", Padding = new Thickness(28, 8, 28, 8), IsDefault = true };
+            ok.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            ok.Click += (s, e) =>
+            {
+                result = input.Text.Trim();
+                dialog.DialogResult = true;
+            };
+            buttons.Children.Add(cancel);
+            buttons.Children.Add(ok);
+            panel.Children.Add(buttons);
+
+            dialog.Loaded += (s, e) =>
+            {
+                input.Focus();
+                input.SelectAll();
+            };
+            dialog.ShowDialog();
+
+            return string.IsNullOrWhiteSpace(result) ? null : result;
+        }
+
+        private void ShowGameDetails(GameItem game)
+        {
+            var dialog = CreateDialog(game.Name, 600, out var panel);
+
+            // Kopfbereich mit Cover und Infos
+            var header = new Grid { Margin = new Thickness(0, 0, 0, 20) };
+            header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            header.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            var poster = new Border
+            {
+                Width = 112,
+                Height = 168,
+                CornerRadius = new CornerRadius(12),
+                Background = BrushCardBg,
+                Margin = new Thickness(0, 0, 20, 0),
+                VerticalAlignment = System.Windows.VerticalAlignment.Top
+            };
+            if (HasCover(game) && GetCachedImage(EffectiveCover(game)) is BitmapImage image)
+                poster.Background = new ImageBrush(image) { Stretch = Stretch.UniformToFill };
+            header.Children.Add(poster);
+
+            var info = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center };
+            Grid.SetColumn(info, 1);
+            info.Children.Add(new TextBlock
+            {
+                Text = game.Name,
+                FontSize = 22,
+                FontWeight = FontWeights.Bold,
+                Foreground = System.Windows.Media.Brushes.White,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 8)
+            });
+
+            void Line(string text)
+            {
+                if (string.IsNullOrWhiteSpace(text)) return;
+                info.Children.Add(new TextBlock
+                {
+                    Text = text,
+                    Foreground = MakeBrush("#9CA3AF"),
+                    FontSize = 13,
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(0, 0, 0, 3)
+                });
+            }
+
+            Line($"Quelle: {game.Source}");
+            if (!SHide(settings.StreamHideStats)) Line($"Spielzeit: {FormatPlaytimeLong(game.PlaySeconds)}");
+            Line(game.LastPlayed.HasValue ? $"Zuletzt gespielt: {game.LastPlayed.Value:dd.MM.yyyy HH:mm} ({FormatRelative(game.LastPlayed.Value)})" : "Noch nicht gespielt");
+            Line($"Über den Launcher gestartet: {game.LaunchCount}×");
+            if (!SHide(settings.StreamHidePaths)) Line(game.InstallDir);
+            header.Children.Add(info);
+            panel.Children.Add(header);
+            AddGameInfoSection(panel, game);
+
+            // Bewertung
+            panel.Children.Add(new TextBlock { Text = "Bewertung", Foreground = BrushSubtle, Margin = new Thickness(0, 0, 0, 4) });
+
+            int rating = game.Rating;
+            var starBlocks = new List<TextBlock>();
+            var starRow = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 16) };
+
+            void RenderStars()
+            {
+                for (int i = 0; i < starBlocks.Count; i++)
+                {
+                    starBlocks[i].Text = i < rating ? "★" : "☆";
+                    starBlocks[i].Foreground = i < rating ? BrushGold : BrushSubtle;
+                }
+            }
+
+            for (int i = 1; i <= 5; i++)
+            {
+                int value = i;
+                var block = new TextBlock { FontSize = 30, Margin = new Thickness(0, 0, 8, 0), Cursor = System.Windows.Input.Cursors.Hand };
+                block.MouseLeftButtonUp += (s, e) =>
+                {
+                    rating = rating == value ? 0 : value;
+                    RenderStars();
+                };
+                starBlocks.Add(block);
+                starRow.Children.Add(block);
+            }
+            RenderStars();
+            panel.Children.Add(starRow);
+
+            // Sammlungen
+            panel.Children.Add(new TextBlock { Text = "Sammlungen", Foreground = BrushSubtle, Margin = new Thickness(0, 0, 0, 6) });
+            var boxes = new Dictionary<string, System.Windows.Controls.CheckBox>();
+            if (settings.CollectionNames.Count == 0)
+            {
+                panel.Children.Add(new TextBlock
+                {
+                    Text = "Noch keine Sammlungen. Lege sie per Rechtsklick auf ein Spiel an.",
+                    Foreground = BrushSubtle,
+                    FontSize = 12,
+                    Margin = new Thickness(0, 0, 0, 16)
+                });
+            }
+            else
+            {
+                var wrap = new WrapPanel { Margin = new Thickness(0, 0, 0, 16) };
+                foreach (string name in settings.CollectionNames)
+                {
+                    var box = new System.Windows.Controls.CheckBox
+                    {
+                        Content = name,
+                        Foreground = System.Windows.Media.Brushes.White,
+                        IsChecked = game.Collections.Contains(name),
+                        Margin = new Thickness(0, 0, 18, 6)
+                    };
+                    boxes[name] = box;
+                    wrap.Children.Add(box);
+                }
+                panel.Children.Add(wrap);
+            }
+
+            // Notizen
+            panel.Children.Add(new TextBlock { Text = "Notizen", Foreground = BrushSubtle, Margin = new Thickness(0, 0, 0, 6) });
+            var notes = new System.Windows.Controls.TextBox
+            {
+                Text = game.Notes,
+                AcceptsReturn = true,
+                TextWrapping = TextWrapping.Wrap,
+                Height = 110,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Margin = new Thickness(0, 0, 0, 20)
+            };
+            panel.Children.Add(notes);
+
+            // Buttons
+            var buttons = new StackPanel
+            {
+                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right
+            };
+            var cancel = new System.Windows.Controls.Button { Content = "Abbrechen", Margin = new Thickness(0, 0, 10, 0), IsCancel = true };
+            var save = new System.Windows.Controls.Button { Content = "Speichern", Padding = new Thickness(26, 8, 26, 8) };
+            save.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            save.Click += (s, e) =>
+            {
+                game.Rating = rating;
+                game.Notes = notes.Text;
+                game.Collections = boxes.Where(p => p.Value.IsChecked == true).Select(p => p.Key).ToList();
+                SaveGameState(game);
+                dialog.DialogResult = true;
+            };
+            buttons.Children.Add(cancel);
+            buttons.Children.Add(save);
+            panel.Children.Add(buttons);
+
+            if (dialog.ShowDialog() == true)
+            {
+                ApplyFilter();
+                RefreshDashboard();
+            }
+        }
+
+        // ───────────────────────────── Spielzeit & Statistik ─────────────────────────────
+
+        private static List<string> GetRunningProcessPaths()
+        {
+            var result = new List<string>();
+
+            foreach (var process in Process.GetProcesses())
+            {
+                try
+                {
+                    string? path = NativeFeatures.GetProcessPath(process.Id);
+                    if (!string.IsNullOrEmpty(path)) result.Add(path);
+                }
+                catch { }
+                finally
+                {
+                    process.Dispose();
+                }
+            }
+
+            return result;
+        }
+
+        private static bool IsGameRunning(GameItem game, List<string> runningPaths)
+        {
+            if (!string.IsNullOrEmpty(game.InstallDir))
+            {
+                string prefix = game.InstallDir.TrimEnd('\\', '/') + "\\";
+                return runningPaths.Any(p => p.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return !string.IsNullOrEmpty(game.ExecutablePath)
+                   && runningPaths.Any(p => string.Equals(p, game.ExecutablePath, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private void AddPlayLog(double seconds)
+        {
+            string key = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            settings.PlayLog.TryGetValue(key, out double current);
+            settings.PlayLog[key] = current + seconds;
+        }
+
+        private async Task PlaytimeTickAsync()
+        {
+            if (!settings.TrackPlaytime || allGames.Count == 0) return;
+
+            List<string> running;
+            try
+            {
+                running = await Task.Run(() => GetRunningProcessPaths());
+            }
+            catch
+            {
+                return;
+            }
+
+            var now = DateTime.Now;
+            bool anyRunning = false;
+            bool sessionEnded = false;
+
+            foreach (var game in allGames.ToList())
+            {
+                if (!IsTrackingIgnored(game) && IsGameRunning(game, running))
+                {
+                    anyRunning = true;
+                    bool isNew = !activeSessions.ContainsKey(game);
+                    activeSessions[game] = 0;
+
+                    if (isNew)
+                    {
+                        sessionStart[game] = now;
+                        DiscordSessionStarted(game);
+                        if (game.Status == "backlog") game.Status = "playing";
+                        if (ProfileWanted(game) && activeSessions.Count == 1) _ = ActivateGamingProfileAsync();
+                        if (activeSessions.Count == 1 && CloseAppsWanted(game)) _ = CloseConfiguredAppsAsync(true);
+                    }
+
+                    game.PlaySeconds += 10;
+                    game.LastPlayed = now;
+                    AddPlayLog(10);
+                }
+                else if (activeSessions.TryGetValue(game, out int missed))
+                {
+                    if (missed + 1 >= 2)
+                    {
+                        activeSessions.Remove(game);
+                        sessionStart.Remove(game);
+                        CopyStateToSettings(game);
+                        sessionEnded = true;
+                        sessionBreakCount.Remove(game);
+                        ShowSessionReport(game);
+                        DiscordSessionEnded(game);
+                        if (settings.AutoBackupSaves && !string.IsNullOrEmpty(game.SavePath)) _ = BackupSavesAsync(game, true);
+
+                        if (activeSessions.Count == 0)
+                        {
+                            _ = DeactivateGamingProfileAsync();
+                            RestoreClosedApps();
+                        }
+                    }
+                    else
+                    {
+                        activeSessions[game] = missed + 1;
+                    }
+                }
+            }
+
+            CheckBreakReminders(now);
+            SampleSessions();
+            CheckDailyLimit(now);
+
+            // Zwischendurch speichern (etwa jede Minute)
+            playSaveCounter++;
+            if (anyRunning && playSaveCounter % 6 == 0)
+            {
+                foreach (var game in activeSessions.Keys) CopyStateToSettings(game);
+                SaveSettings();
+            }
+            if (sessionEnded) SaveSettings();
+
+            // Energiesparplan nach einem Absturz wiederherstellen
+            if (!anyRunning && activeSessions.Count == 0 && !profileActive && settings.PreviousPowerPlan.Length > 0)
+                _ = DeactivateGamingProfileAsync();
+
+            UpdateOverlayVisibility();
+
+            if (sessionEnded && activeSessions.Count == 0 && settings.ReopenAfterGame) ReopenLauncherAfterGame();
+
+            if (sessionEnded)
+            {
+                ApplyFilter();
+                RefreshDashboard();
+            }
+            if (ViewStats.Visibility == Visibility.Visible && (sessionEnded || (anyRunning && playSaveCounter % 6 == 0)))
+                RefreshStats(false);
+        }
+
+        private async Task ActivateGamingProfileAsync()
+        {
+            profileActive = true;
+
+            var current = await Task.Run(() => RunHidden("powercfg", "/getactivescheme"));
+            var match = Regex.Match(current.Output, GuidPattern);
+            if (!match.Success) return;
+
+            string active = match.Value.ToLowerInvariant();
+            if (active == HighPerformancePlan) return;
+
+            settings.PreviousPowerPlan = active;
+            SaveSettings();
+            await Task.Run(() => RunHidden("powercfg", $"/setactive {HighPerformancePlan}"));
+        }
+
+        private async Task DeactivateGamingProfileAsync()
+        {
+            profileActive = false;
+            if (settings.PreviousPowerPlan.Length == 0) return;
+
+            string plan = settings.PreviousPowerPlan;
+            settings.PreviousPowerPlan = string.Empty;
+            SaveSettings();
+            await Task.Run(() => RunHidden("powercfg", $"/setactive {plan}"));
+        }
+
+        private void RefreshStats(bool animate)
+        {
+            if (ViewStats == null) return;
+
+            long total = allGames.Where(g => !IsTrackingIgnored(g)).Sum(g => g.PlaySeconds);
+            TxtStatsTotal.Text = FormatPlaytimeLong(total);
+
+            double weekSeconds = 0;
+            double maxDay = 0;
+            var days = new List<(DateTime Day, double Seconds)>();
+            for (int i = 6; i >= 0; i--)
+            {
+                var day = DateTime.Today.AddDays(-i);
+                settings.PlayLog.TryGetValue(day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), out double seconds);
+                days.Add((day, seconds));
+                weekSeconds += seconds;
+                maxDay = Math.Max(maxDay, seconds);
+            }
+            TxtStatsWeek.Text = FormatPlaytimeLong((long)weekSeconds);
+
+            var top = allGames.OrderByDescending(g => g.PlaySeconds).FirstOrDefault(g => g.PlaySeconds >= 60);
+            TxtStatsTop.Text = top?.Name ?? "–";
+
+            // Wochendiagramm
+            WeekChart.Children.Clear();
+            for (int i = 0; i < days.Count; i++)
+            {
+                var (day, seconds) = days[i];
+                bool today = i == days.Count - 1;
+                double barHeight = maxDay > 0 ? Math.Max(5, seconds / maxDay * 130) : 5;
+
+                var cell = new StackPanel
+                {
+                    VerticalAlignment = System.Windows.VerticalAlignment.Bottom,
+                    Margin = new Thickness(6, 0, 6, 0)
+                };
+                cell.Children.Add(new TextBlock
+                {
+                    Text = seconds >= 60 ? FormatPlaytime((long)seconds) : string.Empty,
+                    Foreground = BrushSubtle,
+                    FontSize = 11,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 0, 0, 6)
+                });
+
+                var bar = new Border
+                {
+                    Width = 36,
+                    Height = barHeight,
+                    CornerRadius = new CornerRadius(8),
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                    Opacity = today ? 1.0 : 0.65
+                };
+                bar.SetResourceReference(Border.BackgroundProperty, "AccentBrush");
+                if (animate && settings.PageAnimations)
+                {
+                    bar.BeginAnimation(FrameworkElement.HeightProperty, new DoubleAnimation(0, barHeight, TimeSpan.FromMilliseconds(520))
+                    {
+                        BeginTime = TimeSpan.FromMilliseconds(i * 55),
+                        EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                    });
+                }
+                cell.Children.Add(bar);
+
+                cell.Children.Add(new TextBlock
+                {
+                    Text = day.ToString("ddd", GermanCulture),
+                    Foreground = today ? System.Windows.Media.Brushes.White : BrushSubtle,
+                    FontSize = 12,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 8, 0, 0)
+                });
+
+                WeekChart.Children.Add(cell);
+            }
+
+            // Rangliste
+            var ranked = allGames.Where(g => g.PlaySeconds >= 60 && !IsTrackingIgnored(g)).OrderByDescending(g => g.PlaySeconds).Take(10).ToList();
+            long best = ranked.Count > 0 ? ranked[0].PlaySeconds : 0;
+            TopGamesList.ItemsSource = ranked.Select((g, index) => new StatRow
+            {
+                Rank = (index + 1).ToString(),
+                Name = g.Name,
+                TimeText = FormatPlaytime(g.PlaySeconds),
+                Percent = best > 0 ? g.PlaySeconds * 100.0 / best : 0
+            }).ToList();
+            TxtStatsEmpty.Visibility = ranked.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+            RefreshStatsExtras();
+            BuildHeatmap();
+        }
+
+        // ───────────────────────────── Mini-Overlay ─────────────────────────────
+
+        private void EnsureOverlay()
+        {
+            if (overlayWindow != null) return;
+
+            overlayGameText = new TextBlock
+            {
+                Foreground = System.Windows.Media.Brushes.White,
+                FontWeight = FontWeights.SemiBold,
+                FontSize = 13,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                MaxWidth = 320
+            };
+            overlayStatsText = new TextBlock
+            {
+                Foreground = MakeBrush("#D1D5DB"),
+                FontFamily = new System.Windows.Media.FontFamily("Consolas"),
+                FontSize = 13,
+                Margin = new Thickness(0, 4, 0, 0)
+            };
+
+            var content = new StackPanel { MinWidth = 220 };
+            content.Children.Add(overlayGameText);
+            content.Children.Add(overlayStatsText);
+
+            var card = new Border
+            {
+                Background = MakeBrush("#E60F111A"),
+                BorderBrush = BrushCardBorder,
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(12),
+                Padding = new Thickness(14, 10, 14, 10),
+                Child = content
+            };
+
+            var window = new Window
+            {
+                WindowStyle = WindowStyle.None,
+                AllowsTransparency = true,
+                Background = System.Windows.Media.Brushes.Transparent,
+                Topmost = true,
+                ShowInTaskbar = false,
+                ShowActivated = false,
+                ResizeMode = ResizeMode.NoResize,
+                SizeToContent = SizeToContent.WidthAndHeight,
+                Content = card
+            };
+            window.SourceInitialized += (s, e) =>
+            {
+                IntPtr handle = new System.Windows.Interop.WindowInteropHelper(window).Handle;
+                int style = NativeFeatures.GetWindowLong(handle, -20);
+                // klick-durchlässig, nicht aktivierbar, nicht in Alt+Tab
+                NativeFeatures.SetWindowLong(handle, -20, style | 0x20 | 0x80 | 0x08000000);
+            };
+
+            overlayWindow = window;
+        }
+
+        private void UpdateOverlayVisibility()
+        {
+            bool shouldShow = settings.ShowOverlay && activeSessions.Count > 0;
+            bool testing = DateTime.Now < overlayTestUntil;
+
+            if (shouldShow || testing)
+            {
+                EnsureOverlay();
+                if (overlayWindow != null && !overlayWindow.IsVisible) overlayWindow.Show();
+                UpdateOverlayContent(SampleMetrics());
+            }
+            else if (overlayWindow != null && overlayWindow.IsVisible)
+            {
+                overlayWindow.Hide();
+            }
+        }
+
+        private void UpdateOverlayContent(MetricsSample m)
+        {
+            if (overlayWindow == null || overlayGameText == null || overlayStatsText == null) return;
+
+            var current = activeSessions.Keys.FirstOrDefault();
+            if (current != null && sessionStart.TryGetValue(current, out var started))
+            {
+                var elapsed = DateTime.Now - started;
+                overlayGameText.Text = $"🎮 {current.Name}  ·  {(int)elapsed.TotalHours}:{elapsed.Minutes:D2}:{elapsed.Seconds:D2}";
+            }
+            else
+            {
+                overlayGameText.Text = "🎮 DFP Pro Launcher  ·  Overlay-Test";
+            }
+
+            var overlayParts = new List<string>();
+            if (settings.OverlayShowCpu) overlayParts.Add($"CPU {m.Cpu,3:F0}%");
+            if (settings.OverlayShowGpu) overlayParts.Add($"GPU {(m.HasGpu ? m.Gpu.ToString("F0").PadLeft(3) : "  –")}%");
+            if (settings.OverlayShowRam) overlayParts.Add($"RAM {m.Ram,3:F0}%");
+            if (settings.OverlayShowClock) overlayParts.Add(DateTime.Now.ToString("HH:mm"));
+            overlayStatsText.Text = string.Join("   ", overlayParts);
+            ApplyOverlayLook();
+            if (DateTime.Now < overlayNoticeUntil) overlayStatsText.Text += "\n" + overlayNotice;
+
+            PositionOverlay();
+        }
+
+        private void PositionOverlay()
+        {
+            if (overlayWindow == null) return;
+
+            overlayWindow.UpdateLayout();
+            var area = SystemParameters.WorkArea;
+            double width = overlayWindow.ActualWidth;
+            double height = overlayWindow.ActualHeight;
+            const double margin = 16;
+
+            bool left = settings.OverlayCorner == 0 || settings.OverlayCorner == 2;
+            bool top = settings.OverlayCorner == 0 || settings.OverlayCorner == 1;
+            overlayWindow.Left = left ? area.Left + margin : area.Right - width - margin;
+            overlayWindow.Top = top ? area.Top + margin : area.Bottom - height - margin;
+        }
+
+        // ───────────────────────────── Spotlight-Suche (Strg+K) ─────────────────────────────
+
+        private static int ScoreMatch(string text, string query)
+        {
+            if (text.StartsWith(query, StringComparison.OrdinalIgnoreCase)) return 100;
+            if (text.Contains(query, StringComparison.OrdinalIgnoreCase)) return 60;
+
+            int position = 0;
+            foreach (char c in query)
+            {
+                position = text.IndexOf(c.ToString(), position, StringComparison.OrdinalIgnoreCase);
+                if (position < 0) return -1;
+                position++;
+            }
+            return 30;
+        }
+
+        private void OpenSpotlight()
+        {
+            SpotlightLayer.Visibility = Visibility.Visible;
+            SpotlightLayer.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(140)));
+
+            TxtSpotlight.Text = string.Empty;
+            BuildSpotlightResults();
+
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                TxtSpotlight.Focus();
+                System.Windows.Input.Keyboard.Focus(TxtSpotlight);
+            }), DispatcherPriority.Input);
+        }
+
+        private void CloseSpotlight()
+        {
+            SpotlightLayer.Visibility = Visibility.Collapsed;
+        }
+
+        private void BuildSpotlightResults()
+        {
+            string query = TxtSpotlight.Text.Trim();
+            var entries = new List<SpotlightEntry>();
+
+            void Add(string icon, string title, string subtitle, Action action, int bonus)
+            {
+                int score = ScoreMatch(title, query);
+                if (score < 0) return;
+                entries.Add(new SpotlightEntry { Icon = icon, Title = title, Subtitle = subtitle, Action = action, Score = score + bonus });
+            }
+
+            if (query.Length == 0)
+            {
+                foreach (var game in VisibleGames.Where(g => g.LastPlayed.HasValue).OrderByDescending(g => g.LastPlayed).Take(4))
+                {
+                    var target = game;
+                    entries.Add(new SpotlightEntry { Icon = "🎮", Title = target.Name, Subtitle = "Zuletzt gespielt  ·  " + target.Source, Action = () => LaunchGame(target) });
+                }
+
+                entries.Add(new SpotlightEntry { Icon = "🎲", Title = "Zufälliges Spiel", Subtitle = "Lass den Launcher entscheiden", Action = () => BtnRandomGame_Click(this, new RoutedEventArgs()) });
+                entries.Add(new SpotlightEntry { Icon = "🎮", Title = "Controller-Modus", Subtitle = "Vollbild mit Gamepad-Steuerung (F11)", Action = ToggleControllerMode });
+                entries.Add(new SpotlightEntry { Icon = "🔄", Title = "Spiele neu scannen", Subtitle = "Bibliothek aktualisieren", Action = () => BtnRescanGames_Click(this, new RoutedEventArgs()) });
+            }
+            else
+            {
+                foreach (var game in VisibleGames)
+                {
+                    var target = game;
+                    Add("🎮", target.Name, "Spiel  ·  " + target.Source, () => LaunchGame(target), target.LastPlayed.HasValue ? 25 : 20);
+                }
+                foreach (var app in cachedApps)
+                {
+                    var target = app;
+                    Add("🧩", target.Name, "Anwendung", () => LaunchApp(target), 15);
+                }
+                foreach (var tool in toolEntries)
+                {
+                    string target = tool.Target;
+                    Add(tool.Icon, tool.Title, tool.Text, () => OpenShell(target), 10);
+                }
+                foreach (var quickLink in settings.QuickLinks)
+                {
+                    string quickTarget = quickLink.Target;
+                    Add(QuickEmoji(quickLink), quickLink.Name, DescribeTarget(quickTarget), () => OpenShell(quickTarget), 8);
+                }
+                foreach (var page in PageEntries)
+                {
+                    string key = page.Key;
+                    Add(page.Icon, page.Title, "Bereich öffnen", () => NavigateTo(key), 12);
+                }
+                Add("🎲", "Zufälliges Spiel", "Lass den Launcher entscheiden", () => BtnRandomGame_Click(this, new RoutedEventArgs()), 5);
+                Add("🎮", "Controller-Modus", "Vollbild mit Gamepad-Steuerung", ToggleControllerMode, 5);
+                Add("📡", "Streamer-Modus umschalten", "Verbirgt private Angaben", ToggleStreamerMode, 5);
+            }
+
+            spotlightEntries.Clear();
+            spotlightEntries.AddRange(entries.OrderByDescending(x => x.Score).Take(8));
+            spotlightIndex = 0;
+            RenderSpotlight();
+        }
+
+        private void RenderSpotlight()
+        {
+            SpotlightResults.Children.Clear();
+
+            if (spotlightEntries.Count == 0)
+            {
+                SpotlightResults.Children.Add(new TextBlock { Text = "Keine Treffer.", Foreground = BrushSubtle, Margin = new Thickness(6, 8, 0, 4) });
+                return;
+            }
+
+            for (int i = 0; i < spotlightEntries.Count; i++)
+            {
+                var entry = spotlightEntries[i];
+                int index = i;
+
+                var line = new Grid();
+                line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
+                line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                line.Children.Add(new TextBlock
+                {
+                    Text = entry.Icon,
+                    FontSize = 20,
+                    FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                    Foreground = System.Windows.Media.Brushes.White,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center
+                });
+
+                var texts = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                Grid.SetColumn(texts, 1);
+                texts.Children.Add(new TextBlock { Text = entry.Title, Foreground = System.Windows.Media.Brushes.White, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis });
+                texts.Children.Add(new TextBlock { Text = entry.Subtitle, Foreground = BrushSubtle, FontSize = 12, TextTrimming = TextTrimming.CharacterEllipsis });
+                line.Children.Add(texts);
+
+                var item = new Border
+                {
+                    Padding = new Thickness(10, 7, 10, 7),
+                    CornerRadius = new CornerRadius(10),
+                    Background = i == spotlightIndex ? BrushTileHover : System.Windows.Media.Brushes.Transparent,
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    Child = line
+                };
+                item.MouseEnter += (s, e) =>
+                {
+                    spotlightIndex = index;
+                    HighlightSpotlight();
+                };
+                item.MouseLeftButtonUp += (s, e) => ActivateSpotlight(entry);
+
+                SpotlightResults.Children.Add(item);
+            }
+        }
+
+        private void HighlightSpotlight()
+        {
+            for (int i = 0; i < SpotlightResults.Children.Count; i++)
+            {
+                if (SpotlightResults.Children[i] is Border item)
+                    item.Background = i == spotlightIndex ? BrushTileHover : System.Windows.Media.Brushes.Transparent;
+            }
+        }
+
+        private void ActivateSpotlight(SpotlightEntry entry)
+        {
+            CloseSpotlight();
+            entry.Action();
+        }
+
+        private void TxtSpotlight_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (SpotlightLayer.Visibility == Visibility.Visible) BuildSpotlightResults();
+        }
+
+        private void TxtSpotlight_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case System.Windows.Input.Key.Down:
+                    if (spotlightEntries.Count > 0) spotlightIndex = (spotlightIndex + 1) % spotlightEntries.Count;
+                    HighlightSpotlight();
+                    e.Handled = true;
+                    break;
+                case System.Windows.Input.Key.Up:
+                    if (spotlightEntries.Count > 0) spotlightIndex = (spotlightIndex - 1 + spotlightEntries.Count) % spotlightEntries.Count;
+                    HighlightSpotlight();
+                    e.Handled = true;
+                    break;
+                case System.Windows.Input.Key.Enter:
+                    if (spotlightIndex >= 0 && spotlightIndex < spotlightEntries.Count) ActivateSpotlight(spotlightEntries[spotlightIndex]);
+                    e.Handled = true;
+                    break;
+                case System.Windows.Input.Key.Escape:
+                    CloseSpotlight();
+                    e.Handled = true;
+                    break;
+            }
+        }
+
+        private void Spotlight_BackgroundClick(object sender, System.Windows.Input.MouseButtonEventArgs e) => CloseSpotlight();
+        private void Spotlight_CardClick(object sender, System.Windows.Input.MouseButtonEventArgs e) => e.Handled = true;
+
+        // ───────────────────────────── Tastatur & Controller-Modus ─────────────────────────────
+
+        private void MainWindow_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            bool ctrl = (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) != 0;
+
+            if (ctrl && e.Key == System.Windows.Input.Key.K)
+            {
+                OpenSpotlight();
+                e.Handled = true;
+                return;
+            }
+
+            if (e.Key == System.Windows.Input.Key.F11)
+            {
+                ToggleControllerMode();
+                e.Handled = true;
+                return;
+            }
+
+            if (HandleShortcuts(e, ctrl)) return;
+
+            if (SpotlightLayer.Visibility == Visibility.Visible || !controllerMode) return;
+            if (System.Windows.Input.Keyboard.FocusedElement is System.Windows.Controls.TextBox) return;
+
+            switch (e.Key)
+            {
+                case System.Windows.Input.Key.Left: MoveControllerSelection(-1, 0); e.Handled = true; break;
+                case System.Windows.Input.Key.Right: MoveControllerSelection(1, 0); e.Handled = true; break;
+                case System.Windows.Input.Key.Up: MoveControllerSelection(0, -1); e.Handled = true; break;
+                case System.Windows.Input.Key.Down: MoveControllerSelection(0, 1); e.Handled = true; break;
+                case System.Windows.Input.Key.Enter: LaunchControllerSelection(); e.Handled = true; break;
+                case System.Windows.Input.Key.Escape: ToggleControllerMode(); e.Handled = true; break;
+            }
+        }
+
+        private void ToggleControllerMode()
+        {
+            controllerMode = !controllerMode;
+
+            if (controllerMode)
+            {
+                savedWindowState = WindowState;
+                savedWindowStyle = WindowStyle;
+
+                ShowView(ViewGames);
+                NavGamesBtn.IsChecked = true;
+
+                WindowStyle = WindowStyle.None;
+                WindowState = WindowState.Maximized;
+                Topmost = true;
+
+                controllerIndex = 0;
+                playCardEntrance = true;
+            }
+            else
+            {
+                WindowState = WindowState.Normal;
+                WindowStyle = savedWindowStyle;
+                WindowState = savedWindowState;
+                Topmost = settings.AlwaysOnTop;
+            }
+
+            ApplySidebar(true);
+            ApplyFilter();
+            UpdatePadHint();
+            PlayUiSound("select");
+        }
+
+        private void HighlightControllerSelection()
+        {
+            var cards = GamesContainer.Children.OfType<Border>().ToList();
+            if (cards.Count == 0) return;
+
+            controllerIndex = Math.Clamp(controllerIndex, 0, cards.Count - 1);
+
+            for (int i = 0; i < cards.Count; i++)
+            {
+                bool selected = controllerMode && i == controllerIndex;
+
+                if (cards[i].Child is Border inner)
+                {
+                    inner.BorderThickness = selected ? new Thickness(3) : new Thickness(0);
+                    inner.BorderBrush = selected ? (Resources["AccentBrush"] as System.Windows.Media.Brush) : null;
+                }
+
+                cards[i].Effect = selected
+                    ? new System.Windows.Media.Effects.DropShadowEffect { Color = GetAccentColor(), BlurRadius = 34, ShadowDepth = 0, Opacity = 0.85 }
+                    : null;
+            }
+
+            cards[controllerIndex].BringIntoView();
+        }
+
+        private void MoveControllerSelection(int dx, int dy)
+        {
+            int count = GamesContainer.Children.OfType<Border>().Count();
+            if (count == 0) return;
+
+            double cardWidth = Math.Max(settings.CardWidth, 240) + 24;
+            int columns = Math.Max(1, (int)Math.Floor(GamesScroll.ViewportWidth / cardWidth));
+
+            int next = controllerIndex + dx + dy * columns;
+            int before = controllerIndex;
+            controllerIndex = Math.Clamp(next, 0, count - 1);
+            if (controllerIndex != before) PlayUiSound("move");
+            HighlightControllerSelection();
+        }
+
+        private void LaunchControllerSelection()
+        {
+            if (controllerIndex >= 0 && controllerIndex < visibleGames.Count)
+                LaunchGame(visibleGames[controllerIndex]);
+        }
+
+        private void CycleFilter(int direction)
+        {
+            var chips = FilterChips.Children.OfType<System.Windows.Controls.RadioButton>().ToList();
+            if (chips.Count == 0) return;
+
+            int current = chips.FindIndex(c => c.IsChecked == true);
+            int next = ((current < 0 ? 0 : current) + direction + chips.Count) % chips.Count;
+            chips[next].IsChecked = true;
+            controllerIndex = 0;
+        }
+
+        // ───────────────────────────── Infobereich (Tray) ─────────────────────────────
+
+        private void SetupTray()
+        {
+            try
+            {
+                trayIcon = new Forms.NotifyIcon
+                {
+                    Text = "DFP Pro Launcher · by Der_Fette_Pudel",
+                    Icon = BitmapSourceToIcon(CreateLogoBitmap(32)),
+                    Visible = settings.ShowTrayIcon || settings.MinimizeToTray
+                };
+                trayIcon.DoubleClick += (s, e) => ShowFromTray();
+                HookTrayFlyout();
+
+                var menu = CreateTrayMenu();
+                menu.Items.Add("Öffnen", null, (s, e) => ShowFromTray());
+                menu.Items.Add("Zufälliges Spiel", null, (s, e) =>
+                {
+                    ShowFromTray();
+                    BtnRandomGame_Click(this, new RoutedEventArgs());
+                });
+                menu.Items.Add("Beenden", null, (s, e) => ExitApplication());
+                trayIcon.ContextMenuStrip = menu;
+                RebuildTrayMenu();
+            }
+            catch
+            {
+                trayIcon = null;
+            }
+        }
+
+        private void HideToTray()
+        {
+            Hide();
+
+            if (!trayHintShown && trayIcon != null)
+            {
+                trayHintShown = true;
+                trayIcon.ShowBalloonTip(2500, "DFP Pro Launcher", Loc.T("Der Launcher läuft im Hintergrund weiter. Doppelklick auf das Symbol öffnet ihn wieder."), Forms.ToolTipIcon.Info);
+            }
+        }
+
+        private void ShowFromTray()
+        {
+            Show();
+            if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+            Activate();
+        }
+
+        private void ExitApplication()
+        {
+            if (settings.ExitWarning && !exitRequested && activeSessions.Count > 0)
+            {
+                var answer = Msg("Es läuft noch ein Spiel. Wenn du den Launcher beendest, wird die Spielzeit nicht weiter erfasst.\n\nTrotzdem beenden?",
+                    "Launcher beenden", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (answer != MessageBoxResult.Yes) return;
+            }
+
+            exitRequested = true;
+            CloseSensors();
+            if (trayIcon != null) trayIcon.Visible = false;
+            overlayWindow?.Close();
+            Close();
+            System.Windows.Application.Current.Shutdown();
+        }
+
+        private void OnClosingFeatures(object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (!exitRequested && settings.AskOnClose && IsVisible)
+            {
+                var answer = Msg("Soll der Launcher im Hintergrund weiterlaufen?\n\nJa: Im Infobereich weiterlaufen\nNein: Launcher beenden\nAbbrechen: Fenster offen lassen", "Launcher schließen",
+                    MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                e.Cancel = true;
+                if (answer == MessageBoxResult.Yes && trayIcon != null && trayIcon.Visible) HideToTray();
+                else if (answer != MessageBoxResult.Cancel) Dispatcher.BeginInvoke(new Action(ExitApplication));
+                return;
+            }
+
+            if (settings.MinimizeToTray && !exitRequested && trayIcon != null)
+            {
+                e.Cancel = true;
+                HideToTray();
+            }
+        }
+
+        // ═════════════════════════════ Weitere Funktionen ═════════════════════════════
+
+        private static readonly (string Key, string Title)[] StatusOptions =
+        {
+            ("backlog", "📋  Will ich spielen"),
+            ("playing", "▶  Spiele ich gerade"),
+            ("done", "✅  Durchgespielt")
+        };
+
+        private readonly DispatcherTimer maintenanceTimer = new();
+        private readonly Dictionary<string, Border> banners = new();
+        private readonly Dictionary<GameItem, int> sessionBreakCount = new();
+        private readonly Random random = new();
+
+        private string overlayNotice = string.Empty;
+        private DateTime overlayNoticeUntil = DateTime.MinValue;
+        private DateTime lastDealsRefresh = DateTime.MinValue;
+
+        private List<DealItem> epicFree = new();
+        private List<DealItem> epicUpcoming = new();
+        private List<DealItem> steamDeals = new();
+
+        private void InitExtras()
+        {
+            AllowDrop = true;
+            DragOver += OnWindowDragOver;
+            Drop += OnWindowDrop;
+
+            maintenanceTimer.Interval = TimeSpan.FromMinutes(30);
+            maintenanceTimer.Tick += async (s, e) => await RunMaintenanceAsync();
+            maintenanceTimer.Start();
+        }
+
+        /// <summary>Wird nach jedem Spiele-Scan aufgerufen.</summary>
+        private async Task AfterScanAsync()
+        {
+            settings.InitialScanDone = true;
+            lastScan = DateTime.Now;
+            SaveSettings();
+            RefreshBoard();
+            CheckMissingManualGames();
+            _ = LoadGameInfoAsync();
+            _ = ScanModFoldersAsync();
+            await RunMaintenanceAsync();
+        }
+
+        private async Task RunMaintenanceAsync()
+        {
+            try
+            {
+                CheckStorage();
+                CheckReleases();
+                CheckAchievements(settings.Achievements.Count == 0);
+
+                if (settings.ShowDeals && settings.OnlineFeatures && (DateTime.Now - lastDealsRefresh).TotalHours >= 6)
+                    await RefreshDealsAsync(true);
+
+                await CheckWishlistIfDueAsync();
+                await CheckForUpdateIfDueAsync();
+            }
+            catch { }
+        }
+
+        private static bool IsNewGame(GameItem game)
+            => game.FirstSeen.HasValue
+               && (DateTime.Now - game.FirstSeen.Value).TotalDays <= 7
+               && game.PlaySeconds < 60
+               && game.LaunchCount == 0;
+
+        private static string StatusIcon(string status) => status switch
+        {
+            "backlog" => "📋",
+            "playing" => "▶",
+            "done" => "✅",
+            _ => string.Empty
+        };
+
+        private Border CreateBadge(string text, bool accent)
+        {
+            var badge = new Border
+            {
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(7, 3, 7, 3),
+                Margin = new Thickness(0, 0, 4, 0),
+                Background = accent ? null : BrushOverlay,
+                Child = new TextBlock
+                {
+                    Text = text,
+                    Foreground = System.Windows.Media.Brushes.White,
+                    FontSize = 11,
+                    FontWeight = FontWeights.Bold
+                }
+            };
+            if (accent) badge.SetResourceReference(Border.BackgroundProperty, "AccentBrush");
+            return badge;
+        }
+
+        // ───────────────────────────── Hinweise, Toasts & Konfetti ─────────────────────────────
+
+        private void ShowToast(string icon, string title, string text, int seconds = 6, Action? onClick = null, bool important = false)
+        {
+            if (!settings.ShowToasts) return;
+            if (!important && AlertsMuted()) return;
+            PlayUiSound("select");
+
+            var content = new Grid();
+            content.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            content.Children.Add(new TextBlock
+            {
+                Text = icon,
+                FontSize = 26,
+                FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                Foreground = System.Windows.Media.Brushes.White,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                Margin = new Thickness(0, 0, 14, 0)
+            });
+
+            var texts = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center };
+            Grid.SetColumn(texts, 1);
+            texts.Children.Add(new TextBlock
+            {
+                Text = title,
+                Foreground = System.Windows.Media.Brushes.White,
+                FontWeight = FontWeights.SemiBold,
+                TextWrapping = TextWrapping.Wrap
+            });
+            if (text.Length > 0)
+            {
+                texts.Children.Add(new TextBlock
+                {
+                    Text = text,
+                    Foreground = BrushSubtle,
+                    FontSize = 12,
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(0, 2, 0, 0)
+                });
+            }
+            content.Children.Add(texts);
+
+            var slide = new TranslateTransform(60, 0);
+            var toast = new Border
+            {
+                Background = MakeBrush("#F2161B28"),
+                BorderBrush = BrushCardBorder,
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(14),
+                Padding = new Thickness(16, 12, 18, 12),
+                Margin = new Thickness(0, 10, 0, 0),
+                MinWidth = 300,
+                MaxWidth = 400,
+                Cursor = System.Windows.Input.Cursors.Hand,
+                RenderTransform = slide,
+                Opacity = 0,
+                Child = content
+            };
+
+            toast.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(220)));
+            slide.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(60, 0, TimeSpan.FromMilliseconds(320))
+            {
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            });
+
+            void Dismiss()
+            {
+                var fade = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(250));
+                fade.Completed += (s, e) => ToastHost.Children.Remove(toast);
+                toast.BeginAnimation(UIElement.OpacityProperty, fade);
+            }
+
+            toast.MouseLeftButtonUp += (s, e) =>
+            {
+                onClick?.Invoke();
+                Dismiss();
+            };
+
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(seconds) };
+            timer.Tick += (s, e) =>
+            {
+                timer.Stop();
+                Dismiss();
+            };
+            timer.Start();
+
+            ToastHost.Children.Add(toast);
+        }
+
+        private void Confetti()
+        {
+            if (!settings.PageAnimations) return;
+
+            double width = ConfettiLayer.ActualWidth > 0 ? ConfettiLayer.ActualWidth : ActualWidth;
+            double height = ConfettiLayer.ActualHeight > 0 ? ConfettiLayer.ActualHeight : ActualHeight;
+            var accent = GetAccentColor();
+            var palette = new[]
+            {
+                accent,
+                System.Windows.Media.Color.FromRgb(0xFB, 0xBF, 0x24),
+                System.Windows.Media.Color.FromRgb(0x34, 0xD3, 0x99),
+                System.Windows.Media.Color.FromRgb(0x60, 0xA5, 0xFA),
+                System.Windows.Media.Color.FromRgb(0xF4, 0x72, 0xB6),
+                System.Windows.Media.Color.FromRgb(0xFB, 0x92, 0x3C)
+            };
+
+            for (int i = 0; i < 70; i++)
+            {
+                var rotation = new RotateTransform(random.Next(360));
+                var piece = new Border
+                {
+                    Width = random.Next(6, 11),
+                    Height = random.Next(9, 17),
+                    CornerRadius = new CornerRadius(2),
+                    Background = new SolidColorBrush(palette[random.Next(palette.Length)]),
+                    RenderTransformOrigin = new System.Windows.Point(0.5, 0.5),
+                    RenderTransform = rotation
+                };
+
+                double startX = random.NextDouble() * width;
+                Canvas.SetLeft(piece, startX);
+                Canvas.SetTop(piece, -20);
+                ConfettiLayer.Children.Add(piece);
+
+                var duration = TimeSpan.FromMilliseconds(1800 + random.Next(1500));
+                var delay = TimeSpan.FromMilliseconds(random.Next(0, 500));
+
+                var fall = new DoubleAnimation(-20, height + 40, duration)
+                {
+                    BeginTime = delay,
+                    EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseIn }
+                };
+                fall.Completed += (s, e) => ConfettiLayer.Children.Remove(piece);
+
+                piece.BeginAnimation(Canvas.TopProperty, fall);
+                piece.BeginAnimation(Canvas.LeftProperty, new DoubleAnimation(startX, startX + random.Next(-90, 90), duration) { BeginTime = delay });
+                rotation.BeginAnimation(RotateTransform.AngleProperty,
+                    new DoubleAnimation(rotation.Angle, rotation.Angle + random.Next(-540, 540), duration) { BeginTime = delay });
+            }
+        }
+
+        private void ShowBanner(string key, string icon, string text, string actionText, Action action, Action? onClose = null)
+        {
+            if (banners.ContainsKey(key) || AlertsMuted()) return;
+
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            grid.Children.Add(new TextBlock
+            {
+                Text = icon,
+                FontSize = 20,
+                FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                Foreground = System.Windows.Media.Brushes.White,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                Margin = new Thickness(0, 0, 12, 0)
+            });
+
+            var label = new TextBlock
+            {
+                Text = text,
+                Foreground = System.Windows.Media.Brushes.White,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                TextWrapping = TextWrapping.Wrap
+            };
+            Grid.SetColumn(label, 1);
+            grid.Children.Add(label);
+
+            var actionButton = new System.Windows.Controls.Button
+            {
+                Content = actionText,
+                Padding = new Thickness(14, 6, 14, 6),
+                Margin = new Thickness(12, 0, 8, 0)
+            };
+            actionButton.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            Grid.SetColumn(actionButton, 2);
+            grid.Children.Add(actionButton);
+
+            var closeButton = new System.Windows.Controls.Button
+            {
+                Content = "✕",
+                Padding = new Thickness(10, 6, 10, 6),
+                Background = System.Windows.Media.Brushes.Transparent
+            };
+            Grid.SetColumn(closeButton, 3);
+            grid.Children.Add(closeButton);
+
+            var banner = new Border
+            {
+                Background = MakeBrush("#1C2233"),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(12),
+                Padding = new Thickness(16, 10, 10, 10),
+                Margin = new Thickness(0, 0, 0, 10),
+                Child = grid
+            };
+            banner.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
+
+            actionButton.Click += (s, e) =>
+            {
+                RemoveBanner(key);
+                action();
+            };
+            closeButton.Click += (s, e) =>
+            {
+                RemoveBanner(key);
+                onClose?.Invoke();
+            };
+
+            banners[key] = banner;
+            BannerHost.Children.Add(banner);
+        }
+
+        private void RemoveBanner(string key)
+        {
+            if (!banners.TryGetValue(key, out var banner)) return;
+            BannerHost.Children.Remove(banner);
+            banners.Remove(key);
+        }
+
+        private void RemoveBannersStartingWith(string prefix)
+        {
+            foreach (string key in banners.Keys.Where(k => k.StartsWith(prefix)).ToList())
+                RemoveBanner(key);
+        }
+
+        private void CheckStorage()
+        {
+            if (!settings.StorageWarning)
+            {
+                RemoveBannersStartingWith("storage:");
+                return;
+            }
+
+            foreach (var drive in DriveInfo.GetDrives())
+            {
+                try
+                {
+                    if (drive.DriveType != DriveType.Fixed || !drive.IsReady) continue;
+
+                    double free = drive.AvailableFreeSpace / GigaByte;
+                    double percent = drive.TotalSize > 0 ? drive.AvailableFreeSpace * 100.0 / drive.TotalSize : 100;
+
+                    if (free < 15 || percent < 8)
+                    {
+                        ShowBanner("storage:" + drive.Name, "⚠", $"Auf {drive.Name} sind nur noch {free:F1} GB frei ({percent:F0} %).",
+                            "Speicher ansehen", () => NavigateTo("storage"));
+                        return;
+                    }
+                }
+                catch { }
+            }
+
+            RemoveBannersStartingWith("storage:");
+        }
+
+        private void CheckReleases()
+        {
+            foreach (var release in settings.Releases)
+            {
+                if (release.Date.Date != DateTime.Today) continue;
+                ShowBanner("release:" + release.Name, "🗓", $"Heute erscheint: {release.Name}", "Planer öffnen", () => NavigateTo("backlog"));
+            }
+        }
+
+        // ───────────────────────────── Navigation der neuen Bereiche ─────────────────────────────
+
+        private void NavDeals_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(ViewDeals);
+            ApplyStoreLogos();
+            MarkFreeGamesSeen();
+
+            if ((DateTime.Now - lastDealsRefresh).TotalMinutes > 30)
+                _ = RefreshDealsAsync(false);
+            else
+                RenderDeals();
+        }
+
+        private void NavBacklog_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(ViewBacklog);
+            RefreshBoard();
+        }
+
+        private void NavGallery_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(ViewGallery);
+            _ = RefreshGalleryAsync();
+        }
+
+        private void ReadExtraSettings()
+        {
+            settings.WeeklyGoalHours = (int)Math.Round(SliderGoal.Value);
+            settings.BreakReminderMinutes = (int)Math.Round(SliderBreak.Value);
+            settings.ShowDeals = ChkDeals.IsChecked == true;
+            settings.StorageWarning = ChkStorageWarn.IsChecked == true;
+            settings.AutoBackupSaves = ChkAutoBackup.IsChecked == true;
+            ReadComfortSettings();
+            ReadExtra3Settings();
+            ReadExtra4Settings();
+            ReadExtra5Settings();
+            ReadExtra6Settings();
+            ReadExtra7Settings();
+            ReadExtra8Settings();
+
+        }
+
+        private void PopulateExtraSettings()
+        {
+            SliderGoal.Value = settings.WeeklyGoalHours;
+            SliderBreak.Value = settings.BreakReminderMinutes;
+            ChkDeals.IsChecked = settings.ShowDeals;
+            ChkStorageWarn.IsChecked = settings.StorageWarning;
+            ChkAutoBackup.IsChecked = settings.AutoBackupSaves;
+            PopulateComfortSettings();
+            PopulateExtra3Settings();
+            PopulateExtra4Settings();
+            PopulateExtra5Settings();
+            PopulateExtra6Settings();
+            PopulateExtra7Settings();
+            PopulateExtra8Settings();
+        }
+
+        private void UpdateExtraSliderLabels()
+        {
+            TxtGoalValue.Text = settings.WeeklyGoalHours == 0 ? "Aus" : $"{settings.WeeklyGoalHours} Std. pro Woche";
+            TxtBreakValue.Text = settings.BreakReminderMinutes == 0 ? "Aus" : $"alle {settings.BreakReminderMinutes} Min.";
+        }
+
+        // ───────────────────────────── Angebote: Gratis-Spiele & Steam-Rabatte ─────────────────────────────
+
+        private static bool TryPath(JsonElement start, out JsonElement result, params string[] path)
+        {
+            result = start;
+            foreach (string name in path)
+            {
+                if (result.ValueKind != JsonValueKind.Object || !result.TryGetProperty(name, out var next))
+                    return false;
+                result = next;
+            }
+            return true;
+        }
+
+        private static DateTime? ParseOfferDate(JsonElement offer, string property)
+        {
+            string text = GetJsonString(offer, property);
+            if (DateTimeOffset.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
+                return parsed.LocalDateTime;
+            return null;
+        }
+
+        private static async Task<(List<DealItem> Free, List<DealItem> Upcoming)> FetchEpicFreeAsync()
+        {
+            var free = new List<DealItem>();
+            var upcoming = new List<DealItem>();
+
+            string json = await Http.GetStringAsync(
+                "https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions?locale=de&country=DE&allowCountries=DE");
+            using var doc = JsonDocument.Parse(json);
+
+            if (!TryPath(doc.RootElement, out var elements, "data", "Catalog", "searchStore", "elements") ||
+                elements.ValueKind != JsonValueKind.Array)
+                return (free, upcoming);
+
+            foreach (var element in elements.EnumerateArray())
+            {
+                try
+                {
+                    string title = GetJsonString(element, "title");
+                    if (title.Length == 0) continue;
+
+                    string slug = GetJsonString(element, "productSlug");
+                    if (slug.Length == 0) slug = GetJsonString(element, "urlSlug");
+                    if (slug.Length == 0 && TryPath(element, out var mappings, "offerMappings") &&
+                        mappings.ValueKind == JsonValueKind.Array && mappings.GetArrayLength() > 0)
+                        slug = GetJsonString(mappings[0], "pageSlug");
+                    slug = slug.Replace("/home", string.Empty);
+
+                    string url = slug.Length > 0
+                        ? $"https://store.epicgames.com/de/p/{slug}"
+                        : "https://store.epicgames.com/de/free-games";
+
+                    string image = string.Empty;
+                    if (element.TryGetProperty("keyImages", out var images) && images.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (string wanted in new[] { "OfferImageWide", "DieselStoreFrontWide", "Thumbnail", "OfferImageTall" })
+                        {
+                            foreach (var candidate in images.EnumerateArray())
+                            {
+                                if (GetJsonString(candidate, "type") == wanted)
+                                {
+                                    image = GetJsonString(candidate, "url");
+                                    break;
+                                }
+                            }
+                            if (image.Length > 0) break;
+                        }
+                    }
+
+                    if (!element.TryGetProperty("promotions", out var promotions) || promotions.ValueKind != JsonValueKind.Object)
+                        continue;
+
+                    // Aktuell gratis
+                    if (promotions.TryGetProperty("promotionalOffers", out var current) && current.ValueKind == JsonValueKind.Array &&
+                        current.GetArrayLength() > 0 &&
+                        TryPath(current[0], out var offers, "promotionalOffers") && offers.ValueKind == JsonValueKind.Array &&
+                        offers.GetArrayLength() > 0)
+                    {
+                        var offer = offers[0];
+                        long percent = TryPath(offer, out var discount, "discountSetting") ? JsonLong(discount, "discountPercentage") : 0;
+                        if (percent == 0)
+                        {
+                            var end = ParseOfferDate(offer, "endDate");
+                            free.Add(new DealItem
+                            {
+                                Id = GetJsonString(element, "id") + title,
+                                Title = title,
+                                Subtitle = end.HasValue ? $"Gratis bis {end.Value:dd.MM. HH:mm} Uhr" : "Gratis",
+                                Badge = "GRATIS",
+                                Store = "epic",
+                                ImageUrl = image,
+                                Url = url
+                            });
+                            continue;
+                        }
+                    }
+
+                    // Demnächst gratis
+                    if (promotions.TryGetProperty("upcomingPromotionalOffers", out var next) && next.ValueKind == JsonValueKind.Array &&
+                        next.GetArrayLength() > 0 &&
+                        TryPath(next[0], out var nextOffers, "promotionalOffers") && nextOffers.ValueKind == JsonValueKind.Array &&
+                        nextOffers.GetArrayLength() > 0)
+                    {
+                        var start = ParseOfferDate(nextOffers[0], "startDate");
+                        upcoming.Add(new DealItem
+                        {
+                            Id = GetJsonString(element, "id") + title,
+                            Title = title,
+                            Subtitle = start.HasValue ? $"Ab {start.Value:dd.MM. HH:mm} Uhr gratis" : "Bald gratis",
+                            Badge = "BALD",
+                            Store = "epic",
+                            ImageUrl = image,
+                            Url = url
+                        });
+                    }
+                }
+                catch { }
+            }
+
+            return (free, upcoming);
+        }
+
+        private static async Task<List<DealItem>> FetchSteamDealsAsync()
+        {
+            var list = new List<DealItem>();
+
+            string json = await Http.GetStringAsync("https://store.steampowered.com/api/featuredcategories?cc=de&l=german");
+            using var doc = JsonDocument.Parse(json);
+
+            if (!TryPath(doc.RootElement, out var items, "specials", "items") || items.ValueKind != JsonValueKind.Array)
+                return list;
+
+            foreach (var item in items.EnumerateArray())
+            {
+                string name = GetJsonString(item, "name");
+                long id = JsonLong(item, "id");
+                long percent = JsonLong(item, "discount_percent");
+                long original = JsonLong(item, "original_price");
+                long finalPrice = JsonLong(item, "final_price");
+                if (name.Length == 0 || id == 0 || percent <= 0) continue;
+
+                string image = GetJsonString(item, "large_capsule_image");
+                if (image.Length == 0) image = GetJsonString(item, "header_image");
+
+                list.Add(new DealItem
+                {
+                    Id = id.ToString(),
+                    Title = name,
+                    Subtitle = original > 0
+                        ? $"{finalPrice / 100.0:F2} € statt {original / 100.0:F2} €"
+                        : $"{finalPrice / 100.0:F2} €",
+                    Badge = $"-{percent} %",
+                    Store = "steam",
+                    ImageUrl = image,
+                    Url = $"https://store.steampowered.com/app/{id}"
+                });
+
+                if (list.Count >= 12) break;
+            }
+
+            return list;
+        }
+
+        private async Task RefreshDealsAsync(bool silent)
+        {
+            if (!settings.OnlineFeatures)
+            {
+                TxtDealsStatus.Text = "Online-Funktionen sind in den Einstellungen deaktiviert.";
+                return;
+            }
+
+            TxtDealsStatus.Text = "Angebote werden geladen ...";
+            BtnRefreshDeals.IsEnabled = false;
+
+            try
+            {
+                var epic = await FetchEpicFreeAsync();
+                epicFree = epic.Free;
+                epicUpcoming = epic.Upcoming;
+            }
+            catch { }
+
+            try
+            {
+                steamDeals = await FetchSteamDealsAsync();
+            }
+            catch { }
+
+            lastDealsRefresh = DateTime.Now;
+            RenderDeals();
+            BtnRefreshDeals.IsEnabled = true;
+            TxtDealsStatus.Text = epicFree.Count + epicUpcoming.Count + steamDeals.Count == 0
+                ? "Keine Angebote geladen. Prüfe deine Internetverbindung."
+                : $"Stand: {DateTime.Now:HH:mm} Uhr";
+
+            CheckFreeGameBanner(silent);
+        }
+
+        private async void BtnRefreshDeals_Click(object sender, RoutedEventArgs e) => await RefreshDealsAsync(false);
+
+        private void CheckFreeGameBanner(bool silent)
+        {
+            var unseen = epicFree.Where(d => !settings.SeenFreeGames.Contains(d.Id)).ToList();
+            if (!settings.ShowDeals || unseen.Count == 0)
+            {
+                RemoveBanner("deals");
+                return;
+            }
+
+            string names = string.Join(", ", unseen.Select(d => d.Title).Take(3));
+            ShowBanner("deals", "🎁", $"Gratis bei Epic Games: {names}", "Ansehen", () => NavigateTo("deals"), MarkFreeGamesSeen);
+
+            if (silent)
+                ShowToast("🎁", "Neue Gratis-Spiele", names, 8, () => NavigateTo("deals"));
+        }
+
+        private void MarkFreeGamesSeen()
+        {
+            bool changed = false;
+            foreach (var deal in epicFree)
+            {
+                if (settings.SeenFreeGames.Contains(deal.Id)) continue;
+                settings.SeenFreeGames.Add(deal.Id);
+                changed = true;
+            }
+
+            while (settings.SeenFreeGames.Count > 60) settings.SeenFreeGames.RemoveAt(0);
+            RemoveBanner("deals");
+            if (changed) SaveSettings();
+        }
+
+        private static BitmapImage? LoadWebImage(string url)
+        {
+            if (string.IsNullOrEmpty(url)) return null;
+
+            try
+            {
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.UriSource = new Uri(url);
+                image.DecodePixelWidth = 500;
+                image.EndInit();
+                return image;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private void RenderDeals()
+        {
+            FillDeals(EpicFreeContainer, epicFree, "Zurzeit gibt es keine Gratis-Spiele.");
+            FillDeals(EpicUpcomingContainer, epicUpcoming, "Noch keine Vorschau verfügbar.");
+            FillDeals(SteamDealsContainer, steamDeals, "Keine Angebote gefunden.");
+        }
+
+        private void FillDeals(WrapPanel panel, List<DealItem> deals, string emptyText)
+        {
+            panel.Children.Clear();
+
+            if (deals.Count == 0)
+            {
+                panel.Children.Add(new TextBlock { Text = emptyText, Foreground = BrushSubtle, Margin = new Thickness(0, 0, 0, 12) });
+                return;
+            }
+
+            foreach (var deal in deals)
+                panel.Children.Add(CreateDealCard(deal));
+        }
+
+        private Border CreateDealCard(DealItem deal)
+        {
+            var layout = new Grid();
+            layout.RowDefinitions.Add(new RowDefinition { Height = new GridLength(124) });
+            layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            var imageArea = new Grid { Background = BrushFooter };
+            var picture = LoadWebImage(deal.ImageUrl);
+            if (picture != null)
+                imageArea.Children.Add(new System.Windows.Controls.Image { Source = picture, Stretch = Stretch.UniformToFill });
+
+            var badge = CreateBadge(deal.Badge, true);
+            badge.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+            badge.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+            badge.Margin = new Thickness(10);
+            imageArea.Children.Add(badge);
+            layout.Children.Add(imageArea);
+
+            var texts = new StackPanel { Margin = new Thickness(14, 10, 14, 12) };
+            Grid.SetRow(texts, 1);
+            texts.Children.Add(new TextBlock
+            {
+                Text = deal.Title,
+                Foreground = System.Windows.Media.Brushes.White,
+                FontWeight = FontWeights.SemiBold,
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+            texts.Children.Add(new TextBlock
+            {
+                Text = deal.Subtitle,
+                Foreground = BrushSubtle,
+                FontSize = 12,
+                Margin = new Thickness(0, 3, 0, 0),
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+            var storeName = deal.Store == "steam" ? "Steam" : deal.Store == "epic" ? "Epic Games Store" : string.Empty;
+            if (storeName.Length > 0)
+            {
+                var storeRow = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(0, 8, 0, 0) };
+                var logo = GetStoreLogo(deal.Store);
+                if (logo != null)
+                    storeRow.Children.Add(new System.Windows.Controls.Image { Source = logo, Width = 16, Height = 16, Margin = new Thickness(0, 0, 6, 0) });
+                storeRow.Children.Add(new TextBlock { Text = storeName, Foreground = BrushSubtle, FontSize = 11, VerticalAlignment = System.Windows.VerticalAlignment.Center });
+                texts.Children.Add(storeRow);
+            }
+            layout.Children.Add(texts);
+
+            var card = new Border
+            {
+                Width = 250,
+                Margin = new Thickness(0, 0, 14, 14),
+                CornerRadius = new CornerRadius(14),
+                Background = BrushCardBg,
+                BorderBrush = BrushCardBorder,
+                BorderThickness = new Thickness(1),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                ClipToBounds = true,
+                Child = layout
+            };
+            card.MouseEnter += (s, e) => card.Background = BrushTileHover;
+            card.MouseLeave += (s, e) => card.Background = BrushCardBg;
+            card.MouseLeftButtonUp += (s, e) => OpenShell(deal.Url);
+            return card;
+        }
+
+        // ───────────────────────────── Backlog-Board & Release-Planer ─────────────────────────────
+
+        private void SetStatus(GameItem game, string status)
+        {
+            game.Status = status;
+            SaveGameState(game);
+            RefreshBoard();
+            ApplyFilter();
+            CheckAchievements(false);
+        }
+
+        private void RefreshBoard()
+        {
+            if (BoardBacklog == null || BoardPlaying == null || BoardDone == null) return;
+
+            FillColumn(BoardBacklog, "backlog");
+            FillColumn(BoardPlaying, "playing");
+            FillColumn(BoardDone, "done");
+            RefreshReleases();
+        }
+
+        private void FillColumn(StackPanel column, string status)
+        {
+            column.Children.Clear();
+
+            foreach (var game in VisibleGames.Where(g => g.Status == status).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase))
+                column.Children.Add(CreateBoardItem(game));
+
+            if (column.Children.Count == 0)
+            {
+                column.Children.Add(new TextBlock
+                {
+                    Text = "Leer. Ziehe Spiele hierher oder nutze ＋.",
+                    Foreground = BrushSubtle,
+                    FontSize = 12,
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(2, 4, 0, 0)
+                });
+            }
+        }
+
+        private Border CreateBoardItem(GameItem game)
+        {
+            var layout = new Grid();
+            layout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            var thumb = new Border
+            {
+                Width = 34,
+                Height = 48,
+                CornerRadius = new CornerRadius(6),
+                Background = BrushCardBg,
+                Margin = new Thickness(0, 0, 10, 0)
+            };
+            if (HasCover(game) && GetCachedImage(EffectiveCover(game)) is BitmapImage image)
+                thumb.Background = new ImageBrush(image) { Stretch = Stretch.UniformToFill };
+            layout.Children.Add(thumb);
+
+            var texts = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center };
+            Grid.SetColumn(texts, 1);
+            texts.Children.Add(new TextBlock
+            {
+                Text = game.Name,
+                Foreground = System.Windows.Media.Brushes.White,
+                FontWeight = FontWeights.SemiBold,
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+            texts.Children.Add(new TextBlock
+            {
+                Text = BuildMetaText(game),
+                Foreground = BrushSubtle,
+                FontSize = 11,
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+            layout.Children.Add(texts);
+
+            var item = new Border
+            {
+                Padding = new Thickness(8),
+                Margin = new Thickness(0, 0, 0, 8),
+                CornerRadius = new CornerRadius(10),
+                Background = BrushFooter,
+                Cursor = System.Windows.Input.Cursors.Hand,
+                ContextMenu = BuildGameMenu(game),
+                ToolTip = "Ziehen zum Verschieben, Doppelklick zum Starten",
+                Child = layout
+            };
+
+            var dragStart = new System.Windows.Point();
+            item.MouseLeftButtonDown += (s, e) =>
+            {
+                dragStart = e.GetPosition(null);
+                if (e.ClickCount == 2) LaunchGame(game);
+            };
+            item.MouseMove += (s, e) =>
+            {
+                if (e.LeftButton != System.Windows.Input.MouseButtonState.Pressed) return;
+
+                var position = e.GetPosition(null);
+                if (Math.Abs(position.X - dragStart.X) < SystemParameters.MinimumHorizontalDragDistance &&
+                    Math.Abs(position.Y - dragStart.Y) < SystemParameters.MinimumVerticalDragDistance)
+                    return;
+
+                System.Windows.DragDrop.DoDragDrop(item, game.Name, System.Windows.DragDropEffects.Move);
+            };
+            item.MouseEnter += (s, e) => item.Background = BrushTileHover;
+            item.MouseLeave += (s, e) => item.Background = BrushFooter;
+
+            return item;
+        }
+
+        private void Board_DragOver(object sender, System.Windows.DragEventArgs e)
+        {
+            e.Effects = e.Data.GetDataPresent(System.Windows.DataFormats.StringFormat)
+                ? System.Windows.DragDropEffects.Move
+                : System.Windows.DragDropEffects.None;
+            e.Handled = true;
+        }
+
+        private void Board_Drop(object sender, System.Windows.DragEventArgs e)
+        {
+            if (sender is Border { Tag: string status } &&
+                e.Data.GetData(System.Windows.DataFormats.StringFormat) is string name)
+            {
+                var game = allGames.FirstOrDefault(g => g.Name == name);
+                if (game != null) SetStatus(game, status);
+            }
+            e.Handled = true;
+        }
+
+        private void BtnBoardAdd_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not System.Windows.Controls.Button { Tag: string status }) return;
+
+            var candidates = allGames
+                .Where(g => g.Status != status)
+                .Select(g => g.Name)
+                .OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase)
+                .ToList();
+
+            var chosen = PickFromList("Spiele hinzufügen", "Wähle die Spiele aus, die in diese Spalte sollen.", candidates);
+            if (chosen == null || chosen.Count == 0) return;
+
+            foreach (string name in chosen)
+            {
+                var game = allGames.FirstOrDefault(g => g.Name == name);
+                if (game == null) continue;
+                game.Status = status;
+                CopyStateToSettings(game);
+            }
+
+            SaveSettings();
+            RefreshBoard();
+            ApplyFilter();
+            CheckAchievements(false);
+        }
+
+        private void RefreshReleases()
+        {
+            ReleasesList.Children.Clear();
+
+            var items = settings.Releases.OrderBy(r => r.Date).ToList();
+            if (items.Count == 0)
+            {
+                ReleasesList.Children.Add(new TextBlock
+                {
+                    Text = "Noch keine Einträge. Trage kommende Spiele ein, der Launcher zählt die Tage herunter.",
+                    Foreground = BrushSubtle,
+                    FontSize = 12,
+                    TextWrapping = TextWrapping.Wrap
+                });
+                return;
+            }
+
+            foreach (var release in items)
+            {
+                var entry = release;
+                int days = (entry.Date.Date - DateTime.Today).Days;
+                string countdown = days > 1 ? $"in {days} Tagen" : days == 1 ? "morgen" : days == 0 ? "heute!" : "erschienen";
+
+                var row = new Grid { Margin = new Thickness(0, 0, 0, 8) };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) });
+
+                row.Children.Add(new TextBlock
+                {
+                    Text = "🗓  " + entry.Name,
+                    Foreground = System.Windows.Media.Brushes.White,
+                    TextTrimming = TextTrimming.CharacterEllipsis
+                });
+
+                var date = new TextBlock { Text = entry.Date.ToString("dd.MM.yyyy"), Foreground = BrushSubtle, Margin = new Thickness(12, 0, 12, 0) };
+                Grid.SetColumn(date, 1);
+                row.Children.Add(date);
+
+                var left = new TextBlock
+                {
+                    Text = countdown,
+                    FontWeight = FontWeights.SemiBold,
+                    Foreground = days <= 0 ? BrushGold : System.Windows.Media.Brushes.White,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Right
+                };
+                Grid.SetColumn(left, 2);
+                row.Children.Add(left);
+
+                var menu = CreateMenu();
+                AddMenuItem(menu, "🗑  Eintrag löschen", () =>
+                {
+                    settings.Releases.Remove(entry);
+                    SaveSettings();
+                    RefreshReleases();
+                });
+                row.ContextMenu = menu;
+
+                ReleasesList.Children.Add(row);
+            }
+        }
+
+        private void BtnAddRelease_Click(object sender, RoutedEventArgs e)
+        {
+            string? name = PromptText("Neuer Termin", "Name des kommenden Spiels:", string.Empty);
+            if (name == null) return;
+
+            string? dateText = PromptText("Erscheinungsdatum", "Datum im Format TT.MM.JJJJ:", DateTime.Today.AddDays(30).ToString("dd.MM.yyyy"));
+            if (dateText == null) return;
+
+            if (!DateTime.TryParse(dateText, CultureInfo.GetCultureInfo("de-DE"), DateTimeStyles.None, out var date))
+            {
+                Msg("Das Datum konnte nicht gelesen werden. Bitte im Format TT.MM.JJJJ eingeben.", "Ungültiges Datum",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            settings.Releases.Add(new ReleaseEntry { Name = name, Date = date });
+            SaveSettings();
+            RefreshReleases();
+        }
+
+        // ───────────────────────────── Screenshot-Galerie ─────────────────────────────
+
+        private static List<ShotInfo> FindScreenshots(List<GameItem> games, List<string> extraFolders)
+        {
+            var folders = new List<(string Path, string Label)>();
+
+            string pictures = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+            string videos = Environment.GetFolderPath(Environment.SpecialFolder.MyVideos);
+            folders.Add((System.IO.Path.Combine(pictures, "Screenshots"), "Windows"));
+            folders.Add((System.IO.Path.Combine(videos, "Captures"), "Xbox Game Bar"));
+
+            try
+            {
+                string? steamPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam", "SteamPath", null) as string;
+                if (!string.IsNullOrEmpty(steamPath))
+                {
+                    string userdata = System.IO.Path.Combine(steamPath, "userdata");
+                    if (Directory.Exists(userdata))
+                    {
+                        foreach (string user in Directory.GetDirectories(userdata))
+                        {
+                            string remote = System.IO.Path.Combine(user, "760", "remote");
+                            if (!Directory.Exists(remote)) continue;
+
+                            foreach (string appDir in Directory.GetDirectories(remote))
+                            {
+                                string shots = System.IO.Path.Combine(appDir, "screenshots");
+                                if (!Directory.Exists(shots)) continue;
+
+                                string appId = System.IO.Path.GetFileName(appDir);
+                                string label = games.FirstOrDefault(g => g.AppId == appId)?.Name ?? "Steam";
+                                folders.Add((shots, label));
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            foreach (string folder in extraFolders)
+                folders.Add((folder, System.IO.Path.GetFileName(folder.TrimEnd('\\', '/'))));
+
+            var results = new List<ShotInfo>();
+            var extensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".jpg", ".jpeg", ".png", ".bmp" };
+
+            foreach (var (folderPath, label) in folders)
+            {
+                try
+                {
+                    if (!Directory.Exists(folderPath)) continue;
+
+                    foreach (string file in Directory.EnumerateFiles(folderPath))
+                    {
+                        if (!extensions.Contains(System.IO.Path.GetExtension(file))) continue;
+                        results.Add(new ShotInfo { FilePath = file, Time = File.GetLastWriteTime(file), Label = label });
+                    }
+                }
+                catch { }
+            }
+
+            return results.OrderByDescending(r => r.Time).ToList();
+        }
+
+        private static BitmapImage? LoadThumbnail(string path)
+        {
+            try
+            {
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.UriSource = new Uri(path);
+                image.DecodePixelWidth = 380;
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.EndInit();
+                image.Freeze();
+                return image;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private Border CreateShotTile(ShotInfo shot, out Border imageHost)
+        {
+            imageHost = new Border { Background = BrushFooter };
+
+            var caption = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Bottom, Margin = new Thickness(12, 0, 12, 8) };
+            caption.Children.Add(new TextBlock
+            {
+                Text = shot.Label,
+                Foreground = System.Windows.Media.Brushes.White,
+                FontWeight = FontWeights.SemiBold,
+                FontSize = 12,
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+            caption.Children.Add(new TextBlock
+            {
+                Text = shot.Time.ToString("dd.MM.yyyy HH:mm"),
+                Foreground = MakeBrush("#D1D5DB"),
+                FontSize = 11
+            });
+
+            var shade = new Border
+            {
+                VerticalAlignment = System.Windows.VerticalAlignment.Bottom,
+                Background = MakeBrush("#B0000000"),
+                Padding = new Thickness(0, 6, 0, 0),
+                Child = caption
+            };
+
+            var grid = new Grid();
+            grid.Children.Add(imageHost);
+            grid.Children.Add(shade);
+
+            var menu = CreateMenu();
+            AddMenuItem(menu, "🖼  Öffnen", () => OpenShell(shot.FilePath));
+            AddMenuItem(menu, "📂  Im Ordner zeigen", () => OpenShell("explorer.exe", $"/select,\"{shot.FilePath}\""));
+            AddMenuItem(menu, "📋  In die Zwischenablage kopieren", () =>
+            {
+                try
+                {
+                    var full = new BitmapImage(new Uri(shot.FilePath));
+                    System.Windows.Clipboard.SetImage(full);
+                    ShowToast("📋", "Kopiert", "Der Screenshot liegt in der Zwischenablage.", 3);
+                }
+                catch (Exception ex)
+                {
+                    Msg($"Kopieren fehlgeschlagen:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            });
+            AddMenuItem(menu, "🎨  Als Hintergrundbild verwenden", () =>
+            {
+                try
+                {
+                    Directory.CreateDirectory(SettingsDir);
+                    string target = System.IO.Path.Combine(SettingsDir, "background" + System.IO.Path.GetExtension(shot.FilePath).ToLowerInvariant());
+                    File.Copy(shot.FilePath, target, true);
+                    settings.BackgroundImagePath = target;
+                    loadedBackgroundPath = string.Empty;
+                    SaveSettings();
+                    ApplyViewSettings();
+                }
+                catch (Exception ex)
+                {
+                    Msg($"Hintergrund konnte nicht gesetzt werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            });
+
+            var tile = new Border
+            {
+                Width = 250,
+                Height = 156,
+                Margin = new Thickness(0, 0, 14, 14),
+                CornerRadius = new CornerRadius(12),
+                Clip = new RectangleGeometry(new Rect(0, 0, 250, 156), 12, 12),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                ContextMenu = menu,
+                Child = grid
+            };
+            tile.MouseLeftButtonUp += (s, e) => OpenShell(shot.FilePath);
+            return tile;
+        }
+
+        private async Task LoadThumbnailIntoAsync(string path, Border host, System.Threading.SemaphoreSlim gate)
+        {
+            await gate.WaitAsync();
+            try
+            {
+                var image = await Task.Run(() => LoadThumbnail(path));
+                if (image != null)
+                    host.Child = new System.Windows.Controls.Image { Source = image, Stretch = Stretch.UniformToFill };
+            }
+            finally
+            {
+                gate.Release();
+            }
+        }
+
+        private async Task RefreshGalleryAsync()
+        {
+            TxtGalleryStatus.Text = "Screenshots werden gesucht ...";
+
+            var gamesSnapshot = allGames.ToList();
+            var folders = settings.ScreenshotFolders.ToList();
+            var shots = await Task.Run(() => FindScreenshots(gamesSnapshot, folders));
+
+            GalleryContainer.Children.Clear();
+            TxtGalleryStatus.Text = shots.Count == 0
+                ? "Keine Screenshots gefunden. Füge über „Ordner hinzufügen“ deinen Screenshot-Ordner hinzu."
+                : $"{shots.Count} Screenshots gefunden, die neuesten {Math.Min(60, shots.Count)} werden angezeigt.";
+
+            using var gate = new System.Threading.SemaphoreSlim(3);
+            var loaders = new List<Task>();
+            foreach (var shot in shots.Take(60))
+            {
+                var tile = CreateShotTile(shot, out var host);
+                GalleryContainer.Children.Add(tile);
+                loaders.Add(LoadThumbnailIntoAsync(shot.FilePath, host, gate));
+            }
+
+            await Task.WhenAll(loaders);
+        }
+
+        private async void BtnRefreshGallery_Click(object sender, RoutedEventArgs e) => await RefreshGalleryAsync();
+
+        private async void BtnAddShotFolder_Click(object sender, RoutedEventArgs e)
+        {
+            using var dialog = new Forms.FolderBrowserDialog
+            {
+                Description = "Ordner mit Screenshots auswählen",
+                UseDescriptionForTitle = true
+            };
+            if (dialog.ShowDialog() != Forms.DialogResult.OK) return;
+
+            if (!settings.ScreenshotFolders.Contains(dialog.SelectedPath, StringComparer.OrdinalIgnoreCase))
+            {
+                settings.ScreenshotFolders.Add(dialog.SelectedPath);
+                SaveSettings();
+            }
+
+            if (ViewGallery.Visibility == Visibility.Visible)
+                await RefreshGalleryAsync();
+            else
+                ShowToast("🖼", "Ordner hinzugefügt", dialog.SelectedPath, 4);
+        }
+
+        // ───────────────────────────── Spielstände sichern & wiederherstellen ─────────────────────────────
+
+        private static string SafeFileName(string name)
+        {
+            string safe = Regex.Replace(name, @"[^\w\-]+", "_");
+            return safe.Length > 80 ? safe.Substring(0, 80) : safe;
+        }
+
+        private static string BackupDirFor(GameItem game)
+            => System.IO.Path.Combine(SettingsDir, "backups", SafeFileName(game.Name));
+
+        private static string? GuessSavePath(GameItem game)
+        {
+            string documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+            string clean = Regex.Replace(game.Name, @"[™®©:]", string.Empty).Trim();
+            var names = new[] { game.Name, clean }.Distinct().ToList();
+            var roots = new[]
+            {
+                System.IO.Path.Combine(documents, "My Games"),
+                documents,
+                System.IO.Path.Combine(documents, "Rockstar Games"),
+                System.IO.Path.Combine(profile, "Saved Games"),
+                local,
+                roaming
+            };
+
+            foreach (string root in roots)
+            {
+                foreach (string name in names)
+                {
+                    string candidate = System.IO.Path.Combine(root, name);
+                    if (Directory.Exists(candidate)) return candidate;
+                }
+            }
+            return null;
+        }
+
+        private bool ChooseSavePath(GameItem game)
+        {
+            string? guess = GuessSavePath(game);
+            if (guess != null)
+            {
+                var answer = Msg($"Mögliche Spielstände gefunden:\n{guess}\n\nDiesen Ordner verwenden?", "Spielstand-Ordner",
+                    MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+                if (answer == MessageBoxResult.Yes)
+                {
+                    game.SavePath = guess;
+                    SaveGameState(game);
+                    return true;
+                }
+                if (answer == MessageBoxResult.Cancel) return false;
+            }
+
+            using var dialog = new Forms.FolderBrowserDialog
+            {
+                Description = $"Ordner mit den Spielständen von „{game.Name}“ auswählen",
+                UseDescriptionForTitle = true,
+                SelectedPath = !string.IsNullOrEmpty(game.SavePath) ? game.SavePath : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+            };
+            if (dialog.ShowDialog() != Forms.DialogResult.OK) return false;
+
+            game.SavePath = dialog.SelectedPath;
+            SaveGameState(game);
+            return true;
+        }
+
+        private static void PruneBackups(string directory, int keep)
+        {
+            try
+            {
+                foreach (var old in new DirectoryInfo(directory).GetFiles("*.zip").OrderByDescending(f => f.CreationTime).Skip(keep))
+                    old.Delete();
+            }
+            catch { }
+        }
+
+        private async Task<bool> BackupSavesAsync(GameItem game, bool automatic)
+        {
+            if (string.IsNullOrEmpty(game.SavePath) || !Directory.Exists(game.SavePath)) return false;
+
+            string directory = BackupDirFor(game);
+            string file = System.IO.Path.Combine(directory, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + (automatic ? "_auto" : "") + ".zip");
+            string source = game.SavePath;
+
+            try
+            {
+                await Task.Run(() =>
+                {
+                    Directory.CreateDirectory(directory);
+                    System.IO.Compression.ZipFile.CreateFromDirectory(source, file, System.IO.Compression.CompressionLevel.Optimal, false);
+                    PruneBackups(directory, 10);
+                    MirrorToCloud(file, System.IO.Path.Combine("Spielstaende", SafeFileName(game.Name)));
+                });
+
+                settings.BackupCount++;
+                SaveSettings();
+                CheckAchievements(false);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private async Task BackupNowAsync(GameItem game)
+        {
+            if (string.IsNullOrEmpty(game.SavePath) && !ChooseSavePath(game)) return;
+
+            bool ok = await BackupSavesAsync(game, false);
+            if (ok)
+                ShowToast("💾", "Spielstand gesichert", game.Name, 4);
+            else
+                Msg("Die Sicherung ist fehlgeschlagen. Läuft das Spiel noch oder ist der Ordner leer?", "Spielstand sichern",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+
+        private void ShowRestoreDialog(GameItem game)
+        {
+            string directory = BackupDirFor(game);
+            var backups = Directory.Exists(directory)
+                ? new DirectoryInfo(directory).GetFiles("*.zip").OrderByDescending(f => f.CreationTime).ToList()
+                : new List<FileInfo>();
+
+            if (string.IsNullOrEmpty(game.SavePath) || backups.Count == 0)
+            {
+                Msg(string.IsNullOrEmpty(game.SavePath)
+                        ? "Lege zuerst den Spielstand-Ordner fest (Rechtsklick, dann „Spielstände“)."
+                        : "Es gibt noch keine Sicherungen für dieses Spiel.",
+                    "Spielstand wiederherstellen");
+                return;
+            }
+
+            var dialog = CreateDialog("Spielstand wiederherstellen", 520, out var panel);
+            panel.Children.Add(new TextBlock
+            {
+                Text = $"Wähle eine Sicherung von „{game.Name}“. Der aktuelle Stand wird vorher automatisch gesichert.",
+                Foreground = BrushSubtle,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 12)
+            });
+
+            var list = new StackPanel();
+            var options = new List<(System.Windows.Controls.RadioButton Button, FileInfo File)>();
+            foreach (var backup in backups.Take(15))
+            {
+                var radio = new System.Windows.Controls.RadioButton
+                {
+                    Content = $"{backup.CreationTime:dd.MM.yyyy HH:mm}   ·   {FormatBytes(backup.Length)}" + (backup.Name.Contains("_auto") ? "   ·   automatisch" : string.Empty),
+                    GroupName = "Backups",
+                    Foreground = System.Windows.Media.Brushes.White,
+                    Margin = new Thickness(0, 0, 0, 8),
+                    IsChecked = options.Count == 0
+                };
+                options.Add((radio, backup));
+                list.Children.Add(radio);
+            }
+            panel.Children.Add(new ScrollViewer { Content = list, MaxHeight = 280, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Margin = new Thickness(0, 0, 0, 16) });
+
+            var buttons = new StackPanel
+            {
+                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right
+            };
+            var cancel = new System.Windows.Controls.Button { Content = "Abbrechen", Margin = new Thickness(0, 0, 10, 0), IsCancel = true };
+            var restore = new System.Windows.Controls.Button { Content = "Wiederherstellen", Padding = new Thickness(22, 8, 22, 8) };
+            restore.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            buttons.Children.Add(cancel);
+            buttons.Children.Add(restore);
+            panel.Children.Add(buttons);
+
+            FileInfo? selected = null;
+            restore.Click += (s, e) =>
+            {
+                selected = options.FirstOrDefault(o => o.Button.IsChecked == true).File;
+                dialog.DialogResult = true;
+            };
+
+            if (dialog.ShowDialog() != true || selected == null) return;
+            _ = RestoreSavesAsync(game, selected);
+        }
+
+        private async Task RestoreSavesAsync(GameItem game, FileInfo backup)
+        {
+            try
+            {
+                await BackupSavesAsync(game, true);
+                string target = game.SavePath;
+                await Task.Run(() => System.IO.Compression.ZipFile.ExtractToDirectory(backup.FullName, target, true));
+                ShowToast("↩", "Spielstand wiederhergestellt", game.Name, 5);
+            }
+            catch (Exception ex)
+            {
+                Msg($"Wiederherstellen fehlgeschlagen:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ───────────────────────────── Startoptionen & Begleitprogramme ─────────────────────────────
+
+        private static bool IsAppRunning(AppEntry app)
+        {
+            try
+            {
+                string processName = System.IO.Path.GetFileNameWithoutExtension(app.ExePath);
+                var match = Regex.Match(app.Arguments ?? string.Empty, @"--processStart\s+(\S+)", RegexOptions.IgnoreCase);
+                if (match.Success) processName = System.IO.Path.GetFileNameWithoutExtension(match.Groups[1].Value);
+
+                var processes = Process.GetProcessesByName(processName);
+                bool running = processes.Length > 0;
+                foreach (var process in processes) process.Dispose();
+                return running;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private void StartCompanions(GameItem game)
+        {
+            var names = settings.DefaultCompanions
+                .Concat(game.CompanionApps)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            if (names.Count == 0) return;
+
+            foreach (string name in names)
+            {
+                var app = cachedApps.FirstOrDefault(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase));
+                if (app == null || IsAppRunning(app)) continue;
+                LaunchApp(app);
+            }
+        }
+
+        private List<string>? PickFromList(string title, string hint, List<string> items, ISet<string>? preselected = null)
+        {
+            var dialog = CreateDialog(title, 520, out var panel);
+            panel.Children.Add(new TextBlock
+            {
+                Text = hint,
+                Foreground = BrushSubtle,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 12)
+            });
+
+            var list = new StackPanel();
+            var boxes = new List<System.Windows.Controls.CheckBox>();
+            foreach (string item in items)
+            {
+                var box = new System.Windows.Controls.CheckBox
+                {
+                    Content = item,
+                    Foreground = System.Windows.Media.Brushes.White,
+                    Margin = new Thickness(0, 0, 0, 8),
+                    IsChecked = preselected != null && preselected.Contains(item)
+                };
+                boxes.Add(box);
+                list.Children.Add(box);
+            }
+            if (items.Count == 0)
+                list.Children.Add(new TextBlock { Text = "Keine Einträge vorhanden.", Foreground = BrushSubtle });
+
+            panel.Children.Add(new ScrollViewer { Content = list, MaxHeight = 340, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Margin = new Thickness(0, 0, 0, 16) });
+
+            var buttons = new StackPanel
+            {
+                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right
+            };
+            var cancel = new System.Windows.Controls.Button { Content = "Abbrechen", Margin = new Thickness(0, 0, 10, 0), IsCancel = true };
+            var ok = new System.Windows.Controls.Button { Content = "OK", Padding = new Thickness(28, 8, 28, 8), IsDefault = true };
+            ok.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            buttons.Children.Add(cancel);
+            buttons.Children.Add(ok);
+            panel.Children.Add(buttons);
+
+            List<string>? result = null;
+            ok.Click += (s, e) =>
+            {
+                result = boxes.Where(b => b.IsChecked == true).Select(b => b.Content?.ToString() ?? string.Empty).ToList();
+                dialog.DialogResult = true;
+            };
+
+            return dialog.ShowDialog() == true ? result : null;
+        }
+
+        private void BtnPickCompanions_Click(object sender, RoutedEventArgs e)
+        {
+            var apps = cachedApps.Select(a => a.Name).ToList();
+            var chosen = PickFromList("Standard-Begleitprogramme",
+                "Diese Programme starten bei jedem Spielstart automatisch mit, falls sie noch nicht laufen.",
+                apps, settings.DefaultCompanions.ToHashSet(StringComparer.OrdinalIgnoreCase));
+            if (chosen == null) return;
+
+            settings.DefaultCompanions = chosen;
+            SaveSettings();
+        }
+
+        private void ShowLaunchOptions(GameItem game)
+        {
+            var dialog = CreateDialog("Startoptionen: " + game.Name, 560, out var panel);
+            bool viaLauncher = !string.IsNullOrEmpty(game.LaunchUri);
+
+            panel.Children.Add(new TextBlock
+            {
+                Text = viaLauncher
+                    ? "Dieses Spiel startet über Steam, Epic oder die Xbox-App. Startparameter und Administrator-Start stellst du bitte dort ein."
+                    : "Startparameter und Administrator-Start gelten für den direkten Start über die .exe-Datei.",
+                Foreground = BrushSubtle,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 14)
+            });
+
+            panel.Children.Add(new TextBlock { Text = "Startparameter", Foreground = BrushSubtle, Margin = new Thickness(0, 0, 0, 6) });
+            var args = new System.Windows.Controls.TextBox { Text = game.LaunchArgs, Height = 38, IsEnabled = !viaLauncher, Margin = new Thickness(0, 0, 0, 12) };
+            panel.Children.Add(args);
+
+            var admin = new System.Windows.Controls.CheckBox
+            {
+                Content = "Als Administrator starten",
+                Foreground = System.Windows.Media.Brushes.White,
+                IsChecked = game.RunAsAdmin,
+                IsEnabled = !viaLauncher,
+                Margin = new Thickness(0, 0, 0, 18)
+            };
+            panel.Children.Add(admin);
+
+            panel.Children.Add(new TextBlock { Text = "Begleitprogramme für dieses Spiel", Foreground = BrushSubtle, Margin = new Thickness(0, 0, 0, 8) });
+            var boxes = new Dictionary<string, System.Windows.Controls.CheckBox>();
+            var wrap = new WrapPanel { Margin = new Thickness(0, 0, 0, 18) };
+            foreach (var app in cachedApps)
+            {
+                var box = new System.Windows.Controls.CheckBox
+                {
+                    Content = app.Name,
+                    Foreground = System.Windows.Media.Brushes.White,
+                    IsChecked = game.CompanionApps.Contains(app.Name, StringComparer.OrdinalIgnoreCase),
+                    Margin = new Thickness(0, 0, 18, 8)
+                };
+                boxes[app.Name] = box;
+                wrap.Children.Add(box);
+            }
+            if (cachedApps.Count == 0)
+                wrap.Children.Add(new TextBlock { Text = "Keine Anwendungen erkannt.", Foreground = BrushSubtle });
+            panel.Children.Add(wrap);
+
+            var buttons = new StackPanel
+            {
+                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right
+            };
+            var cancel = new System.Windows.Controls.Button { Content = "Abbrechen", Margin = new Thickness(0, 0, 10, 0), IsCancel = true };
+            var save = new System.Windows.Controls.Button { Content = "Speichern", Padding = new Thickness(26, 8, 26, 8) };
+            save.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            save.Click += (s, e) =>
+            {
+                game.LaunchArgs = args.Text.Trim();
+                game.RunAsAdmin = admin.IsChecked == true;
+                game.CompanionApps = boxes.Where(p => p.Value.IsChecked == true).Select(p => p.Key).ToList();
+                SaveGameState(game);
+                dialog.DialogResult = true;
+            };
+            buttons.Children.Add(cancel);
+            buttons.Children.Add(save);
+            panel.Children.Add(buttons);
+
+            dialog.ShowDialog();
+        }
+
+        private static void AddSubItem(System.Windows.Controls.MenuItem parent, string header, Action action)
+        {
+            var item = new System.Windows.Controls.MenuItem { Header = Loc.T(header) };
+            item.Click += (s, e) => action();
+            parent.Items.Add(item);
+        }
+
+        // ───────────────────────────── Spiele per Drag & Drop hinzufügen ─────────────────────────────
+
+        private static string? ResolveShortcut(string lnkPath)
+        {
+            try
+            {
+                Type? type = Type.GetTypeFromProgID("WScript.Shell");
+                if (type == null) return null;
+
+                dynamic shell = Activator.CreateInstance(type)!;
+                dynamic link = shell.CreateShortcut(lnkPath);
+                string? target = link.TargetPath as string;
+                return string.IsNullOrEmpty(target) ? null : target;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private bool AddManualGameFromPath(string exePath)
+        {
+            if (!File.Exists(exePath)) return false;
+            if (allGames.Any(g => string.Equals(g.ExecutablePath, exePath, StringComparison.OrdinalIgnoreCase))) return false;
+
+            string name = System.IO.Path.GetFileNameWithoutExtension(exePath);
+            settings.ManualGames.Add(new ManualGame { Name = name, ExecutablePath = exePath });
+
+            var game = new GameItem
+            {
+                Name = name,
+                ExecutablePath = exePath,
+                Source = "Manuell",
+                LocalIcon = ExtractIcon(exePath)
+            };
+            AssignCachedCover(game);
+            ApplyGameStates(new[] { game });
+            allGames.Add(game);
+            return true;
+        }
+
+        private void OnWindowDragOver(object sender, System.Windows.DragEventArgs e)
+        {
+            e.Effects = e.Data.GetDataPresent(System.Windows.DataFormats.FileDrop)
+                ? System.Windows.DragDropEffects.Copy
+                : System.Windows.DragDropEffects.None;
+            e.Handled = true;
+        }
+
+        private void OnWindowDrop(object sender, System.Windows.DragEventArgs e)
+        {
+            if (e.Data.GetData(System.Windows.DataFormats.FileDrop) is not string[] files) return;
+
+            var added = new List<GameItem>();
+            foreach (string file in files)
+            {
+                string path = file;
+                if (path.EndsWith(".lnk", StringComparison.OrdinalIgnoreCase)) path = ResolveShortcut(path) ?? path;
+                if (!path.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)) continue;
+
+                if (AddManualGameFromPath(path)) added.Add(allGames[allGames.Count - 1]);
+            }
+
+            if (added.Count == 0)
+            {
+                ShowToast("ℹ", "Nichts hinzugefügt", "Ziehe .exe-Dateien oder Verknüpfungen (.lnk) auf das Fenster.", 5);
+                return;
+            }
+
+            SaveSettings();
+            ApplyFilter();
+            RefreshDashboard();
+            ShowToast("✅", added.Count == 1 ? "Spiel hinzugefügt" : $"{added.Count} Spiele hinzugefügt", string.Join(", ", added.Select(g => g.Name).Take(3)), 4);
+            _ = DownloadCoversAsync(added);
+            e.Handled = true;
+        }
+
+        // ───────────────────────────── Tastenkürzel ─────────────────────────────
+
+        private bool HandleShortcuts(System.Windows.Input.KeyEventArgs e, bool ctrl)
+        {
+            if (!ctrl || SpotlightLayer.Visibility == Visibility.Visible) return false;
+
+            if (e.Key == System.Windows.Input.Key.S && (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Shift) != 0)
+            {
+                ToggleStreamerMode();
+                e.Handled = true;
+                return true;
+            }
+
+            if (e.Key == System.Windows.Input.Key.F)
+            {
+                NavigateTo("games");
+                TxtSearch.Focus();
+                e.Handled = true;
+                return true;
+            }
+
+            if (e.Key == System.Windows.Input.Key.R)
+            {
+                BtnRescanGames_Click(this, new RoutedEventArgs());
+                e.Handled = true;
+                return true;
+            }
+
+            if (e.Key == System.Windows.Input.Key.OemComma)
+            {
+                NavigateTo("settings");
+                e.Handled = true;
+                return true;
+            }
+
+            if (e.Key >= System.Windows.Input.Key.D1 && e.Key <= System.Windows.Input.Key.D9)
+            {
+                int index = e.Key - System.Windows.Input.Key.D1;
+                if (index < PageEntries.Length)
+                {
+                    NavigateTo(PageEntries[index].Key);
+                    e.Handled = true;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // ───────────────────────────── Ziele, Erfolge & Pausen ─────────────────────────────
+
+        private double GetWeekSeconds()
+        {
+            double total = 0;
+            for (int i = 0; i < 7; i++)
+            {
+                string key = DateTime.Today.AddDays(-i).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+                if (settings.PlayLog.TryGetValue(key, out double seconds)) total += seconds;
+            }
+            return total;
+        }
+
+        private bool HasPlayedOn(DateTime day)
+            => settings.PlayLog.TryGetValue(day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), out double seconds) && seconds >= 300;
+
+        private int GetPlayStreak()
+        {
+            int streak = 0;
+            var day = DateTime.Today;
+            if (!HasPlayedOn(day)) day = day.AddDays(-1);
+
+            while (HasPlayedOn(day))
+            {
+                streak++;
+                day = day.AddDays(-1);
+            }
+            return streak;
+        }
+
+        private List<AchievementDef> GetAchievementDefs()
+        {
+            int games = VisibleGames.Count();
+            int launches = VisibleGames.Sum(g => g.LaunchCount);
+            double hours = VisibleGames.Where(g => !IsTrackingIgnored(g)).Sum(g => g.PlaySeconds) / 3600.0;
+            int streak = GetPlayStreak();
+            int rated = VisibleGames.Count(g => g.Rating > 0);
+            int favorites = VisibleGames.Count(g => g.IsFavorite);
+            int notes = VisibleGames.Count(g => !string.IsNullOrWhiteSpace(g.Notes));
+            int sources = VisibleGames.Select(g => g.Source).Distinct().Count();
+            int done = VisibleGames.Count(g => g.Status == "done");
+            bool goalReached = settings.WeeklyGoalHours > 0 && GetWeekSeconds() >= settings.WeeklyGoalHours * 3600.0;
+
+            AchievementDef Def(string id, string icon, string title, string description, double current, double target)
+                => new() { Id = id, Icon = icon, Title = title, Description = description, Current = current, Target = target };
+
+            return new List<AchievementDef>
+            {
+                Def("first_launch", "🚀", "Erster Start", "Starte ein Spiel über den Launcher.", Math.Min(launches, 1), 1),
+                Def("launch_50", "🎯", "Starthelfer", "Starte 50-mal ein Spiel über den Launcher.", launches, 50),
+                Def("lib_10", "📚", "Sammler", "Habe 10 Spiele in deiner Bibliothek.", games, 10),
+                Def("lib_25", "🗄", "Großsammler", "Habe 25 Spiele in deiner Bibliothek.", games, 25),
+                Def("lib_50", "🏛", "Bibliothekar", "Habe 50 Spiele in deiner Bibliothek.", games, 50),
+                Def("time_10", "⏱", "Aufgewärmt", "Spiele insgesamt 10 Stunden.", hours, 10),
+                Def("time_100", "🏃", "Marathon", "Spiele insgesamt 100 Stunden.", hours, 100),
+                Def("time_500", "👑", "Legende", "Spiele insgesamt 500 Stunden.", hours, 500),
+                Def("streak_3", "🔥", "Dranbleiber", "Spiele 3 Tage in Folge.", streak, 3),
+                Def("streak_7", "⚡", "Stammgast", "Spiele 7 Tage in Folge.", streak, 7),
+                Def("streak_30", "🌟", "Unermüdlich", "Spiele 30 Tage in Folge.", streak, 30),
+                Def("critic", "📝", "Kritiker", "Bewerte 10 Spiele.", rated, 10),
+                Def("favorites", "⭐", "Lieblinge", "Markiere 5 Favoriten.", favorites, 5),
+                Def("organizer", "📁", "Ordnungsliebe", "Lege 3 Sammlungen an.", settings.CollectionNames.Count, 3),
+                Def("notes", "📓", "Notizbuch", "Schreibe zu 5 Spielen Notizen.", notes, 5),
+                Def("multi", "🧩", "Alleskönner", "Habe Spiele aus 3 verschiedenen Quellen.", sources, 3),
+                Def("night", "🌙", "Nachtschwärmer", "Spiele nach Mitternacht.", settings.NightOwl ? 1 : 0, 1),
+                Def("goal", "🏆", "Ziel erreicht", "Erreiche dein Wochenziel.", goalReached ? 1 : 0, 1),
+                Def("backup", "💾", "Vorsichtig", "Sichere einen Spielstand.", Math.Min(settings.BackupCount, 1), 1),
+                Def("done", "✅", "Durchgespielt", "Verschiebe ein Spiel nach „Durchgespielt“.", Math.Min(done, 1), 1)
+            };
+        }
+
+        private void CheckAchievements(bool silent)
+        {
+            if (allGames.Count == 0 && settings.Achievements.Count == 0 && !silent) return;
+
+            var unlocked = new List<AchievementDef>();
+            foreach (var def in GetAchievementDefs())
+            {
+                if (settings.Achievements.ContainsKey(def.Id)) continue;
+                if (def.Current < def.Target) continue;
+
+                settings.Achievements[def.Id] = DateTime.Now.ToString("o", CultureInfo.InvariantCulture);
+                unlocked.Add(def);
+            }
+
+            if (unlocked.Count == 0) return;
+            SaveSettings();
+
+            if (!silent)
+            {
+                foreach (var def in unlocked.Take(3))
+                    ShowToast("🏆", "Erfolg freigeschaltet: " + def.Title, def.Description, 7, () => NavigateTo("stats"));
+                Confetti();
+            }
+
+            if (ViewStats.Visibility == Visibility.Visible) RefreshStatsExtras();
+        }
+
+        private void RefreshStatsExtras()
+        {
+            if (GoalCard == null || AchievementsList == null) return;
+
+            // Wochenziel
+            double week = GetWeekSeconds();
+            if (settings.WeeklyGoalHours > 0)
+            {
+                double goal = settings.WeeklyGoalHours * 3600.0;
+                GoalCard.Visibility = Visibility.Visible;
+                GoalProgress.Value = Math.Min(100, week / goal * 100);
+                TxtGoalText.Text = week >= goal
+                    ? $"Geschafft! {FormatPlaytime((long)week)} von {settings.WeeklyGoalHours} Std. in den letzten 7 Tagen."
+                    : $"{FormatPlaytime((long)week)} von {settings.WeeklyGoalHours} Std. in den letzten 7 Tagen.";
+            }
+            else
+            {
+                GoalCard.Visibility = Visibility.Collapsed;
+            }
+
+            // Erfolge
+            var defs = GetAchievementDefs();
+            var rows = defs.Select(d =>
+            {
+                bool done = settings.Achievements.ContainsKey(d.Id);
+                double percent = Math.Min(100, d.Current / d.Target * 100);
+                return new AchievementRow
+                {
+                    Icon = d.Icon,
+                    Title = d.Title,
+                    Description = d.Description,
+                    Unlocked = done,
+                    Percent = done ? 100 : percent,
+                    Opacity = done ? 1.0 : 0.5,
+                    ProgressText = done ? "Freigeschaltet" : $"{Math.Min(d.Current, d.Target):F0} / {d.Target:F0}"
+                };
+            })
+            .OrderByDescending(r => r.Unlocked)
+            .ThenByDescending(r => r.Percent)
+            .ToList();
+
+            AchievementsList.ItemsSource = rows;
+            TxtAchievementCount.Text = $"{rows.Count(r => r.Unlocked)} von {rows.Count} freigeschaltet";
+        }
+
+        private void CheckBreakReminders(DateTime now)
+        {
+            if (activeSessions.Count > 0 && now.Hour < 5 && !settings.NightOwl)
+            {
+                settings.NightOwl = true;
+                CheckAchievements(false);
+            }
+
+            if (settings.BreakReminderMinutes <= 0) return;
+
+            foreach (var pair in sessionStart.ToList())
+            {
+                var elapsed = now - pair.Value;
+                int blocks = (int)(elapsed.TotalMinutes / settings.BreakReminderMinutes);
+                sessionBreakCount.TryGetValue(pair.Key, out int notified);
+
+                if (blocks > notified)
+                {
+                    sessionBreakCount[pair.Key] = blocks;
+                    string text = $"Du spielst „{pair.Key.Name}“ seit {(int)elapsed.TotalHours} Std. {elapsed.Minutes} Min. Zeit für eine kurze Pause!";
+                    overlayNotice = Loc.T("⏰ Zeit für eine Pause!");
+                    overlayNoticeUntil = now.AddSeconds(30);
+                    ShowToast("⏰", "Pause?", text, 12, null, true);
+                }
+            }
+        }
+
+        private void BtnYearReview_Click(object sender, RoutedEventArgs e)
+        {
+            int year = DateTime.Now.Year;
+            var days = new List<(DateTime Day, double Seconds)>();
+            foreach (var pair in settings.PlayLog)
+            {
+                if (DateTime.TryParseExact(pair.Key, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var day) && day.Year == year)
+                    days.Add((day, pair.Value));
+            }
+
+            var dialog = CreateDialog($"Dein Spielejahr {year}", 560, out var panel);
+
+            void Stat(string label, string value)
+            {
+                var row = new Grid { Margin = new Thickness(0, 0, 0, 14) };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                row.Children.Add(new TextBlock { Text = label, Foreground = BrushSubtle, VerticalAlignment = System.Windows.VerticalAlignment.Center });
+                var number = new TextBlock { Text = value, FontSize = 20, FontWeight = FontWeights.Bold, Foreground = System.Windows.Media.Brushes.White };
+                Grid.SetColumn(number, 1);
+                row.Children.Add(number);
+                panel.Children.Add(row);
+            }
+
+            if (days.Count == 0)
+            {
+                panel.Children.Add(new TextBlock
+                {
+                    Text = "Für dieses Jahr gibt es noch keine Spieldaten. Der Launcher erfasst die Spielzeit automatisch, sobald ein Spiel läuft.",
+                    Foreground = BrushSubtle,
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(0, 0, 0, 18)
+                });
+            }
+            else
+            {
+                double total = days.Sum(d => d.Seconds);
+                int played = days.Count(d => d.Seconds >= 300);
+                var best = days.OrderByDescending(d => d.Seconds).First();
+                var weekday = days.GroupBy(d => d.Day.DayOfWeek).OrderByDescending(g => g.Sum(d => d.Seconds)).First().Key;
+
+                int longest = 0, run = 0;
+                DateTime? previous = null;
+                foreach (var d in days.Where(x => x.Seconds >= 300).OrderBy(x => x.Day))
+                {
+                    run = previous.HasValue && (d.Day - previous.Value).Days == 1 ? run + 1 : 1;
+                    longest = Math.Max(longest, run);
+                    previous = d.Day;
+                }
+
+                Stat("Gesamte Spielzeit", FormatPlaytimeLong((long)total));
+                Stat("Tage mit Spielzeit", played.ToString());
+                Stat("Längste Serie", $"{longest} Tage");
+                Stat("Lieblings-Wochentag", GermanCulture.DateTimeFormat.GetDayName(weekday));
+                Stat("Längster Spieltag", $"{best.Day:dd.MM.} ({FormatPlaytime((long)best.Seconds)})");
+            }
+
+            var top = allGames.Where(g => g.PlaySeconds >= 60 && !IsTrackingIgnored(g)).OrderByDescending(g => g.PlaySeconds).Take(5).ToList();
+            if (top.Count > 0)
+            {
+                panel.Children.Add(new TextBlock { Text = "Meistgespielt (insgesamt)", Foreground = BrushSubtle, Margin = new Thickness(0, 6, 0, 8) });
+                int rank = 1;
+                foreach (var game in top)
+                {
+                    panel.Children.Add(new TextBlock
+                    {
+                        Text = $"{rank}.  {game.Name}   ·   {FormatPlaytime(game.PlaySeconds)}",
+                        Foreground = System.Windows.Media.Brushes.White,
+                        Margin = new Thickness(0, 0, 0, 6),
+                        TextTrimming = TextTrimming.CharacterEllipsis
+                    });
+                    rank++;
+                }
+            }
+
+            var saveImage = new System.Windows.Controls.Button
+            {
+                Content = "📸  Als Bild speichern",
+                Padding = new Thickness(18, 8, 18, 8),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                Margin = new Thickness(0, 18, 0, 0)
+            };
+            panel.Children.Add(saveImage);
+
+            var close = new System.Windows.Controls.Button
+            {
+                Content = "Schließen",
+                Padding = new Thickness(26, 8, 26, 8),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+                Margin = new Thickness(0, 18, 0, 0),
+                IsCancel = true
+            };
+            saveImage.Click += (s, e) =>
+            {
+                saveImage.Visibility = Visibility.Collapsed;
+                close.Visibility = Visibility.Collapsed;
+                try { SaveVisualAsPng(panel, "Bild speichern"); }
+                finally
+                {
+                    saveImage.Visibility = Visibility.Visible;
+                    close.Visibility = Visibility.Visible;
+                }
+            };
+            close.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            panel.Children.Add(close);
+
+            dialog.ShowDialog();
+        }
+
+        // ───────────────────────────── Netzwerk: Ping-Test ─────────────────────────────
+
+        private static string? GetGatewayAddress()
+        {
+            try
+            {
+                foreach (var nic in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
+                {
+                    if (nic.OperationalStatus != System.Net.NetworkInformation.OperationalStatus.Up) continue;
+                    if (nic.NetworkInterfaceType == System.Net.NetworkInformation.NetworkInterfaceType.Loopback) continue;
+
+                    foreach (var gateway in nic.GetIPProperties().GatewayAddresses)
+                    {
+                        if (gateway.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork &&
+                            !gateway.Address.Equals(System.Net.IPAddress.Any))
+                            return gateway.Address.ToString();
+                    }
+                }
+            }
+            catch { }
+
+            return null;
+        }
+
+        private static async Task<(double? Average, int Lost, int Sent)> PingHostAsync(string host, int count)
+        {
+            int lost = 0;
+            var times = new List<long>();
+
+            using var ping = new System.Net.NetworkInformation.Ping();
+            for (int i = 0; i < count; i++)
+            {
+                try
+                {
+                    var reply = await ping.SendPingAsync(host, 1500);
+                    if (reply.Status == System.Net.NetworkInformation.IPStatus.Success) times.Add(reply.RoundtripTime);
+                    else lost++;
+                }
+                catch
+                {
+                    lost++;
+                }
+            }
+
+            return (times.Count > 0 ? (double?)times.Average() : null, lost, count);
+        }
+
+        private static async Task<(double? Average, int Lost, int Sent)> HttpLatencyAsync(string url, int count)
+        {
+            int lost = 0;
+            var times = new List<double>();
+
+            for (int i = 0; i < count; i++)
+            {
+                try
+                {
+                    var watch = Stopwatch.StartNew();
+                    using var request = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Head, url);
+                    using var response = await Http.SendAsync(request, System.Net.Http.HttpCompletionOption.ResponseHeadersRead);
+                    watch.Stop();
+                    times.Add(watch.Elapsed.TotalMilliseconds);
+                }
+                catch
+                {
+                    lost++;
+                }
+            }
+
+            // Bester Wert, weil die erste Verbindung den Verbindungsaufbau mitzählt
+            return (times.Count > 0 ? (double?)times.Min() : null, lost, count);
+        }
+
+        private PingResult ToPingResult(string name, (double? Average, int Lost, int Sent) result)
+        {
+            if (result.Average == null)
+            {
+                return new PingResult { Name = name, Text = "keine Antwort", Percent = 0, BarBrush = BrushRed };
+            }
+
+            double ms = result.Average.Value;
+            string text = $"{ms:F0} ms" + (result.Lost > 0 ? $"  ·  {result.Lost} von {result.Sent} verloren" : string.Empty);
+            var brush = ms < 40 ? BrushGpu : ms < 100 ? BrushAmber : BrushRed;
+            return new PingResult { Name = name, Text = text, Percent = Math.Min(100, ms / 2.0), BarBrush = brush };
+        }
+
+        private async void BtnPing_Click(object sender, RoutedEventArgs e)
+        {
+            BtnPing.IsEnabled = false;
+            TxtPingInfo.Text = "Teste die Verbindung ...";
+
+            var results = new List<PingResult>();
+            try
+            {
+                string? gateway = GetGatewayAddress();
+                if (gateway != null)
+                    results.Add(ToPingResult("Router", await PingHostAsync(gateway, 4)));
+
+                results.Add(ToPingResult("Cloudflare (1.1.1.1)", await PingHostAsync("1.1.1.1", 4)));
+                results.Add(ToPingResult("Google DNS (8.8.8.8)", await PingHostAsync("8.8.8.8", 4)));
+
+                if (settings.OnlineFeatures)
+                {
+                    results.Add(ToPingResult("Steam", await HttpLatencyAsync("https://store.steampowered.com/", 3)));
+                    results.Add(ToPingResult("Epic Games", await HttpLatencyAsync("https://store.epicgames.com/", 3)));
+                    results.Add(ToPingResult("Xbox", await HttpLatencyAsync("https://www.xbox.com/", 3)));
+                }
+
+                PingList.ItemsSource = results;
+                TxtPingInfo.Text = $"Getestet um {DateTime.Now:HH:mm} Uhr. Unter 40 ms ist sehr gut, über 100 ms spürbar langsam.";
+            }
+            catch (Exception ex)
+            {
+                TxtPingInfo.Text = "Test fehlgeschlagen: " + ex.Message;
+            }
+            finally
+            {
+                BtnPing.IsEnabled = true;
+            }
+        }
+
+        // ═════════════════════════════ Sprachen & Komfortfunktionen ═════════════════════════════
+
+        private static System.Threading.Mutex? singleInstanceMutex;
+        private static System.Threading.EventWaitHandle? showEventHandle;
+
+        private sealed class TextState
+        {
+            public string Original = string.Empty;
+            public string Shown = string.Empty;
+            public int Version = -1;
+        }
+
+        private readonly System.Runtime.CompilerServices.ConditionalWeakTable<DependencyObject, TextState> textStates = new();
+        private readonly System.Runtime.CompilerServices.ConditionalWeakTable<DependencyObject, TextState> tipStates = new();
+        private readonly DispatcherTimer translateTimer = new();
+        private bool germanRestorePending;
+
+        private readonly List<string> closedApps = new();
+        private readonly List<Forms.ToolStripItem> trayRecentItems = new();
+        private DateTime lastScan = DateTime.Now;
+        private bool silentRescan;
+        private const int HotkeyId = 0x4450;
+        private System.Windows.Interop.HwndSource? hotkeySource;
+
+        private static readonly HashSet<string> NeverClose = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "explorer", "dwm", "winlogon", "csrss", "svchost", "taskmgr", "ApplicationFrameHost", "TextInputHost",
+            "SystemSettings", "ShellExperienceHost", "SearchHost", "StartMenuExperienceHost", "LockApp", "sihost", "fontdrvhost"
+        };
+
+        // ───────────────────────────── Nur eine Instanz ─────────────────────────────
+
+        private static bool AcquireSingleInstance()
+        {
+            try
+            {
+                singleInstanceMutex = new System.Threading.Mutex(true, @"Local\DFPProLauncher_SingleInstance", out bool created);
+                if (created) return true;
+
+                // Neustart (zum Beispiel als Administrator): auf das Ende der alten Instanz warten
+                if (Environment.GetCommandLineArgs().Contains("--restart"))
+                {
+                    try
+                    {
+                        if (singleInstanceMutex.WaitOne(10000)) return true;
+                    }
+                    catch (System.Threading.AbandonedMutexException)
+                    {
+                        return true;
+                    }
+                }
+
+                try
+                {
+                    using var existing = System.Threading.EventWaitHandle.OpenExisting(@"Local\DFPProLauncher_Show");
+                    existing.Set();
+                }
+                catch { }
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
+        }
+
+        private void StartSingleInstanceListener()
+        {
+            try
+            {
+                showEventHandle = new System.Threading.EventWaitHandle(false, System.Threading.EventResetMode.AutoReset, @"Local\DFPProLauncher_Show");
+                System.Threading.ThreadPool.RegisterWaitForSingleObject(showEventHandle,
+                    (state, timedOut) => Dispatcher.BeginInvoke(new Action(ShowFromTray)), null, -1, false);
+            }
+            catch { }
+        }
+
+        // ───────────────────────────── Sprache ─────────────────────────────
+
+        private static string SearchPlaceholder => Loc.T("Spiel suchen...");
+
+        private static string ResolveLanguage(string setting)
+            => Loc.Languages.Any(l => l.Code == setting) ? setting : Loc.Detect();
+
+        private void InitLanguage()
+        {
+            Loc.SetLanguage(ResolveLanguage(settings.Language));
+            TxtSearch.Text = SearchPlaceholder;
+
+            translateTimer.Interval = TimeSpan.FromMilliseconds(60);
+            translateTimer.Tick += (s, e) =>
+            {
+                translateTimer.Stop();
+                RunTranslationPass();
+            };
+
+            // Jede Änderung der Oberfläche löst (leicht verzögert) eine neue Übersetzung aus
+            LayoutUpdated += (s, e) =>
+            {
+                if (Loc.Language == "de" && !germanRestorePending) return;
+                translateTimer.Stop();
+                translateTimer.Start();
+            };
+
+            translateTimer.Start();
+        }
+
+        private void RunTranslationPass()
+        {
+            TranslateTree(this);
+            if (Loc.Language == "de") germanRestorePending = false;
+        }
+
+        private void TranslateProperty(DependencyObject element, DependencyProperty property, string current,
+            System.Runtime.CompilerServices.ConditionalWeakTable<DependencyObject, TextState> table)
+        {
+            if (current.Length == 0) return;
+
+            var state = table.GetOrCreateValue(element);
+            if (state.Version == Loc.Version && current == state.Shown) return;   // bereits übersetzt
+
+            if (current != state.Shown) state.Original = current;                 // neuer Text von außen
+
+            string translated = Loc.T(state.Original);
+            state.Shown = translated;
+            state.Version = Loc.Version;
+
+            if (translated != current) element.SetCurrentValue(property, translated);
+        }
+
+        private void TranslateNode(DependencyObject node)
+        {
+            switch (node)
+            {
+                case TextBlock textBlock:
+                    TranslateProperty(textBlock, TextBlock.TextProperty, textBlock.Text, textStates);
+                    break;
+                case ContentControl control when control.Content is string content:
+                    TranslateProperty(control, ContentControl.ContentProperty, content, textStates);
+                    break;
+            }
+
+            if (node is FrameworkElement element && element.ToolTip is string tip)
+                TranslateProperty(element, FrameworkElement.ToolTipProperty, tip, tipStates);
+        }
+
+        private void TranslateTree(DependencyObject? node)
+        {
+            if (node == null) return;
+
+            TranslateNode(node);
+            if (node is not Visual) return;
+
+            int count = VisualTreeHelper.GetChildrenCount(node);
+            for (int i = 0; i < count; i++)
+                TranslateTree(VisualTreeHelper.GetChild(node, i));
+
+            if (count == 0 && node is ContentControl control && control.Content is DependencyObject content)
+                TranslateTree(content);
+        }
+
+        private string ReadLanguageChip()
+        {
+            if (ChipLangDe.IsChecked == true) return "de";
+            if (ChipLangEn.IsChecked == true) return "en";
+            if (ChipLangZh.IsChecked == true) return "zh";
+            if (ChipLangEs.IsChecked == true) return "es";
+            if (ChipLangFr.IsChecked == true) return "fr";
+            if (ChipLangPt.IsChecked == true) return "pt";
+            if (ChipLangRu.IsChecked == true) return "ru";
+            if (ChipLangJa.IsChecked == true) return "ja";
+            return "auto";
+        }
+
+        private void PopulateLanguageChips()
+        {
+            string code = settings.Language;
+            ChipLangAuto.IsChecked = code == "auto" || !Loc.Languages.Any(l => l.Code == code);
+            ChipLangDe.IsChecked = code == "de";
+            ChipLangEn.IsChecked = code == "en";
+            ChipLangZh.IsChecked = code == "zh";
+            ChipLangEs.IsChecked = code == "es";
+            ChipLangFr.IsChecked = code == "fr";
+            ChipLangPt.IsChecked = code == "pt";
+            ChipLangRu.IsChecked = code == "ru";
+            ChipLangJa.IsChecked = code == "ja";
+        }
+
+        private void Language_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+
+            string code = ReadLanguageChip();
+            if (code == settings.Language) return;
+            ApplyLanguage(code);
+        }
+
+        private void ApplyLanguage(string setting)
+        {
+            string oldPlaceholder = SearchPlaceholder;
+
+            settings.Language = setting;
+            Loc.SetLanguage(ResolveLanguage(setting));
+            SaveSettings();
+
+            if (TxtSearch.Text == oldPlaceholder) TxtSearch.Text = SearchPlaceholder;
+
+            germanRestorePending = true;
+            RebuildAfterLanguageChange();
+            RunTranslationPass();
+        }
+
+        private void RebuildAfterLanguageChange()
+        {
+            ApplyFilter();
+            RefreshDashboard();
+            RefreshApps();
+            RefreshBoard();
+            RenderDeals();
+            UpdateClock();
+            UpdateSliderLabels();
+            RebuildTrayMenu();
+
+            if (ViewStats.Visibility == Visibility.Visible) RefreshStats(false);
+            if (ViewDownloads.Visibility == Visibility.Visible) RefreshDownloads();
+            if (ViewStorage.Visibility == Visibility.Visible) RefreshDrives();
+
+            _ = RefreshWeatherAsync();
+        }
+
+        private void ReadComfortSettings()
+        {
+            settings.CloseAppsEnabled = ChkCloseApps.IsChecked == true;
+            settings.AutoRescan = ChkAutoRescan.IsChecked == true;
+            settings.GlobalHotkey = ChkHotkey.IsChecked == true;
+        }
+
+        private void PopulateComfortSettings()
+        {
+            ChkCloseApps.IsChecked = settings.CloseAppsEnabled;
+            ChkAutoRescan.IsChecked = settings.AutoRescan;
+            ChkHotkey.IsChecked = settings.GlobalHotkey;
+            PopulateLanguageChips();
+        }
+
+        private void InitComfort()
+        {
+            StartSingleInstanceListener();
+            SourceInitialized += (s, e) => RegisterGlobalHotkey();
+            Activated += OnWindowActivated;
+            Closed += (s, e) =>
+            {
+                UnregisterGlobalHotkey();
+                try { singleInstanceMutex?.ReleaseMutex(); } catch { }
+            };
+
+            UpdateDriverInfo();
+        }
+
+        // ───────────────────────────── Programme beim Spielstart schließen ─────────────────────────────
+
+        private void BtnPickCloseApps_Click(object sender, RoutedEventArgs e)
+        {
+            var names = new SortedSet<string>(StringComparer.CurrentCultureIgnoreCase);
+
+            foreach (var process in Process.GetProcesses())
+            {
+                try
+                {
+                    if (process.MainWindowHandle != IntPtr.Zero && process.MainWindowTitle.Length > 0 &&
+                        process.Id != Environment.ProcessId && !NeverClose.Contains(process.ProcessName))
+                        names.Add(process.ProcessName);
+                }
+                catch { }
+                finally
+                {
+                    process.Dispose();
+                }
+            }
+            foreach (string saved in settings.CloseApps) names.Add(saved);
+
+            var chosen = PickFromList("Programme beim Spielstart schließen",
+                "Diese Programme werden beim Spielstart sauber geschlossen (wie mit dem Schließen-Knopf) und nach dem Spiel wieder geöffnet. Nicht gespeicherte Arbeit kann dabei nachgefragt werden.",
+                names.ToList(), settings.CloseApps.ToHashSet(StringComparer.OrdinalIgnoreCase));
+            if (chosen == null) return;
+
+            settings.CloseApps = chosen;
+            SaveSettings();
+        }
+
+        private Task CloseConfiguredAppsAsync(bool force = false)
+        {
+            if ((!force && !settings.CloseAppsEnabled) || settings.CloseApps.Count == 0) return Task.CompletedTask;
+
+            closedApps.Clear();
+            foreach (string name in settings.CloseApps)
+            {
+                foreach (var process in Process.GetProcessesByName(name))
+                {
+                    try
+                    {
+                        if (process.MainWindowHandle == IntPtr.Zero) continue;
+
+                        string? path = NativeFeatures.GetProcessPath(process.Id);
+                        if (process.CloseMainWindow() && !string.IsNullOrEmpty(path) && !closedApps.Contains(path))
+                            closedApps.Add(path);
+                    }
+                    catch { }
+                    finally
+                    {
+                        process.Dispose();
+                    }
+                }
+            }
+
+            if (closedApps.Count > 0)
+                ShowToast("🧹", "Programme geschlossen", string.Join(", ", closedApps.Select(p => System.IO.Path.GetFileNameWithoutExtension(p)).Take(4)), 5);
+
+            return Task.CompletedTask;
+        }
+
+        private void RestoreClosedApps()
+        {
+            if (closedApps.Count == 0) return;
+
+            foreach (string path in closedApps.ToList())
+            {
+                try
+                {
+                    string name = System.IO.Path.GetFileNameWithoutExtension(path);
+                    var running = Process.GetProcessesByName(name);
+                    bool alreadyRunning = running.Length > 0;
+                    foreach (var process in running) process.Dispose();
+                    if (alreadyRunning) continue;
+
+                    Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+                }
+                catch { }
+            }
+
+            closedApps.Clear();
+            ShowToast("🧹", "Programme wieder geöffnet", string.Empty, 4);
+        }
+
+        // ───────────────────────────── Spiel-Roulette ─────────────────────────────
+
+        private void ShowRoulette()
+        {
+            var pool = VisibleGames.Where(g => g.Status == "backlog").ToList();
+            if (pool.Count < 2) pool = VisibleGames.Where(g => g.PlaySeconds < 60 && g.LaunchCount == 0).ToList();
+            if (pool.Count < 2) pool = VisibleGames.ToList();
+
+            if (pool.Count == 0)
+            {
+                Msg("Es wurden noch keine Spiele gefunden.");
+                return;
+            }
+
+            var dialog = CreateDialog("Spiel-Roulette", 520, out var panel);
+
+            var caption = new TextBlock
+            {
+                Text = "Der Zufall wählt ...",
+                Foreground = BrushSubtle,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 14)
+            };
+            panel.Children.Add(caption);
+
+            var poster = new Border
+            {
+                Width = 120,
+                Height = 180,
+                CornerRadius = new CornerRadius(12),
+                Background = BrushCardBg,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 14)
+            };
+            panel.Children.Add(poster);
+
+            var nameText = new TextBlock
+            {
+                Text = "🎲",
+                FontSize = 28,
+                FontWeight = FontWeights.Bold,
+                Foreground = System.Windows.Media.Brushes.White,
+                TextAlignment = TextAlignment.Center,
+                TextWrapping = TextWrapping.Wrap,
+                MinHeight = 76,
+                Margin = new Thickness(0, 0, 0, 18)
+            };
+            panel.Children.Add(nameText);
+
+            var buttons = new StackPanel
+            {
+                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center
+            };
+            var again = new System.Windows.Controls.Button { Content = "Nochmal drehen", Margin = new Thickness(0, 0, 10, 0), IsEnabled = false };
+            var start = new System.Windows.Controls.Button { Content = "Starten", Padding = new Thickness(26, 8, 26, 8), Margin = new Thickness(0, 0, 10, 0), IsEnabled = false };
+            start.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            var close = new System.Windows.Controls.Button { Content = "Schließen", IsCancel = true };
+            buttons.Children.Add(again);
+            buttons.Children.Add(start);
+            buttons.Children.Add(close);
+            panel.Children.Add(buttons);
+
+            GameItem? winner = null;
+            DispatcherTimer? timer = null;
+
+            void Spin()
+            {
+                again.IsEnabled = false;
+                start.IsEnabled = false;
+                caption.Text = Loc.T("Der Zufall wählt ...");
+                poster.Background = BrushCardBg;
+
+                int step = 0;
+                timer?.Stop();
+                timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(40) };
+                timer.Tick += (s, e) =>
+                {
+                    step++;
+                    winner = pool[random.Next(pool.Count)];
+                    nameText.Text = winner.Name;
+
+                    if (step >= 28)
+                    {
+                        timer!.Stop();
+                        caption.Text = Loc.T("Heute spielst du:");
+                        if (HasCover(winner) && GetCachedImage(winner.CoverPath) is BitmapImage image)
+                            poster.Background = new ImageBrush(image) { Stretch = Stretch.UniformToFill };
+                        again.IsEnabled = true;
+                        start.IsEnabled = true;
+                        return;
+                    }
+
+                    timer!.Interval = TimeSpan.FromMilliseconds(40 + step * step * 1.5);
+                };
+                timer.Start();
+            }
+
+            again.Click += (s, e) => Spin();
+            start.Click += (s, e) =>
+            {
+                dialog.DialogResult = true;
+                if (winner != null) LaunchGame(winner);
+            };
+            dialog.Closed += (s, e) => timer?.Stop();
+            dialog.Loaded += (s, e) => Spin();
+
+            dialog.ShowDialog();
+        }
+
+        // ───────────────────────────── Bibliothek exportieren ─────────────────────────────
+
+        private static string CsvEscape(string value)
+            => "\"" + value.Replace("\"", "\"\"").Replace("\r", " ").Replace("\n", " ") + "\"";
+
+        private List<string[]> BuildLibraryRows()
+        {
+            var rows = new List<string[]>
+            {
+                new[]
+                {
+                    Loc.T("Name"), Loc.T("Quelle"), Loc.T("Spielzeit (Std.)"), Loc.T("Gestartet"),
+                    Loc.T("Zuletzt gespielt"), Loc.T("Bewertung"), Loc.T("Status"), Loc.T("Sammlungen"), Loc.T("Notizen")
+                }
+            };
+
+            foreach (var game in allGames.OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase))
+            {
+                string status = game.Status.Length == 0 ? string.Empty
+                    : Loc.T(Regex.Replace(StatusOptions.First(o => o.Key == game.Status).Title, @"^[^\p{L}]+", string.Empty));
+
+                rows.Add(new[]
+                {
+                    game.Name,
+                    Loc.T(game.Source),
+                    (game.PlaySeconds / 3600.0).ToString("F1", Loc.Culture),
+                    game.LaunchCount.ToString(),
+                    game.LastPlayed.HasValue ? game.LastPlayed.Value.ToString("yyyy-MM-dd HH:mm") : string.Empty,
+                    game.Rating > 0 ? game.Rating.ToString() : string.Empty,
+                    status,
+                    string.Join(", ", game.Collections),
+                    game.Notes
+                });
+            }
+
+            return rows;
+        }
+
+        private void BtnExportLibrary_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                FileName = "DFP_Pro_Launcher_Library",
+                Filter = "CSV (*.csv)|*.csv|HTML (*.html)|*.html",
+                DefaultExt = ".csv"
+            };
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                var rows = BuildLibraryRows();
+                bool html = dialog.FilterIndex == 2 || dialog.FileName.EndsWith(".html", StringComparison.OrdinalIgnoreCase);
+                var encoding = new System.Text.UTF8Encoding(true);
+
+                if (html)
+                {
+                    var sb = new System.Text.StringBuilder();
+                    sb.Append("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>DFP Pro Launcher</title><style>")
+                      .Append("body{background:#0F111A;color:#E5E7EB;font-family:Segoe UI,Arial,sans-serif;padding:32px}")
+                      .Append("h1{font-size:24px}table{border-collapse:collapse;width:100%}")
+                      .Append("th,td{padding:8px 12px;border-bottom:1px solid #1F2937;text-align:left;font-size:14px}")
+                      .Append("th{color:#9CA3AF;font-weight:600}tr:hover td{background:#161B28}</style></head><body>")
+                      .Append("<h1>DFP Pro Launcher</h1><table>");
+
+                    for (int i = 0; i < rows.Count; i++)
+                    {
+                        sb.Append("<tr>");
+                        foreach (string cell in rows[i])
+                            sb.Append(i == 0 ? "<th>" : "<td>").Append(System.Net.WebUtility.HtmlEncode(cell)).Append(i == 0 ? "</th>" : "</td>");
+                        sb.Append("</tr>");
+                    }
+
+                    sb.Append("</table></body></html>");
+                    File.WriteAllText(dialog.FileName, sb.ToString(), encoding);
+                }
+                else
+                {
+                    string separator = Loc.Culture.TextInfo.ListSeparator;
+                    File.WriteAllLines(dialog.FileName, rows.Select(r => string.Join(separator, r.Select(CsvEscape))), encoding);
+                }
+
+                Msg("Die Bibliothek wurde exportiert.");
+            }
+            catch (Exception ex)
+            {
+                Msg($"Export fehlgeschlagen:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ───────────────────────────── Steam-Spielzeit importieren ─────────────────────────────
+
+        private static void ParseSteamApps(string text, Dictionary<string, long> minutes, Dictionary<string, long> lastPlayed)
+        {
+            foreach (Match start in Regex.Matches(text, "\"apps\"\\s*\\{", RegexOptions.IgnoreCase))
+            {
+                int i = start.Index + start.Length;
+                int depth = 1;
+                int blockStart = -1;
+                string? currentId = null;
+
+                while (i < text.Length && depth > 0)
+                {
+                    char c = text[i];
+
+                    if (c == '"')
+                    {
+                        int end = text.IndexOf('"', i + 1);
+                        if (end < 0) break;
+
+                        string token = text.Substring(i + 1, end - i - 1);
+                        if (depth == 1 && token.Length > 0 && token.All(char.IsDigit))
+                        {
+                            int j = end + 1;
+                            while (j < text.Length && char.IsWhiteSpace(text[j])) j++;
+
+                            if (j < text.Length && text[j] == '{')
+                            {
+                                currentId = token;
+                                blockStart = j;
+                                depth++;
+                                i = j + 1;
+                                continue;
+                            }
+                        }
+
+                        i = end + 1;
+                        continue;
+                    }
+
+                    if (c == '{')
+                    {
+                        depth++;
+                    }
+                    else if (c == '}')
+                    {
+                        depth--;
+                        if (depth == 1 && currentId != null)
+                        {
+                            string block = text.Substring(blockStart, i - blockStart);
+
+                            var playtime = Regex.Match(block, "\"Playtime\"\\s+\"(\\d+)\"", RegexOptions.IgnoreCase);
+                            if (playtime.Success && long.TryParse(playtime.Groups[1].Value, out long value) && value > 0)
+                                minutes[currentId] = Math.Max(value, minutes.TryGetValue(currentId, out long old) ? old : 0);
+
+                            var played = Regex.Match(block, "\"LastPlayed\"\\s+\"(\\d+)\"", RegexOptions.IgnoreCase);
+                            if (played.Success && long.TryParse(played.Groups[1].Value, out long stamp) && stamp > 0)
+                                lastPlayed[currentId] = Math.Max(stamp, lastPlayed.TryGetValue(currentId, out long oldStamp) ? oldStamp : 0);
+
+                            currentId = null;
+                        }
+                    }
+
+                    i++;
+                }
+            }
+        }
+
+        private int ImportSteamPlaytime()
+        {
+            string? steamPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam", "SteamPath", null) as string;
+            if (string.IsNullOrEmpty(steamPath)) return 0;
+
+            string userdata = System.IO.Path.Combine(steamPath, "userdata");
+            if (!Directory.Exists(userdata)) return 0;
+
+            var minutes = new Dictionary<string, long>();
+            var lastPlayed = new Dictionary<string, long>();
+
+            foreach (string user in Directory.GetDirectories(userdata))
+            {
+                string file = System.IO.Path.Combine(user, "config", "localconfig.vdf");
+                if (!File.Exists(file)) continue;
+
+                try
+                {
+                    ParseSteamApps(File.ReadAllText(file), minutes, lastPlayed);
+                }
+                catch { }
+            }
+
+            int updated = 0;
+            foreach (var game in allGames)
+            {
+                if (IsTrackingIgnored(game) || game.AppId.Length == 0 || !minutes.TryGetValue(game.AppId, out long value)) continue;
+
+                bool changed = false;
+                if (value * 60 > game.PlaySeconds)
+                {
+                    game.PlaySeconds = value * 60;
+                    changed = true;
+                }
+
+                if (lastPlayed.TryGetValue(game.AppId, out long stamp))
+                {
+                    var time = DateTimeOffset.FromUnixTimeSeconds(stamp).LocalDateTime;
+                    if (!game.LastPlayed.HasValue || time > game.LastPlayed.Value)
+                    {
+                        game.LastPlayed = time;
+                        changed = true;
+                    }
+                }
+
+                if (changed)
+                {
+                    CopyStateToSettings(game);
+                    updated++;
+                }
+            }
+
+            if (updated > 0) SaveSettings();
+            return updated;
+        }
+
+        private void BtnImportSteamTime_Click(object sender, RoutedEventArgs e)
+        {
+            int updated;
+            try
+            {
+                updated = ImportSteamPlaytime();
+            }
+            catch
+            {
+                updated = 0;
+            }
+
+            if (updated == 0)
+            {
+                Msg("Keine Steam-Spielzeit gefunden. Steam speichert sie nicht immer lokal.", "Steam-Spielzeit importieren");
+                return;
+            }
+
+            ApplyFilter();
+            RefreshDashboard();
+            RefreshStats(false);
+            CheckAchievements(false);
+            ShowToast("⏱", $"{updated} Spiele aktualisiert.", string.Empty, 5);
+        }
+
+        // ───────────────────────────── Grafiktreiber ─────────────────────────────
+
+        private void UpdateDriverInfo()
+        {
+            var gpu = PickPrimaryGpu(ReadGpuAdapters());
+            TxtDriverInfo.Text = gpu == null
+                ? "Keine Grafikkarte erkannt"
+                : gpu.Name + (gpu.Driver.Length > 0 ? "  ·  Aktueller Treiber: " + gpu.Driver : string.Empty);
+        }
+
+        private void BtnOpenDriverPage_Click(object sender, RoutedEventArgs e)
+        {
+            var gpu = PickPrimaryGpu(ReadGpuAdapters());
+            string name = gpu?.Name ?? string.Empty;
+
+            if (Regex.IsMatch(name, "NVIDIA|GeForce|RTX|GTX", RegexOptions.IgnoreCase))
+                OpenShell("https://www.nvidia.com/Download/index.aspx");
+            else if (Regex.IsMatch(name, "AMD|Radeon", RegexOptions.IgnoreCase))
+                OpenShell("https://www.amd.com/en/support");
+            else if (Regex.IsMatch(name, "Intel|Arc", RegexOptions.IgnoreCase))
+                OpenShell("https://www.intel.com/content/www/us/en/download-center/home.html");
+            else
+                OpenShell("ms-settings:windowsupdate");
+        }
+
+        // ───────────────────────────── Suche: Enter und Esc ─────────────────────────────
+
+        private void TxtSearch_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                if (TxtSearch.Text != SearchPlaceholder && visibleGames.Count > 0)
+                {
+                    LaunchGame(visibleGames[0]);
+                    e.Handled = true;
+                }
+            }
+            else if (e.Key == System.Windows.Input.Key.Escape)
+            {
+                TxtSearch.Text = string.Empty;
+                System.Windows.Input.Keyboard.ClearFocus();
+                e.Handled = true;
+            }
+        }
+
+        // ───────────────────────────── Automatisch aktualisieren ─────────────────────────────
+
+        private async void OnWindowActivated(object? sender, EventArgs e)
+        {
+            if (!settings.AutoRescan || isScanning || controllerMode || silentRescan) return;
+            if ((DateTime.Now - lastScan).TotalMinutes < 10) return;
+
+            lastScan = DateTime.Now;
+            var before = allGames.Select(g => g.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            silentRescan = true;
+            try
+            {
+                await LoadInstalledGamesAsync();
+            }
+            finally
+            {
+                silentRescan = false;
+            }
+
+            var added = allGames.Where(g => !before.Contains(g.Name)).Select(g => g.Name).ToList();
+            if (added.Count > 0)
+                ShowToast("🎮", "Neue Spiele gefunden", string.Join(", ", added.Take(3)), 6);
+        }
+
+        // ───────────────────────────── Globaler Hotkey (Strg+Alt+D) ─────────────────────────────
+
+        private void RegisterGlobalHotkey()
+        {
+            UnregisterGlobalHotkey();
+            if (!settings.GlobalHotkey) return;
+
+            IntPtr handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+            if (handle == IntPtr.Zero) return;
+
+            hotkeySource = System.Windows.Interop.HwndSource.FromHwnd(handle);
+            hotkeySource?.AddHook(HotkeyHook);
+
+            // 0x0001 = Alt, 0x0002 = Strg, 0x4000 = nicht wiederholen; 0x44 = Taste D
+            NativeExtras.RegisterHotKey(handle, HotkeyId, 0x0001 | 0x0002 | 0x4000, 0x44);
+            // Strg+Alt+S schaltet den Streamer-Modus um
+            NativeExtras.RegisterHotKey(handle, HotkeyId + 1, 0x0001 | 0x0002 | 0x4000, 0x53);
+        }
+
+        private void UnregisterGlobalHotkey()
+        {
+            try
+            {
+                IntPtr handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+                if (handle != IntPtr.Zero)
+                {
+                    NativeExtras.UnregisterHotKey(handle, HotkeyId);
+                    NativeExtras.UnregisterHotKey(handle, HotkeyId + 1);
+                }
+                hotkeySource?.RemoveHook(HotkeyHook);
+                hotkeySource = null;
+            }
+            catch { }
+        }
+
+        private IntPtr HotkeyHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (msg == 0x0312 && wParam.ToInt32() == HotkeyId)
+            {
+                ToggleLauncherVisibility();
+                handled = true;
+            }
+            else if (msg == 0x0312 && wParam.ToInt32() == HotkeyId + 1)
+            {
+                Dispatcher.BeginInvoke(new Action(ToggleStreamerMode));
+                handled = true;
+            }
+            return IntPtr.Zero;
+        }
+
+        private void ToggleLauncherVisibility()
+        {
+            if (IsVisible && WindowState != WindowState.Minimized && IsActive)
+            {
+                if (settings.MinimizeToTray && trayIcon != null) HideToTray();
+                else WindowState = WindowState.Minimized;
+            }
+            else
+            {
+                ShowFromTray();
+            }
+        }
+
+        // ───────────────────────────── Infobereich-Menü ─────────────────────────────
+
+        private void RebuildTrayMenu()
+        {
+            if (trayIcon == null) return;
+
+            var menu = CreateTrayMenu();
+            menu.Items.Add(Loc.T("Öffnen"), null, (s, e) => ShowFromTray());
+            menu.Items.Add(Loc.T("Zufälliges Spiel"), null, (s, e) =>
+            {
+                ShowFromTray();
+                ShowRoulette();
+            });
+            menu.Items.Add(new Forms.ToolStripSeparator());
+            menu.Items.Add(Loc.T("Beenden"), null, (s, e) => ExitApplication());
+            menu.Opening += (s, e) => RefreshTrayRecents(menu);
+
+            var old = trayIcon.ContextMenuStrip;
+            trayIcon.ContextMenuStrip = menu;
+            old?.Dispose();
+        }
+
+        private void RefreshTrayRecents(Forms.ContextMenuStrip menu)
+        {
+            foreach (var item in trayRecentItems) menu.Items.Remove(item);
+            trayRecentItems.Clear();
+
+            var recent = allGames.Where(g => g.LastPlayed.HasValue).OrderByDescending(g => g.LastPlayed).Take(5).ToList();
+            if (recent.Count == 0) return;
+
+            int position = 0;
+            var header = new Forms.ToolStripMenuItem(Loc.T("Zuletzt gespielt:")) { Enabled = false };
+            menu.Items.Insert(position++, header);
+            trayRecentItems.Add(header);
+
+            foreach (var game in recent)
+            {
+                var target = game;
+                var entry = new Forms.ToolStripMenuItem(target.Name);
+                entry.Click += (s, e) => LaunchGame(target);
+                menu.Items.Insert(position++, entry);
+                trayRecentItems.Add(entry);
+            }
+
+            var separator = new Forms.ToolStripSeparator();
+            menu.Items.Insert(position, separator);
+            trayRecentItems.Add(separator);
+        }
+
+        // ═════════════════════════════ Anpassung, Leistung und Controller ═════════════════════════════
+
+        private bool buildingNavSettings;
+        private readonly Dictionary<string, GifAnimator> gifCache = new();
+        private readonly DispatcherTimer shiftTimer = new();
+
+        private PadButton lastPad;
+        private bool xinputMissing;
+        private uint winmmDevice = uint.MaxValue;
+        private string padDescription = string.Empty;
+        private string padLayoutDetected = "xbox";
+
+        [Flags]
+        private enum PadButton
+        {
+            None = 0, Up = 1, Down = 2, Left = 4, Right = 8, Confirm = 16, Back = 32,
+            Details = 64, Favorite = 128, PrevTab = 256, NextTab = 512, Start = 1024
+        }
+
+        private IEnumerable<GameItem> VisibleGames => allGames.Where(g => !g.Hidden);
+
+        private void InitExtras3()
+        {
+            BuildNavMenus();
+            BuildNavSettings();
+
+            shiftTimer.Interval = TimeSpan.FromMinutes(3);
+            shiftTimer.Tick += (s, e) => AnimateShift(random.Next(-4, 5), random.Next(-4, 5));
+
+            StateChanged += (s, e) => UpdateTimersForVisibility();
+            IsVisibleChanged += (s, e) => UpdateTimersForVisibility();
+
+            SidebarFooterText.Cursor = System.Windows.Input.Cursors.Hand;
+            SidebarFooterText.MouseLeftButtonUp += (s, e) => ShowAbout();
+        }
+
+        private static void ApplyRenderModeEarly()
+        {
+            try
+            {
+                if (!File.Exists(SettingsFilePath)) return;
+
+                using var doc = JsonDocument.Parse(File.ReadAllText(SettingsFilePath));
+                if (doc.RootElement.TryGetProperty("SoftwareRendering", out var value) && value.ValueKind == JsonValueKind.True)
+                    RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
+            }
+            catch { }
+        }
+
+        // ───────────────────────────── Dunkle Menüs und Meldungen ─────────────────────────────
+
+        private System.Windows.Controls.ContextMenu CreateMenu()
+        {
+            var menu = new System.Windows.Controls.ContextMenu();
+            if (TryFindResource("DarkContextMenu") is Style style) menu.Style = style;
+            return menu;
+        }
+
+        private Forms.ContextMenuStrip CreateTrayMenu()
+        {
+            return new Forms.ContextMenuStrip
+            {
+                Renderer = new DarkMenuRenderer(),
+                BackColor = System.Drawing.Color.FromArgb(22, 27, 40),
+                ForeColor = System.Drawing.Color.FromArgb(229, 231, 235),
+                ShowImageMargin = false
+            };
+        }
+
+        private static MessageBoxResult ShowDarkMessage(string text, string title, MessageBoxButton buttons, MessageBoxImage icon)
+        {
+            var app = System.Windows.Application.Current;
+            if (app == null) return System.Windows.MessageBox.Show(text, title, buttons, icon);
+
+            // Aus Hintergrund-Threads zuerst auf den UI-Thread wechseln
+            if (!app.Dispatcher.CheckAccess())
+                return app.Dispatcher.Invoke(() => ShowDarkMessage(text, title, buttons, icon));
+
+            if (app.MainWindow is not MainWindow main || !main.IsLoaded)
+                return System.Windows.MessageBox.Show(text, title, buttons, icon);
+
+            return main.ShowMessageDialog(text, title, buttons, icon);
+        }
+
+        private MessageBoxResult ShowMessageDialog(string text, string title, MessageBoxButton buttons, MessageBoxImage icon)
+        {
+            var dialog = CreateDialog(title, 480, out var panel);
+
+            var row = new Grid { Margin = new Thickness(0, 0, 0, 22) };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            string symbol = icon switch
+            {
+                MessageBoxImage.Error => "⛔",
+                MessageBoxImage.Warning => "⚠",
+                MessageBoxImage.Question => "❓",
+                _ => "ℹ"
+            };
+            row.Children.Add(new TextBlock
+            {
+                Text = symbol,
+                FontSize = 30,
+                FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                Foreground = System.Windows.Media.Brushes.White,
+                VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                Margin = new Thickness(0, 0, 16, 0)
+            });
+
+            var message = new TextBlock
+            {
+                Text = text,
+                Foreground = System.Windows.Media.Brushes.White,
+                TextWrapping = TextWrapping.Wrap,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center
+            };
+            Grid.SetColumn(message, 1);
+            row.Children.Add(message);
+            panel.Children.Add(row);
+
+            var result = MessageBoxResult.None;
+            var buttonRow = new StackPanel
+            {
+                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right
+            };
+
+            void AddButton(string caption, MessageBoxResult value, bool isDefault, bool isCancel)
+            {
+                var button = new System.Windows.Controls.Button
+                {
+                    Content = Loc.T(caption),
+                    Padding = new Thickness(24, 8, 24, 8),
+                    Margin = new Thickness(10, 0, 0, 0),
+                    IsDefault = isDefault,
+                    IsCancel = isCancel
+                };
+                if (isDefault) button.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+                button.Click += (s, e) =>
+                {
+                    result = value;
+                    dialog.DialogResult = true;
+                };
+                buttonRow.Children.Add(button);
+            }
+
+            switch (buttons)
+            {
+                case MessageBoxButton.OK:
+                    AddButton("OK", MessageBoxResult.OK, true, true);
+                    break;
+                case MessageBoxButton.OKCancel:
+                    AddButton("Abbrechen", MessageBoxResult.Cancel, false, true);
+                    AddButton("OK", MessageBoxResult.OK, true, false);
+                    break;
+                case MessageBoxButton.YesNo:
+                    AddButton("Nein", MessageBoxResult.No, false, true);
+                    AddButton("Ja", MessageBoxResult.Yes, true, false);
+                    break;
+                default:
+                    AddButton("Abbrechen", MessageBoxResult.Cancel, false, true);
+                    AddButton("Nein", MessageBoxResult.No, false, false);
+                    AddButton("Ja", MessageBoxResult.Yes, true, false);
+                    break;
+            }
+
+            panel.Children.Add(buttonRow);
+            dialog.ShowDialog();
+
+            if (result == MessageBoxResult.None)
+            {
+                result = buttons switch
+                {
+                    MessageBoxButton.OK => MessageBoxResult.OK,
+                    MessageBoxButton.OKCancel => MessageBoxResult.Cancel,
+                    MessageBoxButton.YesNo => MessageBoxResult.No,
+                    _ => MessageBoxResult.Cancel
+                };
+            }
+            return result;
+        }
+
+        // ───────────────────────────── Seitenleiste: Bereiche ein-/ausblenden und sortieren ─────────────────────────────
+
+        private Dictionary<string, System.Windows.Controls.RadioButton> NavButtonMap() => new()
+        {
+            ["dashboard"] = NavDashboardBtn,
+            ["games"] = NavGamesBtn,
+            ["stats"] = NavStatsBtn,
+            ["deals"] = NavDealsBtn,
+            ["backlog"] = NavBacklogBtn,
+            ["gallery"] = NavGalleryBtn,
+            ["apps"] = NavAppsBtn,
+            ["links"] = NavLinksBtn,
+            ["wishlist"] = NavWishBtn,
+            ["downloads"] = NavDownloadsBtn,
+            ["system"] = NavSystemBtn,
+            ["storage"] = NavStorageBtn,
+            ["optimization"] = NavOptimizationBtn,
+            ["tools"] = NavToolsBtn,
+            ["settings"] = NavSettingsBtn
+        };
+
+        private List<string> GetNavOrder()
+        {
+            var all = PageEntries.Select(p => p.Key).ToList();
+            var order = settings.NavOrder.Where(k => all.Contains(k)).Distinct().ToList();
+            order.AddRange(all.Where(k => !order.Contains(k)));
+            return order;
+        }
+
+        private void ApplyNavVisibility()
+        {
+            var map = NavButtonMap();
+            var order = GetNavOrder();
+
+            for (int i = 0; i < order.Count; i++)
+            {
+                if (!map.TryGetValue(order[i], out var button)) continue;
+
+                int current = NavPanel.Children.IndexOf(button);
+                if (current != i && current >= 0)
+                {
+                    NavPanel.Children.RemoveAt(current);
+                    NavPanel.Children.Insert(Math.Min(i, NavPanel.Children.Count), button);
+                }
+
+                bool hidden = order[i] != "settings" && settings.HiddenSections.Contains(order[i]);
+                button.Visibility = hidden ? Visibility.Collapsed : Visibility.Visible;
+            }
+        }
+
+        private void SetSectionVisible(string key, bool visible)
+        {
+            if (key == "settings") return;
+
+            if (visible) settings.HiddenSections.Remove(key);
+            else if (!settings.HiddenSections.Contains(key)) settings.HiddenSections.Add(key);
+
+            SaveSettings();
+            ApplyNavVisibility();
+            if (!buildingNavSettings) BuildNavSettings();
+        }
+
+        private void MoveSection(string key, int delta)
+        {
+            var order = GetNavOrder();
+            int index = order.IndexOf(key);
+            int target = index + delta;
+            if (index < 0 || target < 0 || target >= order.Count) return;
+
+            order.RemoveAt(index);
+            order.Insert(target, key);
+            settings.NavOrder = order;
+
+            SaveSettings();
+            ApplyNavVisibility();
+            BuildNavSettings();
+        }
+
+        private void ResetNavOrder()
+        {
+            settings.NavOrder = new List<string>();
+            settings.HiddenSections = new List<string>();
+            SaveSettings();
+            ApplyNavVisibility();
+            BuildNavSettings();
+        }
+
+        private System.Windows.Controls.MenuItem BuildSectionsSubMenu()
+        {
+            var sub = new System.Windows.Controls.MenuItem { Header = Loc.T("👁  Bereiche anzeigen") };
+
+            foreach (var key in GetNavOrder())
+            {
+                string sectionKey = key;
+                var page = PageEntries.First(p => p.Key == sectionKey);
+                var item = new System.Windows.Controls.MenuItem
+                {
+                    Header = page.Icon + "  " + Loc.T(page.Title),
+                    IsCheckable = true,
+                    IsChecked = sectionKey == "settings" || !settings.HiddenSections.Contains(sectionKey),
+                    IsEnabled = sectionKey != "settings"
+                };
+                item.Click += (s, e) => SetSectionVisible(sectionKey, item.IsChecked);
+                sub.Items.Add(item);
+            }
+
+            return sub;
+        }
+
+        private System.Windows.Controls.ContextMenu BuildNavMenu(string? key)
+        {
+            var menu = CreateMenu();
+
+            if (key != null)
+            {
+                if (key != "settings")
+                    AddMenuItem(menu, "🙈  Diesen Bereich ausblenden", () => SetSectionVisible(key, false));
+                AddMenuItem(menu, "⬆  Nach oben", () => MoveSection(key, -1));
+                AddMenuItem(menu, "⬇  Nach unten", () => MoveSection(key, 1));
+                menu.Items.Add(new System.Windows.Controls.Separator());
+            }
+
+            menu.Items.Add(BuildSectionsSubMenu());
+            AddMenuItem(menu, "🔠  Einträge größer", () => ChangeNavSize(1));
+            AddMenuItem(menu, "🔡  Einträge kleiner", () => ChangeNavSize(-1));
+            AddMenuItem(menu, "↺  Reihenfolge zurücksetzen", ResetNavOrder);
+            return menu;
+        }
+
+        private void BuildNavMenus()
+        {
+            foreach (var pair in NavButtonMap())
+            {
+                string key = pair.Key;
+                var button = pair.Value;
+                button.ContextMenu = BuildNavMenu(key);
+                button.ContextMenuOpening += (s, e) => button.ContextMenu = BuildNavMenu(key);
+            }
+
+            SidebarBorder.ContextMenu = BuildNavMenu(null);
+            SidebarBorder.ContextMenuOpening += (s, e) => SidebarBorder.ContextMenu = BuildNavMenu(null);
+        }
+
+        private void BuildNavSettings()
+        {
+            if (NavSettingsPanel == null) return;
+
+            buildingNavSettings = true;
+            NavSettingsPanel.Children.Clear();
+
+            var order = GetNavOrder();
+            for (int i = 0; i < order.Count; i++)
+            {
+                string key = order[i];
+                var page = PageEntries.First(p => p.Key == key);
+
+                var row = new Grid { Margin = new Thickness(0, 0, 0, 6) };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+                var box = new System.Windows.Controls.CheckBox
+                {
+                    Content = page.Icon + "  " + Loc.T(page.Title),
+                    Foreground = System.Windows.Media.Brushes.White,
+                    IsChecked = key == "settings" || !settings.HiddenSections.Contains(key),
+                    IsEnabled = key != "settings",
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center
+                };
+                box.Checked += (s, e) => { if (!buildingNavSettings) SetSectionVisible(key, true); };
+                box.Unchecked += (s, e) => { if (!buildingNavSettings) SetSectionVisible(key, false); };
+                row.Children.Add(box);
+
+                var up = new System.Windows.Controls.Button
+                {
+                    Content = "▲",
+                    Padding = new Thickness(10, 3, 10, 3),
+                    Margin = new Thickness(8, 0, 4, 0),
+                    IsEnabled = i > 0
+                };
+                up.Click += (s, e) => MoveSection(key, -1);
+                Grid.SetColumn(up, 1);
+                row.Children.Add(up);
+
+                var down = new System.Windows.Controls.Button
+                {
+                    Content = "▼",
+                    Padding = new Thickness(10, 3, 10, 3),
+                    IsEnabled = i < order.Count - 1
+                };
+                down.Click += (s, e) => MoveSection(key, 1);
+                Grid.SetColumn(down, 2);
+                row.Children.Add(down);
+
+                NavSettingsPanel.Children.Add(row);
+            }
+
+            buildingNavSettings = false;
+        }
+
+        // ───────────────────────────── Spiele verstecken ─────────────────────────────
+
+        private void ToggleHidden(GameItem game)
+        {
+            game.Hidden = !game.Hidden;
+            SaveGameState(game);
+            ApplyFilter();
+            RefreshDashboard();
+            RefreshBoard();
+
+            if (game.Hidden)
+                ShowToast("🙈", "Spiel versteckt", game.Name + "\n" + Loc.T("Du findest es unter dem Filter „Versteckt“."), 5,
+                    () => ToggleHidden(game));
+        }
+
+        private void BtnManageHidden_Click(object sender, RoutedEventArgs e)
+        {
+            var hidden = allGames.Where(g => g.Hidden).Select(g => g.Name)
+                .OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase).ToList();
+
+            if (hidden.Count == 0)
+            {
+                Msg("Es sind keine Spiele versteckt. Verstecke Spiele per Rechtsklick auf die Karte.", "Versteckte Spiele");
+                return;
+            }
+
+            var keep = PickFromList("Versteckte Spiele",
+                "Häkchen = bleibt versteckt. Entferne das Häkchen, um ein Spiel wieder anzuzeigen.",
+                hidden, hidden.ToHashSet(StringComparer.OrdinalIgnoreCase));
+            if (keep == null) return;
+
+            foreach (var game in allGames.Where(g => g.Hidden))
+            {
+                if (keep.Contains(game.Name)) continue;
+                game.Hidden = false;
+                CopyStateToSettings(game);
+            }
+
+            SaveSettings();
+            ApplyFilter();
+            RefreshDashboard();
+            RefreshBoard();
+        }
+
+        // ───────────────────────────── Über den Launcher ─────────────────────────────
+
+        private void ShowAbout()
+        {
+            var dialog = CreateDialog("Über DFP Pro Launcher", 460, out var panel);
+
+            panel.Children.Add(new ContentControl
+            {
+                Content = FindResource("DfpLogo"),
+                Width = 110,
+                Height = 110,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                Margin = new Thickness(0, 4, 0, 14)
+            });
+
+            panel.Children.Add(new TextBlock
+            {
+                Text = "DFP Pro Launcher",
+                FontSize = 26,
+                FontWeight = FontWeights.Bold,
+                Foreground = System.Windows.Media.Brushes.White,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center
+            });
+            panel.Children.Add(new TextBlock
+            {
+                Text = "Version 1.0",
+                Foreground = BrushSubtle,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                Margin = new Thickness(0, 2, 0, 18)
+            });
+
+            var creator = new TextBlock
+            {
+                Text = Loc.T("Erstellt von") + " Der_Fette_Pudel",
+                FontSize = 16,
+                FontWeight = FontWeights.SemiBold,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center
+            };
+            creator.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
+            panel.Children.Add(creator);
+
+            panel.Children.Add(new TextBlock
+            {
+                Text = "© " + DateTime.Now.Year + " Der_Fette_Pudel",
+                Foreground = BrushSubtle,
+                FontSize = 12,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                Margin = new Thickness(0, 6, 0, 20)
+            });
+
+            var close = new System.Windows.Controls.Button
+            {
+                Content = "Schließen",
+                Padding = new Thickness(28, 8, 28, 8),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                IsCancel = true,
+                IsDefault = true
+            };
+            close.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            panel.Children.Add(close);
+
+            dialog.ShowDialog();
+        }
+
+        private void BtnAbout_Click(object sender, RoutedEventArgs e) => ShowAbout();
+
+        // ───────────────────────────── Eigene Cover und animierte GIFs ─────────────────────────────
+
+        private static string CustomCoverDir => System.IO.Path.Combine(SettingsDir, "custom");
+
+        private static string EffectiveCover(GameItem game)
+            => !string.IsNullOrEmpty(game.CustomCover) && File.Exists(game.CustomCover) ? game.CustomCover : game.CoverPath;
+
+        private static bool IsGif(string path) => path.EndsWith(".gif", StringComparison.OrdinalIgnoreCase);
+
+        private static bool IsImageFile(string path)
+        {
+            string ext = System.IO.Path.GetExtension(path).ToLowerInvariant();
+            return ext is ".png" or ".jpg" or ".jpeg" or ".bmp" or ".gif" or ".webp" or ".apng";
+        }
+
+        private void SetCustomCover(GameItem game, string sourceFile)
+        {
+            try
+            {
+                Directory.CreateDirectory(CustomCoverDir);
+                string baseName = SafeFileName(game.Name);
+                string target = System.IO.Path.Combine(CustomCoverDir, baseName + System.IO.Path.GetExtension(sourceFile).ToLowerInvariant());
+
+                foreach (string old in Directory.EnumerateFiles(CustomCoverDir, baseName + ".*"))
+                {
+                    if (!string.Equals(old, target, StringComparison.OrdinalIgnoreCase)) File.Delete(old);
+                }
+                if (!string.Equals(sourceFile, target, StringComparison.OrdinalIgnoreCase)) File.Copy(sourceFile, target, true);
+
+                game.CustomCover = target;
+                imageCache.Clear();
+                gifCache.Clear();
+                SaveGameState(game);
+                ApplyFilter();
+                RefreshDashboard();
+                RefreshBoard();
+                ShowToast("🖼", "Eigenes Cover gespeichert", game.Name, 4);
+            }
+            catch (Exception ex)
+            {
+                Msg($"Das Bild konnte nicht geladen werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ChooseCustomCover(GameItem game)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = Loc.T("Cover auswählen"),
+                Filter = Loc.T("Bilder, GIF und WebP") + " (*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp;*.apng)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.webp;*.apng"
+            };
+            if (dialog.ShowDialog() == true) SetCustomCover(game, dialog.FileName);
+        }
+
+        private void ResetCustomCover(GameItem game)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(game.CustomCover) && File.Exists(game.CustomCover)) File.Delete(game.CustomCover);
+            }
+            catch { }
+
+            game.CustomCover = string.Empty;
+            imageCache.Clear();
+            gifCache.Clear();
+            SaveGameState(game);
+            ApplyFilter();
+            RefreshDashboard();
+            RefreshBoard();
+        }
+
+        /// <summary>Ein Bild auf eine Karte ziehen setzt es als Cover.</summary>
+        private void HookCoverDrop(UIElement element, GameItem game)
+        {
+            element.AllowDrop = true;
+            element.DragOver += (s, e) =>
+            {
+                if (e.Data.GetData(System.Windows.DataFormats.FileDrop) is string[] files && files.Any(IsImageFile))
+                {
+                    e.Effects = System.Windows.DragDropEffects.Copy;
+                    e.Handled = true;
+                }
+            };
+            element.Drop += (s, e) =>
+            {
+                if (e.Data.GetData(System.Windows.DataFormats.FileDrop) is not string[] files) return;
+
+                string? image = files.FirstOrDefault(IsImageFile);
+                if (image == null) return;
+
+                SetCustomCover(game, image);
+                e.Handled = true;
+            };
+        }
+
+        private void AttachGif(System.Windows.Controls.Image image, UIElement hoverTarget, string path)
+        {
+            if (settings.PerformanceMode) return;
+
+            GifAnimator? animator = null;
+            bool wanted = false;
+
+            async Task StartAsync()
+            {
+                wanted = true;
+
+                if (animator == null)
+                {
+                    if (gifCache.TryGetValue(path, out var cachedAnimator))
+                    {
+                        animator = cachedAnimator;
+                    }
+                    else
+                    {
+                        var loaded = await Task.Run(() => GifAnimator.TryLoad(path, 300));
+                        if (loaded == null) return;
+
+                        if (gifCache.Count >= 4) gifCache.Clear();
+                        gifCache[path] = loaded;
+                        animator = loaded;
+                    }
+                }
+
+                if (wanted) animator.Attach(image);
+            }
+
+            void Stop()
+            {
+                wanted = false;
+                animator?.Detach();
+            }
+
+            if (settings.AlwaysPlayGifs)
+            {
+                image.Loaded += async (s, e) => await StartAsync();
+                image.Unloaded += (s, e) => Stop();
+            }
+            else
+            {
+                hoverTarget.MouseEnter += async (s, e) => await StartAsync();
+                hoverTarget.MouseLeave += (s, e) => Stop();
+            }
+        }
+
+        private string HeroFilePath(GameItem game)
+            => System.IO.Path.Combine(CoversDir, SafeFileName(game.Source + "_" + game.Name) + "_hero.jpg");
+
+        private BitmapImage? GetHeroImage(GameItem game)
+        {
+            try
+            {
+                string file = HeroFilePath(game);
+                if (!File.Exists(file) || new FileInfo(file).Length < 5000) return null;
+
+                string key = file + "|hero|" + settings.PerformanceMode;
+                if (imageCache.TryGetValue(key, out var cached)) return cached;
+
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.UriSource = new Uri(file);
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.DecodePixelWidth = settings.PerformanceMode ? 960 : 1920;
+                image.EndInit();
+                image.Freeze();
+                imageCache[key] = image;
+                return image;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private readonly HashSet<string> heroRequests = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>Lädt das breite Originalbild eines Steam-Spiels (für das Banner im Dashboard).</summary>
+        private async Task EnsureHeroAsync(GameItem game)
+        {
+            if (!settings.OnlineFeatures || game.Source != "Steam" || game.AppId.Length == 0) return;
+            if (!heroRequests.Add(game.Name)) return;
+
+            string file = HeroFilePath(game);
+            if (File.Exists(file)) return;
+
+            try
+            {
+                Directory.CreateDirectory(CoversDir);
+                string url = $"https://cdn.akamai.steamstatic.com/steam/apps/{game.AppId}/library_hero.jpg";
+                if (await TryDownloadAsync(new[] { url }, file)) RefreshDashboard();
+            }
+            catch { }
+        }
+
+        // ───────────────────────────── Leistung für ältere PCs ─────────────────────────────
+
+        private void ApplyPerformancePreset(bool on)
+        {
+            settings.PerformanceMode = on;
+            settings.PageAnimations = !on;
+            settings.CardAnimations = !on;
+            settings.SmoothMetrics = !on;
+            settings.HoverGlow = !on;
+            settings.HoverAnimations = !on;
+            settings.AnimatedBackground = false;
+            settings.ShowSparklines = !on;
+            settings.FullResCovers = !on;
+            settings.AlwaysPlayGifs = false;
+            settings.MonitorIntervalMs = on ? 2000 : 1000;
+            if (on)
+            {
+                settings.BgBlur = 0;
+                settings.GlassEffect = false;
+                settings.ClockSeconds = false;
+            }
+        }
+
+        private void ChkPerf_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+
+            ApplyPerformancePreset(ChkPerf.IsChecked == true);
+
+            isLoadingSettings = true;
+            try { PopulateControlsFromSettings(); }
+            finally { isLoadingSettings = false; }
+
+            SaveSettings();
+            imageCache.Clear();
+            gifCache.Clear();
+            ApplyViewSettings();
+            ApplyFilter();
+            RefreshDashboard();
+
+            ShowToast("⚡", settings.PerformanceMode ? "Performance-Modus aktiv" : "Performance-Modus aus",
+                settings.PerformanceMode ? "Animationen und Effekte sind abgeschaltet." : "Die Standard-Einstellungen sind wieder aktiv.", 5);
+        }
+
+        private void UpdateTimersForVisibility()
+        {
+            bool hidden = !IsVisible || WindowState == WindowState.Minimized;
+            bool pause = settings.PauseWhenMinimized && hidden;
+
+            if (pause)
+            {
+                ringTimer.Stop();
+                clockTimer.Stop();
+            }
+            else
+            {
+                if (!ringTimer.IsEnabled) ringTimer.Start();
+                if (!clockTimer.IsEnabled) clockTimer.Start();
+            }
+        }
+
+        // ───────────────────────────── OLED-Modus ─────────────────────────────
+
+        private string EffectiveBackground() => settings.OledMode ? "#000000" : settings.BackgroundColor;
+
+        private void ApplySurfaceBrushes()
+        {
+            bool oled = settings.OledMode;
+
+            BrushCardBg = MakeBrush(oled ? "#0A0A0D" : "#131722");
+            BrushCardBorder = MakeBrush(oled ? "#1A1A20" : "#1F2937");
+            BrushFooter = MakeBrush(oled ? "#0F0F13" : "#181D2A");
+            BrushTileHover = MakeBrush(oled ? "#17171D" : "#1B2132");
+
+            Resources["CardBrush"] = BrushCardBg;
+            Resources["CardBorderBrush"] = BrushCardBorder;
+            Resources["SurfaceBrush"] = BrushFooter;
+        }
+
+        private void RebuildStaticTiles()
+        {
+            ToolsContainer.Children.Clear();
+            BuildToolTiles();
+            BuildLinkTiles();
+            RefreshApps();
+        }
+
+        private void AnimateShift(double x, double y)
+        {
+            if (RootGrid.RenderTransform is not TranslateTransform shift)
+            {
+                shift = new TranslateTransform();
+                RootGrid.RenderTransform = shift;
+            }
+
+            shift.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(x, TimeSpan.FromSeconds(2)));
+            shift.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(y, TimeSpan.FromSeconds(2)));
+        }
+
+        /// <summary>Burn-in-Schutz: Die Oberfläche wandert alle paar Minuten um wenige Pixel.</summary>
+        private void ApplyPixelShift()
+        {
+            if (settings.OledMode && settings.OledPixelShift)
+            {
+                if (!shiftTimer.IsEnabled) shiftTimer.Start();
+            }
+            else
+            {
+                shiftTimer.Stop();
+                if (RootGrid.RenderTransform is TranslateTransform) AnimateShift(0, 0);
+            }
+        }
+
+        // ───────────────────────────── Controller: Xbox, PlayStation, Switch und generische Gamepads ─────────────────────────────
+
+        private bool ReadXInput(out PadButton pad)
+        {
+            pad = PadButton.None;
+            if (xinputMissing) return false;
+
+            for (uint slot = 0; slot < 4; slot++)
+            {
+                NativeFeatures.XInputState state;
+                uint result;
+                try
+                {
+                    result = NativeFeatures.XInputGetState(slot, out state);
+                }
+                catch
+                {
+                    xinputMissing = true;
+                    return false;
+                }
+                if (result != 0) continue;
+
+                ushort b = state.Gamepad.Buttons;
+                if ((b & 0x0001) != 0 || state.Gamepad.ThumbLY > 16000) pad |= PadButton.Up;
+                if ((b & 0x0002) != 0 || state.Gamepad.ThumbLY < -16000) pad |= PadButton.Down;
+                if ((b & 0x0004) != 0 || state.Gamepad.ThumbLX < -16000) pad |= PadButton.Left;
+                if ((b & 0x0008) != 0 || state.Gamepad.ThumbLX > 16000) pad |= PadButton.Right;
+                if ((b & 0x1000) != 0) pad |= PadButton.Confirm;
+                if ((b & 0x2000) != 0) pad |= PadButton.Back;
+                if ((b & 0x4000) != 0) pad |= PadButton.Details;
+                if ((b & 0x8000) != 0) pad |= PadButton.Favorite;
+                if ((b & 0x0100) != 0) pad |= PadButton.PrevTab;
+                if ((b & 0x0200) != 0) pad |= PadButton.NextTab;
+                if ((b & 0x0010) != 0) pad |= PadButton.Start;
+
+                padDescription = $"Xbox-Controller (Slot {slot + 1})";
+                return true;
+            }
+
+            return false;
+        }
+
+        private string DescribeJoystick(uint id)
+        {
+            padLayoutDetected = "xbox";
+
+            try
+            {
+                var caps = new NativePad.JoyCaps();
+                if (NativePad.joyGetDevCapsW(id, ref caps, (uint)Interop.Marshal.SizeOf<NativePad.JoyCaps>()) == 0)
+                {
+                    string name = caps.szPname ?? string.Empty;
+
+                    if (caps.wMid == 0x054C || Regex.IsMatch(name, "Wireless Controller|DualSense|DualShock|PLAYSTATION", RegexOptions.IgnoreCase))
+                        padLayoutDetected = "ps";
+                    else if (caps.wMid == 0x057E || Regex.IsMatch(name, "Pro Controller|Switch|Joy-Con|Nintendo", RegexOptions.IgnoreCase))
+                        padLayoutDetected = "nintendo";
+
+                    string kind = padLayoutDetected == "ps" ? "PlayStation-Controller"
+                                : padLayoutDetected == "nintendo" ? "Nintendo-Controller"
+                                : "Gamepad";
+                    return string.IsNullOrWhiteSpace(name) ? kind : $"{kind} ({name})";
+                }
+            }
+            catch { }
+
+            return "Gamepad";
+        }
+
+        private string ResolveLayout()
+            => settings.ControllerLayout is "xbox" or "ps" or "nintendo" ? settings.ControllerLayout : padLayoutDetected;
+
+        private PadButton MapJoystick(NativePad.JoyInfoEx info)
+        {
+            var pad = PadButton.None;
+            uint buttons = info.dwButtons;
+            bool Has(int bit) => (buttons & (1u << bit)) != 0;
+
+            int confirm, back, details, favorite, start;
+            switch (ResolveLayout())
+            {
+                case "ps":
+                    confirm = 1; back = 2; details = 0; favorite = 3; start = 9;      // Kreuz, Kreis, Quadrat, Dreieck, Options
+                    break;
+                case "nintendo":
+                    confirm = 1; back = 0; details = 3; favorite = 2; start = 9;
+                    break;
+                default:
+                    confirm = 0; back = 1; details = 2; favorite = 3; start = 7;
+                    break;
+            }
+
+            if (Has(confirm)) pad |= PadButton.Confirm;
+            if (Has(back)) pad |= PadButton.Back;
+            if (Has(details)) pad |= PadButton.Details;
+            if (Has(favorite)) pad |= PadButton.Favorite;
+            if (Has(4)) pad |= PadButton.PrevTab;
+            if (Has(5)) pad |= PadButton.NextTab;
+            if (Has(start)) pad |= PadButton.Start;
+
+            // Steuerkreuz (Hat-Schalter, Angabe in Hundertstel Grad)
+            if (info.dwPOV < 36000)
+            {
+                int angle = (int)(info.dwPOV / 100);
+                if (angle >= 315 || angle <= 45) pad |= PadButton.Up;
+                else if (angle <= 135) pad |= PadButton.Right;
+                else if (angle <= 225) pad |= PadButton.Down;
+                else pad |= PadButton.Left;
+            }
+
+            // Linker Stick
+            if (info.dwXpos < 12000) pad |= PadButton.Left;
+            if (info.dwXpos > 53000) pad |= PadButton.Right;
+            if (info.dwYpos < 12000) pad |= PadButton.Up;
+            if (info.dwYpos > 53000) pad |= PadButton.Down;
+
+            return pad;
+        }
+
+        private bool ReadJoystick(out PadButton pad)
+        {
+            pad = PadButton.None;
+
+            uint count;
+            try { count = NativePad.joyGetNumDevs(); }
+            catch { return false; }
+            if (count == 0) return false;
+            if (count > 16) count = 16;
+
+            for (uint id = 0; id < count; id++)
+            {
+                var info = new NativePad.JoyInfoEx
+                {
+                    dwSize = (uint)Interop.Marshal.SizeOf<NativePad.JoyInfoEx>(),
+                    dwFlags = 0xFF
+                };
+
+                uint result;
+                try { result = NativePad.joyGetPosEx(id, ref info); }
+                catch { return false; }
+                if (result != 0) continue;
+
+                if (winmmDevice != id)
+                {
+                    winmmDevice = id;
+                    padDescription = DescribeJoystick(id);
+                }
+
+                pad = MapJoystick(info);
+                return true;
+            }
+
+            winmmDevice = uint.MaxValue;
+            return false;
+        }
+
+        private void UpdatePadStatus()
+        {
+            if (TxtPadStatus == null) return;
+
+            string text = padDescription.Length > 0
+                ? Loc.T("Erkannt:") + " " + padDescription
+                : Loc.T("Kein Controller erkannt");
+            if (TxtPadStatus.Text != text) TxtPadStatus.Text = text;
+        }
+
+        private void ControllerTick()
+        {
+            if (!settings.ControllerSupport) return;
+
+            if (controllerSkip > 0)
+            {
+                controllerSkip--;
+                return;
+            }
+
+            PadButton pad;
+            if (!ReadXInput(out pad) && !ReadJoystick(out pad))
+            {
+                controllerSkip = 30;   // kein Controller: nur alle ~2 Sekunden nachsehen
+                lastPad = PadButton.None;
+                if (padDescription.Length > 0)
+                {
+                    padDescription = string.Empty;
+                    UpdatePadStatus();
+                }
+                return;
+            }
+
+            UpdatePadStatus();
+
+            PadButton pressed = pad & ~lastPad;
+            lastPad = pad;
+            if (pressed == PadButton.None || !IsActive || SpotlightLayer.Visibility == Visibility.Visible) return;
+
+            if ((pressed & PadButton.Start) != 0)
+            {
+                ToggleControllerMode();
+                return;
+            }
+
+            if (!controllerMode) return;
+
+            if ((pressed & PadButton.Left) != 0) MoveControllerSelection(-1, 0);
+            if ((pressed & PadButton.Right) != 0) MoveControllerSelection(1, 0);
+            if ((pressed & PadButton.Up) != 0) MoveControllerSelection(0, -1);
+            if ((pressed & PadButton.Down) != 0) MoveControllerSelection(0, 1);
+            if ((pressed & PadButton.PrevTab) != 0) CycleFilter(-1);
+            if ((pressed & PadButton.NextTab) != 0) CycleFilter(1);
+            if ((pressed & PadButton.Confirm) != 0) LaunchControllerSelection();
+            if ((pressed & PadButton.Back) != 0) ToggleControllerMode();
+            if ((pressed & PadButton.Favorite) != 0 && controllerIndex < visibleGames.Count) ToggleFavorite(visibleGames[controllerIndex]);
+            if ((pressed & PadButton.Details) != 0 && controllerIndex < visibleGames.Count) ShowGameDetails(visibleGames[controllerIndex]);
+        }
+
+        // ───────────────────────────── Autostart-Programme verwalten ─────────────────────────────
+
+        private const string AutostartRunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
+        private const string AutostartApprovedKey = @"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run";
+
+        private void AddAutostartEntries(RegistryKey hive, bool editable)
+        {
+            try
+            {
+                using var run = hive.OpenSubKey(AutostartRunKey);
+                using var approved = hive.OpenSubKey(AutostartApprovedKey);
+                if (run == null) return;
+
+                foreach (string name in run.GetValueNames())
+                {
+                    string entryName = name;
+                    string command = run.GetValue(name) as string ?? string.Empty;
+
+                    bool enabled = true;
+                    if (approved?.GetValue(name) is byte[] flags && flags.Length > 0) enabled = (flags[0] & 1) == 0;
+
+                    var texts = new StackPanel();
+                    var box = new System.Windows.Controls.CheckBox
+                    {
+                        Content = entryName,
+                        Foreground = System.Windows.Media.Brushes.White,
+                        IsChecked = enabled,
+                        IsEnabled = editable,
+                        ToolTip = editable ? command : Loc.T("Gilt für alle Benutzer. Ändern erfordert Administratorrechte."),
+                    };
+                    box.Checked += (s, e) => SetAutostartEnabled(entryName, true);
+                    box.Unchecked += (s, e) => SetAutostartEnabled(entryName, false);
+                    texts.Children.Add(box);
+                    texts.Children.Add(new TextBlock
+                    {
+                        Text = command,
+                        Foreground = BrushSubtle,
+                        FontSize = 11,
+                        Margin = new Thickness(22, 0, 0, 0),
+                        TextTrimming = TextTrimming.CharacterEllipsis
+                    });
+                    texts.Margin = new Thickness(0, 0, 0, 10);
+                    AutostartPanel.Children.Add(texts);
+                }
+            }
+            catch { }
+        }
+
+        private void SetAutostartEnabled(string name, bool enabled)
+        {
+            try
+            {
+                using var key = Registry.CurrentUser.CreateSubKey(AutostartApprovedKey);
+                var data = new byte[12];
+                data[0] = (byte)(enabled ? 0x02 : 0x03);
+                key.SetValue(name, data, RegistryValueKind.Binary);
+            }
+            catch (Exception ex)
+            {
+                Msg($"Autostart konnte nicht geändert werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void RefreshAutostart()
+        {
+            if (AutostartPanel == null) return;
+
+            AutostartPanel.Children.Clear();
+            AddAutostartEntries(Registry.CurrentUser, true);
+            AddAutostartEntries(Registry.LocalMachine, false);
+
+            if (AutostartPanel.Children.Count == 0)
+                AutostartPanel.Children.Add(new TextBlock { Text = Loc.T("Keine Autostart-Programme gefunden."), Foreground = BrushSubtle });
+        }
+
+        // ───────────────────────────── Einstellungen: Anpassung, Leistung, Controller ─────────────────────────────
+
+        private void ReadExtra3Settings()
+        {
+            settings.CardSpacing = (int)Math.Round(SliderSpacing.Value);
+            settings.CardAspect = (int)Math.Round(SliderAspect.Value);
+            settings.SidebarWidth = (int)Math.Round(SliderSidebarW.Value);
+
+            settings.OledMode = ChkOled.IsChecked == true;
+            settings.OledPixelShift = ChkOledShift.IsChecked == true;
+            settings.PerformanceMode = ChkPerf.IsChecked == true;
+            settings.SoftwareRendering = ChkSoftware.IsChecked == true;
+            settings.PauseWhenMinimized = ChkPauseMin.IsChecked == true;
+            settings.AlwaysPlayGifs = ChkGifAlways.IsChecked == true;
+
+            settings.ControllerLayout = ChipPadXbox.IsChecked == true ? "xbox"
+                                      : ChipPadPs.IsChecked == true ? "ps"
+                                      : ChipPadNintendo.IsChecked == true ? "nintendo"
+                                      : "auto";
+        }
+
+        private void PopulateExtra3Settings()
+        {
+            SliderSpacing.Value = settings.CardSpacing;
+            SliderAspect.Value = settings.CardAspect;
+            SliderSidebarW.Value = settings.SidebarWidth;
+
+            ChkOled.IsChecked = settings.OledMode;
+            ChkOledShift.IsChecked = settings.OledPixelShift;
+            ChkPerf.IsChecked = settings.PerformanceMode;
+            ChkSoftware.IsChecked = settings.SoftwareRendering;
+            ChkPauseMin.IsChecked = settings.PauseWhenMinimized;
+            ChkGifAlways.IsChecked = settings.AlwaysPlayGifs;
+
+            ChipPadAuto.IsChecked = settings.ControllerLayout is not ("xbox" or "ps" or "nintendo");
+            ChipPadXbox.IsChecked = settings.ControllerLayout == "xbox";
+            ChipPadPs.IsChecked = settings.ControllerLayout == "ps";
+            ChipPadNintendo.IsChecked = settings.ControllerLayout == "nintendo";
+        }
+
+        private void UpdateExtra3SliderLabels()
+        {
+            TxtSpacingValue.Text = $"{settings.CardSpacing} px";
+            TxtAspectValue.Text = $"{settings.CardAspect} %";
+            TxtSidebarWValue.Text = $"{settings.SidebarWidth} px";
+        }
+
+        // ═════════════════════════════ Schnellzugriff, Logo, SteamGridDB, Infobereich-Panel ═════════════════════════════
+
+        private readonly Dictionary<string, ImageSource?> storeLogos = new();
+        private Window? trayFlyout;
+        private readonly DispatcherTimer flyoutTimer = new();
+
+        private static readonly (string Name, string Icon, string Url)[] DefaultQuickLinks =
+        {
+            ("Steam", "🛒", "https://store.steampowered.com"),
+            ("Epic Games Store", "🎮", "https://store.epicgames.com"),
+            ("GOG", "🕹", "https://www.gog.com"),
+            ("Xbox und Game Pass", "🟢", "https://www.xbox.com"),
+            ("Discord", "💬", "https://discord.com/download"),
+            ("NVIDIA Treiber", "🟩", "https://www.nvidia.com/Download/index.aspx"),
+            ("AMD Treiber", "🟥", "https://www.amd.com/en/support"),
+            ("Intel Treiber", "🟦", "https://www.intel.com/content/www/us/en/download-center/home.html")
+        };
+
+        private static readonly Dictionary<string, (string Ring, string[] Chain)> BrandDesigns = new()
+        {
+            ["original"] = ("#8B5CF6", new[] { "#FCD34D", "#F59E0B", "#B45309" }),
+            ["gold"] = ("#F59E0B", new[] { "#FDE68A", "#FBBF24", "#B45309" }),
+            ["neon"] = ("#22D3EE", new[] { "#F0ABFC", "#D946EF", "#86198F" }),
+            ["ice"] = ("#38BDF8", new[] { "#F1F5F9", "#CBD5E1", "#64748B" }),
+            ["mono"] = ("#9CA3AF", new[] { "#F3F4F6", "#9CA3AF", "#4B5563" }),
+            ["accent"] = (string.Empty, new[] { "#FCD34D", "#F59E0B", "#B45309" })
+        };
+
+        private static readonly string[] BuiltInIgnored =
+            { "wallpaper engine", "wallpaper_engine", "lively wallpaper", "rainmeter", "steam link", "steamvr" };
+
+        private void InitExtras4()
+        {
+            flyoutTimer.Interval = TimeSpan.FromMilliseconds(260);
+            flyoutTimer.Tick += (s, e) =>
+            {
+                flyoutTimer.Stop();
+                ShowTrayFlyout();
+            };
+
+            ApplySettingsCategory("general");
+        }
+
+        // ───────────────────────────── Einstellungen: Kategorien ─────────────────────────────
+
+        private void ApplySettingsCategory(string category)
+        {
+            if (SettingsCards == null) return;
+
+            settingsCategory = category;
+            if (TxtSettingsSearch != null && TxtSettingsSearch.Text.Trim().Length > 0)
+            {
+                FilterSettings(TxtSettingsSearch.Text.Trim());
+                return;
+            }
+
+            foreach (var card in SettingsCards.Children.OfType<Border>())
+                card.Visibility = card.Tag as string == category ? Visibility.Visible : Visibility.Collapsed;
+
+            if (category == "perf") UpdateMemoryText();
+        }
+
+        private void SettingsCategory_Checked(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.RadioButton { Tag: string category })
+                ApplySettingsCategory(category);
+        }
+
+        // ───────────────────────────── Spielzeit-Ausnahmen (z. B. Wallpaper Engine) ─────────────────────────────
+
+        private bool IsTrackingIgnored(GameItem game)
+            => game.AppId == "431960"
+               || BuiltInIgnored.Any(p => game.Name.Contains(p, StringComparison.OrdinalIgnoreCase))
+               || settings.TrackingIgnored.Contains(game.Name, StringComparer.OrdinalIgnoreCase);
+
+        private void ToggleTrackingIgnored(GameItem game)
+        {
+            if (settings.TrackingIgnored.RemoveAll(n => string.Equals(n, game.Name, StringComparison.OrdinalIgnoreCase)) == 0)
+                settings.TrackingIgnored.Add(game.Name);
+
+            activeSessions.Remove(game);
+            sessionStart.Remove(game);
+            SaveSettings();
+            ApplyFilter();
+            RefreshDashboard();
+        }
+
+        private void BtnPickIgnored_Click(object sender, RoutedEventArgs e)
+        {
+            var names = allGames.Select(g => g.Name).OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase).ToList();
+            var chosen = PickFromList("Spielzeit-Ausnahmen",
+                "Für diese Programme wird keine Spielzeit erfasst. Wallpaper Engine, Lively und Rainmeter sind bereits automatisch ausgenommen.",
+                names, settings.TrackingIgnored.ToHashSet(StringComparer.OrdinalIgnoreCase));
+            if (chosen == null) return;
+
+            settings.TrackingIgnored = chosen;
+            foreach (var game in allGames.Where(IsTrackingIgnored))
+            {
+                activeSessions.Remove(game);
+                sessionStart.Remove(game);
+            }
+            SaveSettings();
+            ApplyFilter();
+            RefreshDashboard();
+        }
+
+        // ───────────────────────────── Logo und Name der Seitenleiste ─────────────────────────────
+
+        private void ApplyBrand()
+        {
+            if (BrandLogo == null) return;
+
+            string design = BrandDesigns.ContainsKey(settings.BrandDesign) ? settings.BrandDesign : "original";
+            var (ring, chain) = BrandDesigns[design];
+
+            var ringColor = design == "accent" ? GetAccentColor() : ParseColor(ring, "#8B5CF6");
+
+            // Die Logo-Pinsel werden gemeinsam genutzt (auch für Tray-Symbol und Export): Farben direkt ändern
+            if (Resources["BrandRingBrush"] is SolidColorBrush ringBrush && !ringBrush.IsFrozen)
+                ringBrush.Color = ringColor;
+
+            if (Resources["LogoGold"] is LinearGradientBrush goldBrush && !goldBrush.IsFrozen)
+            {
+                for (int i = 0; i < goldBrush.GradientStops.Count && i < chain.Length; i++)
+                    goldBrush.GradientStops[i].Color = ParseColor(chain[i], "#F59E0B");
+            }
+
+            double logoSize = settings.SidebarCollapsed ? Math.Min(settings.BrandLogoSize, 54) : settings.BrandLogoSize;
+            BrandLogo.Width = logoSize;
+            BrandLogo.Height = logoSize;
+
+            BrandTitle.Text = string.IsNullOrWhiteSpace(settings.BrandName) ? "DFP PRO" : settings.BrandName;
+            BrandTitle.FontSize = settings.BrandNameSize;
+            BrandSubtitle.Text = string.IsNullOrWhiteSpace(settings.BrandSubtitle) ? "LAUNCHER" : settings.BrandSubtitle;
+            BrandSubtitle.FontSize = Math.Max(10, Math.Round(settings.BrandNameSize * 0.6));
+
+            BrandTitle.Visibility = settings.BrandShowName ? Visibility.Visible : Visibility.Collapsed;
+            BrandSubtitle.Visibility = settings.BrandShowName && settings.BrandShowSubtitle ? Visibility.Visible : Visibility.Collapsed;
+
+            switch (settings.BrandNameColor)
+            {
+                case "accent":
+                    BrandTitle.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
+                    break;
+                case "gold":
+                    BrandTitle.Foreground = BrushGold;
+                    break;
+                default:
+                    BrandTitle.Foreground = System.Windows.Media.Brushes.White;
+                    break;
+            }
+        }
+
+        private void BtnApplyBrandText_Click(object sender, RoutedEventArgs e)
+        {
+            settings.BrandName = TxtBrandName.Text.Trim();
+            settings.BrandSubtitle = TxtBrandSub.Text.Trim();
+            SaveSettings();
+            ApplyBrand();
+        }
+
+        private void BtnResetBrand_Click(object sender, RoutedEventArgs e)
+        {
+            settings.BrandLogoSize = 54;
+            settings.BrandNameSize = 20;
+            settings.BrandShowName = true;
+            settings.BrandShowSubtitle = true;
+            settings.BrandDesign = "original";
+            settings.BrandNameColor = "white";
+            settings.BrandName = "DFP PRO";
+            settings.BrandSubtitle = "LAUNCHER";
+            SaveSettings();
+
+            isLoadingSettings = true;
+            try { PopulateControlsFromSettings(); }
+            finally { isLoadingSettings = false; }
+            ApplyBrand();
+        }
+
+        // ───────────────────────────── Größe der Menüeinträge ─────────────────────────────
+
+        private void ApplyNavSizes()
+        {
+            foreach (var button in NavButtonMap().Values)
+            {
+                button.FontSize = settings.NavFontSize;
+                button.Padding = new Thickness(12, settings.NavItemPadding, 12, settings.NavItemPadding);
+
+                if (button.Content is StackPanel panel && panel.Children.Count > 0 && panel.Children[0] is TextBlock icon)
+                {
+                    icon.FontSize = settings.NavFontSize + 2;
+                    icon.Width = Math.Round(settings.NavFontSize * 2.1);
+                }
+            }
+        }
+
+        private void ChangeNavSize(int delta)
+        {
+            settings.NavFontSize = Math.Clamp(settings.NavFontSize + delta, 11, 20);
+            settings.NavItemPadding = Math.Clamp(settings.NavItemPadding + delta, 4, 16);
+            SaveSettings();
+            ApplyNavSizes();
+
+            isLoadingSettings = true;
+            try
+            {
+                SliderNavFont.Value = settings.NavFontSize;
+                SliderNavPad.Value = settings.NavItemPadding;
+                UpdateExtra4SliderLabels();
+            }
+            finally { isLoadingSettings = false; }
+        }
+
+        // ───────────────────────────── Schnellzugriff (eigene Kategorie) ─────────────────────────────
+
+        private void SeedQuickLinks()
+        {
+            if (settings.QuickLinksSeeded) return;
+
+            foreach (var item in DefaultQuickLinks)
+                settings.QuickLinks.Add(new QuickLink { Name = item.Name, Icon = item.Icon, Target = item.Url });
+
+            settings.QuickLinksSeeded = true;
+            SaveSettings();
+        }
+
+        private static bool LooksLikePath(string text)
+            => text.Contains('\\') || text.Contains('/') || text.Contains(':') || text.Contains('.');
+
+        private static ImageSource? ResolveQuickIcon(QuickLink link)
+        {
+            try
+            {
+                string icon = link.Icon.Trim();
+
+                if (icon.Length > 0 && LooksLikePath(icon) && File.Exists(icon))
+                {
+                    if (IsImageFile(icon))
+                    {
+                        var image = new BitmapImage();
+                        image.BeginInit();
+                        image.UriSource = new Uri(icon);
+                        image.CacheOption = BitmapCacheOption.OnLoad;
+                        image.DecodePixelWidth = 128;
+                        image.EndInit();
+                        image.Freeze();
+                        return image;
+                    }
+                    return ExtractIcon(icon);
+                }
+
+                if (icon.Length == 0 && File.Exists(link.Target)) return ExtractIcon(link.Target);
+            }
+            catch { }
+
+            return null;
+        }
+
+        private static string QuickEmoji(QuickLink link)
+        {
+            string icon = link.Icon.Trim();
+            return icon.Length > 0 && !LooksLikePath(icon) ? icon : "🔗";
+        }
+
+        private static string DescribeTarget(string target)
+        {
+            try
+            {
+                if (Uri.TryCreate(target, UriKind.Absolute, out var uri) && (uri.Scheme == "http" || uri.Scheme == "https"))
+                    return uri.Host.Replace("www.", string.Empty);
+                return System.IO.Path.GetFileName(target.TrimEnd('\\', '/'));
+            }
+            catch
+            {
+                return target;
+            }
+        }
+
+        private void BuildLinkTiles()
+        {
+            if (QuickContainer == null) return;
+
+            SeedQuickLinks();
+            QuickContainer.Children.Clear();
+
+            foreach (var link in settings.QuickLinks)
+            {
+                var item = link;
+                var menu = CreateMenu();
+                AddMenuItem(menu, "✏  Bearbeiten ...", () => EditQuickLink(item));
+                AddMenuItem(menu, "◀  Nach vorn", () => MoveQuickLink(item, -1));
+                AddMenuItem(menu, "▶  Nach hinten", () => MoveQuickLink(item, 1));
+                AddMenuItem(menu, "🗑  Entfernen", () => RemoveQuickLink(item));
+
+                QuickContainer.Children.Add(CreateTile(QuickEmoji(item), ResolveQuickIcon(item), item.Name,
+                    DescribeTarget(item.Target), () => OpenShell(item.Target), menu, settings.QuickTileSize));
+            }
+
+            if (settings.QuickLinks.Count == 0)
+            {
+                QuickContainer.Children.Add(new TextBlock
+                {
+                    Text = Loc.T("Noch keine Verknüpfungen. Füge mit „Hinzufügen“ Webseiten, Programme oder Ordner hinzu."),
+                    Foreground = BrushSubtle
+                });
+            }
+        }
+
+        private void MoveQuickLink(QuickLink link, int delta)
+        {
+            int index = settings.QuickLinks.IndexOf(link);
+            int target = index + delta;
+            if (index < 0 || target < 0 || target >= settings.QuickLinks.Count) return;
+
+            settings.QuickLinks.RemoveAt(index);
+            settings.QuickLinks.Insert(target, link);
+            SaveSettings();
+            BuildLinkTiles();
+        }
+
+        private void RemoveQuickLink(QuickLink link)
+        {
+            settings.QuickLinks.Remove(link);
+            SaveSettings();
+            BuildLinkTiles();
+        }
+
+        private void BtnAddQuick_Click(object sender, RoutedEventArgs e) => EditQuickLink(null);
+
+        private void BtnResetQuick_Click(object sender, RoutedEventArgs e)
+        {
+            var answer = Msg("Alle Verknüpfungen durch die Standard-Auswahl ersetzen?", "Schnellzugriff",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (answer != MessageBoxResult.Yes) return;
+
+            settings.QuickLinks = new List<QuickLink>();
+            settings.QuickLinksSeeded = false;
+            BuildLinkTiles();
+        }
+
+        private void EditQuickLink(QuickLink? existing)
+        {
+            var dialog = CreateDialog(existing == null ? "Verknüpfung hinzufügen" : "Verknüpfung bearbeiten", 560, out var panel);
+
+            TextBlock Label(string text) => new() { Text = Loc.T(text), Foreground = BrushSubtle, Margin = new Thickness(0, 0, 0, 6) };
+
+            panel.Children.Add(Label("Name"));
+            var name = new System.Windows.Controls.TextBox { Text = existing?.Name ?? string.Empty, Height = 38, Margin = new Thickness(0, 0, 0, 14) };
+            panel.Children.Add(name);
+
+            panel.Children.Add(Label("Ziel (Webadresse, Programm, Datei oder Ordner)"));
+            var target = new System.Windows.Controls.TextBox { Text = existing?.Target ?? string.Empty, Height = 38 };
+            panel.Children.Add(target);
+
+            var targetButtons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(0, 8, 0, 14) };
+            var pickFile = new System.Windows.Controls.Button { Content = Loc.T("Datei wählen ..."), Margin = new Thickness(0, 0, 8, 0) };
+            pickFile.Click += (s, args) =>
+            {
+                var picker = new Microsoft.Win32.OpenFileDialog { Title = Loc.T("Datei wählen ...") };
+                if (picker.ShowDialog() == true) target.Text = picker.FileName;
+            };
+            var pickFolder = new System.Windows.Controls.Button { Content = Loc.T("Ordner wählen ...") };
+            pickFolder.Click += (s, args) =>
+            {
+                using var picker = new Forms.FolderBrowserDialog();
+                if (picker.ShowDialog() == Forms.DialogResult.OK) target.Text = picker.SelectedPath;
+            };
+            targetButtons.Children.Add(pickFile);
+            targetButtons.Children.Add(pickFolder);
+            panel.Children.Add(targetButtons);
+
+            panel.Children.Add(Label("Symbol (Emoji eingeben oder Bild wählen, leer = Symbol der Datei)"));
+            var icon = new System.Windows.Controls.TextBox { Text = existing?.Icon ?? string.Empty, Height = 38 };
+            panel.Children.Add(icon);
+
+            var iconButtons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(0, 8, 0, 20) };
+            var pickImage = new System.Windows.Controls.Button { Content = Loc.T("Bild wählen ..."), Margin = new Thickness(0, 0, 8, 0) };
+            pickImage.Click += (s, args) =>
+            {
+                var picker = new Microsoft.Win32.OpenFileDialog
+                {
+                    Title = Loc.T("Bild wählen ..."),
+                    Filter = Loc.T("Bilder") + " (*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico;*.exe)|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.ico;*.exe"
+                };
+                if (picker.ShowDialog() == true) icon.Text = picker.FileName;
+            };
+            var clearIcon = new System.Windows.Controls.Button { Content = Loc.T("Symbol leeren") };
+            clearIcon.Click += (s, args) => icon.Text = string.Empty;
+            iconButtons.Children.Add(pickImage);
+            iconButtons.Children.Add(clearIcon);
+            panel.Children.Add(iconButtons);
+
+            var buttons = new StackPanel
+            {
+                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right
+            };
+            var cancel = new System.Windows.Controls.Button { Content = Loc.T("Abbrechen"), Margin = new Thickness(0, 0, 10, 0), IsCancel = true };
+            var save = new System.Windows.Controls.Button { Content = Loc.T("Speichern"), Padding = new Thickness(26, 8, 26, 8), IsDefault = true };
+            save.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            save.Click += (s, args) =>
+            {
+                if (name.Text.Trim().Length == 0 || target.Text.Trim().Length == 0)
+                {
+                    Msg("Bitte gib einen Namen und ein Ziel ein.", "Schnellzugriff", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                var link = existing ?? new QuickLink();
+                link.Name = name.Text.Trim();
+                link.Target = target.Text.Trim();
+                link.Icon = icon.Text.Trim();
+                if (existing == null) settings.QuickLinks.Add(link);
+
+                SaveSettings();
+                BuildLinkTiles();
+                dialog.DialogResult = true;
+            };
+            buttons.Children.Add(cancel);
+            buttons.Children.Add(save);
+            panel.Children.Add(buttons);
+
+            dialog.ShowDialog();
+        }
+
+        // ───────────────────────────── Logos der Stores (Angebote) ─────────────────────────────
+
+        private ImageSource? GetStoreLogo(string store)
+        {
+            if (storeLogos.TryGetValue(store, out var cached) && cached != null) return cached;
+
+            ImageSource? logo = null;
+            try
+            {
+                string? exe = null;
+                if (store == "steam")
+                {
+                    string? steamPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam", "SteamPath", null) as string;
+                    if (!string.IsNullOrEmpty(steamPath)) exe = System.IO.Path.GetFullPath(System.IO.Path.Combine(steamPath, "steam.exe"));
+                }
+                else if (store == "epic")
+                {
+                    string root = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+                    exe = new[]
+                    {
+                        System.IO.Path.Combine(root, "Epic Games", "Launcher", "Portal", "Binaries", "Win64", "EpicGamesLauncher.exe"),
+                        System.IO.Path.Combine(root, "Epic Games", "Launcher", "Portal", "Binaries", "Win32", "EpicGamesLauncher.exe")
+                    }.FirstOrDefault(File.Exists);
+                }
+
+                if (exe != null && File.Exists(exe)) logo = ExtractIcon(exe);
+            }
+            catch { }
+
+            // Ohne installierten Launcher: Seiten-Symbol aus dem Internet
+            if (logo == null && settings.OnlineFeatures)
+            {
+                string domain = store == "steam" ? "store.steampowered.com" : "store.epicgames.com";
+                logo = LoadWebImage("https://www.google.com/s2/favicons?domain=" + domain + "&sz=64");
+            }
+
+            storeLogos[store] = logo;
+            return logo;
+        }
+
+        private void ApplyStoreLogos()
+        {
+            if (ImgEpicFree == null) return;
+
+            var epic = GetStoreLogo("epic");
+            var steam = GetStoreLogo("steam");
+            ImgEpicFree.Source = epic;
+            ImgEpicSoon.Source = epic;
+            ImgSteamDeals.Source = steam;
+        }
+
+        // ───────────────────────────── SteamGridDB (Cover in Originalqualität) ─────────────────────────────
+
+        private async Task<string?> SgdbGetAsync(string path)
+        {
+            using var request = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Get, "https://www.steamgriddb.com/api/v2" + path);
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", settings.SteamGridDbKey.Trim());
+            using var response = await Http.SendAsync(request);
+            return response.IsSuccessStatusCode ? await response.Content.ReadAsStringAsync() : null;
+        }
+
+        private static string? FirstSgdbGridUrl(string? json)
+        {
+            if (string.IsNullOrEmpty(json)) return null;
+
+            using var doc = JsonDocument.Parse(json);
+            if (!doc.RootElement.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Array) return null;
+
+            foreach (var item in data.EnumerateArray())
+            {
+                string url = GetJsonString(item, "url");
+                if (url.Length > 0) return url;
+            }
+            return null;
+        }
+
+        private async Task<string?> FindSgdbCoverUrlAsync(GameItem game)
+        {
+            if (string.IsNullOrWhiteSpace(settings.SteamGridDbKey) || !settings.OnlineFeatures) return null;
+
+            try
+            {
+                const string query = "dimensions=600x900,342x482&types=static&mimes=image/png,image/jpeg&nsfw=false&humor=false";
+
+                if (game.Source == "Steam" && game.AppId.Length > 0)
+                {
+                    string? url = FirstSgdbGridUrl(await SgdbGetAsync($"/grids/steam/{game.AppId}?{query}"));
+                    if (url != null) return url;
+                }
+
+                string? search = await SgdbGetAsync("/search/autocomplete/" + Uri.EscapeDataString(game.Name));
+                if (string.IsNullOrEmpty(search)) return null;
+
+                long id = 0;
+                using (var doc = JsonDocument.Parse(search))
+                {
+                    if (doc.RootElement.TryGetProperty("data", out var data) && data.ValueKind == JsonValueKind.Array)
+                    {
+                        string wanted = NormalizeTitle(game.Name);
+                        foreach (var item in data.EnumerateArray())
+                        {
+                            if (id == 0) id = JsonLong(item, "id");
+                            if (NormalizeTitle(GetJsonString(item, "name")) == wanted)
+                            {
+                                id = JsonLong(item, "id");
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return id > 0 ? FirstSgdbGridUrl(await SgdbGetAsync($"/grids/game/{id}?{query}")) : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private async void BtnTestSgdb_Click(object sender, RoutedEventArgs e)
+        {
+            string key = TxtSgdbKey.Text.Trim();
+            if (key.Length == 0)
+            {
+                TxtSgdbStatus.Text = Loc.T("Bitte zuerst einen Schlüssel eingeben.");
+                return;
+            }
+
+            string previous = settings.SteamGridDbKey;
+            settings.SteamGridDbKey = key;
+            TxtSgdbStatus.Text = Loc.T("Teste Verbindung ...");
+
+            try
+            {
+                string? result = await SgdbGetAsync("/search/autocomplete/portal");
+                TxtSgdbStatus.Text = result != null
+                    ? Loc.T("Verbindung erfolgreich. Der Schlüssel funktioniert.")
+                    : Loc.T("Der Schlüssel wurde abgelehnt oder SteamGridDB ist nicht erreichbar.");
+            }
+            catch
+            {
+                TxtSgdbStatus.Text = Loc.T("Der Schlüssel wurde abgelehnt oder SteamGridDB ist nicht erreichbar.");
+            }
+            finally
+            {
+                settings.SteamGridDbKey = previous;
+            }
+        }
+
+        private void BtnSaveSgdb_Click(object sender, RoutedEventArgs e)
+        {
+            settings.SteamGridDbKey = TxtSgdbKey.Text.Trim();
+            SaveSettings();
+            TxtSgdbStatus.Text = settings.SteamGridDbKey.Length > 0
+                ? Loc.T("Gespeichert. Neue Cover kommen jetzt zuerst von SteamGridDB.")
+                : Loc.T("Schlüssel entfernt. Es werden wieder Steam- und Epic-Cover verwendet.");
+
+            BtnReloadCovers_Click(sender, e);
+        }
+
+        // ───────────────────────────── Infobereich-Panel (Quick-Panel unten rechts) ─────────────────────────────
+
+        private void HookTrayFlyout()
+        {
+            if (trayIcon == null) return;
+
+            trayIcon.MouseClick += (s, e) =>
+            {
+                if (e.Button != Forms.MouseButtons.Left) return;
+                if (settings.TrayClickOpensLauncher)
+                {
+                    Dispatcher.BeginInvoke(new Action(ShowFromTray));
+                    return;
+                }
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    flyoutTimer.Stop();
+                    flyoutTimer.Start();
+                }));
+            };
+            trayIcon.DoubleClick += (s, e) => Dispatcher.BeginInvoke(new Action(() =>
+            {
+                flyoutTimer.Stop();
+                CloseTrayFlyout();
+            }));
+        }
+
+        private void CloseTrayFlyout()
+        {
+            var window = trayFlyout;
+            trayFlyout = null;
+            try { window?.Close(); } catch { }
+        }
+
+        private void ShowTrayFlyout()
+        {
+            if (trayFlyout != null)
+            {
+                CloseTrayFlyout();
+                return;
+            }
+
+            var window = new Window
+            {
+                WindowStyle = WindowStyle.None,
+                ResizeMode = ResizeMode.NoResize,
+                ShowInTaskbar = false,
+                Topmost = true,
+                Width = 350,
+                SizeToContent = SizeToContent.Height,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                Left = -10000,
+                Top = -10000
+            };
+            window.Resources.MergedDictionaries.Add(Resources);
+            window.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AppBackgroundBrush");
+
+            var root = new StackPanel { Margin = new Thickness(18) };
+
+            var header = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 14) };
+            header.Children.Add(new ContentControl { Content = FindResource("DfpLogo"), Width = 40, Height = 40 });
+            var titles = new StackPanel { Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = System.Windows.VerticalAlignment.Center };
+            titles.Children.Add(new TextBlock { Text = "DFP Pro Launcher", Foreground = System.Windows.Media.Brushes.White, FontWeight = FontWeights.Bold, FontSize = 16 });
+            titles.Children.Add(new TextBlock { Text = "by Der_Fette_Pudel", Foreground = BrushSubtle, FontSize = 11 });
+            header.Children.Add(titles);
+            root.Children.Add(header);
+
+            var sample = SampleMetrics();
+            root.Children.Add(new TextBlock
+            {
+                Text = $"CPU {sample.Cpu:F0}%   ·   RAM {sample.Ram:F0}%" + (sample.HasGpu ? $"   ·   GPU {sample.Gpu:F0}%" : string.Empty),
+                Foreground = BrushSubtle,
+                FontSize = 12,
+                Margin = new Thickness(0, 0, 0, 12)
+            });
+
+            var games = VisibleGames
+                .Where(g => g.LastPlayed.HasValue || g.IsFavorite)
+                .OrderByDescending(g => g.LastPlayed ?? DateTime.MinValue)
+                .Take(6)
+                .ToList();
+
+            root.Children.Add(new TextBlock { Text = Loc.T("Schnell starten"), Foreground = BrushSubtle, FontSize = 12, Margin = new Thickness(0, 0, 0, 6) });
+            if (games.Count == 0)
+                root.Children.Add(new TextBlock { Text = Loc.T("Noch nichts gestartet."), Foreground = BrushSubtle, Margin = new Thickness(0, 0, 0, 12) });
+
+            foreach (var game in games)
+            {
+                var item = game;
+                var row = new Grid { Margin = new Thickness(0, 0, 0, 6) };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+                var thumb = new Border { Width = 30, Height = 42, CornerRadius = new CornerRadius(5), Background = BrushCardBg, Margin = new Thickness(0, 0, 10, 0) };
+                if (HasCover(item) && GetCachedImage(EffectiveCover(item)) is BitmapImage image)
+                    thumb.Background = new ImageBrush(image) { Stretch = Stretch.UniformToFill };
+                row.Children.Add(thumb);
+
+                var name = new TextBlock
+                {
+                    Text = item.Name,
+                    Foreground = System.Windows.Media.Brushes.White,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                    TextTrimming = TextTrimming.CharacterEllipsis
+                };
+                Grid.SetColumn(name, 1);
+                row.Children.Add(name);
+
+                var play = new System.Windows.Controls.Button { Content = "▶", Padding = new Thickness(14, 6, 14, 6) };
+                play.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+                play.Click += (s, e) =>
+                {
+                    CloseTrayFlyout();
+                    LaunchGame(item);
+                };
+                Grid.SetColumn(play, 2);
+                row.Children.Add(play);
+
+                root.Children.Add(row);
+            }
+
+            var actions = new WrapPanel { Margin = new Thickness(0, 10, 0, 0) };
+            void AddAction(string text, Action action, bool accent = false)
+            {
+                var button = new System.Windows.Controls.Button { Content = Loc.T(text), Margin = new Thickness(0, 0, 8, 8), Padding = new Thickness(12, 7, 12, 7) };
+                if (accent) button.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+                button.Click += (s, e) =>
+                {
+                    CloseTrayFlyout();
+                    action();
+                };
+                actions.Children.Add(button);
+            }
+
+            AddAction("Launcher öffnen", ShowFromTray, true);
+            AddAction("🔍  Suche", () => { ShowFromTray(); OpenSpotlight(); });
+            AddAction("🎲  Zufällig", () => { ShowFromTray(); BtnRandomGame_Click(this, new RoutedEventArgs()); });
+            AddAction("🎮  Controller-Modus", () => { ShowFromTray(); ToggleControllerMode(); });
+            AddAction("⚙  Einstellungen", () => { ShowFromTray(); NavigateTo("settings"); });
+            AddAction("📡  Streamer-Modus", ToggleStreamerMode);
+            AddAction("⏻  Beenden", ExitApplication);
+            root.Children.Add(actions);
+
+            window.Content = new Border
+            {
+                Child = root,
+                BorderThickness = new Thickness(1),
+                Background = MakeBrush("#161B28")
+            };
+            ((Border)window.Content).SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
+
+            window.Loaded += (s, e) =>
+            {
+                window.UpdateLayout();
+                var area = SystemParameters.WorkArea;
+                window.Left = area.Right - window.ActualWidth - 12;
+                window.Top = area.Bottom - window.ActualHeight - 12;
+                window.Activate();
+            };
+            window.Deactivated += (s, e) =>
+            {
+                if (ReferenceEquals(trayFlyout, window)) CloseTrayFlyout();
+            };
+
+            trayFlyout = window;
+            window.Show();
+        }
+
+        // ───────────────────────────── Einstellungen: Logo, Navigation, Cover-Quelle ─────────────────────────────
+
+        private void ReadExtra4Settings()
+        {
+            settings.NavFontSize = (int)Math.Round(SliderNavFont.Value);
+            settings.NavItemPadding = (int)Math.Round(SliderNavPad.Value);
+            settings.BrandLogoSize = (int)Math.Round(SliderBrandLogo.Value);
+            settings.BrandNameSize = (int)Math.Round(SliderBrandName.Value);
+            settings.BrandShowName = ChkBrandName.IsChecked == true;
+            settings.BrandShowSubtitle = ChkBrandSub.IsChecked == true;
+            settings.ShowTrayIcon = ChkShowTray.IsChecked == true;
+
+            settings.BrandDesign = ChipBrandGold.IsChecked == true ? "gold"
+                                 : ChipBrandNeon.IsChecked == true ? "neon"
+                                 : ChipBrandIce.IsChecked == true ? "ice"
+                                 : ChipBrandMono.IsChecked == true ? "mono"
+                                 : ChipBrandAccent.IsChecked == true ? "accent"
+                                 : "original";
+            settings.BrandNameColor = ChipNameAccent.IsChecked == true ? "accent"
+                                    : ChipNameGold.IsChecked == true ? "gold"
+                                    : "white";
+        }
+
+        private void PopulateExtra4Settings()
+        {
+            SliderNavFont.Value = settings.NavFontSize;
+            SliderNavPad.Value = settings.NavItemPadding;
+            SliderBrandLogo.Value = settings.BrandLogoSize;
+            SliderBrandName.Value = settings.BrandNameSize;
+            ChkBrandName.IsChecked = settings.BrandShowName;
+            ChkBrandSub.IsChecked = settings.BrandShowSubtitle;
+            ChkShowTray.IsChecked = settings.ShowTrayIcon;
+
+            ChipBrandOriginal.IsChecked = settings.BrandDesign is not ("gold" or "neon" or "ice" or "mono" or "accent");
+            ChipBrandGold.IsChecked = settings.BrandDesign == "gold";
+            ChipBrandNeon.IsChecked = settings.BrandDesign == "neon";
+            ChipBrandIce.IsChecked = settings.BrandDesign == "ice";
+            ChipBrandMono.IsChecked = settings.BrandDesign == "mono";
+            ChipBrandAccent.IsChecked = settings.BrandDesign == "accent";
+
+            ChipNameWhite.IsChecked = settings.BrandNameColor is not ("accent" or "gold");
+            ChipNameAccent.IsChecked = settings.BrandNameColor == "accent";
+            ChipNameGold.IsChecked = settings.BrandNameColor == "gold";
+
+            TxtBrandName.Text = settings.BrandName;
+            TxtBrandSub.Text = settings.BrandSubtitle;
+            TxtSgdbKey.Text = settings.SteamGridDbKey;
+        }
+
+        private void UpdateExtra4SliderLabels()
+        {
+            TxtNavFontValue.Text = $"{settings.NavFontSize} px";
+            TxtNavPadValue.Text = $"{settings.NavItemPadding} px";
+            TxtBrandLogoValue.Text = $"{settings.BrandLogoSize} px";
+            TxtBrandNameValue.Text = $"{settings.BrandNameSize} px";
+        }
+
+        // ═════════════════════════════ Animierte Cover, Fehlerprotokoll, Sicherungen ═════════════════════════════
+
+        private static readonly string LogDir = System.IO.Path.Combine(SettingsDir, "logs");
+        private static readonly string SettingsBackupDir = System.IO.Path.Combine(SettingsDir, "settings_backups");
+        private static readonly object LogLock = new();
+        private static bool settingsRecovered;
+        private DateTime lastErrorToast = DateTime.MinValue;
+
+        private void InitExtras5()
+        {
+            HookErrorLogging();
+            BackupSettingsDaily();
+
+            if (settingsRecovered)
+            {
+                Dispatcher.BeginInvoke(new Action(() => ShowToast("♻", "Einstellungen wiederhergestellt",
+                    "Die Einstellungsdatei war beschädigt. Die letzte Sicherung wurde geladen.", 8)),
+                    System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            }
+        }
+
+        // ───────────────────────────── Fehlerprotokoll ─────────────────────────────
+
+        private static void LogError(string source, Exception? error)
+        {
+            try
+            {
+                lock (LogLock)
+                {
+                    Directory.CreateDirectory(LogDir);
+                    string file = System.IO.Path.Combine(LogDir, "error.log");
+
+                    if (File.Exists(file) && new FileInfo(file).Length > 512 * 1024)
+                    {
+                        File.Copy(file, System.IO.Path.Combine(LogDir, "error.old.log"), true);
+                        File.Delete(file);
+                    }
+
+                    File.AppendAllText(file, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {source}\r\n{error}\r\n\r\n");
+                }
+            }
+            catch { }
+        }
+
+        private void HookErrorLogging()
+        {
+            var app = System.Windows.Application.Current;
+            if (app != null)
+            {
+                app.DispatcherUnhandledException += (s, e) =>
+                {
+                    LogError("Oberfläche", e.Exception);
+                    e.Handled = true;
+
+                    if ((DateTime.Now - lastErrorToast).TotalSeconds > 30)
+                    {
+                        lastErrorToast = DateTime.Now;
+                        ShowToast("⚠", "Unerwarteter Fehler", "Details stehen im Fehlerprotokoll (Einstellungen, Daten und Info).", 8);
+                    }
+                };
+            }
+
+            AppDomain.CurrentDomain.UnhandledException += (s, e) => LogError("Programm", e.ExceptionObject as Exception);
+            TaskScheduler.UnobservedTaskException += (s, e) =>
+            {
+                LogError("Hintergrundaufgabe", e.Exception);
+                e.SetObserved();
+            };
+        }
+
+        private void BtnOpenLog_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Directory.CreateDirectory(LogDir);
+                string file = System.IO.Path.Combine(LogDir, "error.log");
+                Process.Start(new ProcessStartInfo(File.Exists(file) ? file : LogDir) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                Msg($"Konnte nicht geöffnet werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ───────────────────────────── Einstellungen sichern und wiederherstellen ─────────────────────────────
+
+        private static void BackupSettingsDaily()
+        {
+            try
+            {
+                if (!File.Exists(SettingsFilePath) || new FileInfo(SettingsFilePath).Length < 20) return;
+
+                // Nur eine gültige Datei sichern, damit keine defekte Fassung die gute ersetzt
+                if (JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(SettingsFilePath)) == null) return;
+
+                Directory.CreateDirectory(SettingsBackupDir);
+                string target = System.IO.Path.Combine(SettingsBackupDir, $"settings_{DateTime.Now:yyyyMMdd}.json");
+                if (!File.Exists(target)) File.Copy(SettingsFilePath, target);
+
+                foreach (string old in Directory.GetFiles(SettingsBackupDir, "settings_*.json").OrderByDescending(f => f).Skip(7))
+                    File.Delete(old);
+            }
+            catch { }
+        }
+
+        private static AppSettings? TryRestoreSettingsBackup()
+        {
+            try
+            {
+                // Die beschädigte Datei aufheben, damit sie nicht überschrieben wird
+                if (File.Exists(SettingsFilePath))
+                {
+                    string broken = System.IO.Path.Combine(SettingsDir, $"settings.defekt_{DateTime.Now:yyyyMMdd_HHmmss}.json");
+                    File.Copy(SettingsFilePath, broken, true);
+                }
+
+                if (!Directory.Exists(SettingsBackupDir)) return null;
+
+                foreach (string file in Directory.GetFiles(SettingsBackupDir, "settings_*.json").OrderByDescending(f => f))
+                {
+                    try
+                    {
+                        var restored = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(file));
+                        if (restored == null) continue;
+
+                        settingsRecovered = true;
+                        return restored;
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+
+            return null;
+        }
+
+        private void BtnOpenBackups_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Directory.CreateDirectory(SettingsBackupDir);
+                Process.Start(new ProcessStartInfo(SettingsBackupDir) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                Msg($"Konnte nicht geöffnet werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ───────────────────────────── Spielzeit von Hand anpassen ─────────────────────────────
+
+        private void EditPlaytime(GameItem game)
+        {
+            string current = (game.PlaySeconds / 3600.0).ToString("0.##", System.Globalization.CultureInfo.CurrentCulture);
+            string? input = PromptText("Spielzeit bearbeiten",
+                $"Gesamte Spielzeit von „{game.Name}“ in Stunden (zum Beispiel 12,5):", current);
+            if (input == null) return;
+
+            string cleaned = input.Trim().Replace(',', '.');
+            if (!double.TryParse(cleaned, System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out double hours) || hours < 0 || hours > 100000)
+            {
+                Msg("Bitte gib eine Zahl ein (zum Beispiel 12,5).", "Spielzeit bearbeiten", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            game.PlaySeconds = (long)Math.Round(hours * 3600);
+            SaveGameState(game);
+            ApplyFilter();
+            RefreshDashboard();
+        }
+
+        // ───────────────────────────── Animierte Cover: WebP, APNG und GIF ─────────────────────────────
+
+        /// <summary>GIF, WebP und APNG können Animationen enthalten.</summary>
+        private static bool IsAnimatedCover(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return false;
+
+            string ext = System.IO.Path.GetExtension(path).ToLowerInvariant();
+            if (ext is ".gif" or ".webp" or ".apng") return true;
+            if (ext != ".png") return false;
+
+            try
+            {
+                using var stream = File.OpenRead(path);
+                var buffer = new byte[1024];
+                int read = stream.Read(buffer, 0, buffer.Length);
+                return System.Text.Encoding.ASCII.GetString(buffer, 0, read).Contains("acTL", StringComparison.Ordinal);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>Liest ein Standbild, das WPF selbst nicht kennt (zum Beispiel WebP), über ImageSharp.</summary>
+        private static BitmapImage? DecodeStillWithImageSharp(string path, int decodeWidth)
+        {
+            try
+            {
+                var options = new SixLabors.ImageSharp.Formats.DecoderOptions { MaxFrames = 1 };
+                using var image = SixLabors.ImageSharp.Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(options, path);
+                using var stream = new MemoryStream();
+                image.Save(stream, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
+                stream.Position = 0;
+
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.StreamSource = stream;
+                if (decodeWidth > 0) bitmap.DecodePixelWidth = decodeWidth;
+                bitmap.EndInit();
+                bitmap.Freeze();
+                return bitmap;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static string CoverBasePath(GameItem game) => System.IO.Path.ChangeExtension(CoverFilePath(game), null);
+
+        /// <summary>Sucht ein gespeichertes Cover. Animierte Fassungen haben Vorrang.</summary>
+        private static string? FindCachedCover(GameItem game)
+        {
+            string basePath = CoverBasePath(game);
+            foreach (string ext in new[] { ".webp", ".apng", ".jpg" })
+            {
+                string file = basePath + ext;
+                try
+                {
+                    if (File.Exists(file) && new FileInfo(file).Length > 1500) return file;
+                }
+                catch { }
+            }
+            return null;
+        }
+
+        private static void RemoveOtherCoverVariants(GameItem game, string keep)
+        {
+            string basePath = CoverBasePath(game);
+            foreach (string ext in new[] { ".webp", ".apng", ".jpg" })
+            {
+                string file = basePath + ext;
+                try
+                {
+                    if (!string.Equals(file, keep, StringComparison.OrdinalIgnoreCase) && File.Exists(file)) File.Delete(file);
+                }
+                catch { }
+            }
+        }
+
+        private static string GridExtension(string url)
+        {
+            try
+            {
+                return System.IO.Path.GetExtension(new Uri(url).AbsolutePath).ToLowerInvariant();
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        private static List<string> SgdbGridUrls(string? json)
+        {
+            var urls = new List<string>();
+            if (string.IsNullOrEmpty(json)) return urls;
+
+            try
+            {
+                using var doc = JsonDocument.Parse(json);
+                if (!doc.RootElement.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Array) return urls;
+
+                foreach (var item in data.EnumerateArray())
+                {
+                    string url = GetJsonString(item, "url");
+                    if (url.Length > 0) urls.Add(url);
+                }
+            }
+            catch { }
+
+            return urls;
+        }
+
+        private async Task<long> FindSgdbGameIdAsync(string name)
+        {
+            string? search = await SgdbGetAsync("/search/autocomplete/" + Uri.EscapeDataString(name));
+            if (string.IsNullOrEmpty(search)) return 0;
+
+            long id = 0;
+            using var doc = JsonDocument.Parse(search);
+            if (!doc.RootElement.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Array) return 0;
+
+            string wanted = NormalizeTitle(name);
+            foreach (var item in data.EnumerateArray())
+            {
+                if (id == 0) id = JsonLong(item, "id");
+                if (NormalizeTitle(GetJsonString(item, "name")) == wanted)
+                {
+                    id = JsonLong(item, "id");
+                    break;
+                }
+            }
+            return id;
+        }
+
+        private async Task<(string Url, bool Animated)?> SgdbPickFromBaseAsync(string basePath)
+        {
+            const string common = "dimensions=600x900,342x482&nsfw=false&humor=false";
+
+            if (settings.SgdbAnimated)
+            {
+                foreach (string url in SgdbGridUrls(await SgdbGetAsync($"{basePath}?{common}&types=animated")))
+                {
+                    if (GridExtension(url) is ".webp" or ".apng" or ".gif" or ".png") return (url, true);
+                }
+            }
+
+            var still = SgdbGridUrls(await SgdbGetAsync($"{basePath}?{common}&types=static&mimes=image/png,image/jpeg"));
+            return still.Count > 0 ? (still[0], false) : null;
+        }
+
+        /// <summary>Sucht bei SteamGridDB das passende Cover, wenn gewünscht auch eine animierte Fassung.</summary>
+        private async Task<(string Url, bool Animated)?> FindSgdbCoverAsync(GameItem game)
+        {
+            if (string.IsNullOrWhiteSpace(settings.SteamGridDbKey) || !settings.OnlineFeatures) return null;
+
+            try
+            {
+                if (game.Source == "Steam" && game.AppId.Length > 0)
+                {
+                    var viaSteam = await SgdbPickFromBaseAsync($"/grids/steam/{game.AppId}");
+                    if (viaSteam != null) return viaSteam;
+                }
+
+                long id = await FindSgdbGameIdAsync(game.Name);
+                return id > 0 ? await SgdbPickFromBaseAsync($"/grids/game/{id}") : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        // ───────────────────────────── Einstellungen: Meldungen, Start, Beenden, Cover ─────────────────────────────
+
+        private void ReadExtra5Settings()
+        {
+            settings.ShowToasts = ChkToasts.IsChecked == true;
+            settings.DoubleClickLaunch = ChkDoubleClick.IsChecked == true;
+            settings.ExitWarning = ChkExitWarn.IsChecked == true;
+            settings.SgdbAnimated = ChkSgdbAnimated.IsChecked == true;
+        }
+
+        private void PopulateExtra5Settings()
+        {
+            ChkToasts.IsChecked = settings.ShowToasts;
+            ChkDoubleClick.IsChecked = settings.DoubleClickLaunch;
+            ChkExitWarn.IsChecked = settings.ExitWarning;
+            ChkSgdbAnimated.IsChecked = settings.SgdbAnimated;
+        }
+
+        // ───────────────────────────── Weitere Spiele-Stores: GOG, EA, Ubisoft, Battle.net ─────────────────────────────
+
+        private static string FolderTitle(string path)
+            => System.IO.Path.GetFileName(System.IO.Path.GetFullPath(path).TrimEnd('\\', '/'));
+
+        private static void AddStoreGame(Dictionary<string, GameItem> found, string name, string source, string folder,
+            string exePath, string? launchUri = null, string appId = "")
+        {
+            if (string.IsNullOrWhiteSpace(name) || found.ContainsKey(name)) return;
+
+            if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath)) exePath = FindMainExe(folder);
+            if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath)) return;
+
+            found[name] = new GameItem
+            {
+                Name = name,
+                ExecutablePath = exePath,
+                InstallDir = folder,
+                Source = source,
+                AppId = appId,
+                LaunchUri = launchUri,
+                LocalIcon = ExtractIcon(exePath)
+            };
+        }
+
+        /// <summary>GOG Galaxy und GOG-Offline-Installer tragen ihre Spiele in die Registry ein.</summary>
+        private static void ScanGogGames(Dictionary<string, GameItem> found)
+        {
+            try
+            {
+                using var root = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\GOG.com\Games");
+                if (root == null) return;
+
+                foreach (string id in root.GetSubKeyNames())
+                {
+                    using var key = root.OpenSubKey(id);
+                    if (key == null) continue;
+
+                    string name = key.GetValue("gameName") as string ?? string.Empty;
+                    string folder = key.GetValue("path") as string ?? string.Empty;
+                    string exe = key.GetValue("exe") as string ?? string.Empty;
+                    if (name.Length == 0 || !Directory.Exists(folder)) continue;
+
+                    AddStoreGame(found, name, "GOG", folder, exe);
+                }
+            }
+            catch { }
+        }
+
+        /// <summary>Ubisoft Connect: Der Ordner liefert den Namen, gestartet wird über den uplay-Link.</summary>
+        private static void ScanUbisoftGames(Dictionary<string, GameItem> found)
+        {
+            try
+            {
+                using var root = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\Ubisoft\Launcher\Installs");
+                if (root == null) return;
+
+                foreach (string id in root.GetSubKeyNames())
+                {
+                    using var key = root.OpenSubKey(id);
+                    string? dir = key?.GetValue("InstallDir") as string;
+                    if (string.IsNullOrWhiteSpace(dir)) continue;
+
+                    string folder = System.IO.Path.GetFullPath(dir).TrimEnd('\\', '/');
+                    if (!Directory.Exists(folder)) continue;
+
+                    AddStoreGame(found, FolderTitle(folder), "Ubisoft", folder, string.Empty, $"uplay://launch/{id}/0", id);
+                }
+            }
+            catch { }
+        }
+
+        /// <summary>EA App und Origin: Spiele liegen meist in "EA Games" oder "Origin Games".</summary>
+        private static void ScanEaGames(Dictionary<string, GameItem> found)
+        {
+            try
+            {
+                var roots = new List<string>();
+                foreach (var special in new[] { Environment.SpecialFolder.ProgramFiles, Environment.SpecialFolder.ProgramFilesX86 })
+                {
+                    string programs = Environment.GetFolderPath(special);
+                    if (programs.Length == 0) continue;
+                    roots.Add(System.IO.Path.Combine(programs, "EA Games"));
+                    roots.Add(System.IO.Path.Combine(programs, "Origin Games"));
+                }
+
+                foreach (string root in roots.Distinct(StringComparer.OrdinalIgnoreCase))
+                {
+                    if (!Directory.Exists(root)) continue;
+                    foreach (string folder in Directory.GetDirectories(root))
+                        AddStoreGame(found, FolderTitle(folder), "EA", folder, string.Empty);
+                }
+
+                using var registry = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\WOW6432Node\EA Games");
+                if (registry == null) return;
+
+                foreach (string title in registry.GetSubKeyNames())
+                {
+                    using var key = registry.OpenSubKey(title);
+                    string? dir = key?.GetValue("Install Dir") as string;
+                    if (string.IsNullOrWhiteSpace(dir) || !Directory.Exists(dir)) continue;
+                    AddStoreGame(found, title, "EA", dir, string.Empty);
+                }
+            }
+            catch { }
+        }
+
+        /// <summary>Battle.net: Blizzard-Spiele erscheinen in der Liste der installierten Programme.</summary>
+        private static void ScanBattleNetGames(Dictionary<string, GameItem> found)
+        {
+            foreach (string path in new[]
+            {
+                @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall",
+                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+            })
+            {
+                try
+                {
+                    using var root = Registry.LocalMachine.OpenSubKey(path);
+                    if (root == null) continue;
+
+                    foreach (string sub in root.GetSubKeyNames())
+                    {
+                        using var key = root.OpenSubKey(sub);
+                        string publisher = key?.GetValue("Publisher") as string ?? string.Empty;
+                        string name = key?.GetValue("DisplayName") as string ?? string.Empty;
+                        string folder = key?.GetValue("InstallLocation") as string ?? string.Empty;
+
+                        if (!publisher.Contains("Blizzard", StringComparison.OrdinalIgnoreCase)) continue;
+                        if (name.Length == 0 || name.Contains("Battle.net", StringComparison.OrdinalIgnoreCase)) continue;
+                        if (folder.Length == 0 || !Directory.Exists(folder)) continue;
+
+                        AddStoreGame(found, name, "Battle.net", folder, string.Empty);
+                    }
+                }
+                catch { }
+            }
+        }
+
+        // ───────────────────────────── Fehlende Spiele erkennen ─────────────────────────────
+
+        /// <summary>Manuell hinzugefügte Spiele, deren Datei nicht mehr existiert.</summary>
+        private void CheckMissingManualGames()
+        {
+            var missing = settings.ManualGames
+                .Where(m => !string.IsNullOrWhiteSpace(m.ExecutablePath) && !File.Exists(m.ExecutablePath))
+                .ToList();
+
+            if (missing.Count == 0)
+            {
+                RemoveBanner("missing");
+                return;
+            }
+
+            ShowBanner("missing", "⚠", $"{missing.Count} manuell hinzugefügte Spiele wurden nicht mehr gefunden.", "Aufräumen", CleanUpMissingGames);
+        }
+
+        private void CleanUpMissingGames()
+        {
+            var missing = settings.ManualGames
+                .Where(m => !string.IsNullOrWhiteSpace(m.ExecutablePath) && !File.Exists(m.ExecutablePath))
+                .Select(m => m.Name)
+                .ToList();
+            if (missing.Count == 0) return;
+
+            var chosen = PickFromList("Fehlende Spiele",
+                "Diese Spiele wurden nicht mehr gefunden. Markierte Einträge werden aus der Liste entfernt.",
+                missing, missing.ToHashSet(StringComparer.OrdinalIgnoreCase));
+            if (chosen == null || chosen.Count == 0) return;
+
+            settings.ManualGames.RemoveAll(m => chosen.Contains(m.Name, StringComparer.OrdinalIgnoreCase));
+            SaveSettings();
+            RemoveBanner("missing");
+            BtnRescanGames_Click(this, new RoutedEventArgs());
+        }
+
+
+        // ───────────────────────────── Temperaturen und Lüfter (LibreHardwareMonitor) ─────────────────────────────
+
+        private LibreHardwareMonitor.Hardware.Computer? hardwareMonitor;
+        private readonly DispatcherTimer sensorTimer = new();
+        private bool sensorsBusy;
+
+        private sealed class SensorRow
+        {
+            public string Group { get; set; } = string.Empty;
+            public string Name { get; set; } = string.Empty;
+            public string Value { get; set; } = string.Empty;
+        }
+
+        private void InitSensors()
+        {
+            sensorTimer.Interval = TimeSpan.FromSeconds(2);
+            sensorTimer.Tick += async (s, e) =>
+            {
+                if (!settings.SensorsEnabled || sensorsBusy) return;
+                if (ViewSystem.Visibility != Visibility.Visible || !IsVisible || WindowState == WindowState.Minimized) return;
+                await RefreshSensorsAsync();
+            };
+            sensorTimer.Start();
+        }
+
+        private static string SensorGroupName(LibreHardwareMonitor.Hardware.HardwareType type)
+        {
+            switch (type)
+            {
+                case LibreHardwareMonitor.Hardware.HardwareType.Cpu:
+                    return "Prozessor";
+                case LibreHardwareMonitor.Hardware.HardwareType.GpuNvidia:
+                case LibreHardwareMonitor.Hardware.HardwareType.GpuAmd:
+                case LibreHardwareMonitor.Hardware.HardwareType.GpuIntel:
+                    return "Grafikkarte";
+                default:
+                    return "Mainboard";
+            }
+        }
+
+        private List<SensorRow> ReadSensors()
+        {
+            if (hardwareMonitor == null)
+            {
+                var computer = new LibreHardwareMonitor.Hardware.Computer
+                {
+                    IsCpuEnabled = true,
+                    IsGpuEnabled = true,
+                    IsMotherboardEnabled = true
+                };
+                computer.Open();
+                hardwareMonitor = computer;
+            }
+
+            var rows = new List<SensorRow>();
+
+            void Collect(LibreHardwareMonitor.Hardware.IHardware hardware, string group)
+            {
+                hardware.Update();
+                int taken = 0;
+
+                foreach (var sensor in hardware.Sensors)
+                {
+                    if (!sensor.Value.HasValue) continue;
+
+                    bool temperature = sensor.SensorType == LibreHardwareMonitor.Hardware.SensorType.Temperature;
+                    bool fan = sensor.SensorType == LibreHardwareMonitor.Hardware.SensorType.Fan;
+                    if (!temperature && !fan) continue;
+                    if (fan && sensor.Value.Value < 1) continue;
+                    if (taken >= 8) break;
+
+                    rows.Add(new SensorRow
+                    {
+                        Group = group,
+                        Name = sensor.Name,
+                        Value = temperature ? $"{sensor.Value.Value:F0} °C" : $"{sensor.Value.Value:F0} U/min"
+                    });
+                    taken++;
+                }
+
+                foreach (var sub in hardware.SubHardware) Collect(sub, group);
+            }
+
+            foreach (var hardware in hardwareMonitor.Hardware)
+                Collect(hardware, SensorGroupName(hardware.HardwareType));
+
+            return rows;
+        }
+
+        private async Task RefreshSensorsAsync()
+        {
+            sensorsBusy = true;
+            try
+            {
+                var rows = await Task.Run(ReadSensors);
+                RenderSensors(rows);
+            }
+            catch (Exception ex)
+            {
+                LogError("Sensoren", ex);
+                TxtSensorStatus.Text = Loc.T("Die Sensoren konnten nicht gelesen werden. Details stehen im Fehlerprotokoll.");
+                SensorPanel.Children.Clear();
+                settings.SensorsEnabled = false;
+                isLoadingSettings = true;
+                try { ChkSensors.IsChecked = false; }
+                finally { isLoadingSettings = false; }
+                SaveSettings();
+            }
+            finally
+            {
+                sensorsBusy = false;
+            }
+        }
+
+        private void RenderSensors(List<SensorRow> rows)
+        {
+            SensorPanel.Children.Clear();
+
+            if (rows.Count == 0)
+            {
+                TxtSensorStatus.Text = Loc.T("Keine Sensoren gefunden. Starte den Launcher als Administrator, damit mehr Werte verfügbar sind.");
+                return;
+            }
+
+            TxtSensorStatus.Text = Loc.T("Aktualisiert alle 2 Sekunden.");
+
+            foreach (var group in rows.GroupBy(r => r.Group))
+            {
+                SensorPanel.Children.Add(new TextBlock
+                {
+                    Text = Loc.T(group.Key),
+                    Foreground = BrushSubtle,
+                    FontSize = 12,
+                    FontWeight = FontWeights.SemiBold,
+                    Margin = new Thickness(0, 10, 0, 6)
+                });
+
+                foreach (var row in group)
+                {
+                    var line = new Grid { Margin = new Thickness(0, 0, 0, 4) };
+                    line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+                    line.Children.Add(new TextBlock
+                    {
+                        Text = row.Name,
+                        Foreground = System.Windows.Media.Brushes.White,
+                        TextTrimming = TextTrimming.CharacterEllipsis
+                    });
+                    var value = new TextBlock { Text = row.Value, FontWeight = FontWeights.SemiBold, Margin = new Thickness(16, 0, 0, 0) };
+                    value.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
+                    Grid.SetColumn(value, 1);
+                    line.Children.Add(value);
+
+                    SensorPanel.Children.Add(line);
+                }
+            }
+        }
+
+        private void ApplySensorSettings()
+        {
+            if (SensorCard == null) return;
+
+            SensorCard.Visibility = settings.SensorsEnabled ? Visibility.Visible : Visibility.Collapsed;
+            if (settings.SensorsEnabled && ViewSystem.Visibility == Visibility.Visible && !sensorsBusy)
+                _ = RefreshSensorsAsync();
+        }
+
+        private void CloseSensors()
+        {
+            try
+            {
+                hardwareMonitor?.Close();
+                hardwareMonitor = null;
+            }
+            catch { }
+        }
+
+        private static bool IsRunningAsAdmin()
+        {
+            try
+            {
+                using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
+                return new System.Security.Principal.WindowsPrincipal(identity)
+                    .IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private void BtnRestartAdmin_Click(object sender, RoutedEventArgs e)
+        {
+            if (IsRunningAsAdmin())
+            {
+                Msg("Der Launcher läuft bereits mit Administratorrechten.", "Administrator");
+                return;
+            }
+
+            try
+            {
+                string? exe = Environment.ProcessPath;
+                if (string.IsNullOrEmpty(exe)) return;
+
+                Process.Start(new ProcessStartInfo(exe, "--restart") { UseShellExecute = true, Verb = "runas" });
+                ExitApplication();
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                // Die Windows-Abfrage wurde abgebrochen: nichts weiter tun
+            }
+            catch (Exception ex)
+            {
+                Msg($"Konnte nicht geöffnet werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+        // ───────────────────────────── Wunschliste mit Preisalarm ─────────────────────────────
+
+        private sealed class SteamPriceInfo
+        {
+            public string Name { get; set; } = string.Empty;
+            public bool Free { get; set; }
+            public double FinalValue { get; set; }
+            public double InitialValue { get; set; }
+            public int Discount { get; set; }
+            public string Formatted { get; set; } = string.Empty;
+        }
+
+        private static string PriceRegion()
+        {
+            try
+            {
+                return RegionInfo.CurrentRegion.TwoLetterISORegionName.ToLowerInvariant();
+            }
+            catch
+            {
+                return "de";
+            }
+        }
+
+        private static async Task<SteamPriceInfo?> FetchSteamPriceAsync(string appId, string region)
+        {
+            string json = await Http.GetStringAsync(
+                $"https://store.steampowered.com/api/appdetails?appids={appId}&cc={region}&filters=basic,price_overview");
+            using var doc = JsonDocument.Parse(json);
+
+            if (!doc.RootElement.TryGetProperty(appId, out var app) || app.ValueKind != JsonValueKind.Object) return null;
+            if (!app.TryGetProperty("success", out var ok) || ok.ValueKind != JsonValueKind.True) return null;
+            if (!app.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Object) return null;
+
+            var info = new SteamPriceInfo { Name = GetJsonString(data, "name") };
+
+            if (data.TryGetProperty("is_free", out var free) && free.ValueKind == JsonValueKind.True)
+            {
+                info.Free = true;
+                return info;
+            }
+
+            if (data.TryGetProperty("price_overview", out var price) && price.ValueKind == JsonValueKind.Object)
+            {
+                info.FinalValue = JsonLong(price, "final") / 100.0;
+                info.InitialValue = JsonLong(price, "initial") / 100.0;
+                info.Discount = (int)JsonLong(price, "discount_percent");
+                info.Formatted = GetJsonString(price, "final_formatted");
+            }
+
+            return info;
+        }
+
+        private static bool TryParsePrice(string text, out double value)
+            => double.TryParse(text.Trim().Replace(',', '.'), NumberStyles.Float, CultureInfo.InvariantCulture, out value) && value >= 0 && value < 100000;
+
+        private static string FormatMoney(double value) => value.ToString("C", CultureInfo.CurrentCulture);
+
+        private async Task UpdateWishPriceAsync(WishItem item, string region)
+        {
+            var info = await FetchSteamPriceAsync(item.AppId, region);
+            if (info == null) return;
+
+            item.Free = info.Free;
+            item.FinalPrice = info.FinalValue;
+            item.InitialPrice = info.InitialValue;
+            item.Discount = info.Discount;
+            item.PriceText = info.Free ? "Kostenlos" : info.Formatted;
+            item.Checked = DateTime.Now;
+        }
+
+        private static bool WishTargetReached(WishItem item)
+        {
+            if (item.Free || item.FinalPrice <= 0) return false;
+            return item.TargetPrice > 0 ? item.FinalPrice <= item.TargetPrice : item.Discount >= 20;
+        }
+
+        private async Task CheckWishlistAsync(bool notify)
+        {
+            if (!settings.OnlineFeatures || settings.Wishlist.Count == 0) return;
+
+            string region = PriceRegion();
+            var reached = new List<string>();
+
+            foreach (var item in settings.Wishlist.ToList())
+            {
+                try
+                {
+                    await UpdateWishPriceAsync(item, region);
+                }
+                catch
+                {
+                    break;   // keine Verbindung: später noch einmal versuchen
+                }
+
+                if (WishTargetReached(item))
+                {
+                    if (item.NotifiedPrice <= 0 || item.FinalPrice < item.NotifiedPrice - 0.001)
+                    {
+                        item.NotifiedPrice = item.FinalPrice;
+                        reached.Add($"{item.Name} ({item.PriceText})");
+                    }
+                }
+                else
+                {
+                    item.NotifiedPrice = 0;
+                }
+
+                await Task.Delay(400);
+            }
+
+            settings.LastWishCheck = DateTime.Now;
+            SaveSettings();
+            if (ViewWishlist.Visibility == Visibility.Visible) RenderWishlist();
+
+            if (notify && reached.Count > 0)
+            {
+                string names = string.Join(", ", reached.Take(3));
+                ShowToast("💝", "Preisalarm", names, 10, () => NavigateTo("wishlist"));
+                if (!IsVisible && trayIcon != null && !AlertsMuted())
+                    trayIcon.ShowBalloonTip(4000, "DFP Pro Launcher", Loc.T("Preisalarm") + ": " + names, Forms.ToolTipIcon.Info);
+            }
+        }
+
+        private async Task CheckWishlistIfDueAsync()
+        {
+            if (settings.Wishlist.Count == 0 || !settings.OnlineFeatures) return;
+            if ((DateTime.Now - settings.LastWishCheck).TotalHours < 6) return;
+            await CheckWishlistAsync(true);
+        }
+
+        private void NavWishlist_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(ViewWishlist);
+            RenderWishlist();
+
+            if (settings.Wishlist.Count > 0 && (DateTime.Now - settings.LastWishCheck).TotalMinutes > 60)
+                _ = CheckWishlistAsync(false);
+        }
+
+        private async void BtnWishRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            TxtWishStatus.Text = Loc.T("Preise werden geprüft ...");
+            await CheckWishlistAsync(false);
+            RenderWishlist();
+        }
+
+        private async void BtnWishAdd_Click(object sender, RoutedEventArgs e)
+        {
+            string? name = PromptText("Wunschliste", "Name des Spiels (genau wie im Steam-Shop):", string.Empty);
+            if (string.IsNullOrWhiteSpace(name)) return;
+            name = name.Trim();
+
+            if (settings.Wishlist.Any(w => string.Equals(w.Name, name, StringComparison.OrdinalIgnoreCase)))
+            {
+                Msg("Dieses Spiel steht schon auf der Wunschliste.", "Wunschliste");
+                return;
+            }
+            if (!settings.OnlineFeatures)
+            {
+                Msg("Online-Funktionen sind in den Einstellungen deaktiviert.", "Wunschliste", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            string appId = await FindSteamAppIdAsync(name);
+            if (appId.Length == 0)
+            {
+                Msg("Das Spiel wurde im Steam-Shop nicht gefunden. Prüfe die Schreibweise, der Name muss genau stimmen.",
+                    "Wunschliste", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            string? target = PromptText("Zielpreis",
+                $"Zielpreis für „{name}“ (zum Beispiel 14,99). Leer lassen = bei jedem Rabatt ab 20 % benachrichtigen:", string.Empty);
+            if (target == null) return;
+
+            double targetValue = 0;
+            if (target.Trim().Length > 0 && !TryParsePrice(target, out targetValue))
+            {
+                Msg("Bitte gib eine Zahl ein (zum Beispiel 12,5).", "Zielpreis", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var item = new WishItem { Name = name, AppId = appId, TargetPrice = targetValue };
+            settings.Wishlist.Add(item);
+
+            try { await UpdateWishPriceAsync(item, PriceRegion()); } catch { }
+
+            SaveSettings();
+            RenderWishlist();
+        }
+
+        private void EditWishTarget(WishItem item)
+        {
+            string current = item.TargetPrice > 0 ? item.TargetPrice.ToString("0.##", CultureInfo.CurrentCulture) : string.Empty;
+            string? input = PromptText("Zielpreis",
+                $"Zielpreis für „{item.Name}“ (zum Beispiel 14,99). Leer lassen = bei jedem Rabatt ab 20 % benachrichtigen:", current);
+            if (input == null) return;
+
+            double value = 0;
+            if (input.Trim().Length > 0 && !TryParsePrice(input, out value))
+            {
+                Msg("Bitte gib eine Zahl ein (zum Beispiel 12,5).", "Zielpreis", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            item.TargetPrice = value;
+            item.NotifiedPrice = 0;
+            SaveSettings();
+            RenderWishlist();
+        }
+
+        private void RenderWishlist()
+        {
+            if (WishContainer == null) return;
+            WishContainer.Children.Clear();
+
+            if (settings.Wishlist.Count == 0)
+            {
+                TxtWishStatus.Text = string.Empty;
+                WishContainer.Children.Add(new TextBlock
+                {
+                    Text = Loc.T("Noch keine Spiele auf der Wunschliste. Füge ein Steam-Spiel hinzu, der Launcher meldet sich, sobald der Preis fällt."),
+                    Foreground = BrushSubtle,
+                    TextWrapping = TextWrapping.Wrap
+                });
+                return;
+            }
+
+            var last = settings.Wishlist.Max(w => w.Checked);
+            TxtWishStatus.Text = last > DateTime.MinValue ? Loc.T("Zuletzt geprüft:") + " " + last.ToString("HH:mm") : string.Empty;
+
+            foreach (var wish in settings.Wishlist.OrderByDescending(WishTargetReached).ThenBy(w => w.Name, StringComparer.CurrentCultureIgnoreCase))
+            {
+                var item = wish;
+                bool reached = WishTargetReached(item);
+
+                var layout = new Grid();
+                layout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                layout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+                var picture = new Border { Width = 128, Height = 60, CornerRadius = new CornerRadius(8), Background = BrushFooter, Margin = new Thickness(0, 0, 14, 0), ClipToBounds = true };
+                var header = LoadWebImage($"https://cdn.akamai.steamstatic.com/steam/apps/{item.AppId}/header.jpg");
+                if (header != null) picture.Background = new ImageBrush(header) { Stretch = Stretch.UniformToFill };
+                layout.Children.Add(picture);
+
+                var texts = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                Grid.SetColumn(texts, 1);
+                texts.Children.Add(new TextBlock
+                {
+                    Text = item.Name,
+                    Foreground = System.Windows.Media.Brushes.White,
+                    FontWeight = FontWeights.SemiBold,
+                    TextTrimming = TextTrimming.CharacterEllipsis
+                });
+                string target = item.TargetPrice > 0
+                    ? Loc.T("Zielpreis:") + " " + FormatMoney(item.TargetPrice)
+                    : Loc.T("Ziel: ab 20 % Rabatt");
+                texts.Children.Add(new TextBlock { Text = target, Foreground = BrushSubtle, FontSize = 12, Margin = new Thickness(0, 3, 0, 0) });
+                if (reached)
+                {
+                    texts.Children.Add(new TextBlock
+                    {
+                        Text = "🔔 " + Loc.T("Ziel erreicht"),
+                        Foreground = MakeBrush("#34D399"),
+                        FontSize = 12,
+                        FontWeight = FontWeights.SemiBold,
+                        Margin = new Thickness(0, 3, 0, 0)
+                    });
+                }
+                layout.Children.Add(texts);
+
+                var priceBox = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(14, 0, 4, 0) };
+                Grid.SetColumn(priceBox, 2);
+                string priceText = string.IsNullOrEmpty(item.PriceText) ? "–" : Loc.T(item.PriceText);
+                var price = new TextBlock
+                {
+                    Text = priceText,
+                    FontSize = 18,
+                    FontWeight = FontWeights.Bold,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+                    Foreground = reached ? MakeBrush("#34D399") : System.Windows.Media.Brushes.White
+                };
+                priceBox.Children.Add(price);
+                if (item.Discount > 0)
+                {
+                    priceBox.Children.Add(new TextBlock
+                    {
+                        Text = $"-{item.Discount} %",
+                        FontSize = 12,
+                        FontWeight = FontWeights.SemiBold,
+                        Foreground = BrushGold,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Right
+                    });
+                }
+                layout.Children.Add(priceBox);
+
+                var menu = CreateMenu();
+                AddMenuItem(menu, "🛒  Im Steam-Shop öffnen", () => OpenShell($"https://store.steampowered.com/app/{item.AppId}"));
+                AddMenuItem(menu, "🎯  Zielpreis ändern ...", () => EditWishTarget(item));
+                AddMenuItem(menu, "🗑  Entfernen", () =>
+                {
+                    settings.Wishlist.Remove(item);
+                    SaveSettings();
+                    RenderWishlist();
+                });
+
+                var card = new Border
+                {
+                    Padding = new Thickness(12),
+                    Margin = new Thickness(0, 0, 0, 10),
+                    CornerRadius = new CornerRadius(14),
+                    Background = BrushCardBg,
+                    BorderBrush = BrushCardBorder,
+                    BorderThickness = new Thickness(1),
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    ContextMenu = menu,
+                    Width = 700,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                    Child = layout
+                };
+                card.MouseEnter += (s, e) => card.Background = BrushTileHover;
+                card.MouseLeave += (s, e) => card.Background = BrushCardBg;
+                card.MouseLeftButtonUp += (s, e) => OpenShell($"https://store.steampowered.com/app/{item.AppId}");
+                WishContainer.Children.Add(card);
+            }
+        }
+
+
+        // ───────────────────────────── Spielinfos, Neuigkeiten, Genre-Filter und Kosten ─────────────────────────────
+
+        private string genreFilter = string.Empty;
+        private bool gameInfoLoading;
+
+        private static string SteamLanguageCode(string code) => code switch
+        {
+            "de" => "german",
+            "zh" => "schinese",
+            "es" => "spanish",
+            "fr" => "french",
+            "pt" => "brazilian",
+            "ru" => "russian",
+            "ja" => "japanese",
+            _ => "english"
+        };
+
+        private string CurrentSteamLanguage() => SteamLanguageCode(ResolveLanguage(settings.Language));
+
+        private static string StripHtml(string text)
+            => System.Net.WebUtility.HtmlDecode(Regex.Replace(text, "<.*?>", " ")).Replace("  ", " ").Trim();
+
+        private async Task<GameInfoEntry?> FetchGameInfoAsync(string appId)
+        {
+            string language = CurrentSteamLanguage();
+            string json = await Http.GetStringAsync(
+                $"https://store.steampowered.com/api/appdetails?appids={appId}&l={language}&filters=basic,genres,release_date");
+            using var doc = JsonDocument.Parse(json);
+
+            if (!doc.RootElement.TryGetProperty(appId, out var app) || app.ValueKind != JsonValueKind.Object) return null;
+            if (!app.TryGetProperty("success", out var ok) || ok.ValueKind != JsonValueKind.True) return null;
+            if (!app.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Object) return null;
+
+            var entry = new GameInfoEntry
+            {
+                Name = GetJsonString(data, "name"),
+                Description = StripHtml(GetJsonString(data, "short_description")),
+                Lang = language,
+                Updated = DateTime.Now
+            };
+
+            if (data.TryGetProperty("genres", out var genres) && genres.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var genre in genres.EnumerateArray())
+                {
+                    string name = GetJsonString(genre, "description");
+                    if (name.Length > 0) entry.Genres.Add(name);
+                }
+            }
+
+            if (TryPath(data, out var release, "release_date")) entry.Release = GetJsonString(release, "date");
+
+            if (data.TryGetProperty("developers", out var developers) && developers.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var developer in developers.EnumerateArray())
+                {
+                    if (developer.ValueKind == JsonValueKind.String)
+                    {
+                        entry.Developer = developer.GetString() ?? string.Empty;
+                        break;
+                    }
+                }
+            }
+
+            return entry;
+        }
+
+        /// <summary>Lädt im Hintergrund Genre und Beschreibung für Steam-Spiele nach (höchstens 60 pro Durchgang).</summary>
+        private async Task LoadGameInfoAsync()
+        {
+            if (gameInfoLoading || !settings.OnlineFeatures || !settings.FetchGameInfo) return;
+            gameInfoLoading = true;
+
+            try
+            {
+                var pending = allGames
+                    .Where(g => g.Source == "Steam" && g.AppId.Length > 0 && !settings.GameInfo.ContainsKey(g.AppId))
+                    .Select(g => g.AppId)
+                    .Distinct()
+                    .Take(60)
+                    .ToList();
+
+                int count = 0;
+                foreach (string id in pending)
+                {
+                    try
+                    {
+                        var entry = await FetchGameInfoAsync(id);
+                        settings.GameInfo[id] = entry ?? new GameInfoEntry { Lang = CurrentSteamLanguage(), Updated = DateTime.Now };
+                    }
+                    catch
+                    {
+                        break;   // Netzwerkfehler: später weitermachen
+                    }
+
+                    count++;
+                    if (count % 10 == 0) SaveSettings();
+                    await Task.Delay(1500);
+                }
+
+                if (count > 0) SaveSettings();
+            }
+            finally
+            {
+                gameInfoLoading = false;
+            }
+        }
+
+        private bool GameHasGenre(GameItem game, string genre)
+            => game.AppId.Length > 0
+               && settings.GameInfo.TryGetValue(game.AppId, out var info)
+               && info.Genres.Contains(genre, StringComparer.OrdinalIgnoreCase);
+
+        private void SetGenreFilter(string genre)
+        {
+            genreFilter = genre;
+            BtnGenre.Content = genre.Length == 0 ? "🏷 Genre" : "🏷 " + genre + "  ✕";
+            controllerIndex = 0;
+            ApplyFilter();
+        }
+
+        private void BtnGenre_Click(object sender, RoutedEventArgs e)
+        {
+            var counts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var game in allGames.Where(g => !g.Hidden && g.AppId.Length > 0))
+            {
+                if (!settings.GameInfo.TryGetValue(game.AppId, out var info)) continue;
+                foreach (string genre in info.Genres)
+                {
+                    counts.TryGetValue(genre, out int current);
+                    counts[genre] = current + 1;
+                }
+            }
+
+            var menu = CreateMenu();
+            if (genreFilter.Length > 0) AddMenuItem(menu, "✖  Alle Genres", () => SetGenreFilter(string.Empty));
+
+            if (counts.Count == 0)
+            {
+                AddMenuItem(menu, "Noch keine Spielinfos geladen", () => { });
+            }
+            else
+            {
+                foreach (var pair in counts.OrderByDescending(p => p.Value).ThenBy(p => p.Key).Take(25))
+                {
+                    string genre = pair.Key;
+                    AddMenuItem(menu, $"{genre}  ({pair.Value})", () => SetGenreFilter(genre));
+                }
+            }
+
+            menu.PlacementTarget = (UIElement)sender;
+            menu.IsOpen = true;
+        }
+
+        private void EditPrice(GameItem game)
+        {
+            string current = game.Price > 0 ? game.Price.ToString("0.##", CultureInfo.CurrentCulture) : string.Empty;
+            string? input = PromptText("Kaufpreis", $"Was hat „{game.Name}“ gekostet? (zum Beispiel 29,99, leer = nicht angeben):", current);
+            if (input == null) return;
+
+            double value = 0;
+            if (input.Trim().Length > 0 && !TryParsePrice(input, out value))
+            {
+                Msg("Bitte gib eine Zahl ein (zum Beispiel 12,5).", "Kaufpreis", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            game.Price = value;
+            SaveGameState(game);
+        }
+
+        /// <summary>Ergänzt den Details-Dialog um Kosten, Beschreibung, Genre und aktuelle Neuigkeiten.</summary>
+        private void AddGameInfoSection(StackPanel panel, GameItem game)
+        {
+            if (game.Price > 0)
+            {
+                string text = Loc.T("Kaufpreis:") + " " + FormatMoney(game.Price);
+                if (game.PlaySeconds >= 600)
+                    text += "   ·   " + Loc.T("Kosten pro Stunde:") + " " + FormatMoney(game.Price / (game.PlaySeconds / 3600.0));
+                panel.Children.Add(new TextBlock { Text = text, Foreground = BrushGold, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 14) });
+            }
+
+            if (game.Source != "Steam" || game.AppId.Length == 0 || !settings.OnlineFeatures || !settings.FetchGameInfo) return;
+
+            var meta = new TextBlock { Foreground = BrushSubtle, FontSize = 12, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 6), Visibility = Visibility.Collapsed };
+            var description = new TextBlock { Foreground = MakeBrush("#D1D5DB"), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 14), Visibility = Visibility.Collapsed };
+            var news = new StackPanel { Margin = new Thickness(0, 0, 0, 16) };
+            panel.Children.Add(meta);
+            panel.Children.Add(description);
+            panel.Children.Add(news);
+
+            _ = FillGameInfoAsync(game, meta, description, news);
+        }
+
+        private async Task FillGameInfoAsync(GameItem game, TextBlock meta, TextBlock description, StackPanel news)
+        {
+            try
+            {
+                string language = CurrentSteamLanguage();
+                if (!settings.GameInfo.TryGetValue(game.AppId, out var info) || info.Name.Length == 0 || info.Lang != language)
+                {
+                    var fresh = await FetchGameInfoAsync(game.AppId);
+                    if (fresh != null)
+                    {
+                        settings.GameInfo[game.AppId] = fresh;
+                        info = fresh;
+                    }
+                }
+
+                if (info != null && info.Name.Length > 0)
+                {
+                    var parts = new List<string>();
+                    if (info.Genres.Count > 0) parts.Add(string.Join(", ", info.Genres));
+                    if (info.Release.Length > 0) parts.Add(info.Release);
+                    if (info.Developer.Length > 0) parts.Add(info.Developer);
+                    if (parts.Count > 0)
+                    {
+                        meta.Text = string.Join("   ·   ", parts);
+                        meta.Visibility = Visibility.Visible;
+                    }
+                    if (info.Description.Length > 0)
+                    {
+                        description.Text = info.Description;
+                        description.Visibility = Visibility.Visible;
+                    }
+                }
+
+                string json = await Http.GetStringAsync(
+                    $"https://api.steampowered.com/ISteamNews/GetNewsForApp/v2/?appid={game.AppId}&count=3&maxlength=0&format=json");
+                using var doc = JsonDocument.Parse(json);
+                if (!TryPath(doc.RootElement, out var items, "appnews", "newsitems") || items.ValueKind != JsonValueKind.Array) return;
+
+                bool header = false;
+                foreach (var item in items.EnumerateArray())
+                {
+                    string title = GetJsonString(item, "title");
+                    string url = GetJsonString(item, "url");
+                    long unix = JsonLong(item, "date");
+                    if (title.Length == 0) continue;
+
+                    if (!header)
+                    {
+                        news.Children.Add(new TextBlock { Text = Loc.T("Neuigkeiten"), Foreground = BrushSubtle, Margin = new Thickness(0, 0, 0, 6) });
+                        header = true;
+                    }
+
+                    string date = unix > 0 ? DateTimeOffset.FromUnixTimeSeconds(unix).LocalDateTime.ToString("dd.MM.yyyy") : string.Empty;
+                    var link = new TextBlock
+                    {
+                        Text = (date.Length > 0 ? date + "   " : string.Empty) + title,
+                        Foreground = System.Windows.Media.Brushes.White,
+                        TextTrimming = TextTrimming.CharacterEllipsis,
+                        Cursor = System.Windows.Input.Cursors.Hand,
+                        Margin = new Thickness(0, 0, 0, 4)
+                    };
+                    link.MouseEnter += (s, e) => link.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
+                    link.MouseLeave += (s, e) => link.Foreground = System.Windows.Media.Brushes.White;
+                    if (url.Length > 0) link.MouseLeftButtonUp += (s, e) => OpenShell(url);
+                    news.Children.Add(link);
+                }
+            }
+            catch { }
+        }
+
+        // ───────────────────────────── Aktivitätskalender ─────────────────────────────
+
+        private void BuildHeatmap()
+        {
+            if (HeatmapGrid == null) return;
+
+            HeatmapGrid.Children.Clear();
+            HeatmapGrid.RowDefinitions.Clear();
+            HeatmapGrid.ColumnDefinitions.Clear();
+
+            const int weeks = 26;
+            for (int r = 0; r < 7; r++) HeatmapGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            HeatmapGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            for (int c = 0; c < weeks; c++) HeatmapGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            // Wochentage: Montag bis Sonntag
+            int mondayOffset = ((int)DateTime.Today.DayOfWeek + 6) % 7;
+            DateTime start = DateTime.Today.AddDays(-mondayOffset - (weeks - 1) * 7);
+
+            double max = 0;
+            for (int i = 0; i < weeks * 7; i++)
+            {
+                var day = start.AddDays(i);
+                if (day > DateTime.Today) break;
+                settings.PlayLog.TryGetValue(day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), out double seconds);
+                max = Math.Max(max, seconds);
+            }
+
+            var dayFormat = GermanCulture.DateTimeFormat;
+            string[] labels =
+            {
+                dayFormat.GetAbbreviatedDayName(DayOfWeek.Monday), string.Empty,
+                dayFormat.GetAbbreviatedDayName(DayOfWeek.Wednesday), string.Empty,
+                dayFormat.GetAbbreviatedDayName(DayOfWeek.Friday), string.Empty,
+                dayFormat.GetAbbreviatedDayName(DayOfWeek.Sunday)
+            };
+            for (int r = 0; r < 7; r++)
+            {
+                var label = new TextBlock { Text = labels[r], Foreground = BrushSubtle, FontSize = 10, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                Grid.SetRow(label, r);
+                HeatmapGrid.Children.Add(label);
+            }
+
+            var accent = GetAccentColor();
+            int activeDays = 0;
+            for (int c = 0; c < weeks; c++)
+            {
+                for (int r = 0; r < 7; r++)
+                {
+                    var day = start.AddDays(c * 7 + r);
+                    if (day > DateTime.Today) continue;
+
+                    settings.PlayLog.TryGetValue(day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), out double seconds);
+                    if (seconds >= 60) activeDays++;
+
+                    double level = seconds < 60 || max <= 0 ? 0 : seconds / max;
+                    double opacity = level == 0 ? 0 : level > 0.75 ? 1.0 : level > 0.5 ? 0.75 : level > 0.25 ? 0.5 : 0.3;
+
+                    var cell = new Border
+                    {
+                        Width = 15,
+                        Height = 15,
+                        Margin = new Thickness(2),
+                        CornerRadius = new CornerRadius(4),
+                        Background = opacity == 0 ? MakeBrush("#1F2937") : new SolidColorBrush(accent) { Opacity = opacity },
+                        ToolTip = day.ToString("dd.MM.yyyy") + (seconds >= 60 ? "  ·  " + FormatPlaytime((long)seconds) : string.Empty)
+                    };
+                    Grid.SetRow(cell, r);
+                    Grid.SetColumn(cell, c + 1);
+                    HeatmapGrid.Children.Add(cell);
+                }
+            }
+
+            TxtHeatmapInfo.Text = activeDays == 0
+                ? Loc.T("Noch keine Aktivität. Jeder Tag mit Spielzeit färbt hier ein Feld.")
+                : $"{activeDays} " + Loc.T("Tage mit Spielzeit in den letzten 26 Wochen");
+        }
+
+        // ───────────────────────────── Ansicht als Bild speichern ─────────────────────────────
+
+        private bool SaveVisualAsPng(FrameworkElement element, string title)
+        {
+            try
+            {
+                var dialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Title = Loc.T(title),
+                    Filter = "PNG (*.png)|*.png",
+                    FileName = "DFP_" + DateTime.Now.ToString("yyyy-MM-dd") + ".png"
+                };
+                if (dialog.ShowDialog() != true) return false;
+
+                element.UpdateLayout();
+                int width = (int)Math.Ceiling(element.ActualWidth);
+                int height = (int)Math.Ceiling(element.ActualHeight);
+                if (width < 10 || height < 10) return false;
+
+                // Hintergrund mitzeichnen, damit das Bild nicht durchsichtig wird
+                var visual = new DrawingVisual();
+                using (var context = visual.RenderOpen())
+                {
+                    context.DrawRectangle(MakeBrush("#0F111A"), null, new Rect(0, 0, width, height));
+                    context.DrawRectangle(new VisualBrush(element), null, new Rect(0, 0, width, height));
+                }
+
+                var bitmap = new RenderTargetBitmap(width * 2, height * 2, 192, 192, PixelFormats.Pbgra32);
+                bitmap.Render(visual);
+
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                using var stream = File.Create(dialog.FileName);
+                encoder.Save(stream);
+
+                ShowToast("📸", "Bild gespeichert", System.IO.Path.GetFileName(dialog.FileName), 4);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Msg($"Speichern fehlgeschlagen:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+        }
+
+
+        // ═════════════════════════════ Profile, Klänge, Design, Updates, Sicherung, Einrichtung ═════════════════════════════
+
+        private static string? BuiltInUpdateRepo => null;   // hier "Benutzer/Repository" eintragen, damit alle Nutzer Updates sehen
+
+        private readonly Dictionary<string, System.Media.SoundPlayer> uiSounds = new();
+
+        private void InitExtras6()
+        {
+            InitSensors();
+            ApplySensorSettings();
+
+            // Bestehende Installationen brauchen den Einrichtungs-Assistenten nicht
+            if (settings.InitialScanDone && !settings.SetupDone)
+            {
+                settings.SetupDone = true;
+                SaveSettings();
+            }
+
+            Loaded += (s, e) =>
+            {
+                if (!settings.SetupDone)
+                    Dispatcher.BeginInvoke(new Action(RunSetupWizard), DispatcherPriority.ApplicationIdle);
+            };
+
+            MirrorSettingsBackup();
+        }
+
+        // ───────────────────────────── Spielprofile (pro Spiel) ─────────────────────────────
+
+        private bool ProfileWanted(GameItem game)
+            => game.ProfileMode == "on" || (game.ProfileMode != "off" && settings.GamingProfile);
+
+        private bool CloseAppsWanted(GameItem game)
+            => game.CloseMode == "on" || (game.CloseMode != "off" && settings.CloseAppsEnabled);
+
+        private void ShowGameProfile(GameItem game)
+        {
+            var dialog = CreateDialog("Spielprofil: " + game.Name, 540, out var panel);
+            panel.Children.Add(new TextBlock
+            {
+                Text = Loc.T("Lege fest, was für dieses Spiel gilt. „Standard“ übernimmt die allgemeine Einstellung."),
+                Foreground = BrushSubtle,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 14)
+            });
+
+            var chipStyle = TryFindResource("ChipStyle") as Style;
+
+            string ReadGroup(List<(System.Windows.Controls.RadioButton Button, string Value)> options)
+                => options.FirstOrDefault(o => o.Button.IsChecked == true).Value ?? "global";
+
+            List<(System.Windows.Controls.RadioButton Button, string Value)> AddGroup(string title, string description, string current, string group)
+            {
+                panel.Children.Add(new TextBlock { Text = Loc.T(title), Foreground = System.Windows.Media.Brushes.White, FontWeight = FontWeights.SemiBold });
+                panel.Children.Add(new TextBlock { Text = Loc.T(description), Foreground = BrushSubtle, FontSize = 12, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 3, 0, 8) });
+
+                var wrap = new WrapPanel { Margin = new Thickness(0, 0, 0, 14) };
+                var options = new List<(System.Windows.Controls.RadioButton, string)>();
+                foreach (var (value, label) in new[] { ("global", "Standard"), ("on", "Immer an"), ("off", "Immer aus") })
+                {
+                    var radio = new System.Windows.Controls.RadioButton { Content = Loc.T(label), GroupName = group, IsChecked = current == value || (value == "global" && current != "on" && current != "off") };
+                    if (chipStyle != null) radio.Style = chipStyle;
+                    options.Add((radio, value));
+                    wrap.Children.Add(radio);
+                }
+                panel.Children.Add(wrap);
+                return options;
+            }
+
+            var profile = AddGroup("Höchstleistung während des Spiels",
+                "Schaltet den Windows-Energiesparplan auf „Höchstleistung“, solange dieses Spiel läuft.", game.ProfileMode, "ProfileMode");
+            var closeApps = AddGroup("Programme beim Start schließen",
+                "Schließt die in den Einstellungen gewählten Programme, bevor dieses Spiel startet.", game.CloseMode, "CloseMode");
+
+            var buttons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
+            var cancel = new System.Windows.Controls.Button { Content = Loc.T("Abbrechen"), Margin = new Thickness(0, 0, 10, 0), IsCancel = true };
+            var save = new System.Windows.Controls.Button { Content = Loc.T("Speichern"), Padding = new Thickness(26, 8, 26, 8), IsDefault = true };
+            save.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            save.Click += (s, e) =>
+            {
+                game.ProfileMode = ReadGroup(profile);
+                game.CloseMode = ReadGroup(closeApps);
+                SaveGameState(game);
+                dialog.DialogResult = true;
+            };
+            buttons.Children.Add(cancel);
+            buttons.Children.Add(save);
+            panel.Children.Add(buttons);
+
+            dialog.ShowDialog();
+        }
+
+        // ───────────────────────────── Klang-Effekte ─────────────────────────────
+
+        private static byte[] MakeToneWav(params (double Frequency, int Milliseconds)[] notes)
+        {
+            const int rate = 22050;
+            var samples = new List<short>();
+            foreach (var (frequency, milliseconds) in notes)
+            {
+                int count = rate * milliseconds / 1000;
+                for (int i = 0; i < count; i++)
+                {
+                    double envelope = Math.Min(1.0, i / 150.0) * Math.Min(1.0, (count - i) / 500.0);
+                    samples.Add((short)(Math.Sin(2 * Math.PI * frequency * i / rate) * 2400 * envelope));
+                }
+            }
+
+            using var stream = new MemoryStream();
+            using var writer = new BinaryWriter(stream);
+            int dataLength = samples.Count * 2;
+            writer.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));
+            writer.Write(36 + dataLength);
+            writer.Write(System.Text.Encoding.ASCII.GetBytes("WAVEfmt "));
+            writer.Write(16);
+            writer.Write((short)1);
+            writer.Write((short)1);
+            writer.Write(rate);
+            writer.Write(rate * 2);
+            writer.Write((short)2);
+            writer.Write((short)16);
+            writer.Write(System.Text.Encoding.ASCII.GetBytes("data"));
+            writer.Write(dataLength);
+            foreach (short sample in samples) writer.Write(sample);
+            writer.Flush();
+            return stream.ToArray();
+        }
+
+        private void PlayUiSound(string kind)
+        {
+            if (!settings.UiSounds) return;
+
+            try
+            {
+                if (!uiSounds.TryGetValue(kind, out var player))
+                {
+                    byte[] wav = kind switch
+                    {
+                        "move" => MakeToneWav((880, 35)),
+                        "launch" => MakeToneWav((660, 70), (990, 110)),
+                        _ => MakeToneWav((740, 55))
+                    };
+                    player = new System.Media.SoundPlayer(new MemoryStream(wav));
+                    player.Load();
+                    uiSounds[kind] = player;
+                }
+                player.Play();
+            }
+            catch { }
+        }
+
+        // ───────────────────────────── Tasten-Hinweise im Controller-Modus ─────────────────────────────
+
+        private void UpdatePadHint()
+        {
+            if (PadHintBar == null) return;
+
+            PadHintBar.Visibility = controllerMode ? Visibility.Visible : Visibility.Collapsed;
+            if (!controllerMode) return;
+
+            (string Glyph, string Word)[] keys = ResolveLayout() switch
+            {
+                "ps" => new[] { ("✕", "Starten"), ("○", "Zurück"), ("□", "Details"), ("△", "Favorit"), ("L1 / R1", "Filter"), ("OPTIONS", "Beenden") },
+                "nintendo" => new[] { ("B", "Starten"), ("A", "Zurück"), ("Y", "Details"), ("X", "Favorit"), ("L / R", "Filter"), ("+", "Beenden") },
+                _ => new[] { ("A", "Starten"), ("B", "Zurück"), ("X", "Details"), ("Y", "Favorit"), ("LB / RB", "Filter"), ("☰", "Beenden") }
+            };
+
+            TxtPadHint.Text = string.Join("      ", keys.Select(k => k.Glyph + "  " + Loc.T(k.Word)));
+        }
+
+        // ───────────────────────────── Design teilen ─────────────────────────────
+
+        private void BtnThemeExport_Click(object sender, RoutedEventArgs e)
+        {
+            var pack = new ThemePack
+            {
+                BackgroundColor = settings.BackgroundColor,
+                AccentColor = settings.AccentColor,
+                CardWidth = settings.CardWidth,
+                CardCorner = settings.CardCorner,
+                CardSpacing = settings.CardSpacing,
+                CardAspect = settings.CardAspect,
+                UiScale = settings.UiScale,
+                HoverZoom = settings.HoverZoom,
+                GlassEffect = settings.GlassEffect,
+                OledMode = settings.OledMode,
+                SidebarWidth = settings.SidebarWidth,
+                NavFontSize = settings.NavFontSize,
+                NavItemPadding = settings.NavItemPadding,
+                BrandDesign = settings.BrandDesign,
+                BrandNameColor = settings.BrandNameColor,
+                BrandLogoSize = settings.BrandLogoSize,
+                BrandNameSize = settings.BrandNameSize,
+                BrandName = settings.BrandName,
+                BrandSubtitle = settings.BrandSubtitle
+            };
+
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Title = Loc.T("Design exportieren"),
+                Filter = "DFP-Design (*.dfptheme)|*.dfptheme",
+                FileName = "Mein-Design.dfptheme"
+            };
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                File.WriteAllText(dialog.FileName, JsonSerializer.Serialize(pack, JsonOptions));
+                ShowToast("🎨", "Design gespeichert", System.IO.Path.GetFileName(dialog.FileName), 4);
+            }
+            catch (Exception ex)
+            {
+                Msg($"Speichern fehlgeschlagen:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private static bool IsHexColor(string value) => Regex.IsMatch(value ?? string.Empty, "^#[0-9A-Fa-f]{6}$");
+
+        private void BtnThemeImport_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = Loc.T("Design importieren"),
+                Filter = "DFP-Design (*.dfptheme)|*.dfptheme"
+            };
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                var pack = JsonSerializer.Deserialize<ThemePack>(File.ReadAllText(dialog.FileName));
+                if (pack == null) throw new InvalidDataException();
+
+                if (IsHexColor(pack.BackgroundColor)) settings.BackgroundColor = pack.BackgroundColor;
+                if (IsHexColor(pack.AccentColor)) settings.AccentColor = pack.AccentColor;
+                settings.CardWidth = Math.Clamp(pack.CardWidth, 160, 300);
+                settings.CardCorner = Math.Clamp(pack.CardCorner, 0, 28);
+                settings.CardSpacing = Math.Clamp(pack.CardSpacing, 4, 28);
+                settings.CardAspect = Math.Clamp(pack.CardAspect, 100, 170);
+                settings.UiScale = Math.Clamp(pack.UiScale, 80, 130);
+                settings.HoverZoom = Math.Clamp(pack.HoverZoom, 100, 112);
+                settings.GlassEffect = pack.GlassEffect;
+                settings.OledMode = pack.OledMode;
+                settings.SidebarWidth = Math.Clamp(pack.SidebarWidth, 200, 340);
+                settings.NavFontSize = Math.Clamp(pack.NavFontSize, 11, 20);
+                settings.NavItemPadding = Math.Clamp(pack.NavItemPadding, 4, 16);
+                settings.BrandDesign = BrandDesigns.ContainsKey(pack.BrandDesign) ? pack.BrandDesign : "original";
+                settings.BrandNameColor = pack.BrandNameColor is "accent" or "gold" ? pack.BrandNameColor : "white";
+                settings.BrandLogoSize = Math.Clamp(pack.BrandLogoSize, 32, 96);
+                settings.BrandNameSize = Math.Clamp(pack.BrandNameSize, 12, 30);
+                settings.BrandName = string.IsNullOrWhiteSpace(pack.BrandName) ? "DFP PRO" : pack.BrandName.Trim();
+                settings.BrandSubtitle = string.IsNullOrWhiteSpace(pack.BrandSubtitle) ? "LAUNCHER" : pack.BrandSubtitle.Trim();
+                SaveSettings();
+
+                isLoadingSettings = true;
+                try { PopulateControlsFromSettings(); }
+                finally { isLoadingSettings = false; }
+
+                imageCache.Clear();
+                ApplyViewSettings();
+                ApplyTheme();
+                ApplyFilter();
+                RefreshDashboard();
+                ShowToast("🎨", "Design geladen", System.IO.Path.GetFileName(dialog.FileName), 4);
+            }
+            catch (Exception ex)
+            {
+                Msg($"Laden fehlgeschlagen:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ───────────────────────────── Nach Updates suchen ─────────────────────────────
+
+        private static Version? CurrentVersion()
+            => System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version;
+
+        private async Task<(Version Version, string Tag, string Url)?> FetchLatestReleaseAsync(string repo)
+        {
+            using var request = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Get, $"https://api.github.com/repos/{repo}/releases/latest");
+            request.Headers.UserAgent.ParseAdd("DFPProLauncher");
+            using var response = await Http.SendAsync(request);
+            if (!response.IsSuccessStatusCode) return null;
+
+            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            string tag = GetJsonString(doc.RootElement, "tag_name");
+            string url = GetJsonString(doc.RootElement, "html_url");
+            if (tag.Length == 0) return null;
+
+            if (!Version.TryParse(tag.TrimStart('v', 'V'), out var version)) return null;
+            return (version, tag, url);
+        }
+
+        private string UpdateRepository() => !string.IsNullOrWhiteSpace(settings.UpdateRepo) ? settings.UpdateRepo.Trim() : (BuiltInUpdateRepo ?? string.Empty);
+
+        /// <summary>Gibt true zurück, wenn eine neuere Version gefunden wurde.</summary>
+        private async Task<bool> CheckForUpdateAsync(bool manual)
+        {
+            string repo = UpdateRepository();
+            if (repo.Length == 0 || !repo.Contains('/'))
+            {
+                if (manual) TxtUpdateStatus.Text = Loc.T("Trage zuerst eine Update-Quelle ein (Benutzer/Repository).");
+                return false;
+            }
+
+            try
+            {
+                var latest = await FetchLatestReleaseAsync(repo);
+                settings.LastUpdateCheck = DateTime.Now;
+                SaveSettings();
+
+                var current = CurrentVersion();
+                if (latest == null)
+                {
+                    if (manual) TxtUpdateStatus.Text = Loc.T("Es wurde keine Version gefunden.");
+                    return false;
+                }
+
+                if (current != null && latest.Value.Version > current)
+                {
+                    string url = latest.Value.Url;
+                    ShowBanner("update", "⬆", $"Version {latest.Value.Tag} ist verfügbar.", "Herunterladen", () => OpenShell(url));
+                    if (manual) TxtUpdateStatus.Text = $"Version {latest.Value.Tag} ist verfügbar.";
+                    return true;
+                }
+
+                RemoveBanner("update");
+                if (manual) TxtUpdateStatus.Text = Loc.T("Du hast die neueste Version.");
+            }
+            catch
+            {
+                if (manual) TxtUpdateStatus.Text = Loc.T("Die Suche ist fehlgeschlagen. Prüfe deine Internetverbindung.");
+            }
+            return false;
+        }
+
+        private async Task CheckForUpdateIfDueAsync()
+        {
+            if (!settings.CheckUpdates || !settings.OnlineFeatures) return;
+            if ((DateTime.Now - settings.LastUpdateCheck).TotalHours < 24) return;
+            await CheckForUpdateAsync(false);
+        }
+
+        private async void BtnCheckUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            settings.UpdateRepo = TxtUpdateRepo.Text.Trim();
+            SaveSettings();
+            TxtUpdateStatus.Text = Loc.T("Suche läuft ...");
+            await CheckForUpdateAsync(true);
+        }
+
+        // ───────────────────────────── Sicherungsordner (zum Beispiel OneDrive) ─────────────────────────────
+
+        private string? CloudRoot()
+        {
+            string folder = settings.CloudBackupFolder;
+            if (string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder)) return null;
+            return System.IO.Path.Combine(folder, "DFP Pro Launcher");
+        }
+
+        private void MirrorToCloud(string file, string subfolder)
+        {
+            try
+            {
+                string? root = CloudRoot();
+                if (root == null || !File.Exists(file)) return;
+
+                string target = System.IO.Path.Combine(root, subfolder);
+                Directory.CreateDirectory(target);
+                File.Copy(file, System.IO.Path.Combine(target, System.IO.Path.GetFileName(file)), true);
+            }
+            catch { }
+        }
+
+        private void MirrorSettingsBackup()
+        {
+            try
+            {
+                if (!Directory.Exists(SettingsBackupDir)) return;
+                string? latest = Directory.GetFiles(SettingsBackupDir, "settings_*.json").OrderByDescending(f => f).FirstOrDefault();
+                if (latest != null) MirrorToCloud(latest, "Einstellungen");
+            }
+            catch { }
+        }
+
+        private void UpdateCloudFolderText()
+        {
+            if (TxtCloudFolder == null) return;
+            TxtCloudFolder.Text = string.IsNullOrWhiteSpace(settings.CloudBackupFolder) ? Loc.T("Kein Ordner festgelegt") : settings.CloudBackupFolder;
+        }
+
+        private void BtnPickCloudFolder_Click(object sender, RoutedEventArgs e)
+        {
+            using var dialog = new Forms.FolderBrowserDialog
+            {
+                Description = Loc.T("Ordner für Sicherungen auswählen (zum Beispiel in OneDrive oder Dropbox)"),
+                UseDescriptionForTitle = true
+            };
+            if (dialog.ShowDialog() != Forms.DialogResult.OK) return;
+
+            settings.CloudBackupFolder = dialog.SelectedPath;
+            SaveSettings();
+            UpdateCloudFolderText();
+            BtnBackupAllNow_Click(sender, e);
+        }
+
+        private void BtnClearCloudFolder_Click(object sender, RoutedEventArgs e)
+        {
+            settings.CloudBackupFolder = string.Empty;
+            SaveSettings();
+            UpdateCloudFolderText();
+        }
+
+        private async void BtnBackupAllNow_Click(object sender, RoutedEventArgs e)
+        {
+            string? root = CloudRoot();
+            if (root == null)
+            {
+                Msg("Wähle zuerst einen Sicherungsordner.", "Sicherung");
+                return;
+            }
+
+            try
+            {
+                SaveSettings();
+                await Task.Run(() =>
+                {
+                    Directory.CreateDirectory(System.IO.Path.Combine(root, "Einstellungen"));
+                    if (File.Exists(SettingsFilePath))
+                        File.Copy(SettingsFilePath, System.IO.Path.Combine(root, "Einstellungen", "settings.json"), true);
+
+                    string saves = System.IO.Path.Combine(SettingsDir, "backups");
+                    if (!Directory.Exists(saves)) return;
+
+                    foreach (string file in Directory.GetFiles(saves, "*.zip", SearchOption.AllDirectories))
+                    {
+                        string relative = System.IO.Path.GetRelativePath(saves, file);
+                        string target = System.IO.Path.Combine(root, "Spielstaende", relative);
+                        Directory.CreateDirectory(System.IO.Path.GetDirectoryName(target)!);
+                        if (!File.Exists(target)) File.Copy(file, target);
+                    }
+                });
+                ShowToast("☁", "Sicherung abgeschlossen", settings.CloudBackupFolder, 5);
+            }
+            catch (Exception ex)
+            {
+                Msg($"Sichern fehlgeschlagen:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ───────────────────────────── Einrichtungs-Assistent ─────────────────────────────
+
+        private void BtnWizard_Click(object sender, RoutedEventArgs e) => RunSetupWizard();
+
+        private void RunSetupWizard()
+        {
+            while (ShowSetupWizard()) { }
+
+            settings.SetupDone = true;
+            SaveSettings();
+        }
+
+        /// <summary>Zeigt den Assistenten. Gibt true zurück, wenn er wegen eines Sprachwechsels neu gestartet werden soll.</summary>
+        private bool ShowSetupWizard()
+        {
+            var dialog = CreateDialog("Willkommen beim DFP Pro Launcher", 600, out var panel);
+            bool restart = false;
+            int step = 0;
+
+            var pages = new List<StackPanel>();
+            string accentChoice = settings.AccentColor;
+            bool oledChoice = settings.OledMode;
+            bool onlineChoice = settings.OnlineFeatures;
+            var chipStyle = TryFindResource("ChipStyle") as Style;
+
+            TextBlock Heading(string text) => new() { Text = Loc.T(text), Foreground = System.Windows.Media.Brushes.White, FontSize = 22, FontWeight = FontWeights.Bold, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) };
+            TextBlock Hint(string text) => new() { Text = Loc.T(text), Foreground = BrushSubtle, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 16) };
+
+            // Seite 1: Sprache
+            var page1 = new StackPanel();
+            page1.Children.Add(Heading("Willkommen!"));
+            page1.Children.Add(Hint("Wähle deine Sprache. Alles lässt sich später in den Einstellungen ändern."));
+            var languages = new WrapPanel();
+            foreach (var (code, label) in new[]
+            {
+                ("auto", "Automatisch (Windows)"), ("de", "Deutsch"), ("en", "English"), ("zh", "中文"), ("es", "Español"),
+                ("fr", "Français"), ("pt", "Português"), ("ru", "Русский"), ("ja", "日本語")
+            })
+            {
+                string chosen = code;
+                var radio = new System.Windows.Controls.RadioButton { Content = Loc.T(label), GroupName = "WizardLanguage", IsChecked = settings.Language == chosen || (chosen == "auto" && !Loc.Languages.Any(l => l.Code == settings.Language)) };
+                if (chipStyle != null) radio.Style = chipStyle;
+                radio.Checked += (s, e) =>
+                {
+                    if (chosen == settings.Language) return;
+                    ApplyLanguage(chosen);
+                    restart = true;
+                    dialog.DialogResult = true;
+                };
+                languages.Children.Add(radio);
+            }
+            page1.Children.Add(languages);
+            pages.Add(page1);
+
+            // Seite 2: Name und Farbe
+            var page2 = new StackPanel();
+            page2.Children.Add(Heading("Wie sollen wir dich nennen?"));
+            page2.Children.Add(Hint("Der Name erscheint im Dashboard. Suche dir außerdem eine Farbe aus."));
+            var nameBox = new System.Windows.Controls.TextBox { Text = settings.UserName == "Gamer" ? string.Empty : settings.UserName, MaxLength = 24, Height = 40, Margin = new Thickness(0, 0, 0, 16) };
+            page2.Children.Add(nameBox);
+
+            var swatches = new WrapPanel { Margin = new Thickness(0, 0, 0, 14) };
+            var swatchBorders = new List<(Border Border, string Color)>();
+            void RefreshSwatches()
+            {
+                foreach (var (border, color) in swatchBorders)
+                {
+                    bool selected = string.Equals(color, accentChoice, StringComparison.OrdinalIgnoreCase);
+                    border.BorderBrush = selected ? System.Windows.Media.Brushes.White : System.Windows.Media.Brushes.Transparent;
+                }
+            }
+            foreach (string color in new[] { "#8B5CF6", "#DC2626", "#3B82F6", "#10B981", "#F59E0B", "#EC4899", "#06B6D4" })
+            {
+                string picked = color;
+                var swatch = new Border
+                {
+                    Width = 36,
+                    Height = 36,
+                    CornerRadius = new CornerRadius(18),
+                    Margin = new Thickness(0, 0, 10, 0),
+                    Background = MakeBrush(color),
+                    BorderThickness = new Thickness(3),
+                    Cursor = System.Windows.Input.Cursors.Hand
+                };
+                swatch.MouseLeftButtonUp += (s, e) =>
+                {
+                    accentChoice = picked;
+                    RefreshSwatches();
+                };
+                swatchBorders.Add((swatch, color));
+                swatches.Children.Add(swatch);
+            }
+            RefreshSwatches();
+            page2.Children.Add(swatches);
+
+            var oledBox = new System.Windows.Controls.CheckBox { Content = Loc.T("OLED-Modus (reines Schwarz für OLED-Bildschirme)"), IsChecked = oledChoice, Foreground = System.Windows.Media.Brushes.White };
+            oledBox.Checked += (s, e) => oledChoice = true;
+            oledBox.Unchecked += (s, e) => oledChoice = false;
+            page2.Children.Add(oledBox);
+            pages.Add(page2);
+
+            // Seite 3: Online-Funktionen und Cover
+            var page3 = new StackPanel();
+            page3.Children.Add(Heading("Cover und Online-Funktionen"));
+            page3.Children.Add(Hint("Für Cover, Wetter und Angebote braucht der Launcher das Internet. Mit einem kostenlosen SteamGridDB-Schlüssel (steamgriddb.com) bekommst du besonders schöne Cover. Beides ist freiwillig."));
+            var onlineBox = new System.Windows.Controls.CheckBox { Content = Loc.T("Online-Funktionen erlauben (Cover-Download und Wetter)"), IsChecked = onlineChoice, Foreground = System.Windows.Media.Brushes.White, Margin = new Thickness(0, 0, 0, 14) };
+            onlineBox.Checked += (s, e) => onlineChoice = true;
+            onlineBox.Unchecked += (s, e) => onlineChoice = false;
+            page3.Children.Add(onlineBox);
+            page3.Children.Add(new TextBlock { Text = Loc.T("SteamGridDB-Schlüssel (optional)"), Foreground = BrushSubtle, Margin = new Thickness(0, 0, 0, 6) });
+            var keyBox = new System.Windows.Controls.TextBox { Text = settings.SteamGridDbKey, Height = 40 };
+            page3.Children.Add(keyBox);
+            pages.Add(page3);
+
+            // Seite 4: Fertig
+            var page4 = new StackPanel();
+            page4.Children.Add(Heading("Alles bereit!"));
+            page4.Children.Add(Hint("Der Launcher sucht jetzt deine Spiele von Steam, Epic, GOG, EA, Ubisoft, Battle.net, Rockstar und Xbox. Weitere Spiele ziehst du einfach per Drag-and-drop ins Fenster. Strg+K öffnet die Suche."));
+            pages.Add(page4);
+
+            var host = new ContentControl();
+            panel.Children.Add(host);
+
+            var progress = new TextBlock { Foreground = BrushSubtle, FontSize = 12, VerticalAlignment = System.Windows.VerticalAlignment.Center };
+            var skip = new System.Windows.Controls.Button { Content = Loc.T("Überspringen"), Margin = new Thickness(0, 0, 10, 0) };
+            var back = new System.Windows.Controls.Button { Content = Loc.T("Zurück"), Margin = new Thickness(0, 0, 10, 0) };
+            var next = new System.Windows.Controls.Button { Padding = new Thickness(26, 8, 26, 8), IsDefault = true };
+            next.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+
+            void Show()
+            {
+                host.Content = pages[step];
+                progress.Text = $"{step + 1} / {pages.Count}";
+                back.IsEnabled = step > 0;
+                next.Content = Loc.T(step == pages.Count - 1 ? "Los geht's" : "Weiter");
+                skip.Visibility = step == pages.Count - 1 ? Visibility.Collapsed : Visibility.Visible;
+            }
+
+            void Apply()
+            {
+                string name = nameBox.Text.Trim();
+                if (name.Length > 0) settings.UserName = name;
+                settings.AccentColor = accentChoice;
+                settings.OledMode = oledChoice;
+                settings.OnlineFeatures = onlineChoice;
+                settings.SteamGridDbKey = keyBox.Text.Trim();
+                settings.SetupDone = true;
+                SaveSettings();
+
+                isLoadingSettings = true;
+                try { PopulateControlsFromSettings(); }
+                finally { isLoadingSettings = false; }
+
+                TxtUserName.Text = DisplayUserName();
+                ApplyViewSettings();
+                ApplyTheme();
+                RefreshDashboard();
+            }
+
+            skip.Click += (s, e) => dialog.DialogResult = true;
+            back.Click += (s, e) => { if (step > 0) { step--; Show(); } };
+            next.Click += (s, e) =>
+            {
+                if (step < pages.Count - 1)
+                {
+                    step++;
+                    Show();
+                    return;
+                }
+                Apply();
+                dialog.DialogResult = true;
+            };
+
+            var footer = new Grid { Margin = new Thickness(0, 22, 0, 0) };
+            footer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            footer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            footer.Children.Add(progress);
+            var buttons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
+            buttons.Children.Add(skip);
+            buttons.Children.Add(back);
+            buttons.Children.Add(next);
+            Grid.SetColumn(buttons, 1);
+            footer.Children.Add(buttons);
+            panel.Children.Add(footer);
+
+            Show();
+            dialog.ShowDialog();
+            return restart;
+        }
+
+        // ───────────────────────────── Einstellungen: neue Schalter ─────────────────────────────
+
+        private void ReadExtra6Settings()
+        {
+            settings.UiSounds = ChkSounds.IsChecked == true;
+            settings.SensorsEnabled = ChkSensors.IsChecked == true;
+            settings.FetchGameInfo = ChkFetchInfo.IsChecked == true;
+            settings.CheckUpdates = ChkUpdates.IsChecked == true;
+        }
+
+        private void PopulateExtra6Settings()
+        {
+            ChkSounds.IsChecked = settings.UiSounds;
+            ChkSensors.IsChecked = settings.SensorsEnabled;
+            ChkFetchInfo.IsChecked = settings.FetchGameInfo;
+            ChkUpdates.IsChecked = settings.CheckUpdates;
+            TxtUpdateRepo.Text = settings.UpdateRepo;
+            UpdateCloudFolderText();
+        }
+
+        // ═════════════════════════════ Streamer-Modus und Komfort-Einstellungen ═════════════════════════════
+
+        private bool streamAutoOn;
+        private bool streamAutoSuppressed;
+        private bool lastStreamerState;
+        private bool refreshingStreamer;
+        private string settingsCategory = "general";
+        private string limitNotifiedDay = string.Empty;
+        private readonly DispatcherTimer streamTimer = new();
+        private readonly Dictionary<GameItem, SessionStats> sessionStats = new();
+
+        private static readonly string[] StreamProcesses =
+            { "obs64", "obs32", "obs", "streamlabs obs", "slobs", "Streamlabs Desktop", "TwitchStudio", "XSplit.Core", "vMix64", "prismlive" };
+
+        private sealed class SessionStats
+        {
+            public DateTime Started = DateTime.Now;
+            public int Samples;
+            public bool HasGpu;
+            public double CpuSum, CpuMax, GpuSum, GpuMax, RamSum, RamMax;
+        }
+
+        private bool StreamerOn => settings.StreamerMode || streamAutoOn;
+        private bool SHide(bool option) => StreamerOn && option;
+        private string DisplayUserName() => SHide(settings.StreamHideName) ? "Gamer" : settings.UserName;
+
+        private bool AlertsMuted()
+            => (StreamerOn && settings.StreamMuteAlerts) || (settings.MuteWhilePlaying && activeSessions.Count > 0);
+
+        private void InitExtras7()
+        {
+            streamTimer.Interval = TimeSpan.FromSeconds(15);
+            streamTimer.Tick += async (s, e) => await CheckStreamingSoftwareAsync();
+            streamTimer.Start();
+
+            lastStreamerState = StreamerOn;
+            ApplyStreamerMode();
+            BuildAlphaBar();
+            UpdateMemoryText();
+
+            PreviewTextInput += OnTypeToSearch;
+        }
+
+        // ───────────────────────────── Streamer-Modus ─────────────────────────────
+
+        private static bool IsProcessRunning(string name)
+        {
+            try
+            {
+                var processes = Process.GetProcessesByName(name);
+                bool any = processes.Length > 0;
+                foreach (var process in processes) process.Dispose();
+                return any;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private async Task CheckStreamingSoftwareAsync()
+        {
+            if (!settings.StreamerAuto)
+            {
+                streamAutoSuppressed = false;
+                if (streamAutoOn)
+                {
+                    streamAutoOn = false;
+                    ApplyStreamerMode();
+                }
+                return;
+            }
+
+            bool running = await Task.Run(() => StreamProcesses.Any(IsProcessRunning));
+
+            if (running && !streamAutoOn && !streamAutoSuppressed && !settings.StreamerMode)
+            {
+                ShowToast("📡", "Streamer-Modus aktiv", "Eine Streaming-Software läuft. Private Angaben sind verborgen.", 6);
+                streamAutoOn = true;
+                ApplyStreamerMode();
+            }
+            else if (!running)
+            {
+                streamAutoSuppressed = false;
+                if (streamAutoOn)
+                {
+                    streamAutoOn = false;
+                    ApplyStreamerMode();
+                }
+            }
+        }
+
+        private void ToggleStreamerMode()
+        {
+            bool turnOn = !StreamerOn;
+
+            if (turnOn)
+            {
+                ShowToast("📡", "Streamer-Modus aktiv", "Private Angaben sind jetzt verborgen.", 4);
+                settings.StreamerMode = true;
+            }
+            else
+            {
+                if (streamAutoOn) streamAutoSuppressed = true;
+                streamAutoOn = false;
+                settings.StreamerMode = false;
+            }
+
+            SaveSettings();
+            ApplyStreamerMode();
+
+            if (!turnOn) ShowToast("📡", "Streamer-Modus aus", "Alle Angaben sind wieder sichtbar.", 4);
+        }
+
+        private void StreamBadge_Click(object sender, System.Windows.Input.MouseButtonEventArgs e) => ToggleStreamerMode();
+
+        private void ChkStreamer_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+
+            bool wanted = ChkStreamer.IsChecked == true;
+            if (wanted == settings.StreamerMode) return;
+
+            settings.StreamerMode = wanted;
+            if (!wanted && streamAutoOn)
+            {
+                streamAutoSuppressed = true;
+                streamAutoOn = false;
+            }
+            SaveSettings();
+            ApplyStreamerMode();
+        }
+
+        private void ApplyStreamerMode()
+        {
+            if (StreamBadge == null) return;
+
+            bool on = StreamerOn;
+
+            void Blur(bool option, params FrameworkElement?[] items)
+            {
+                bool hide = on && option;
+                foreach (var item in items)
+                {
+                    if (item == null) continue;
+                    item.Effect = hide ? new System.Windows.Media.Effects.BlurEffect { Radius = 16 } : null;
+                }
+            }
+
+            Blur(settings.StreamHideName, TxtSettingsUserName);
+            Blur(settings.StreamHideLocation, WeatherCard, TxtWeatherCity);
+            Blur(settings.StreamHideStats, StatsGrid, ViewStats, goalWidget);
+            Blur(settings.StreamHideRecent, HeroHost, RecentSection, FavSection);
+            Blur(settings.StreamHidePaths, GridDownloads, AppsContainer, DrivesControl, GameSizesControl, TxtSgdbKey, TxtCloudFolder, TxtUpdateRepo, TxtDiscordWebhook, quickWidget);
+            Blur(settings.StreamHideShots, GalleryContainer, WishContainer, wishWidget);
+
+            StreamBadge.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
+            TxtStreamBadge.Text = settings.StreamerMode ? Loc.T("📡 Streamer-Modus") : Loc.T("📡 Streamer-Modus (automatisch)");
+
+            bool previous = isLoadingSettings;
+            isLoadingSettings = true;
+            try { ChkStreamer.IsChecked = settings.StreamerMode; }
+            finally { isLoadingSettings = previous; }
+
+            if (lastStreamerState != on && !refreshingStreamer)
+            {
+                lastStreamerState = on;
+                refreshingStreamer = true;
+                try
+                {
+                    TxtUserName.Text = DisplayUserName();
+                    ApplyFilter();
+                    RefreshDashboard();
+                }
+                finally
+                {
+                    refreshingStreamer = false;
+                }
+            }
+        }
+
+        // ───────────────────────────── Einstellungen durchsuchen ─────────────────────────────
+
+        private static void CollectTexts(DependencyObject node, System.Text.StringBuilder sb)
+        {
+            if (node is TextBlock block) sb.Append(block.Text).Append(' ');
+            else if (node is ContentControl control && control.Content is string text) sb.Append(text).Append(' ');
+
+            foreach (var child in LogicalTreeHelper.GetChildren(node).OfType<DependencyObject>())
+                CollectTexts(child, sb);
+        }
+
+        private void ResetSettingsRows()
+        {
+            foreach (var card in SettingsCards.Children.OfType<Border>())
+            {
+                if (card.Child is not StackPanel inner) continue;
+                foreach (UIElement child in inner.Children) child.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void FilterSettings(string query)
+        {
+            foreach (var card in SettingsCards.Children.OfType<Border>())
+            {
+                if (card.Child is not StackPanel inner) continue;
+
+                string title = inner.Children.Count > 0 && inner.Children[0] is TextBlock heading ? heading.Text : string.Empty;
+                bool titleMatch = title.Contains(query, StringComparison.CurrentCultureIgnoreCase);
+                bool any = false;
+
+                for (int i = 1; i < inner.Children.Count; i++)
+                {
+                    var child = inner.Children[i];
+                    var sb = new System.Text.StringBuilder();
+                    CollectTexts(child, sb);
+
+                    bool match = titleMatch || sb.ToString().Contains(query, StringComparison.CurrentCultureIgnoreCase);
+                    child.Visibility = match ? Visibility.Visible : Visibility.Collapsed;
+                    any |= match;
+                }
+
+                card.Visibility = any || titleMatch ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+        private void TxtSettingsSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (SettingsCards == null) return;
+
+            string query = TxtSettingsSearch.Text.Trim();
+            SettingsSearchHint.Visibility = TxtSettingsSearch.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+            if (query.Length == 0)
+            {
+                ResetSettingsRows();
+                ApplySettingsCategory(settingsCategory);
+            }
+            else
+            {
+                FilterSettings(query);
+            }
+        }
+
+        // ───────────────────────────── Spielbericht, Tageslimit, Wiederöffnen ─────────────────────────────
+
+        private void SampleSessions()
+        {
+            if (!settings.SessionReport || activeSessions.Count == 0) return;
+
+            MetricsSample m;
+            try { m = SampleMetrics(); }
+            catch { return; }
+
+            foreach (var game in activeSessions.Keys)
+            {
+                if (!sessionStats.TryGetValue(game, out var stats))
+                {
+                    stats = new SessionStats { Started = sessionStart.TryGetValue(game, out var started) ? started : DateTime.Now };
+                    sessionStats[game] = stats;
+                }
+
+                stats.Samples++;
+                stats.CpuSum += m.Cpu;
+                stats.CpuMax = Math.Max(stats.CpuMax, m.Cpu);
+                stats.RamSum += m.Ram;
+                stats.RamMax = Math.Max(stats.RamMax, m.Ram);
+                if (m.HasGpu)
+                {
+                    stats.HasGpu = true;
+                    stats.GpuSum += m.Gpu;
+                    stats.GpuMax = Math.Max(stats.GpuMax, m.Gpu);
+                }
+            }
+        }
+
+        private void ShowSessionReport(GameItem game)
+        {
+            if (!sessionStats.TryGetValue(game, out var stats)) return;
+            sessionStats.Remove(game);
+
+            if (!settings.SessionReport || stats.Samples < 30) return;
+
+            var duration = DateTime.Now - stats.Started;
+            string time = $"{(int)duration.TotalHours}:{duration.Minutes:D2} {Loc.T("Std.")}";
+            string max = Loc.T("max.");
+
+            var lines = new List<string>
+            {
+                $"{Loc.T("Prozessor")}: Ø {stats.CpuSum / stats.Samples:F0} % ({max} {stats.CpuMax:F0} %)"
+            };
+            if (stats.HasGpu)
+                lines.Add($"{Loc.T("Grafikkarte")}: Ø {stats.GpuSum / stats.Samples:F0} % ({max} {stats.GpuMax:F0} %)");
+            lines.Add($"RAM: Ø {stats.RamSum / stats.Samples:F0} % ({max} {stats.RamMax:F0} %)");
+
+            ShowToast("📊", Loc.T("Spielbericht") + ": " + game.Name, time + "\n" + string.Join("\n", lines), 14);
+        }
+
+        private void CheckDailyLimit(DateTime now)
+        {
+            if (settings.DailyLimitHours <= 0 || activeSessions.Count == 0) return;
+
+            string key = now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            if (limitNotifiedDay == key) return;
+
+            settings.PlayLog.TryGetValue(key, out double seconds);
+            if (seconds < settings.DailyLimitHours * 3600.0) return;
+
+            limitNotifiedDay = key;
+            overlayNotice = Loc.T("⏳ Tageslimit erreicht");
+            overlayNoticeUntil = now.AddSeconds(30);
+            ShowToast("⏳", "Tageslimit erreicht", Loc.T("Du hast heute") + " " + FormatPlaytime((long)seconds) + " " + Loc.T("gespielt."), 12, null, true);
+        }
+
+        private void ReopenLauncherAfterGame()
+        {
+            if (!IsVisible || WindowState == WindowState.Minimized) ShowFromTray();
+        }
+
+        // ───────────────────────────── Overlay-Aussehen ─────────────────────────────
+
+        private void ApplyOverlayLook()
+        {
+            if (overlayWindow == null) return;
+
+            overlayWindow.Opacity = Math.Clamp(settings.OverlayOpacity, 30, 100) / 100.0;
+            double scale = Math.Clamp(settings.OverlayScale, 70, 200) / 100.0;
+            if (overlayWindow.Content is Border card) card.LayoutTransform = new ScaleTransform(scale, scale);
+        }
+
+        // ───────────────────────────── Alphabet-Leiste ─────────────────────────────
+
+        private static string LetterOf(string name)
+        {
+            char first = name.TrimStart().FirstOrDefault();
+            char upper = char.ToUpperInvariant(first);
+            return upper >= 'A' && upper <= 'Z' ? upper.ToString() : "#";
+        }
+
+        private void BuildAlphaBar()
+        {
+            if (AlphaBar == null) return;
+
+            AlphaBar.Children.Clear();
+            var letters = new List<string> { "#" };
+            for (char c = 'A'; c <= 'Z'; c++) letters.Add(c.ToString());
+
+            foreach (string letter in letters)
+            {
+                string target = letter;
+                var block = new TextBlock
+                {
+                    Text = letter,
+                    FontSize = 11,
+                    FontWeight = FontWeights.SemiBold,
+                    Foreground = BrushSubtle,
+                    TextAlignment = TextAlignment.Center,
+                    Padding = new Thickness(0, 2, 0, 2),
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    Tag = letter
+                };
+                block.MouseEnter += (s, e) => block.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
+                block.MouseLeave += (s, e) => UpdateAlphaBar();
+                block.MouseLeftButtonUp += (s, e) => JumpToLetter(target);
+                AlphaBar.Children.Add(block);
+            }
+        }
+
+        private void UpdateAlphaBar()
+        {
+            if (AlphaHost == null || AlphaBar == null) return;
+
+            bool show = settings.ShowAlphaBar && settings.SortMode == 0 && !controllerMode && visibleGames.Count > 15;
+            AlphaHost.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            if (!show) return;
+
+            var present = new HashSet<string>(visibleGames.Select(g => LetterOf(g.Name)));
+            foreach (var block in AlphaBar.Children.OfType<TextBlock>())
+            {
+                bool has = present.Contains(block.Tag as string ?? string.Empty);
+                block.Foreground = has ? System.Windows.Media.Brushes.White : MakeBrush("#3A4156");
+            }
+        }
+
+        private void JumpToLetter(string letter)
+        {
+            int index = visibleGames.FindIndex(g => LetterOf(g.Name) == letter);
+            if (index < 0) return;
+
+            System.Windows.Controls.Panel container = settings.CardLayout == "list" ? GamesListContainer : GamesContainer;
+            if (index >= container.Children.Count || container.Children[index] is not FrameworkElement target) return;
+
+            try
+            {
+                var point = target.TransformToAncestor(GamesScroll).Transform(new System.Windows.Point(0, 0));
+                GamesScroll.ScrollToVerticalOffset(Math.Max(0, GamesScroll.VerticalOffset + point.Y - 8));
+            }
+            catch { }
+        }
+
+        // ───────────────────────────── Mehrere Spiele bearbeiten ─────────────────────────────
+
+        private void BtnBulk_Click(object sender, RoutedEventArgs e)
+        {
+            var names = visibleGames.Select(g => g.Name).ToList();
+            if (names.Count == 0) return;
+
+            var chosen = PickFromList("Mehrere Spiele bearbeiten",
+                "Wähle die Spiele aus, auf die die Aktion angewendet wird. Es werden nur die aktuell angezeigten Spiele aufgelistet.", names);
+            if (chosen == null || chosen.Count == 0) return;
+
+            var games = visibleGames.Where(g => chosen.Contains(g.Name)).ToList();
+            var menu = CreateMenu();
+
+            void Bulk(string text, Action<GameItem> action) => AddMenuItem(menu, text, () => ApplyBulk(games, action));
+
+            Bulk("🙈  Verstecken", g => g.Hidden = true);
+            Bulk("👁  Wieder anzeigen", g => g.Hidden = false);
+            Bulk("★  Zu Favoriten hinzufügen", g => g.IsFavorite = true);
+            Bulk("☆  Aus Favoriten entfernen", g => g.IsFavorite = false);
+            foreach (var option in StatusOptions)
+            {
+                string key = option.Key;
+                Bulk(option.Title, g => g.Status = key);
+            }
+            foreach (string collection in settings.CollectionNames)
+            {
+                string name = collection;
+                Bulk(Loc.T("📁  Zur Sammlung") + " „" + name + "“", g =>
+                {
+                    if (!g.Collections.Contains(name)) g.Collections.Add(name);
+                });
+            }
+
+            menu.PlacementTarget = (UIElement)sender;
+            menu.IsOpen = true;
+        }
+
+        private void ApplyBulk(List<GameItem> games, Action<GameItem> action)
+        {
+            foreach (var game in games)
+            {
+                action(game);
+                CopyStateToSettings(game);
+            }
+
+            SaveSettings();
+            ApplyFilter();
+            RefreshDashboard();
+            RefreshBoard();
+            ShowToast("✔", "Fertig", $"{games.Count} " + Loc.T("Spiele geändert"), 4);
+        }
+
+        // ───────────────────────────── Tippen startet die Suche ─────────────────────────────
+
+        private void OnTypeToSearch(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            if (!settings.TypeToSearch || controllerMode || ViewGames.Visibility != Visibility.Visible) return;
+            if (SpotlightLayer.Visibility == Visibility.Visible) return;
+            if (System.Windows.Input.Keyboard.FocusedElement is System.Windows.Controls.TextBox) return;
+            if (e.Text.Length != 1 || !char.IsLetterOrDigit(e.Text[0])) return;
+
+            var modifiers = System.Windows.Input.Keyboard.Modifiers;
+            if ((modifiers & (System.Windows.Input.ModifierKeys.Control | System.Windows.Input.ModifierKeys.Alt)) != 0) return;
+
+            TxtSearch.Focus();
+            TxtSearch.Text = e.Text;
+            TxtSearch.CaretIndex = TxtSearch.Text.Length;
+            e.Handled = true;
+        }
+
+        // ───────────────────────────── Arbeitsspeicher ─────────────────────────────
+
+        private void UpdateMemoryText()
+        {
+            if (TxtMemory == null) return;
+
+            try
+            {
+                using var self = Process.GetCurrentProcess();
+                TxtMemory.Text = Loc.T("Aktuell belegt:") + $" {self.WorkingSet64 / 1048576} MB";
+            }
+            catch { }
+        }
+
+        private void BtnFreeMemory_Click(object sender, RoutedEventArgs e)
+        {
+            imageCache.Clear();
+            gifCache.Clear();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+            UpdateMemoryText();
+        }
+
+        // ───────────────────────────── Einstellungen lesen und anzeigen ─────────────────────────────
+
+        private void ReadExtra7Settings()
+        {
+            settings.StreamerAuto = ChkStreamAuto.IsChecked == true;
+            settings.StreamHideName = ChkStreamName.IsChecked == true;
+            settings.StreamHideLocation = ChkStreamLocation.IsChecked == true;
+            settings.StreamHideStats = ChkStreamStats.IsChecked == true;
+            settings.StreamHideRecent = ChkStreamRecent.IsChecked == true;
+            settings.StreamHidePaths = ChkStreamPaths.IsChecked == true;
+            settings.StreamHideShots = ChkStreamShots.IsChecked == true;
+            settings.StreamMuteAlerts = ChkStreamMute.IsChecked == true;
+
+            settings.ReopenAfterGame = ChkReopen.IsChecked == true;
+            settings.AskOnClose = ChkAskClose.IsChecked == true;
+            settings.TrayClickOpensLauncher = ChkTrayClick.IsChecked == true;
+            settings.TypeToSearch = ChkTypeSearch.IsChecked == true;
+            settings.FavoritesFirst = ChkFavFirst.IsChecked == true;
+            settings.ShowAlphaBar = ChkAlphaBar.IsChecked == true;
+            settings.SessionReport = ChkSessionReport.IsChecked == true;
+            settings.MuteWhilePlaying = ChkMuteGame.IsChecked == true;
+
+            settings.DailyLimitHours = (int)Math.Round(SliderDailyLimit.Value);
+            settings.OverlayOpacity = (int)Math.Round(SliderOvOpacity.Value);
+            settings.OverlayScale = (int)Math.Round(SliderOvScale.Value);
+            settings.OverlayShowCpu = ChkOvCpu.IsChecked == true;
+            settings.OverlayShowGpu = ChkOvGpu.IsChecked == true;
+            settings.OverlayShowRam = ChkOvRam.IsChecked == true;
+            settings.OverlayShowClock = ChkOvClock.IsChecked == true;
+        }
+
+        private void PopulateExtra7Settings()
+        {
+            ChkStreamer.IsChecked = settings.StreamerMode;
+            ChkStreamAuto.IsChecked = settings.StreamerAuto;
+            ChkStreamName.IsChecked = settings.StreamHideName;
+            ChkStreamLocation.IsChecked = settings.StreamHideLocation;
+            ChkStreamStats.IsChecked = settings.StreamHideStats;
+            ChkStreamRecent.IsChecked = settings.StreamHideRecent;
+            ChkStreamPaths.IsChecked = settings.StreamHidePaths;
+            ChkStreamShots.IsChecked = settings.StreamHideShots;
+            ChkStreamMute.IsChecked = settings.StreamMuteAlerts;
+
+            ChkReopen.IsChecked = settings.ReopenAfterGame;
+            ChkAskClose.IsChecked = settings.AskOnClose;
+            ChkTrayClick.IsChecked = settings.TrayClickOpensLauncher;
+            ChkTypeSearch.IsChecked = settings.TypeToSearch;
+            ChkFavFirst.IsChecked = settings.FavoritesFirst;
+            ChkAlphaBar.IsChecked = settings.ShowAlphaBar;
+            ChkSessionReport.IsChecked = settings.SessionReport;
+            ChkMuteGame.IsChecked = settings.MuteWhilePlaying;
+
+            SliderDailyLimit.Value = settings.DailyLimitHours;
+            SliderOvOpacity.Value = settings.OverlayOpacity;
+            SliderOvScale.Value = settings.OverlayScale;
+            ChkOvCpu.IsChecked = settings.OverlayShowCpu;
+            ChkOvGpu.IsChecked = settings.OverlayShowGpu;
+            ChkOvRam.IsChecked = settings.OverlayShowRam;
+            ChkOvClock.IsChecked = settings.OverlayShowClock;
+        }
+
+        private void UpdateExtra7SliderLabels()
+        {
+            TxtDailyLimitValue.Text = settings.DailyLimitHours == 0 ? Loc.T("Aus") : $"{settings.DailyLimitHours} {Loc.T("Std.")}";
+            TxtOvOpacityValue.Text = $"{settings.OverlayOpacity} %";
+            TxtOvScaleValue.Text = $"{settings.OverlayScale} %";
+        }
+
+        private void RefreshDashboard(bool animate = false)
+        {
+            RefreshDashboardCore(animate);
+            ApplyDashboardLayout();
+        }
+
+        // ═════════════════════════════ Mod-Ordner, Discord, Widgets, Schemas, Willkommen ═════════════════════════════
+
+        private readonly Dictionary<string, string> modFolders = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<GameItem, DateTime> discordStarts = new();
+        private bool modScanRunning;
+        private SchemeSnapshot? schemeUndo;
+        private DispatcherTimer? welcomeTimer;
+
+        private StackPanel? goalWidget;
+        private StackPanel? backlogWidget;
+        private StackPanel? wishWidget;
+        private StackPanel? quickWidget;
+
+        private static readonly (string Key, string Icon, string Title)[] DashWidgetInfo =
+        {
+            ("hero", "🎬", "Weiterspielen-Banner"),
+            ("clock", "🕐", "Uhr und Wetter"),
+            ("stats", "📈", "Statistik-Kacheln"),
+            ("recent", "🕘", "Zuletzt gespielt"),
+            ("favorites", "★", "Favoriten"),
+            ("goal", "🎯", "Wochenziel"),
+            ("backlog", "📋", "Als Nächstes spielen"),
+            ("wishlist", "💝", "Wunschliste"),
+            ("quick", "🔗", "Schnellzugriff"),
+            ("actions", "⚡", "Schnellaktionen")
+        };
+
+        private static readonly string[] DefaultDashHidden = { "goal", "backlog", "wishlist", "quick" };
+
+        private void InitExtras8()
+        {
+            BuildDashWidgetSettings();
+            BuildSchemeTiles();
+
+            Loaded += (s, e) =>
+            {
+                StartWelcomeAnimation();
+                _ = ScanModFoldersAsync();
+            };
+        }
+
+        // ───────────────────────────── Mod-Ordner ─────────────────────────────
+
+        private static string? FindModFolder(string name, string installDir, string custom)
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(custom) && Directory.Exists(custom)) return custom;
+
+                string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                string localData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                string documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                string lower = name.ToLowerInvariant();
+
+                string? known = null;
+                if (lower.Contains("minecraft"))
+                    known = System.IO.Path.Combine(appData, ".minecraft", "mods");
+                else if (lower.Contains("cities: skylines") && !lower.Contains("ii"))
+                    known = System.IO.Path.Combine(localData, "Colossal Order", "Cities_Skylines", "Addons", "Mods");
+                else if (lower.Contains("the sims 4"))
+                    known = System.IO.Path.Combine(documents, "Electronic Arts", "The Sims 4", "Mods");
+                else if (lower.Contains("terraria"))
+                    known = System.IO.Path.Combine(documents, "My Games", "Terraria", "tModLoader", "Mods");
+                else if (lower.Contains("euro truck simulator 2"))
+                    known = System.IO.Path.Combine(documents, "Euro Truck Simulator 2", "mod");
+                else if (lower.Contains("american truck simulator"))
+                    known = System.IO.Path.Combine(documents, "American Truck Simulator", "mod");
+
+                if (known != null && Directory.Exists(known)) return known;
+
+                if (string.IsNullOrWhiteSpace(installDir) || !Directory.Exists(installDir)) return null;
+
+                if (Regex.IsMatch(lower, "skyrim|fallout|oblivion|starfield|morrowind"))
+                {
+                    string data = System.IO.Path.Combine(installDir, "Data");
+                    if (Directory.Exists(data)) return data;
+                }
+                if (lower.Contains("kerbal space program"))
+                {
+                    string gameData = System.IO.Path.Combine(installDir, "GameData");
+                    if (Directory.Exists(gameData)) return gameData;
+                }
+                if (lower.Contains("bannerlord") || lower.Contains("mount & blade"))
+                {
+                    string modules = System.IO.Path.Combine(installDir, "Modules");
+                    if (Directory.Exists(modules)) return modules;
+                }
+
+                string bepInEx = System.IO.Path.Combine(installDir, "BepInEx", "plugins");
+                if (Directory.Exists(bepInEx)) return bepInEx;
+
+                var wanted = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "mods", "mod", "addons" };
+
+                foreach (string first in Directory.EnumerateDirectories(installDir).Take(80))
+                {
+                    if (wanted.Contains(System.IO.Path.GetFileName(first))) return first;
+                }
+
+                foreach (string first in Directory.EnumerateDirectories(installDir).Take(40))
+                {
+                    foreach (string second in Directory.EnumerateDirectories(first).Take(40))
+                    {
+                        if (wanted.Contains(System.IO.Path.GetFileName(second))) return second;
+                    }
+                }
+            }
+            catch { }
+
+            return null;
+        }
+
+        private async Task ScanModFoldersAsync()
+        {
+            if (modScanRunning || allGames.Count == 0) return;
+            modScanRunning = true;
+
+            try
+            {
+                var snapshot = allGames.Select(g => (g.Name, g.InstallDir, g.ModPath)).ToList();
+                var found = await Task.Run(() =>
+                {
+                    var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                    foreach (var (name, dir, custom) in snapshot)
+                    {
+                        string? path = FindModFolder(name, dir, custom);
+                        if (path != null) result[name] = path;
+                    }
+                    return result;
+                });
+
+                bool changed = found.Count != modFolders.Count
+                    || found.Any(p => !modFolders.TryGetValue(p.Key, out var existing) || existing != p.Value);
+                if (!changed) return;
+
+                modFolders.Clear();
+                foreach (var pair in found) modFolders[pair.Key] = pair.Value;
+                ApplyFilter();
+            }
+            catch (Exception ex)
+            {
+                LogError("Mod-Ordner", ex);
+            }
+            finally
+            {
+                modScanRunning = false;
+            }
+        }
+
+        /// <summary>Kleiner Knopf unten rechts auf dem Cover, der beim Darüberfahren erscheint.</summary>
+        private void AddModButton(System.Windows.Controls.Panel area, UIElement hoverTarget, GameItem game)
+        {
+            if (!settings.ShowModButton || !modFolders.TryGetValue(game.Name, out var path)) return;
+
+            var button = new Border
+            {
+                Width = 34,
+                Height = 34,
+                CornerRadius = new CornerRadius(17),
+                Background = MakeBrush("#D90F111A"),
+                BorderBrush = BrushCardBorder,
+                BorderThickness = new Thickness(1),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+                VerticalAlignment = System.Windows.VerticalAlignment.Bottom,
+                Margin = new Thickness(8),
+                Opacity = 0,
+                Cursor = System.Windows.Input.Cursors.Hand,
+                ToolTip = Loc.T("Mod-Ordner öffnen"),
+                Child = new TextBlock
+                {
+                    Text = "🧩",
+                    FontSize = 16,
+                    FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center
+                }
+            };
+
+            void Fade(double to)
+            {
+                if (settings.PerformanceMode || !settings.HoverAnimations) button.Opacity = to;
+                else button.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(to, TimeSpan.FromMilliseconds(130)));
+            }
+
+            hoverTarget.MouseEnter += (s, e) => Fade(1);
+            hoverTarget.MouseLeave += (s, e) => Fade(0);
+            button.MouseEnter += (s, e) => button.BorderBrush = System.Windows.Media.Brushes.White;
+            button.MouseLeave += (s, e) => button.BorderBrush = BrushCardBorder;
+            button.MouseLeftButtonDown += (s, e) => e.Handled = true;   // startet nicht das Spiel
+            button.MouseLeftButtonUp += (s, e) =>
+            {
+                OpenShell(path);
+                e.Handled = true;
+            };
+
+            area.Children.Add(button);
+        }
+
+        private void PickModFolder(GameItem game)
+        {
+            using var dialog = new Forms.FolderBrowserDialog
+            {
+                Description = Loc.T("Mod-Ordner dieses Spiels auswählen"),
+                UseDescriptionForTitle = true
+            };
+            if (dialog.ShowDialog() != Forms.DialogResult.OK) return;
+
+            game.ModPath = dialog.SelectedPath;
+            SaveGameState(game);
+            modFolders[game.Name] = game.ModPath;
+            ApplyFilter();
+        }
+
+        private void ResetModFolder(GameItem game)
+        {
+            game.ModPath = string.Empty;
+            SaveGameState(game);
+
+            string? detected = FindModFolder(game.Name, game.InstallDir, string.Empty);
+            if (detected != null) modFolders[game.Name] = detected;
+            else modFolders.Remove(game.Name);
+            ApplyFilter();
+        }
+
+        // ───────────────────────────── Discord-Benachrichtigung (eigener Webhook) ─────────────────────────────
+
+        private static bool IsDiscordWebhook(string? url)
+            => Regex.IsMatch(url ?? string.Empty, @"^https://(?:(?:ptb|canary)\.)?discord(?:app)?\.com/api/webhooks/\d+/[\w\-]+$");
+
+        private int AccentColorInt()
+        {
+            var color = GetAccentColor();
+            return (color.R << 16) | (color.G << 8) | color.B;
+        }
+
+        private async Task<string?> PostDiscordAsync(string title, string description, string? thumbnail)
+        {
+            var embed = new Dictionary<string, object>
+            {
+                ["title"] = title,
+                ["description"] = description,
+                ["color"] = AccentColorInt(),
+                ["timestamp"] = DateTime.UtcNow.ToString("o"),
+                ["footer"] = new Dictionary<string, object> { ["text"] = "DFP Pro Launcher" }
+            };
+            if (!string.IsNullOrEmpty(thumbnail))
+                embed["thumbnail"] = new Dictionary<string, object> { ["url"] = thumbnail };
+
+            var payload = new Dictionary<string, object>
+            {
+                ["username"] = "DFP Pro Launcher",
+                ["embeds"] = new[] { embed }
+            };
+
+            using var content = new System.Net.Http.StringContent(JsonSerializer.Serialize(payload), System.Text.Encoding.UTF8, "application/json");
+            using var response = await Http.PostAsync(settings.DiscordWebhook.Trim(), content);
+            return response.IsSuccessStatusCode ? null : $"HTTP {(int)response.StatusCode}";
+        }
+
+        private string DiscordUser() => settings.DiscordSendName ? settings.UserName : Loc.T("Jemand");
+
+        private async Task SendDiscordAsync(string title, string description, GameItem? game)
+        {
+            if (!settings.DiscordEnabled || !IsDiscordWebhook(settings.DiscordWebhook)) return;
+
+            try
+            {
+                string? thumbnail = game != null && game.Source == "Steam" && game.AppId.Length > 0
+                    ? $"https://cdn.akamai.steamstatic.com/steam/apps/{game.AppId}/header.jpg"
+                    : null;
+
+                string? error = await PostDiscordAsync(title, description, thumbnail);
+                if (error != null) LogError("Discord", new InvalidOperationException(error));
+            }
+            catch (Exception ex)
+            {
+                LogError("Discord", ex);
+            }
+        }
+
+        private void DiscordSessionStarted(GameItem game)
+        {
+            if (!settings.DiscordEnabled) return;
+
+            discordStarts[game] = DateTime.Now;
+            if (!settings.DiscordOnStart) return;
+
+            _ = SendDiscordAsync("🎮 " + Loc.T($"{DiscordUser()} spielt jetzt {game.Name}"),
+                Loc.T($"Quelle: {game.Source}"), game);
+        }
+
+        private void DiscordSessionEnded(GameItem game)
+        {
+            if (!discordStarts.TryGetValue(game, out var started)) return;
+            discordStarts.Remove(game);
+
+            if (!settings.DiscordEnabled || !settings.DiscordOnEnd) return;
+
+            string duration = FormatPlaytime((long)(DateTime.Now - started).TotalSeconds);
+            _ = SendDiscordAsync("🏁 " + Loc.T($"{DiscordUser()} hat {game.Name} beendet"),
+                Loc.T($"Spielzeit dieser Sitzung: {duration}"), game);
+        }
+
+        private void BtnDiscordSave_Click(object sender, RoutedEventArgs e)
+        {
+            string url = TxtDiscordWebhook.Text.Trim();
+            if (url.Length > 0 && !IsDiscordWebhook(url))
+            {
+                TxtDiscordStatus.Text = Loc.T("Das ist keine gültige Discord-Webhook-Adresse.");
+                return;
+            }
+
+            settings.DiscordWebhook = url;
+            SaveSettings();
+            TxtDiscordStatus.Text = url.Length == 0 ? Loc.T("Webhook entfernt.") : Loc.T("Gespeichert.");
+        }
+
+        private async void BtnDiscordTest_Click(object sender, RoutedEventArgs e)
+        {
+            BtnDiscordSave_Click(sender, e);
+            if (!IsDiscordWebhook(settings.DiscordWebhook)) return;
+
+            TxtDiscordStatus.Text = Loc.T("Sende Test-Nachricht ...");
+            try
+            {
+                string? error = await PostDiscordAsync("✅ " + Loc.T("Test erfolgreich"),
+                    Loc.T("Dein DFP Pro Launcher ist mit diesem Discord-Kanal verbunden."), null);
+                TxtDiscordStatus.Text = error == null
+                    ? Loc.T("Test-Nachricht gesendet. Schau in deinen Discord-Kanal.")
+                    : Loc.T("Discord hat die Nachricht abgelehnt:") + " " + error;
+            }
+            catch
+            {
+                TxtDiscordStatus.Text = Loc.T("Senden fehlgeschlagen. Prüfe deine Internetverbindung.");
+            }
+        }
+
+        // ───────────────────────────── Dashboard-Widgets ─────────────────────────────
+
+        private List<string> GetDashOrder()
+        {
+            var all = DashWidgetInfo.Select(w => w.Key).ToList();
+            var order = settings.DashboardOrder.Where(all.Contains).Distinct().ToList();
+            order.AddRange(all.Where(k => !order.Contains(k)));
+            return order;
+        }
+
+        private bool DashHidden(string key) => settings.DashboardHidden.Contains(key);
+
+        private UIElement[] WidgetElements(string key)
+        {
+            UIElement?[] items = key switch
+            {
+                "hero" => new UIElement?[] { HeroHost },
+                "clock" => new UIElement?[] { WidgetsRow },
+                "stats" => new UIElement?[] { StatsGrid },
+                "recent" => new UIElement?[] { RecentSection },
+                "favorites" => new UIElement?[] { FavSection },
+                "actions" => new UIElement?[] { DashActionsTitle, DashActions },
+                "goal" => new UIElement?[] { goalWidget },
+                "backlog" => new UIElement?[] { backlogWidget },
+                "wishlist" => new UIElement?[] { wishWidget },
+                "quick" => new UIElement?[] { quickWidget },
+                _ => Array.Empty<UIElement?>()
+            };
+            return items.Where(i => i != null).Select(i => i!).ToArray();
+        }
+
+        private void EnsureDashWidgets()
+        {
+            if (goalWidget != null) return;
+
+            goalWidget = new StackPanel();
+            backlogWidget = new StackPanel();
+            wishWidget = new StackPanel();
+            quickWidget = new StackPanel();
+            ApplyStreamerMode();
+        }
+
+        private void ApplyDashboardLayout()
+        {
+            if (DashStack == null || HeroHost == null || BannerHost == null) return;
+
+            EnsureDashWidgets();
+            var order = GetDashOrder();
+
+            var elements = new List<UIElement>();
+            foreach (string key in order) elements.AddRange(WidgetElements(key));
+
+            foreach (var element in elements) DashStack.Children.Remove(element);
+            int index = DashStack.Children.IndexOf(BannerHost) + 1;
+            foreach (var element in elements)
+                DashStack.Children.Insert(Math.Min(index++, DashStack.Children.Count), element);
+
+            foreach (string key in order)
+            {
+                if (!DashHidden(key)) continue;
+                foreach (var element in WidgetElements(key)) element.Visibility = Visibility.Collapsed;
+            }
+
+            FillGoalWidget();
+            FillBacklogWidget();
+            FillWishWidget();
+            FillQuickWidget();
+        }
+
+        private Border WidgetCard(string title, UIElement body, Action? onTitleClick = null)
+        {
+            var heading = new TextBlock { Text = Loc.T(title) };
+            if (TryFindResource("SectionTitle") is Style titleStyle) heading.Style = titleStyle;
+            if (onTitleClick != null)
+            {
+                heading.Cursor = System.Windows.Input.Cursors.Hand;
+                heading.MouseLeftButtonUp += (s, e) => onTitleClick();
+            }
+
+            var stack = new StackPanel();
+            stack.Children.Add(heading);
+            stack.Children.Add(body);
+
+            var card = new Border { Margin = new Thickness(0, 0, 0, 12), Child = stack };
+            if (TryFindResource("CardStyle") is Style cardStyle) card.Style = cardStyle;
+            return card;
+        }
+
+        private TextBlock WidgetHint(string text)
+            => new() { Text = Loc.T(text), Foreground = BrushSubtle, TextWrapping = TextWrapping.Wrap };
+
+        private Grid MiniGameRow(GameItem game)
+        {
+            var row = new Grid { Margin = new Thickness(0, 0, 0, 6) };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            var thumb = new Border { Width = 30, Height = 42, CornerRadius = new CornerRadius(5), Background = BrushFooter, Margin = new Thickness(0, 0, 10, 0) };
+            if (HasCover(game) && GetCachedImage(EffectiveCover(game)) is BitmapImage image)
+                thumb.Background = new ImageBrush(image) { Stretch = Stretch.UniformToFill };
+            row.Children.Add(thumb);
+
+            var name = new TextBlock
+            {
+                Text = game.Name,
+                Foreground = System.Windows.Media.Brushes.White,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                TextTrimming = TextTrimming.CharacterEllipsis
+            };
+            Grid.SetColumn(name, 1);
+            row.Children.Add(name);
+
+            var play = new System.Windows.Controls.Button { Content = "▶", Padding = new Thickness(14, 6, 14, 6) };
+            play.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            play.Click += (s, e) => LaunchGame(game);
+            Grid.SetColumn(play, 2);
+            row.Children.Add(play);
+
+            return row;
+        }
+
+        private void FillGoalWidget()
+        {
+            if (goalWidget == null) return;
+            goalWidget.Children.Clear();
+            if (DashHidden("goal"))
+            {
+                goalWidget.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            var body = new StackPanel();
+            double goalHours = settings.WeeklyGoalHours;
+
+            if (goalHours <= 0)
+            {
+                body.Children.Add(WidgetHint("Lege in den Einstellungen unter „Spiele und Cover“ ein Wochenziel fest."));
+            }
+            else
+            {
+                double week = GetWeekSeconds();
+                double fraction = Math.Clamp(week / (goalHours * 3600.0), 0, 1);
+
+                body.Children.Add(new TextBlock
+                {
+                    Text = $"{FormatPlaytime((long)week)} / {goalHours} {Loc.T("Std.")}",
+                    Foreground = System.Windows.Media.Brushes.White,
+                    FontWeight = FontWeights.SemiBold,
+                    Margin = new Thickness(0, 0, 0, 8)
+                });
+
+                var track = new Border { Height = 10, CornerRadius = new CornerRadius(5), Background = MakeBrush("#1F2937") };
+                var fill = new Border { Height = 10, CornerRadius = new CornerRadius(5), HorizontalAlignment = System.Windows.HorizontalAlignment.Left };
+                fill.SetResourceReference(Border.BackgroundProperty, "AccentBrush");
+                var bar = new Grid();
+                bar.Children.Add(track);
+                bar.Children.Add(fill);
+                bar.SizeChanged += (s, e) => fill.Width = bar.ActualWidth * fraction;
+                body.Children.Add(bar);
+            }
+
+            goalWidget.Children.Add(WidgetCard("🎯  Wochenziel", body));
+            goalWidget.Visibility = Visibility.Visible;
+        }
+
+        private void FillBacklogWidget()
+        {
+            if (backlogWidget == null) return;
+            backlogWidget.Children.Clear();
+            if (DashHidden("backlog"))
+            {
+                backlogWidget.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            var body = new StackPanel();
+            var games = VisibleGames.Where(g => g.Status == "backlog")
+                .OrderByDescending(g => g.FirstSeen ?? DateTime.MinValue).Take(5).ToList();
+
+            if (games.Count == 0) body.Children.Add(WidgetHint("Dein Backlog ist leer. Markiere Spiele per Rechtsklick mit „Will ich spielen“."));
+            foreach (var game in games) body.Children.Add(MiniGameRow(game));
+
+            backlogWidget.Children.Add(WidgetCard("📋  Als Nächstes spielen", body, () => NavigateTo("backlog")));
+            backlogWidget.Visibility = Visibility.Visible;
+        }
+
+        private void FillWishWidget()
+        {
+            if (wishWidget == null) return;
+            wishWidget.Children.Clear();
+            if (DashHidden("wishlist"))
+            {
+                wishWidget.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            var body = new StackPanel();
+            var items = settings.Wishlist.OrderByDescending(WishTargetReached).ThenByDescending(w => w.Discount).Take(4).ToList();
+
+            if (items.Count == 0) body.Children.Add(WidgetHint("Noch keine Spiele auf der Wunschliste."));
+            foreach (var item in items)
+            {
+                bool reached = WishTargetReached(item);
+                var row = new Grid { Margin = new Thickness(0, 0, 0, 6) };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+                row.Children.Add(new TextBlock
+                {
+                    Text = (reached ? "🔔 " : string.Empty) + item.Name,
+                    Foreground = System.Windows.Media.Brushes.White,
+                    TextTrimming = TextTrimming.CharacterEllipsis
+                });
+
+                string price = string.IsNullOrEmpty(item.PriceText) ? "–" : Loc.T(item.PriceText);
+                if (item.Discount > 0) price += $"   -{item.Discount} %";
+                var priceText = new TextBlock
+                {
+                    Text = price,
+                    FontWeight = FontWeights.SemiBold,
+                    Margin = new Thickness(16, 0, 0, 0),
+                    Foreground = reached ? MakeBrush("#34D399") : BrushSubtle
+                };
+                Grid.SetColumn(priceText, 1);
+                row.Children.Add(priceText);
+                body.Children.Add(row);
+            }
+
+            wishWidget.Children.Add(WidgetCard("💝  Wunschliste", body, () => NavigateTo("wishlist")));
+            wishWidget.Visibility = Visibility.Visible;
+        }
+
+        private void FillQuickWidget()
+        {
+            if (quickWidget == null) return;
+            quickWidget.Children.Clear();
+            if (DashHidden("quick"))
+            {
+                quickWidget.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            SeedQuickLinks();
+
+            var body = new WrapPanel { Margin = new Thickness(0, 0, 0, 0) };
+            foreach (var link in settings.QuickLinks.Take(8))
+            {
+                var item = link;
+                var menu = CreateMenu();
+                AddMenuItem(menu, "🔗  Schnellzugriff verwalten", () => NavigateTo("links"));
+                body.Children.Add(CreateTile(QuickEmoji(item), ResolveQuickIcon(item), item.Name,
+                    DescribeTarget(item.Target), () => OpenShell(item.Target), menu, 170));
+            }
+            if (settings.QuickLinks.Count == 0) body.Children.Add(WidgetHint("Noch keine Verknüpfungen."));
+
+            quickWidget.Children.Add(WidgetCard("🔗  Schnellzugriff", body, () => NavigateTo("links")));
+            quickWidget.Visibility = Visibility.Visible;
+        }
+
+        private void BuildDashWidgetSettings()
+        {
+            if (DashWidgetPanel == null) return;
+
+            dashPanelBuilding = true;
+            DashWidgetPanel.Children.Clear();
+
+            var order = GetDashOrder();
+            for (int i = 0; i < order.Count; i++)
+            {
+                string key = order[i];
+                var info = DashWidgetInfo.First(w => w.Key == key);
+
+                var row = new Grid { Margin = new Thickness(0, 0, 0, 8) };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+                var box = new System.Windows.Controls.CheckBox
+                {
+                    Content = info.Icon + "  " + Loc.T(info.Title),
+                    Foreground = System.Windows.Media.Brushes.White,
+                    IsChecked = !DashHidden(key),
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center
+                };
+                box.Checked += (s, e) => { if (!dashPanelBuilding) SetDashWidgetVisible(key, true); };
+                box.Unchecked += (s, e) => { if (!dashPanelBuilding) SetDashWidgetVisible(key, false); };
+                row.Children.Add(box);
+
+                var up = new System.Windows.Controls.Button { Content = "▲", Padding = new Thickness(10, 3, 10, 3), Margin = new Thickness(8, 0, 4, 0), IsEnabled = i > 0 };
+                up.Click += (s, e) => MoveDashWidget(key, -1);
+                Grid.SetColumn(up, 1);
+                row.Children.Add(up);
+
+                var down = new System.Windows.Controls.Button { Content = "▼", Padding = new Thickness(10, 3, 10, 3), IsEnabled = i < order.Count - 1 };
+                down.Click += (s, e) => MoveDashWidget(key, 1);
+                Grid.SetColumn(down, 2);
+                row.Children.Add(down);
+
+                DashWidgetPanel.Children.Add(row);
+            }
+
+            dashPanelBuilding = false;
+        }
+
+        private bool dashPanelBuilding;
+
+        private void SetDashWidgetVisible(string key, bool visible)
+        {
+            if (visible) settings.DashboardHidden.Remove(key);
+            else if (!settings.DashboardHidden.Contains(key)) settings.DashboardHidden.Add(key);
+
+            SaveSettings();
+            RefreshDashboard();
+        }
+
+        private void MoveDashWidget(string key, int delta)
+        {
+            var order = GetDashOrder();
+            int index = order.IndexOf(key);
+            int target = index + delta;
+            if (index < 0 || target < 0 || target >= order.Count) return;
+
+            order.RemoveAt(index);
+            order.Insert(target, key);
+            settings.DashboardOrder = order;
+
+            SaveSettings();
+            BuildDashWidgetSettings();
+            RefreshDashboard();
+        }
+
+        private void BtnResetWidgets_Click(object sender, RoutedEventArgs e)
+        {
+            settings.DashboardOrder = new List<string>();
+            settings.DashboardHidden = new List<string>(DefaultDashHidden);
+            SaveSettings();
+            BuildDashWidgetSettings();
+            RefreshDashboard();
+        }
+
+        // ───────────────────────────── Ansichts-Schemas ─────────────────────────────
+
+        private sealed class SchemeSnapshot
+        {
+            public string CardLayout = "cards";
+            public int CardWidth, CardSpacing, CardAspect, HoverZoom, RecentCount, SidebarWidth, NavFontSize, NavItemPadding;
+            public bool SidebarCollapsed, ShowCardNames, ShowCardSource, PageAnimations, CardAnimations, HoverAnimations, HoverGlow, ShowSparklines;
+            public bool ShowHero, ShowClock, ShowWeather, ShowStats, ShowRecent, ShowFavorites, ControllerSupport;
+            public List<string> HiddenSections = new(), DashboardOrder = new(), DashboardHidden = new();
+
+            public static SchemeSnapshot Capture(AppSettings s) => new()
+            {
+                CardLayout = s.CardLayout,
+                CardWidth = s.CardWidth,
+                CardSpacing = s.CardSpacing,
+                CardAspect = s.CardAspect,
+                HoverZoom = s.HoverZoom,
+                RecentCount = s.RecentCount,
+                SidebarWidth = s.SidebarWidth,
+                NavFontSize = s.NavFontSize,
+                NavItemPadding = s.NavItemPadding,
+                SidebarCollapsed = s.SidebarCollapsed,
+                ShowCardNames = s.ShowCardNames,
+                ShowCardSource = s.ShowCardSource,
+                PageAnimations = s.PageAnimations,
+                CardAnimations = s.CardAnimations,
+                HoverAnimations = s.HoverAnimations,
+                HoverGlow = s.HoverGlow,
+                ShowSparklines = s.ShowSparklines,
+                ShowHero = s.ShowHero,
+                ShowClock = s.ShowClock,
+                ShowWeather = s.ShowWeather,
+                ShowStats = s.ShowStats,
+                ShowRecent = s.ShowRecent,
+                ShowFavorites = s.ShowFavorites,
+                ControllerSupport = s.ControllerSupport,
+                HiddenSections = s.HiddenSections.ToList(),
+                DashboardOrder = s.DashboardOrder.ToList(),
+                DashboardHidden = s.DashboardHidden.ToList()
+            };
+
+            public void Restore(AppSettings s)
+            {
+                s.CardLayout = CardLayout; s.CardWidth = CardWidth; s.CardSpacing = CardSpacing; s.CardAspect = CardAspect;
+                s.HoverZoom = HoverZoom; s.RecentCount = RecentCount; s.SidebarWidth = SidebarWidth; s.NavFontSize = NavFontSize;
+                s.NavItemPadding = NavItemPadding; s.SidebarCollapsed = SidebarCollapsed; s.ShowCardNames = ShowCardNames;
+                s.ShowCardSource = ShowCardSource; s.PageAnimations = PageAnimations; s.CardAnimations = CardAnimations;
+                s.HoverAnimations = HoverAnimations; s.HoverGlow = HoverGlow; s.ShowSparklines = ShowSparklines;
+                s.ShowHero = ShowHero; s.ShowClock = ShowClock; s.ShowWeather = ShowWeather; s.ShowStats = ShowStats;
+                s.ShowRecent = ShowRecent; s.ShowFavorites = ShowFavorites; s.ControllerSupport = ControllerSupport;
+                s.HiddenSections = HiddenSections.ToList(); s.DashboardOrder = DashboardOrder.ToList(); s.DashboardHidden = DashboardHidden.ToList();
+            }
+        }
+
+        private static readonly (string Key, string Icon, string Title, string Description)[] Schemes =
+        {
+            ("standard", "🏠", "Standard", "Die ursprüngliche Ansicht mit allen Standard-Einstellungen."),
+            ("minimal", "🪶", "Minimalistisch", "Nur das Wesentliche: Seitenleiste eingeklappt, wenige Bereiche, keine Animationen."),
+            ("tidy", "🧹", "Aufgeräumt", "Ruhige Oberfläche mit Banner, „Zuletzt gespielt“ und Favoriten. Selten genutzte Bereiche sind ausgeblendet."),
+            ("info", "📊", "Informativ", "Alles auf einen Blick: Detailkacheln, Statistik, Wochenziel, Backlog, Wunschliste und Schnellzugriff."),
+            ("compact", "📦", "Kompakt", "Viele Spiele auf wenig Platz: Liste, eingeklappte Seitenleiste und schmale Abstände."),
+            ("couch", "🛋", "Wohnzimmer", "Große Karten und große Schrift für Fernseher und Controller.")
+        };
+
+        private void ApplySchemeValues(string key)
+        {
+            // Ausgangswerte (Standard)
+            settings.CardLayout = "cards";
+            settings.CardWidth = 220;
+            settings.CardSpacing = 12;
+            settings.CardAspect = 136;
+            settings.HoverZoom = 105;
+            settings.ShowCardNames = true;
+            settings.ShowCardSource = true;
+            settings.SidebarCollapsed = false;
+            settings.SidebarWidth = 250;
+            settings.NavFontSize = 14;
+            settings.NavItemPadding = 8;
+            settings.PageAnimations = true;
+            settings.CardAnimations = true;
+            settings.HoverAnimations = true;
+            settings.HoverGlow = true;
+            settings.ShowSparklines = true;
+            settings.ShowHero = settings.ShowClock = settings.ShowWeather = true;
+            settings.ShowStats = settings.ShowRecent = settings.ShowFavorites = true;
+            settings.RecentCount = 6;
+            settings.HiddenSections = new List<string>();
+            settings.DashboardOrder = new List<string>();
+            settings.DashboardHidden = new List<string>(DefaultDashHidden);
+
+            switch (key)
+            {
+                case "minimal":
+                    settings.CardWidth = 200;
+                    settings.CardSpacing = 16;
+                    settings.ShowCardSource = false;
+                    settings.SidebarCollapsed = true;
+                    settings.PageAnimations = false;
+                    settings.CardAnimations = false;
+                    settings.HoverGlow = false;
+                    settings.ShowSparklines = false;
+                    settings.RecentCount = 8;
+                    settings.HiddenSections = new List<string>
+                        { "stats", "deals", "backlog", "gallery", "apps", "links", "wishlist", "downloads", "storage", "optimization", "tools" };
+                    settings.DashboardHidden = new List<string>
+                        { "hero", "clock", "stats", "favorites", "goal", "backlog", "wishlist", "quick", "actions" };
+                    break;
+
+                case "tidy":
+                    settings.CardSpacing = 14;
+                    settings.ShowCardSource = false;
+                    settings.HoverGlow = false;
+                    settings.HiddenSections = new List<string> { "deals", "gallery", "downloads", "storage", "optimization", "tools" };
+                    settings.DashboardHidden = new List<string> { "clock", "stats", "goal", "backlog", "wishlist", "quick" };
+                    break;
+
+                case "info":
+                    settings.CardLayout = "detail";
+                    settings.CardWidth = 260;
+                    settings.RecentCount = 8;
+                    settings.DashboardHidden = new List<string>();
+                    break;
+
+                case "compact":
+                    settings.CardLayout = "list";
+                    settings.CardSpacing = 6;
+                    settings.SidebarCollapsed = true;
+                    settings.HoverGlow = false;
+                    settings.CardAnimations = false;
+                    settings.RecentCount = 5;
+                    settings.DashboardOrder = new List<string>
+                        { "stats", "recent", "goal", "backlog", "hero", "clock", "favorites", "wishlist", "quick", "actions" };
+                    settings.DashboardHidden = new List<string> { "hero", "clock", "favorites", "wishlist", "quick", "actions" };
+                    break;
+
+                case "couch":
+                    settings.CardWidth = 280;
+                    settings.CardSpacing = 20;
+                    settings.ShowCardSource = false;
+                    settings.HoverZoom = 108;
+                    settings.NavFontSize = 17;
+                    settings.NavItemPadding = 11;
+                    settings.SidebarWidth = 290;
+                    settings.ControllerSupport = true;
+                    settings.HiddenSections = new List<string> { "stats", "deals", "gallery", "apps", "downloads", "storage", "optimization", "tools" };
+                    settings.DashboardHidden = new List<string> { "clock", "stats", "goal", "backlog", "wishlist", "quick" };
+                    break;
+            }
+        }
+
+        private void RefreshAfterScheme()
+        {
+            isLoadingSettings = true;
+            try { PopulateControlsFromSettings(); }
+            finally { isLoadingSettings = false; }
+
+            ApplyViewSettings();
+            ApplyNavVisibility();
+            BuildNavSettings();
+            BuildDashWidgetSettings();
+            ApplySidebar(true);
+            ApplyFilter();
+            RefreshDashboard();
+            UpdateSliderLabels();
+        }
+
+        private void ApplyScheme(string key, string title)
+        {
+            schemeUndo = SchemeSnapshot.Capture(settings);
+            ApplySchemeValues(key);
+            SaveSettings();
+            RefreshAfterScheme();
+
+            ShowToast("🎨", "Schema angewendet", Loc.T(title) + "  ·  " + Loc.T("Klicken zum Rückgängigmachen"), 9, UndoScheme, true);
+        }
+
+        private void UndoScheme()
+        {
+            if (schemeUndo == null) return;
+
+            schemeUndo.Restore(settings);
+            schemeUndo = null;
+            SaveSettings();
+            RefreshAfterScheme();
+            ShowToast("↩", "Schema zurückgesetzt", "Die vorherigen Einstellungen sind wieder aktiv.", 5, null, true);
+        }
+
+        private void BuildSchemeTiles()
+        {
+            if (SchemePanel == null) return;
+            SchemePanel.Children.Clear();
+
+            foreach (var scheme in Schemes)
+            {
+                var item = scheme;
+
+                var text = new StackPanel();
+                text.Children.Add(new TextBlock
+                {
+                    Text = item.Icon + "  " + Loc.T(item.Title),
+                    Foreground = System.Windows.Media.Brushes.White,
+                    FontWeight = FontWeights.SemiBold,
+                    FontSize = 14
+                });
+                text.Children.Add(new TextBlock
+                {
+                    Text = Loc.T(item.Description),
+                    Foreground = BrushSubtle,
+                    FontSize = 12,
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(0, 6, 0, 0)
+                });
+
+                var tile = new Border
+                {
+                    Width = 230,
+                    MinHeight = 112,
+                    Margin = new Thickness(0, 0, 12, 12),
+                    Padding = new Thickness(14),
+                    CornerRadius = new CornerRadius(12),
+                    Background = BrushFooter,
+                    BorderBrush = BrushCardBorder,
+                    BorderThickness = new Thickness(1),
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    Child = text
+                };
+                tile.MouseEnter += (s, e) => tile.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
+                tile.MouseLeave += (s, e) => tile.BorderBrush = BrushCardBorder;
+                tile.MouseLeftButtonUp += (s, e) => ApplyScheme(item.Key, item.Title);
+                SchemePanel.Children.Add(tile);
+            }
+        }
+
+        // ───────────────────────────── Willkommensanimation ─────────────────────────────
+
+        private void StartWelcomeAnimation()
+        {
+            if (WelcomeLayer == null || !settings.WelcomeAnimation || !settings.SetupDone || settings.StartMinimized) return;
+
+            bool reduced = settings.PerformanceMode || !settings.PageAnimations;
+
+            WelcomeGreeting.Text = Loc.T(GetGreeting()) + ",";
+            WelcomeName.Text = DisplayUserName();
+            WelcomeLayer.Opacity = 1;
+            WelcomeLayer.Visibility = Visibility.Visible;
+
+            if (reduced)
+            {
+                WelcomeLogo.Opacity = 1;
+                WelcomeGreeting.Opacity = 1;
+                WelcomeName.Opacity = 1;
+                WelcomeLine.Width = 160;
+            }
+            else
+            {
+                var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+
+                WelcomeLogo.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(450)));
+                var pop = new DoubleAnimation(0.6, 1, TimeSpan.FromMilliseconds(700))
+                {
+                    EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.4 }
+                };
+                WelcomeLogoScale.BeginAnimation(ScaleTransform.ScaleXProperty, pop);
+                WelcomeLogoScale.BeginAnimation(ScaleTransform.ScaleYProperty, pop);
+
+                var greetingFade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(450)) { BeginTime = TimeSpan.FromMilliseconds(450) };
+                WelcomeGreeting.BeginAnimation(UIElement.OpacityProperty, greetingFade);
+
+                var nameFade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(500)) { BeginTime = TimeSpan.FromMilliseconds(700) };
+                WelcomeName.BeginAnimation(UIElement.OpacityProperty, nameFade);
+                var nameSlide = new DoubleAnimation(16, 0, TimeSpan.FromMilliseconds(550))
+                {
+                    BeginTime = TimeSpan.FromMilliseconds(700),
+                    EasingFunction = ease
+                };
+                WelcomeNameShift.BeginAnimation(TranslateTransform.YProperty, nameSlide);
+
+                var line = new DoubleAnimation(0, 160, TimeSpan.FromMilliseconds(600)) { BeginTime = TimeSpan.FromMilliseconds(950), EasingFunction = ease };
+                WelcomeLine.BeginAnimation(FrameworkElement.WidthProperty, line);
+            }
+
+            welcomeTimer?.Stop();
+            welcomeTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(reduced ? 900 : 2700) };
+            welcomeTimer.Tick += (s, e) => FinishWelcome();
+            welcomeTimer.Start();
+        }
+
+        private void FinishWelcome()
+        {
+            welcomeTimer?.Stop();
+            if (WelcomeLayer == null || WelcomeLayer.Visibility != Visibility.Visible) return;
+
+            var fade = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(450));
+            fade.Completed += (s, e) =>
+            {
+                WelcomeLayer.BeginAnimation(UIElement.OpacityProperty, null);
+                WelcomeLayer.Visibility = Visibility.Collapsed;
+            };
+            WelcomeLayer.BeginAnimation(UIElement.OpacityProperty, fade);
+        }
+
+        private void WelcomeLayer_Click(object sender, System.Windows.Input.MouseButtonEventArgs e) => FinishWelcome();
+
+        // ───────────────────────────── Einstellungen lesen und anzeigen ─────────────────────────────
+
+        private void ReadExtra8Settings()
+        {
+            settings.ShowModButton = ChkModButton.IsChecked == true;
+            settings.WelcomeAnimation = ChkWelcome.IsChecked == true;
+            settings.DiscordEnabled = ChkDiscord.IsChecked == true;
+            settings.DiscordOnStart = ChkDiscordStart.IsChecked == true;
+            settings.DiscordOnEnd = ChkDiscordEnd.IsChecked == true;
+            settings.DiscordSendName = ChkDiscordName.IsChecked == true;
+        }
+
+        private void PopulateExtra8Settings()
+        {
+            ChkModButton.IsChecked = settings.ShowModButton;
+            ChkWelcome.IsChecked = settings.WelcomeAnimation;
+            ChkDiscord.IsChecked = settings.DiscordEnabled;
+            ChkDiscordStart.IsChecked = settings.DiscordOnStart;
+            ChkDiscordEnd.IsChecked = settings.DiscordOnEnd;
+            ChkDiscordName.IsChecked = settings.DiscordSendName;
+            TxtDiscordWebhook.Text = settings.DiscordWebhook;
+        }
+    }
+}
