@@ -1,6 +1,7 @@
 ﻿<Window x:Class="Game_launcher.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="DFP Pro Launcher" Height="800" Width="1360" MinWidth="1000" MinHeight="600"
         Background="{DynamicResource AppBackgroundBrush}" WindowStartupLocation="CenterScreen">
 
@@ -13,6 +14,10 @@
         <SolidColorBrush x:Key="CardBrush" Color="#131722"/>
         <SolidColorBrush x:Key="CardBorderBrush" Color="#1F2937"/>
         <SolidColorBrush x:Key="SurfaceBrush" Color="#181D2A"/>
+        <DropShadowEffect x:Key="TextShadow" ShadowDepth="0" BlurRadius="7" Opacity="0.95" Color="#000000"/>
+        <SolidColorBrush x:Key="NavTextBrush" Color="#9CA3AF"/>
+        <SolidColorBrush x:Key="NavActiveBrush" Color="#8B5CF6"/>
+        <SolidColorBrush x:Key="NavActiveBgBrush" Color="#1C2233"/>
 
         <!-- Pinsel für das Logo -->
         <SolidColorBrush x:Key="BrandRingBrush" Color="#8B5CF6"/>
@@ -65,6 +70,7 @@
             <Setter Property="FontSize" Value="28"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Effect" Value="{StaticResource TextShadow}"/>
         </Style>
         <Style x:Key="SectionTitle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="18"/>
@@ -138,8 +144,64 @@
         </Style>
 
         <!-- Navigation links -->
+        <Style x:Key="CaptionButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#E5E7EB"/>
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#33FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#55FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CaptionCloseStyle" TargetType="Button">
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#E5E7EB"/>
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#E81123"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#B80E1C"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="NavButtonStyle" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="#9CA3AF"/>
+            <Setter Property="Foreground" Value="{DynamicResource NavTextBrush}"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Margin" Value="0,2"/>
             <Setter Property="Padding" Value="12,8"/>
@@ -157,8 +219,8 @@
                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#1C2233"/>
-                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource NavActiveBgBrush}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource NavActiveBrush}"/>
                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -494,7 +556,11 @@
         <Style TargetType="ContextMenu" BasedOn="{StaticResource DarkContextMenu}"/>
     </Window.Resources>
 
-    <Grid>
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="34" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
+    </shell:WindowChrome.WindowChrome>
+
+    <Grid x:Name="WindowRoot">
         <Image x:Name="BackgroundImage" Stretch="UniformToFill" Visibility="Collapsed" IsHitTestVisible="False"
            RenderOptions.BitmapScalingMode="HighQuality"/>
         <Border x:Name="BackgroundDim" Background="{DynamicResource AppBackgroundBrush}" Opacity="0.55" Visibility="Collapsed" IsHitTestVisible="False"/>
@@ -508,7 +574,7 @@
 
             <!-- ================= SIDEBAR ================= -->
             <Border x:Name="SidebarBorder" Grid.Column="0" Background="{DynamicResource SidebarBrush}" BorderBrush="#1F2937" BorderThickness="0,0,1,0">
-                <Grid Margin="16,20,16,16">
+                <Grid Margin="16,38,16,16">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -548,97 +614,100 @@
 
                     <!-- Navigation -->
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-                        <StackPanel x:Name="NavPanel">
-                            <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" IsChecked="True" x:Name="NavDashboardBtn" Click="NavDashboard_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🏠" Width="30" FontFamily="Segoe UI Emoji"/>
-                                    <TextBlock Text="Dashboard"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavGamesBtn" Click="NavGames_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🎮" Width="30" FontFamily="Segoe UI Emoji"/>
-                                    <TextBlock Text="Spiele"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton x:Name="NavStatsBtn" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Click="NavStats_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="📈" Width="30" FontFamily="Segoe UI Emoji"/>
-                                    <TextBlock Text="Statistik"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton x:Name="NavDealsBtn" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Click="NavDeals_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🎁" Width="30" FontFamily="Segoe UI Emoji"/>
-                                    <TextBlock Text="Angebote"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton x:Name="NavBacklogBtn" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Click="NavBacklog_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="📋" Width="30" FontFamily="Segoe UI Emoji"/>
-                                    <TextBlock Text="Backlog"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton x:Name="NavGalleryBtn" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Click="NavGallery_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🖼" Width="30" FontFamily="Segoe UI Emoji"/>
-                                    <TextBlock Text="Galerie"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavAppsBtn" Click="NavApps_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🧩" Width="30" FontFamily="Segoe UI Emoji"/>
-                                    <TextBlock Text="Anwendungen"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavLinksBtn" Click="NavLinks_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🔗" Width="30" FontFamily="Segoe UI Emoji"/>
-                                    <TextBlock Text="Schnellzugriff"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavWishBtn" Click="NavWishlist_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="💝" Width="30" FontFamily="Segoe UI Emoji"/>
-                                    <TextBlock Text="Wunschliste"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavDownloadsBtn" Click="NavDownloads_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="⬇" Width="30" FontFamily="Segoe UI Emoji"/>
-                                    <TextBlock Text="Downloads"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavSystemBtn" Click="NavSystem_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="📊" Width="30" FontFamily="Segoe UI Emoji"/>
-                                    <TextBlock Text="Systemüberwachung"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavStorageBtn" Click="NavStorage_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="💾" Width="30" FontFamily="Segoe UI Emoji"/>
-                                    <TextBlock Text="Speicher"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavOptimizationBtn" Click="NavOptimization_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="⚡" Width="30" FontFamily="Segoe UI Emoji"/>
-                                    <TextBlock Text="Optimierung"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavToolsBtn" Click="NavTools_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🛠" Width="30" FontFamily="Segoe UI Emoji"/>
-                                    <TextBlock Text="Tools"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavSettingsBtn" Click="NavSettings_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="⚙" Width="30" FontFamily="Segoe UI Emoji"/>
-                                    <TextBlock Text="Einstellungen"/>
-                                </StackPanel>
-                            </RadioButton>
+                        <StackPanel>
+                            <StackPanel x:Name="NavPanel">
+                                <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" IsChecked="True" x:Name="NavDashboardBtn" Click="NavDashboard_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🏠" Width="30" FontFamily="Segoe UI Emoji"/>
+                                        <TextBlock Text="Dashboard"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavGamesBtn" Click="NavGames_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🎮" Width="30" FontFamily="Segoe UI Emoji"/>
+                                        <TextBlock Text="Spiele"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton x:Name="NavStatsBtn" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Click="NavStats_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📈" Width="30" FontFamily="Segoe UI Emoji"/>
+                                        <TextBlock Text="Statistik"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton x:Name="NavDealsBtn" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Click="NavDeals_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🎁" Width="30" FontFamily="Segoe UI Emoji"/>
+                                        <TextBlock Text="Angebote"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton x:Name="NavBacklogBtn" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Click="NavBacklog_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📋" Width="30" FontFamily="Segoe UI Emoji"/>
+                                        <TextBlock Text="Backlog"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton x:Name="NavGalleryBtn" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Click="NavGallery_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🖼" Width="30" FontFamily="Segoe UI Emoji"/>
+                                        <TextBlock Text="Galerie"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavAppsBtn" Click="NavApps_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🧩" Width="30" FontFamily="Segoe UI Emoji"/>
+                                        <TextBlock Text="Anwendungen"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavLinksBtn" Click="NavLinks_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🔗" Width="30" FontFamily="Segoe UI Emoji"/>
+                                        <TextBlock Text="Schnellzugriff"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavWishBtn" Click="NavWishlist_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="💝" Width="30" FontFamily="Segoe UI Emoji"/>
+                                        <TextBlock Text="Wunschliste"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavDownloadsBtn" Click="NavDownloads_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="⬇" Width="30" FontFamily="Segoe UI Emoji"/>
+                                        <TextBlock Text="Downloads"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavSystemBtn" Click="NavSystem_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="📊" Width="30" FontFamily="Segoe UI Emoji"/>
+                                        <TextBlock Text="Systemüberwachung"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavStorageBtn" Click="NavStorage_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="💾" Width="30" FontFamily="Segoe UI Emoji"/>
+                                        <TextBlock Text="Speicher"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavOptimizationBtn" Click="NavOptimization_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="⚡" Width="30" FontFamily="Segoe UI Emoji"/>
+                                        <TextBlock Text="Optimierung"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavToolsBtn" Click="NavTools_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🛠" Width="30" FontFamily="Segoe UI Emoji"/>
+                                        <TextBlock Text="Tools"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavSettingsBtn" Click="NavSettings_Click">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="⚙" Width="30" FontFamily="Segoe UI Emoji"/>
+                                        <TextBlock Text="Einstellungen"/>
+                                    </StackPanel>
+                                </RadioButton>
+                            </StackPanel>
+                            <StackPanel x:Name="SidebarExtras" Margin="0,0,0,8"/>
                         </StackPanel>
                     </ScrollViewer>
 
@@ -652,16 +721,27 @@
                 </Grid>
             </Border>
 
+            <!-- Dunkler Verlauf oben: macht Titel und Knöpfe auf hellen Hintergrundbildern lesbar -->
+            <Border x:Name="TopScrim" Grid.Column="1" Height="130" VerticalAlignment="Top" IsHitTestVisible="False" Panel.ZIndex="5" Visibility="Collapsed">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#B3000000" Offset="0"/>
+                        <GradientStop Color="#66000000" Offset="0.5"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+
             <!-- ================= INHALT ================= -->
-            <Grid Grid.Column="1" Margin="28,24,16,16">
+            <Grid Grid.Column="1" Margin="28,42,16,16">
 
                 <!-- ========== DASHBOARD ========== -->
                 <ScrollViewer x:Name="ViewDashboard" Visibility="Visible" VerticalScrollBarVisibility="Auto">
                     <StackPanel x:Name="DashStack" Margin="0,0,12,24">
                         <Grid Margin="0,0,0,24">
                             <StackPanel>
-                                <TextBlock x:Name="TxtGreeting" Text="Hallo" FontSize="30" FontWeight="Bold" Foreground="White"/>
-                                <TextBlock x:Name="TxtDate" Style="{StaticResource SubtleText}" FontSize="14" Margin="0,4,0,0"/>
+                                <TextBlock x:Name="TxtGreeting" Text="Hallo" FontSize="30" FontWeight="Bold" Foreground="White" Effect="{StaticResource TextShadow}"/>
+                                <TextBlock x:Name="TxtDate" Style="{StaticResource SubtleText}" FontSize="14" Margin="0,4,0,0" Effect="{StaticResource TextShadow}"/>
                             </StackPanel>
                             <Border Style="{StaticResource CardStyle}" Padding="18,10" HorizontalAlignment="Right" VerticalAlignment="Top">
                                 <StackPanel Orientation="Horizontal">
@@ -773,7 +853,7 @@
 
                     <Grid Margin="0,0,0,16">
                         <TextBlock Text="Spiele" Style="{StaticResource PageTitle}"/>
-                        <TextBlock x:Name="TxtGameCount" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{StaticResource SubtleText}"/>
+                        <TextBlock x:Name="TxtGameCount" HorizontalAlignment="Right" VerticalAlignment="Bottom" Style="{StaticResource SubtleText}" Effect="{StaticResource TextShadow}"/>
                     </Grid>
 
                     <StackPanel Grid.Row="1">
@@ -820,7 +900,7 @@
                 <ScrollViewer x:Name="ViewStats" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="0,0,12,24">
                         <TextBlock Text="Statistik" Style="{StaticResource PageTitle}"/>
-                        <TextBlock Text="Deine Spielzeit wird automatisch erfasst, sobald ein Spiel läuft." Style="{StaticResource SubtleText}" Margin="0,4,0,12"/>
+                        <TextBlock Text="Deine Spielzeit wird automatisch erfasst, sobald ein Spiel läuft." Style="{StaticResource SubtleText}" Margin="0,4,0,12" Effect="{StaticResource TextShadow}"/>
                         <Button Content="🎉  Mein Spielejahr" HorizontalAlignment="Left" Margin="0,0,0,18" Click="BtnYearReview_Click"/>
 
                         <UniformGrid Columns="3" Margin="0,0,0,12">
@@ -941,7 +1021,7 @@
                         <Grid Margin="0,0,0,12">
                             <StackPanel>
                                 <TextBlock Text="Angebote" Style="{StaticResource PageTitle}"/>
-                                <TextBlock Text="Gratis-Spiele bei Epic Games und aktuelle Rabatte bei Steam." Style="{StaticResource SubtleText}" Margin="0,4,0,0"/>
+                                <TextBlock Text="Gratis-Spiele bei Epic Games und aktuelle Rabatte bei Steam." Style="{StaticResource SubtleText}" Margin="0,4,0,0" Effect="{StaticResource TextShadow}"/>
                             </StackPanel>
                             <Button x:Name="BtnRefreshDeals" Content="Aktualisieren" HorizontalAlignment="Right" VerticalAlignment="Top"
                                 Background="{DynamicResource AccentBrush}" Click="BtnRefreshDeals_Click"/>
@@ -988,7 +1068,7 @@
                     <StackPanel Margin="0,0,0,18">
                         <TextBlock Text="Backlog und Planer" Style="{StaticResource PageTitle}"/>
                         <TextBlock Text="Ziehe Spiele zwischen den Spalten. Doppelklick startet ein Spiel. Mit ＋ fügst du mehrere auf einmal hinzu."
-                               Style="{StaticResource SubtleText}" Margin="0,4,0,0"/>
+                               Style="{StaticResource SubtleText}" Margin="0,4,0,0" Effect="{StaticResource TextShadow}"/>
                     </StackPanel>
 
                     <Grid Grid.Row="1">
@@ -1069,7 +1149,7 @@
                     <Grid Margin="0,0,0,12">
                         <StackPanel>
                             <TextBlock Text="Galerie" Style="{StaticResource PageTitle}"/>
-                            <TextBlock Text="Deine neuesten Screenshots aus Windows, Xbox Game Bar und Steam." Style="{StaticResource SubtleText}" Margin="0,4,0,0"/>
+                            <TextBlock Text="Deine neuesten Screenshots aus Windows, Xbox Game Bar und Steam." Style="{StaticResource SubtleText}" Margin="0,4,0,0" Effect="{StaticResource TextShadow}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
                             <Button Content="Ordner hinzufügen" Margin="0,0,10,0" Click="BtnAddShotFolder_Click"/>
@@ -1094,7 +1174,7 @@
                     <Grid Margin="0,0,0,16">
                         <StackPanel Margin="0,0,560,0">
                             <TextBlock Text="Anwendungen" Style="{StaticResource PageTitle}"/>
-                            <TextBlock x:Name="TxtAppsSubtitle" Style="{StaticResource SubtleText}" Margin="0,4,0,0"/>
+                            <TextBlock x:Name="TxtAppsSubtitle" Style="{StaticResource SubtleText}" Margin="0,4,0,0" Effect="{StaticResource TextShadow}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
                             <Grid Width="230" Margin="0,0,8,0">
@@ -1130,7 +1210,7 @@
                         <StackPanel Margin="0,0,330,0">
                             <TextBlock Text="Schnellzugriff" Style="{StaticResource PageTitle}"/>
                             <TextBlock Text="Deine eigenen Verknüpfungen zu Webseiten, Programmen und Ordnern. Rechtsklick auf eine Kachel zum Bearbeiten, Verschieben oder Entfernen."
-                                   Style="{StaticResource SubtleText}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                   Style="{StaticResource SubtleText}" TextWrapping="Wrap" Margin="0,4,0,0" Effect="{StaticResource TextShadow}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
                             <Button Content="Standard wiederherstellen" Margin="0,0,8,0" Click="BtnResetQuick_Click"/>
@@ -1152,7 +1232,7 @@
                         <StackPanel Margin="0,0,330,0">
                             <TextBlock Text="Wunschliste" Style="{StaticResource PageTitle}"/>
                             <TextBlock Text="Trage Steam-Spiele ein, die du gern hättest. Der Launcher prüft die Preise und meldet sich, sobald dein Zielpreis erreicht ist."
-                                   Style="{StaticResource SubtleText}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                   Style="{StaticResource SubtleText}" TextWrapping="Wrap" Margin="0,4,0,0" Effect="{StaticResource TextShadow}"/>
                             <TextBlock x:Name="TxtWishStatus" Style="{StaticResource SubtleText}" FontSize="12" Margin="0,6,0,0"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
@@ -1174,7 +1254,7 @@
                     </Grid.RowDefinitions>
                     <StackPanel Margin="0,0,0,20">
                         <TextBlock Text="Downloads" Style="{StaticResource PageTitle}"/>
-                        <TextBlock Text="Deine zuletzt heruntergeladenen Dateien." Style="{StaticResource SubtleText}" Margin="0,4,0,0"/>
+                        <TextBlock Text="Deine zuletzt heruntergeladenen Dateien." Style="{StaticResource SubtleText}" Margin="0,4,0,0" Effect="{StaticResource TextShadow}"/>
                     </StackPanel>
 
                     <Grid Grid.Row="1" Margin="0,8,0,12">
@@ -1213,7 +1293,7 @@
                 <ScrollViewer x:Name="ViewSystem" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="0,0,12,24">
                         <TextBlock Text="Systemüberwachung" Style="{StaticResource PageTitle}"/>
-                        <TextBlock Text="Live-Auslastung deines PCs, aktualisiert jede Sekunde." Style="{StaticResource SubtleText}" Margin="0,4,0,20"/>
+                        <TextBlock Text="Live-Auslastung deines PCs, aktualisiert jede Sekunde." Style="{StaticResource SubtleText}" Margin="0,4,0,20" Effect="{StaticResource TextShadow}"/>
 
                         <UniformGrid Columns="3">
                             <!-- CPU -->
@@ -1354,7 +1434,7 @@
                 <ScrollViewer x:Name="ViewStorage" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="0,0,12,24">
                         <TextBlock Text="Speicher" Style="{StaticResource PageTitle}"/>
-                        <TextBlock Text="Belegung deiner Laufwerke und der Platzbedarf deiner Spiele." Style="{StaticResource SubtleText}" Margin="0,4,0,20"/>
+                        <TextBlock Text="Belegung deiner Laufwerke und der Platzbedarf deiner Spiele." Style="{StaticResource SubtleText}" Margin="0,4,0,20" Effect="{StaticResource TextShadow}"/>
 
                         <ItemsControl x:Name="DrivesControl">
                             <ItemsControl.ItemTemplate>
@@ -1407,7 +1487,7 @@
                 <ScrollViewer x:Name="ViewOptimization" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="0,0,12,24">
                         <TextBlock Text="Optimierung" Style="{StaticResource PageTitle}"/>
-                        <TextBlock Text="Mehr Leistung und Platz für deine Spiele." Style="{StaticResource SubtleText}" Margin="0,4,0,20"/>
+                        <TextBlock Text="Mehr Leistung und Platz für deine Spiele." Style="{StaticResource SubtleText}" Margin="0,4,0,20" Effect="{StaticResource TextShadow}"/>
 
                         <!-- Gaming-Check -->
                         <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
@@ -1615,7 +1695,7 @@
                 <ScrollViewer x:Name="ViewTools" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="0,0,12,24">
                         <TextBlock Text="Tools" Style="{StaticResource PageTitle}"/>
-                        <TextBlock Text="Nützliche Windows-Werkzeuge für Gamer, immer griffbereit." Style="{StaticResource SubtleText}" Margin="0,4,0,20"/>
+                        <TextBlock Text="Nützliche Windows-Werkzeuge für Gamer, immer griffbereit." Style="{StaticResource SubtleText}" Margin="0,4,0,20" Effect="{StaticResource TextShadow}"/>
                         <StackPanel x:Name="ToolsContainer"/>
                     </StackPanel>
                 </ScrollViewer>
@@ -1624,7 +1704,7 @@
                 <ScrollViewer x:Name="ViewSettings" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="0,0,12,24" MaxWidth="820" HorizontalAlignment="Left">
                         <TextBlock Text="Einstellungen" Style="{StaticResource PageTitle}"/>
-                        <TextBlock Text="Passe den Launcher an dich an. Unter jeder Option steht, was sie bewirkt." Style="{StaticResource SubtleText}" Margin="0,4,0,16"/>
+                        <TextBlock Text="Passe den Launcher an dich an. Unter jeder Option steht, was sie bewirkt." Style="{StaticResource SubtleText}" Margin="0,4,0,16" Effect="{StaticResource TextShadow}"/>
                         <Grid Margin="0,0,0,14" MaxWidth="520" HorizontalAlignment="Left" Width="520">
                             <TextBox x:Name="TxtSettingsSearch" Height="40" Padding="40,0,10,0" TextChanged="TxtSettingsSearch_TextChanged"/>
                             <TextBlock Text="🔍" Margin="14,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" FontFamily="Segoe UI Emoji" IsHitTestVisible="False"/>
@@ -1640,7 +1720,9 @@
                             <RadioButton x:Name="ChipCatPerf" Content="Leistung" Tag="perf" GroupName="SetCat" Style="{StaticResource ChipStyle}" Checked="SettingsCategory_Checked"/>
                             <RadioButton x:Name="ChipCatControl" Content="Steuerung" Tag="control" GroupName="SetCat" Style="{StaticResource ChipStyle}" Checked="SettingsCategory_Checked"/>
                             <RadioButton x:Name="ChipCatStreamer" Content="Streamer" Tag="streamer" GroupName="SetCat" Style="{StaticResource ChipStyle}" Checked="SettingsCategory_Checked"/>
+                            <RadioButton x:Name="ChipCatAuto" Content="Abläufe" Tag="auto" GroupName="SetCat" Style="{StaticResource ChipStyle}" Checked="SettingsCategory_Checked"/>
                             <RadioButton x:Name="ChipCatData" Content="Daten und Info" Tag="data" GroupName="SetCat" Style="{StaticResource ChipStyle}" Checked="SettingsCategory_Checked"/>
+                            <RadioButton x:Name="ChipCatDev" Content="Entwickler" Tag="dev" GroupName="SetCat" Style="{StaticResource ChipStyle}" Visibility="Collapsed" Checked="SettingsCategory_Checked"/>
                         </WrapPanel>
                         <StackPanel x:Name="SettingsCards">
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="general">
@@ -1972,6 +2054,43 @@
                                             <Border Width="38" Height="38" CornerRadius="9" Margin="10,0,0,0" BorderBrush="#374151" BorderThickness="1" Background="{DynamicResource AccentBrush}"/>
                                         </StackPanel>
                                         <Button Content="Farben zurücksetzen" HorizontalAlignment="Left" Click="BtnResetTheme_Click"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,0,18">
+                                        <TextBlock Text="Seitenleiste und Registerkarten" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        <TextBlock Text="Färbe den Hintergrund der Seitenleiste, die Registerkarten (Dashboard, Spiele, Tools …) und den ausgewählten Reiter getrennt ein." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,12"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <Button Content="Hintergrund der Seitenleiste" Width="260" Click="BtnPickSidebarColor_Click"/>
+                                            <Border Width="38" Height="38" CornerRadius="9" Margin="10,0,0,0" BorderBrush="#374151" BorderThickness="1" Background="{DynamicResource SidebarBrush}"/>
+                                            <Button Content="Zurücksetzen" Tag="sidebar" Margin="10,0,0,0" Click="BtnResetNavColor_Click"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <Button Content="Farbe der Registerkarten" Width="260" Click="BtnPickNavTextColor_Click"/>
+                                            <Border Width="38" Height="38" CornerRadius="9" Margin="10,0,0,0" BorderBrush="#374151" BorderThickness="1" Background="{DynamicResource NavTextBrush}"/>
+                                            <Button Content="Zurücksetzen" Tag="text" Margin="10,0,0,0" Click="BtnResetNavColor_Click"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+                                            <Button Content="Farbe des ausgewählten Reiters" Width="260" Click="BtnPickNavActiveColor_Click"/>
+                                            <Border Width="38" Height="38" CornerRadius="9" Margin="10,0,0,0" BorderBrush="#374151" BorderThickness="1" Background="{DynamicResource NavActiveBrush}"/>
+                                            <Button Content="Zurücksetzen" Tag="active" Margin="10,0,0,0" Click="BtnResetNavColor_Click"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                    <StackPanel x:Name="RgbPanel" Margin="0,0,0,18" Visibility="Collapsed">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                                <TextBlock Text="🌈  RGB-Akzentfarbe" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                <TextBlock Text="Freigeschaltet durch den Konami-Code. Die Akzentfarbe wechselt dauernd durch alle Regenbogenfarben." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                            </StackPanel>
+                                            <CheckBox x:Name="ChkRgb" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                        </Grid>
+                                        <WrapPanel Margin="0,10,0,0">
+                                            <RadioButton x:Name="ChipRgbSlow" Content="Langsam" Tag="1" GroupName="RgbSpeed" Style="{StaticResource ChipStyle}" Checked="RgbSpeed_Checked"/>
+                                            <RadioButton x:Name="ChipRgbMid" Content="Mittel" Tag="2" GroupName="RgbSpeed" Style="{StaticResource ChipStyle}" Checked="RgbSpeed_Checked"/>
+                                            <RadioButton x:Name="ChipRgbFast" Content="Schnell" Tag="3" GroupName="RgbSpeed" Style="{StaticResource ChipStyle}" Checked="RgbSpeed_Checked"/>
+                                        </WrapPanel>
                                     </StackPanel>
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
@@ -3250,21 +3369,208 @@
                                     </Grid>
                                 </StackPanel>
                             </Border>
+
+                            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="general" Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock Text="Energie-Funktionen" Style="{StaticResource SectionTitle}"/>
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Herunterfahren und Neustart im Launcher anzeigen" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Fügt unter Tools den Bereich „Energie“ hinzu: Herunterfahren, Neu starten, Energie sparen, Abmelden und PC sperren." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkPowerButtons" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Vor dem Ausführen nachfragen" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Empfohlen: verhindert, dass der PC versehentlich ausgeschaltet wird." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkPowerConfirm" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="sidebar" Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock Text="Musik und Schnellstart" Style="{StaticResource SectionTitle}"/>
+                                    <Grid Margin="0,0,0,12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Musik-Player in der Seitenleiste" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Spotify, YouTube Music oder Apple Music direkt im Launcher (als Browser-Player). Du meldest dich einmal an, danach bleibst du angemeldet." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkMusic" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
+                                    <StackPanel x:Name="MusicServicePanel" Margin="0,0,0,18">
+                                        <TextBlock Text="Welche Musikdienste sollen angezeigt werden?" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        <TextBlock Text="Wähle einen, zwei oder alle drei. Mindestens ein Dienst bleibt immer aktiv." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,12"/>
+                                        <Grid Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Spotify" Foreground="#1DB954" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <CheckBox x:Name="ChkMusicSpotify" Grid.Column="1" VerticalAlignment="Center" Checked="MusicServiceChoice_Changed" Unchecked="MusicServiceChoice_Changed"/>
+                                        </Grid>
+                                        <Grid Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="YouTube Music" Foreground="#FF3355" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <CheckBox x:Name="ChkMusicYtMusic" Grid.Column="1" VerticalAlignment="Center" Checked="MusicServiceChoice_Changed" Unchecked="MusicServiceChoice_Changed"/>
+                                        </Grid>
+                                        <Grid Margin="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Apple Music" Foreground="#FA586A" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <CheckBox x:Name="ChkMusicApple" Grid.Column="1" VerticalAlignment="Center" Checked="MusicServiceChoice_Changed" Unchecked="MusicServiceChoice_Changed"/>
+                                        </Grid>
+                                    </StackPanel>
+                                    <Grid Margin="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Eigene Schnellstart-Buttons" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Kleine Buttons in der Seitenleiste, auf die du beliebige Programme legst. Rechtsklick auf einen Button zum Ändern." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkQuickButtons" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="perf" Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock Text="Laptop und Akku" Style="{StaticResource SectionTitle}"/>
+                                    <Grid Margin="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Warnung bei fehlendem Ladekabel" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Zeigt vor dem Spielstart eine Meldung, wenn dein Laptop oder Handheld am Akku läuft." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkWarnBattery" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="look" Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock Text="Geräteprofil" Style="{StaticResource SectionTitle}"/>
+                                    <TextBlock Text="Der Launcher erkennt, ob du an einem Desktop-PC, Laptop oder Handheld sitzt, und passt Seitenleiste und Kartengröße an." Style="{StaticResource SubtleText}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                    <WrapPanel Margin="0,0,0,10">
+                                        <RadioButton x:Name="ChipDevAuto" Content="Automatisch" Tag="auto" GroupName="DevProfile" Style="{StaticResource ChipStyle}" Checked="Device_Checked"/>
+                                        <RadioButton x:Name="ChipDevDesktop" Content="Desktop-PC" Tag="desktop" GroupName="DevProfile" Style="{StaticResource ChipStyle}" Checked="Device_Checked"/>
+                                        <RadioButton x:Name="ChipDevLaptop" Content="Laptop" Tag="laptop" GroupName="DevProfile" Style="{StaticResource ChipStyle}" Checked="Device_Checked"/>
+                                        <RadioButton x:Name="ChipDevHandheld" Content="Handheld" Tag="handheld" GroupName="DevProfile" Style="{StaticResource ChipStyle}" Checked="Device_Checked"/>
+                                    </WrapPanel>
+                                    <TextBlock x:Name="TxtDeviceInfo" Foreground="#34D399" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                    <Button Content="Gerät jetzt erkennen und anpassen" HorizontalAlignment="Left" Click="BtnDeviceDetect_Click"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="auto" Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock Text="Abläufe" Style="{StaticResource SectionTitle}"/>
+                                    <TextBlock Text="Abläufe starten mehrere Aktionen nacheinander, zum Beispiel: Discord öffnen, auf Bildschirm 2 maximieren und danach Spotify starten." Style="{StaticResource SubtleText}" TextWrapping="Wrap" Margin="0,0,0,14"/>
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Abläufe aktivieren" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Aus: Es läuft kein Ablauf automatisch. Von Hand ausführen geht weiter." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkAutomations" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
+                                    <StackPanel x:Name="RoutinesPanel" Margin="0,0,0,6"/>
+                                    <WrapPanel>
+                                        <Button Content="＋ Neuer Ablauf" Margin="0,0,8,8" Click="BtnRoutineNew_Click"/>
+                                        <Button Content="Beispiel einfügen" Margin="0,0,0,8" Click="BtnRoutineSample_Click"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+                            <Border x:Name="DevCard" Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="dev" Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock Text="Entwickler-Einstellungen" Style="{StaticResource SectionTitle}"/>
+                                    <TextBlock Text="Nur in Testversionen aus Visual Studio sichtbar. Hier lassen sich alle Effekte, Dialoge und Freischaltungen direkt auslösen." Style="{StaticResource SubtleText}" TextWrapping="Wrap" Margin="0,0,0,4"/>
+                                    <StackPanel x:Name="DevPanel"/>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
+                        <Button x:Name="BtnSettingsTop" Content="⬆  Nach oben" HorizontalAlignment="Center" Padding="28,10" Margin="0,6,0,28"
+                            Background="{DynamicResource AccentBrush}" Click="BtnSettingsTop_Click"/>
                     </StackPanel>
                 </ScrollViewer>
 
                 <Border x:Name="PadHintBar" Visibility="Collapsed" IsHitTestVisible="False" Panel.ZIndex="20"
                     HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,10"
                     Background="#E6161B28" BorderBrush="#2A3142" BorderThickness="1" CornerRadius="14" Padding="20,10">
-                    <TextBlock x:Name="TxtPadHint" Foreground="White" FontSize="13" FontWeight="SemiBold"/>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="TxtPadHint" Foreground="White" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <Border x:Name="PadBatteryBadge" Visibility="Collapsed" Margin="22,0,0,0" Padding="12,3" CornerRadius="9" Background="#26FFFFFF">
+                            <TextBlock x:Name="TxtPadBattery" FontSize="13" FontWeight="SemiBold" Foreground="#34D399"/>
+                        </Border>
+                    </StackPanel>
                 </Border>
 
             </Grid>
+
+            <!-- ========== MUSIK-PLAYER ========== -->
+            <Border x:Name="MusicPanel" Grid.Column="1" Panel.ZIndex="30" Visibility="Collapsed"
+                HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="14,0,0,14" Width="460" Height="620"
+                Background="#0F131D" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="14">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Border Padding="10,8" Background="#161B28" CornerRadius="13,13,0,0">
+                        <Grid>
+                            <StackPanel x:Name="MusicTabs" Orientation="Horizontal">
+                                <Button Content="Spotify" Tag="spotify" Padding="12,6" Margin="0,0,6,0" Click="MusicTab_Click"/>
+                                <Button Content="YouTube Music" Tag="ytmusic" Padding="12,6" Margin="0,0,6,0" Click="MusicTab_Click"/>
+                                <Button Content="Apple Music" Tag="apple" Padding="12,6" Click="MusicTab_Click"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="↗" ToolTip="Im Browser öffnen" Padding="10,6" Margin="0,0,6,0" Click="BtnMusicBrowser_Click"/>
+                                <Button Content="–" ToolTip="Ausblenden (die Musik läuft weiter)" Padding="12,6" Margin="0,0,6,0" Click="BtnMusicHide_Click"/>
+                                <Button Content="✕" ToolTip="Player beenden" Padding="10,6" Click="BtnMusicStop_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    <Grid x:Name="MusicHost" Grid.Row="1"/>
+                </Grid>
+            </Border>
         </Grid>
 
         <TextBlock Text="DFP PRO LAUNCHER" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,30,9"
                FontSize="10" FontWeight="SemiBold" Foreground="#40FFFFFF" IsHitTestVisible="False" Panel.ZIndex="5"/>
+
+        <!-- ========== EIGENE FENSTERLEISTE (transparent) ========== -->
+        <Grid x:Name="TitleBar" Height="34" VerticalAlignment="Top" Panel.ZIndex="45" Background="Transparent">
+            <Border HorizontalAlignment="Right" Background="#8C000000" CornerRadius="0,0,0,12" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                <StackPanel Orientation="Horizontal">
+                    <Button x:Name="BtnWinMin" Style="{StaticResource CaptionButtonStyle}" Content="&#xE921;" ToolTip="Minimieren" Click="BtnWinMin_Click"/>
+                    <Button x:Name="BtnWinMax" Style="{StaticResource CaptionButtonStyle}" Content="&#xE922;" ToolTip="Maximieren" Click="BtnWinMax_Click"/>
+                    <Button x:Name="BtnWinClose" Style="{StaticResource CaptionCloseStyle}" Content="&#xE8BB;" ToolTip="Schließen" Click="BtnWinClose_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
 
         <!-- ========== DVD-LOGO BEI LEERLAUF ========== -->
         <Canvas x:Name="DvdLayer" Visibility="Collapsed" Panel.ZIndex="40" Background="#EB000000" ClipToBounds="True">

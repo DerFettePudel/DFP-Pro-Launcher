@@ -21,6 +21,30 @@ namespace Game_launcher
 {
     // ───────────────────────────── Datenmodelle ─────────────────────────────
 
+    public class QuickButton
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Path { get; set; } = string.Empty;
+    }
+
+    public class AutomationStep
+    {
+        public string Type { get; set; } = "wait";
+        public string Target { get; set; } = string.Empty;
+        public string ProcessName { get; set; } = string.Empty;
+        public int Number { get; set; }
+        public string Mode { get; set; } = string.Empty;
+    }
+
+    public class AutomationRoutine
+    {
+        public string Name { get; set; } = string.Empty;
+        public bool Enabled { get; set; } = true;
+        public string Trigger { get; set; } = "manual";
+        public string GameFilter { get; set; } = string.Empty;
+        public List<AutomationStep> Steps { get; set; } = new();
+    }
+
     public class GameItem
     {
         public string Name { get; set; } = string.Empty;
@@ -258,10 +282,28 @@ namespace Game_launcher
         public string SkippedUpdate { get; set; } = string.Empty;
         public List<string> AppFavorites { get; set; } = new();
         public bool EasterEggs { get; set; } = true;
+        public string SidebarColor { get; set; } = string.Empty;
+        public string NavTextColor { get; set; } = string.Empty;
+        public string NavActiveColor { get; set; } = string.Empty;
+        public bool RgbUnlocked { get; set; }
+        public bool RgbAccent { get; set; }
+        public int RgbSpeed { get; set; } = 2;
         public string FirstRunDate { get; set; } = string.Empty;
         public List<string> EggSeen { get; set; } = new();
         public bool MilestonesInit { get; set; }
         public List<int> MilestonesReached { get; set; } = new();
+        public bool MusicPlayer { get; set; } = true;
+        public string MusicService { get; set; } = "spotify";
+        public List<string> MusicServicesOn { get; set; } = new();
+        public bool QuickButtonsEnabled { get; set; }
+        public List<QuickButton> QuickButtons { get; set; } = new();
+        public bool WarnBattery { get; set; } = true;
+        public string DeviceProfile { get; set; } = "auto";
+        public bool DeviceAutoApplied { get; set; }
+        public bool PowerButtons { get; set; }
+        public bool PowerConfirm { get; set; } = true;
+        public bool AutomationsEnabled { get; set; } = true;
+        public List<AutomationRoutine> Routines { get; set; } = new();
         public bool SetupDone { get; set; }
         public string CloudBackupFolder { get; set; } = string.Empty;
 
@@ -437,6 +479,16 @@ namespace Game_launcher
 
         [Interop.DllImport("xinput1_4.dll")]
         internal static extern uint XInputGetState(uint index, out XInputState state);
+
+        [Interop.StructLayout(Interop.LayoutKind.Sequential)]
+        internal struct XInputBatteryInformation
+        {
+            public byte BatteryType;
+            public byte BatteryLevel;
+        }
+
+        [Interop.DllImport("xinput1_4.dll")]
+        internal static extern uint XInputGetBatteryInformation(uint index, byte devType, out XInputBatteryInformation info);
 
         [Interop.DllImport("kernel32.dll", SetLastError = true)]
         internal static extern IntPtr OpenProcess(uint access, bool inherit, int pid);
@@ -2066,6 +2118,159 @@ Einen besonderen Tag im Launcher gefeiert. || Celebrated a special day in the la
 
 Testversion || Test version || 测试版 || Versión de prueba || Version de test || Versão de teste || Тестовая версия || テスト版
 
+Abläufe || Routines || 自动化流程 || Rutinas || Routines || Rotinas || Сценарии || ルーティン
+Abläufe aktivieren || Enable routines || 启用自动化流程 || Activar rutinas || Activer les routines || Ativar rotinas || Включить сценарии || ルーティンを有効にする
+Abläufe starten mehrere Aktionen nacheinander, zum Beispiel: Discord öffnen, auf Bildschirm 2 maximieren und danach Spotify starten. || Routines run several actions one after another, for example: open Discord, maximize it on screen 2, then start Spotify. || 自动化流程会依次执行多个操作,例如:打开 Discord,在屏幕 2 上最大化,然后启动 Spotify。 || Las rutinas ejecutan varias acciones seguidas, por ejemplo: abrir Discord, maximizarlo en la pantalla 2 y después iniciar Spotify. || Les routines enchaînent plusieurs actions, par exemple : ouvrir Discord, le maximiser sur l'écran 2, puis lancer Spotify. || As rotinas executam várias ações em sequência, por exemplo: abrir o Discord, maximizá-lo na tela 2 e depois iniciar o Spotify. || Сценарии выполняют несколько действий подряд, например: открыть Discord, развернуть его на экране 2, затем запустить Spotify. || ルーティンは複数の操作を順番に実行します。例:Discordを開き、画面2で最大化し、そのあとSpotifyを起動。
+Aus: Es läuft kein Ablauf automatisch. Von Hand ausführen geht weiter. || Off: no routine runs automatically. Running them by hand still works. || 关闭后不会自动运行任何流程,仍可手动运行。 || Desactivado: ninguna rutina se ejecuta sola. Ejecutarlas a mano sigue funcionando. || Désactivé : aucune routine ne se lance seule. L'exécution manuelle reste possible. || Desligado: nenhuma rotina roda sozinha. Executar manualmente continua funcionando. || Выключено: сценарии не запускаются сами. Ручной запуск работает. || オフ:自動では実行されません。手動での実行は引き続き可能です。
+Ausblenden (die Musik läuft weiter) || Hide (the music keeps playing) || 隐藏(音乐继续播放) || Ocultar (la música sigue sonando) || Masquer (la musique continue) || Ocultar (a música continua tocando) || Скрыть (музыка продолжит играть) || 非表示(音楽は再生され続けます)
+Beispiel einfügen || Insert example || 插入示例 || Insertar ejemplo || Insérer un exemple || Inserir exemplo || Вставить пример || 例を追加
+Der Launcher erkennt, ob du an einem Desktop-PC, Laptop oder Handheld sitzt, und passt Seitenleiste und Kartengröße an. || The launcher detects whether you are on a desktop PC, laptop or handheld and adjusts the sidebar and card size. || 启动器会识别你使用的是台式机、笔记本还是掌机,并调整侧边栏和卡片大小。 || El launcher detecta si usas un PC de sobremesa, un portátil o una consola portátil y ajusta la barra lateral y el tamaño de las tarjetas. || Le launcher détecte si tu es sur un PC de bureau, un portable ou une console portable et adapte la barre latérale et la taille des cartes. || O launcher detecta se você está em um PC de mesa, notebook ou portátil de jogos e ajusta a barra lateral e o tamanho dos cartões. || Лаунчер определяет, настольный это ПК, ноутбук или портативная консоль, и подстраивает боковую панель и размер карточек. || デスクトップPC・ノートPC・携帯ゲーム機を判別し、サイドバーとカードの大きさを調整します。
+Desktop-PC || Desktop PC || 台式机 || PC de sobremesa || PC de bureau || PC de mesa || Настольный ПК || デスクトップPC
+Eigene Schnellstart-Buttons || Custom quick-launch buttons || 自定义快速启动按钮 || Botones de inicio rápido propios || Boutons de lancement rapide personnalisés || Botões de início rápido próprios || Свои кнопки быстрого запуска || カスタムのクイック起動ボタン
+Empfohlen: verhindert, dass der PC versehentlich ausgeschaltet wird. || Recommended: prevents the PC from being switched off by accident. || 推荐开启:防止误关电脑。 || Recomendado: evita apagar el PC por accidente. || Recommandé : évite d'éteindre le PC par erreur. || Recomendado: evita desligar o PC por engano. || Рекомендуется: защищает от случайного выключения ПК. || おすすめ:誤ってPCの電源を切るのを防ぎます。
+Energie-Funktionen || Power functions || 电源功能 || Funciones de energía || Fonctions d'alimentation || Funções de energia || Функции питания || 電源機能
+Fügt unter Tools den Bereich „Energie“ hinzu: Herunterfahren, Neu starten, Energie sparen, Abmelden und PC sperren. || Adds an "Energy" section under Tools: shut down, restart, sleep, sign out and lock PC. || 在“工具”中添加“电源”区域:关机、重启、睡眠、注销和锁定电脑。 || Añade en Herramientas la sección «Energía»: apagar, reiniciar, suspender, cerrar sesión y bloquear el PC. || Ajoute dans Outils la section « Énergie » : arrêter, redémarrer, mettre en veille, se déconnecter et verrouiller le PC. || Adiciona em Ferramentas a seção "Energia": desligar, reiniciar, suspender, sair e bloquear o PC. || «Инструменты» получат раздел «Питание»: выключение, перезагрузка, спящий режим, выход и блокировка ПК. || ツールに「電源」セクションを追加します:シャットダウン、再起動、スリープ、サインアウト、PCのロック。
+Gerät jetzt erkennen und anpassen || Detect and adapt to this device now || 立即识别设备并调整 || Detectar y adaptar este dispositivo ahora || Détecter et adapter à cet appareil maintenant || Detectar e adaptar a este dispositivo agora || Определить устройство и настроить сейчас || 今すぐデバイスを判別して調整
+Geräteprofil || Device profile || 设备配置 || Perfil de dispositivo || Profil d'appareil || Perfil do dispositivo || Профиль устройства || デバイスプロファイル
+Handheld || Handheld || 掌机 || Consola portátil || Console portable || Portátil de jogos || Портативная консоль || 携帯ゲーム機
+Herunterfahren und Neustart im Launcher anzeigen || Show shut down and restart in the launcher || 在启动器中显示关机和重启 || Mostrar apagar y reiniciar en el launcher || Afficher arrêt et redémarrage dans le launcher || Mostrar desligar e reiniciar no launcher || Показывать выключение и перезагрузку в лаунчере || ランチャーにシャットダウンと再起動を表示
+Im Browser öffnen || Open in browser || 在浏览器中打开 || Abrir en el navegador || Ouvrir dans le navigateur || Abrir no navegador || Открыть в браузере || ブラウザーで開く
+Kleine Buttons in der Seitenleiste, auf die du beliebige Programme legst. Rechtsklick auf einen Button zum Ändern. || Small buttons in the sidebar to which you assign any programs. Right-click a button to change it. || 侧边栏中的小按钮,可绑定任意程序。右键点击按钮可修改。 || Pequeños botones en la barra lateral a los que asignas cualquier programa. Clic derecho en un botón para cambiarlo. || De petits boutons dans la barre latérale auxquels tu associes n'importe quel programme. Clic droit sur un bouton pour le modifier. || Pequenos botões na barra lateral aos quais você atribui qualquer programa. Clique com o botão direito em um botão para alterá-lo. || Небольшие кнопки в боковой панели, к которым можно привязать любые программы. Правый щелчок по кнопке — изменить. || サイドバーの小さなボタンに好きなプログラムを割り当てられます。ボタンを右クリックで変更。
+Laptop || Laptop || 笔记本 || Portátil || Portable || Notebook || Ноутбук || ノートPC
+Laptop und Akku || Laptop and battery || 笔记本与电池 || Portátil y batería || Portable et batterie || Notebook e bateria || Ноутбук и аккумулятор || ノートPCとバッテリー
+Musik und Schnellstart || Music and quick launch || 音乐与快速启动 || Música e inicio rápido || Musique et lancement rapide || Música e início rápido || Музыка и быстрый запуск || 音楽とクイック起動
+Musik-Player in der Seitenleiste || Music player in the sidebar || 侧边栏音乐播放器 || Reproductor de música en la barra lateral || Lecteur de musique dans la barre latérale || Player de música na barra lateral || Музыкальный плеер в боковой панели || サイドバーの音楽プレーヤー
+Player beenden || Close player || 关闭播放器 || Cerrar reproductor || Fermer le lecteur || Fechar player || Закрыть плеер || プレーヤーを閉じる
+Spotify, YouTube Music oder Apple Music direkt im Launcher (als Browser-Player). Du meldest dich einmal an, danach bleibst du angemeldet. || Spotify, YouTube Music or Apple Music right in the launcher (as a web player). You sign in once and stay signed in. || 直接在启动器中使用 Spotify、YouTube Music 或 Apple Music(网页播放器)。只需登录一次即可保持登录。 || Spotify, YouTube Music o Apple Music directamente en el launcher (como reproductor web). Inicias sesión una vez y permaneces conectado. || Spotify, YouTube Music ou Apple Music directement dans le launcher (lecteur web). Tu te connectes une fois et restes connecté. || Spotify, YouTube Music ou Apple Music direto no launcher (como player web). Você entra uma vez e continua conectado. || Spotify, YouTube Music или Apple Music прямо в лаунчере (веб-плеер). Достаточно войти один раз. || Spotify、YouTube Music、Apple Musicをランチャー内で利用できます(ウェブプレーヤー)。一度サインインすればそのままです。
+Vor dem Ausführen nachfragen || Ask before running || 执行前确认 || Preguntar antes de ejecutar || Demander avant d'exécuter || Perguntar antes de executar || Спрашивать перед выполнением || 実行前に確認する
+Warnung bei fehlendem Ladekabel || Warning when the charger is unplugged || 未连接充电线时提醒 || Aviso si falta el cargador || Avertissement si le chargeur est débranché || Aviso quando o carregador está desconectado || Предупреждение, если не подключена зарядка || 充電ケーブル未接続の警告
+Zeigt vor dem Spielstart eine Meldung, wenn dein Laptop oder Handheld am Akku läuft. || Shows a message before starting a game if your laptop or handheld is running on battery. || 如果笔记本或掌机使用电池供电,则在启动游戏前显示提示。 || Muestra un aviso antes de iniciar un juego si tu portátil o consola portátil funciona con batería. || Affiche un message avant de lancer un jeu si ton portable ou ta console portable fonctionne sur batterie. || Mostra um aviso antes de iniciar um jogo se o notebook ou portátil estiver na bateria. || Показывает сообщение перед запуском игры, если ноутбук или консоль работают от батареи. || ノートPCや携帯ゲーム機がバッテリー駆動のとき、ゲームの起動前にメッセージを表示します。
+＋ Neuer Ablauf || ＋ New routine || ＋ 新建流程 || ＋ Nueva rutina || ＋ Nouvelle routine || ＋ Nova rotina || ＋ Новый сценарий || ＋ 新しいルーティン
+Ablauf bearbeiten || Edit routine || 编辑流程 || Editar rutina || Modifier la routine || Editar rotina || Изменить сценарий || ルーティンを編集
+Ablauf gestartet || Routine started || 流程已启动 || Rutina iniciada || Routine lancée || Rotina iniciada || Сценарий запущен || ルーティンを開始しました
+Abmelden || Sign out || 注销 || Cerrar sesión || Se déconnecter || Sair || Выйти || サインアウト
+Adresse der Webseite || Web address || 网页地址 || Dirección web || Adresse du site web || Endereço do site || Адрес сайта || ウェブサイトのアドレス
+Akku vorhanden || battery present || 有电池 || con batería || batterie présente || com bateria || есть аккумулятор || バッテリーあり
+Aus meinen Anwendungen wählen || Choose from my applications || 从我的应用中选择 || Elegir de mis aplicaciones || Choisir parmi mes applications || Escolher entre meus aplicativos || Выбрать из моих приложений || マイアプリから選ぶ
+Bearbeiten || Edit || 编辑 || Editar || Modifier || Editar || Изменить || 編集
+Beispiel hinzugefügt || Example added || 已添加示例 || Ejemplo añadido || Exemple ajouté || Exemplo adicionado || Пример добавлен || 例を追加しました
+Passe die Schritte mit dem Stift an deine Programme an. || Adjust the steps to your programs with the pencil. || 用铅笔图标把步骤调整为你的程序。 || Adapta los pasos a tus programas con el lápiz. || Adapte les étapes à tes programmes avec le crayon. || Ajuste os passos aos seus programas com o lápis. || Подстройте шаги под свои программы с помощью карандаша. || 鉛筆アイコンで、手順を自分のプログラムに合わせてください。
+Beispiel: Gaming-Abend || Example: gaming night || 示例:游戏之夜 || Ejemplo: noche de juegos || Exemple : soirée gaming || Exemplo: noite de jogos || Пример: игровой вечер || 例:ゲームの夜
+Bildschirm 1 (Hauptbildschirm) || Screen 1 (main screen) || 屏幕 1(主屏幕) || Pantalla 1 (principal) || Écran 1 (principal) || Tela 1 (principal) || Экран 1 (основной) || 画面1(メイン画面)
+Bildschirm {#0} || Screen {0} || 屏幕 {0} || Pantalla {0} || Écran {0} || Tela {0} || Экран {0} || 画面{0}
+Bitte gib dem Ablauf einen Namen. || Please give the routine a name. || 请为流程命名。 || Dale un nombre a la rutina. || Donne un nom à la routine. || Dê um nome à rotina. || Дайте сценарию имя. || ルーティンに名前を付けてください。
+Das Ladekabel ist nicht angeschlossen (Akku: {#0} %). Am Akku laufen Spiele langsamer und der Akku ist schnell leer. Trotzdem starten? || The charger is not connected (battery: {0} %). Games run slower on battery and drain it quickly. Start anyway? || 未连接充电线(电量:{0} %)。使用电池时游戏运行较慢且耗电很快。仍要启动吗? || El cargador no está conectado (batería: {0} %). Con batería los juegos van más lentos y la gastan rápido. ¿Iniciar de todos modos? || Le chargeur n'est pas branché (batterie : {0} %). Sur batterie, les jeux sont plus lents et la vident vite. Lancer quand même ? || O carregador não está conectado (bateria: {0} %). Na bateria os jogos ficam mais lentos e a descarregam rápido. Iniciar mesmo assim? || Зарядка не подключена (аккумулятор: {0} %). От батареи игры работают медленнее и быстро её разряжают. Всё равно запустить? || 充電ケーブルが接続されていません(バッテリー:{0} %)。バッテリー駆動ではゲームが遅くなり、消耗も早くなります。それでも起動しますか?
+Das Programm konnte nicht gestartet werden:\n{0} || The program could not be started:\n{0} || 无法启动该程序:\n{0} || No se pudo iniciar el programa:\n{0} || Le programme n'a pas pu être lancé :\n{0} || Não foi possível iniciar o programa:\n{0} || Не удалось запустить программу:\n{0} || プログラムを起動できませんでした:\n{0}
+Das hat nicht geklappt:\n{0} || That did not work:\n{0} || 操作失败:\n{0} || Eso no ha funcionado:\n{0} || Cela n'a pas fonctionné :\n{0} || Isso não funcionou:\n{0} || Не получилось:\n{0} || うまくいきませんでした:\n{0}
+Datei auswählen ... || Choose file ... || 选择文件 ... || Elegir archivo ... || Choisir un fichier ... || Escolher arquivo ... || Выбрать файл ... || ファイルを選ぶ ...
+Der Musik-Player braucht die Microsoft Edge WebView2 Runtime. Sie ist bei Windows 11 meist schon da, bei Windows 10 manchmal nicht. Jetzt die Download-Seite öffnen? || The music player needs the Microsoft Edge WebView2 Runtime. It is usually already present on Windows 11, sometimes missing on Windows 10. Open the download page now? || 音乐播放器需要 Microsoft Edge WebView2 运行时。Windows 11 通常已包含,Windows 10 有时没有。现在打开下载页面吗? || El reproductor de música necesita el Runtime de Microsoft Edge WebView2. En Windows 11 suele estar ya instalado, en Windows 10 a veces no. ¿Abrir ahora la página de descarga? || Le lecteur de musique nécessite le runtime Microsoft Edge WebView2. Il est généralement déjà présent sous Windows 11, parfois absent sous Windows 10. Ouvrir la page de téléchargement maintenant ? || O player de música precisa do Runtime do Microsoft Edge WebView2. No Windows 11 ele costuma já estar instalado, no Windows 10 às vezes não. Abrir a página de download agora? || Музыкальному плееру нужен Microsoft Edge WebView2 Runtime. В Windows 11 он обычно уже есть, в Windows 10 иногда нет. Открыть страницу загрузки? || ミュージックプレーヤーにはMicrosoft Edge WebView2 Runtimeが必要です。Windows 11には通常入っていますが、Windows 10では無い場合があります。ダウンロードページを開きますか?
+Der Musik-Player konnte nicht gestartet werden:\n{0} || The music player could not be started:\n{0} || 无法启动音乐播放器:\n{0} || No se pudo iniciar el reproductor de música:\n{0} || Le lecteur de musique n'a pas pu être lancé :\n{0} || Não foi possível iniciar o player de música:\n{0} || Не удалось запустить музыкальный плеер:\n{0} || ミュージックプレーヤーを起動できませんでした:\n{0}
+Energie || Power || 电源 || Energía || Énergie || Energia || Питание || 電源
+Energie sparen || Sleep || 睡眠 || Suspender || Mettre en veille || Suspender || Спящий режим || スリープ
+Energieplan || Power plan || 电源计划 || Plan de energía || Mode d'alimentation || Plano de energia || Схема питания || 電源プラン
+Energieplan setzen || Set power plan || 设置电源计划 || Establecer plan de energía || Définir le mode d'alimentation || Definir plano de energia || Задать схему питания || 電源プランを設定
+Erkannt: {0} || Detected: {0} || 已识别:{0} || Detectado: {0} || Détecté : {0} || Detectado: {0} || Определено: {0} || 判別結果:{0}
+Es läuft noch ein Spiel. || A game is still running. || 仍有游戏在运行。 || Todavía hay un juego en ejecución. || Un jeu est encore en cours. || Ainda há um jogo em execução. || Игра всё ещё запущена. || ゲームがまだ実行中です。
+Es wurden noch keine Anwendungen gefunden. Wähle stattdessen eine Datei aus. || No applications have been found yet. Choose a file instead. || 尚未找到任何应用。请改为选择一个文件。 || Aún no se han encontrado aplicaciones. Elige un archivo en su lugar. || Aucune application trouvée pour l'instant. Choisis plutôt un fichier. || Nenhum aplicativo foi encontrado ainda. Escolha um arquivo. || Приложения пока не найдены. Выберите файл. || アプリがまだ見つかっていません。代わりにファイルを選んでください。
+Fenster platzieren || Place window || 放置窗口 || Colocar ventana || Placer la fenêtre || Posicionar janela || Расположить окно || ウィンドウを配置
+Für dein Gerät angepasst || Adapted to your device || 已根据你的设备调整 || Adaptado a tu dispositivo || Adapté à ton appareil || Adaptado ao seu dispositivo || Настроено под ваше устройство || お使いのデバイス向けに調整しました
+Jetzt ausführen || Run now || 立即运行 || Ejecutar ahora || Exécuter maintenant || Executar agora || Запустить сейчас || 今すぐ実行
+Ladekabel fehlt || Charger missing || 未连接充电线 || Falta el cargador || Chargeur manquant || Carregador ausente || Нет зарядки || 充電ケーブル未接続
+Löschen || Delete || 删除 || Eliminar || Supprimer || Excluir || Удалить || 削除
+Maximiert || Maximized || 最大化 || Maximizada || Agrandie || Maximizada || Развёрнуто || 最大化
+Maximiert (füllt den Bildschirm) || Maximized (fills the screen) || 最大化(占满屏幕) || Maximizada (llena la pantalla) || Agrandie (remplit l'écran) || Maximizada (preenche a tela) || Развернуть (на весь экран) || 最大化(画面いっぱい)
+Meldung zeigen || Show message || 显示提示 || Mostrar aviso || Afficher un message || Mostrar aviso || Показать сообщение || メッセージを表示
+Minimiert || Minimized || 最小化 || Minimizada || Réduite || Minimizada || Свёрнуто || 最小化
+Musik || Music || 音乐 || Música || Musique || Música || Музыка || 音楽
+Musik-Player || Music player || 音乐播放器 || Reproductor de música || Lecteur de musique || Player de música || Музыкальный плеер || ミュージックプレーヤー
+Nach oben || Move up || 上移 || Subir || Monter || Subir || Выше || 上へ
+Nach unten || Move down || 下移 || Bajar || Descendre || Descer || Ниже || 下へ
+Name des Ablaufs || Name of the routine || 流程名称 || Nombre de la rutina || Nom de la routine || Nome da rotina || Название сценария || ルーティンの名前
+Name des Buttons || Name of the button || 按钮名称 || Nombre del botón || Nom du bouton || Nome do botão || Название кнопки || ボタンの名前
+Name des Programms (Prozessname, zum Beispiel Discord) || Name of the program (process name, for example Discord) || 程序名称(进程名,例如 Discord) || Nombre del programa (nombre del proceso, por ejemplo Discord) || Nom du programme (nom du processus, par exemple Discord) || Nome do programa (nome do processo, por exemplo Discord) || Название программы (имя процесса, например Discord) || プログラム名(プロセス名、例:Discord)
+Neuer Ablauf || New routine || 新建流程 || Nueva rutina || Nouvelle routine || Nova rotina || Новый сценарий || 新しいルーティン
+Noch keine Abläufe. Lege einen neuen an oder füge das Beispiel ein. || No routines yet. Create a new one or insert the example. || 还没有流程。新建一个或插入示例。 || Aún no hay rutinas. Crea una nueva o inserta el ejemplo. || Aucune routine pour l'instant. Crée-en une ou insère l'exemple. || Ainda não há rotinas. Crie uma nova ou insira o exemplo. || Сценариев пока нет. Создайте новый или вставьте пример. || ルーティンはまだありません。新規作成するか、例を追加してください。
+Noch keine Schritte. Füge unten den ersten hinzu. || No steps yet. Add the first one below. || 还没有步骤。请在下方添加第一个。 || Aún no hay pasos. Añade el primero abajo. || Aucune étape pour l'instant. Ajoute la première ci-dessous. || Ainda não há passos. Adicione o primeiro abaixo. || Шагов пока нет. Добавьте первый ниже. || 手順はまだありません。下から最初の手順を追加してください。
+Nur auf den Bildschirm verschieben || Only move to the screen || 仅移动到该屏幕 || Solo mover a la pantalla || Seulement déplacer vers l'écran || Apenas mover para a tela || Только переместить на экран || 画面に移動するだけ
+Nur für dieses Spiel (leer = für alle Spiele) || Only for this game (empty = all games) || 仅限此游戏(留空 = 所有游戏) || Solo para este juego (vacío = todos los juegos) || Seulement pour ce jeu (vide = tous les jeux) || Apenas para este jogo (vazio = todos os jogos) || Только для этой игры (пусто = для всех игр) || このゲームのみ(空欄=すべてのゲーム)
+Nur von Hand || Manual only || 仅手动 || Solo a mano || Manuel uniquement || Somente manual || Только вручную || 手動のみ
+Nächstes Lied || Next song || 下一首 || Siguiente canción || Chanson suivante || Próxima música || Следующий трек || 次の曲
+Vorheriges Lied || Previous song || 上一首 || Canción anterior || Chanson précédente || Música anterior || Предыдущий трек || 前の曲
+Wiedergabe oder Pause || Play or pause || 播放或暂停 || Reproducir o pausar || Lecture ou pause || Reproduzir ou pausar || Воспроизведение или пауза || 再生または一時停止
+Player anzeigen || Show player || 显示播放器 || Mostrar reproductor || Afficher le lecteur || Mostrar player || Показать плеер || プレーヤーを表示
+PC herunterfahren || Shut down PC || 关闭电脑 || Apagar el PC || Arrêter le PC || Desligar o PC || Выключить ПК || PCをシャットダウン
+PC neu starten || Restart PC || 重启电脑 || Reiniciar el PC || Redémarrer le PC || Reiniciar o PC || Перезагрузить ПК || PCを再起動
+PC sperren || Lock PC || 锁定电脑 || Bloquear el PC || Verrouiller le PC || Bloquear o PC || Заблокировать ПК || PCをロック
+Programm beenden || Close program || 关闭程序 || Cerrar programa || Fermer le programme || Fechar programa || Закрыть программу || プログラムを終了
+Programm hinzufügen || Add program || 添加程序 || Añadir programa || Ajouter un programme || Adicionar programa || Добавить программу || プログラムを追加
+Programm nicht gefunden || Program not found || 未找到程序 || Programa no encontrado || Programme introuvable || Programa não encontrado || Программа не найдена || プログラムが見つかりません
+Programm starten || Start program || 启动程序 || Iniciar programa || Lancer un programme || Iniciar programa || Запустить программу || プログラムを起動
+Programm wählen || Choose program || 选择程序 || Elegir programa || Choisir un programme || Escolher programa || Выбрать программу || プログラムを選ぶ
+Schnellstart || Quick launch || 快速启动 || Inicio rápido || Lancement rapide || Início rápido || Быстрый запуск || クイック起動
+Schnellstart-Button || Quick-launch button || 快速启动按钮 || Botón de inicio rápido || Bouton de lancement rapide || Botão de início rápido || Кнопка быстрого запуска || クイック起動ボタン
+Schritte (werden der Reihe nach ausgeführt) || Steps (run one after another) || 步骤(按顺序执行) || Pasos (se ejecutan en orden) || Étapes (exécutées dans l'ordre) || Passos (executados em ordem) || Шаги (выполняются по порядку) || 手順(順番に実行されます)
+Soll der Benutzer jetzt abgemeldet werden? Nicht gespeicherte Arbeit geht verloren. || Sign out now? Unsaved work will be lost. || 现在注销吗?未保存的内容将丢失。 || ¿Cerrar la sesión ahora? Se perderá el trabajo sin guardar. || Se déconnecter maintenant ? Le travail non enregistré sera perdu. || Sair agora? O trabalho não salvo será perdido. || Выйти из системы сейчас? Несохранённая работа будет потеряна. || 今すぐサインアウトしますか?保存していない作業は失われます。
+Soll der PC jetzt heruntergefahren werden? Nicht gespeicherte Arbeit in anderen Programmen geht verloren. || Shut down the PC now? Unsaved work in other programs will be lost. || 现在关闭电脑吗?其他程序中未保存的内容将丢失。 || ¿Apagar el PC ahora? Se perderá el trabajo sin guardar en otros programas. || Arrêter le PC maintenant ? Le travail non enregistré dans les autres programmes sera perdu. || Desligar o PC agora? O trabalho não salvo em outros programas será perdido. || Выключить ПК сейчас? Несохранённая работа в других программах будет потеряна. || 今すぐPCをシャットダウンしますか?他のプログラムの未保存の作業は失われます。
+Soll der PC jetzt in den Energiesparmodus wechseln? || Put the PC to sleep now? || 现在让电脑进入睡眠吗? || ¿Poner el PC en suspensión ahora? || Mettre le PC en veille maintenant ? || Colocar o PC em suspensão agora? || Перевести ПК в спящий режим сейчас? || 今すぐPCをスリープにしますか?
+Soll der PC jetzt neu gestartet werden? Nicht gespeicherte Arbeit in anderen Programmen geht verloren. || Restart the PC now? Unsaved work in other programs will be lost. || 现在重启电脑吗?其他程序中未保存的内容将丢失。 || ¿Reiniciar el PC ahora? Se perderá el trabajo sin guardar en otros programas. || Redémarrer le PC maintenant ? Le travail non enregistré dans les autres programmes sera perdu. || Reiniciar o PC agora? O trabalho não salvo em outros programas será perdido. || Перезагрузить ПК сейчас? Несохранённая работа в других программах будет потеряна. || 今すぐPCを再起動しますか?他のプログラムの未保存の作業は失われます。
+Spiel starten || Start game || 启动游戏 || Iniciar juego || Lancer un jeu || Iniciar jogo || Запустить игру || ゲームを起動
+Streamer-Modus ausschalten || Turn Streamer mode off || 关闭主播模式 || Desactivar modo streamer || Désactiver le mode streamer || Desativar modo streamer || Выключить режим стримера || 配信者モードをオフにする
+Text der Meldung || Text of the message || 提示文字 || Texto del aviso || Texte du message || Texto do aviso || Текст сообщения || メッセージの内容
+Verschoben || Moved || 已移动 || Movida || Déplacée || Movida || Перемещено || 移動
+Viel Spaß! || Have fun! || 玩得开心! || ¡Diviértete! || Amuse-toi bien ! || Divirta-se! || Приятной игры! || 楽しんで!
+Wann soll der Ablauf starten? || When should the routine start? || 流程何时开始? || ¿Cuándo debe empezar la rutina? || Quand la routine doit-elle démarrer ? || Quando a rotina deve começar? || Когда запускать сценарий? || ルーティンをいつ開始しますか?
+Warten || Wait || 等待 || Esperar || Attendre || Aguardar || Ждать || 待機
+Warten: {#0} Sekunden || Wait: {0} seconds || 等待:{0} 秒 || Esperar: {0} segundos || Attendre : {0} secondes || Aguardar: {0} segundos || Ждать: {0} с || 待機:{0}秒
+Webseite öffnen || Open website || 打开网页 || Abrir sitio web || Ouvrir un site web || Abrir site || Открыть сайт || ウェブサイトを開く
+Welcher Bildschirm? || Which screen? || 哪个屏幕? || ¿Qué pantalla? || Quel écran ? || Qual tela? || Какой экран? || どの画面?
+Wenn der Launcher startet || When the launcher starts || 启动器启动时 || Cuando se inicia el launcher || Au démarrage du launcher || Quando o launcher iniciar || При запуске лаунчера || ランチャーの起動時
+Wenn ein Spiel beendet wird || When a game ends || 游戏结束时 || Cuando termina un juego || Quand un jeu se termine || Quando um jogo terminar || При завершении игры || ゲームが終了したとき
+Wenn ein Spiel startet || When a game starts || 游戏启动时 || Cuando se inicia un juego || Au lancement d'un jeu || Quando um jogo iniciar || При запуске игры || ゲームが起動したとき
+Wie soll das Fenster aussehen? || How should the window look? || 窗口应如何显示? || ¿Cómo debe verse la ventana? || Quel aspect pour la fenêtre ? || Como a janela deve ficar? || Как должно выглядеть окно? || ウィンドウの表示方法は?
+Wie viele Sekunden soll gewartet werden? || How many seconds should it wait? || 需要等待多少秒? || ¿Cuántos segundos hay que esperar? || Combien de secondes attendre ? || Quantos segundos aguardar? || Сколько секунд ждать? || 何秒待ちますか?
+Woher soll das Programm kommen? || Where should the program come from? || 程序从哪里来? || ¿De dónde debe venir el programa? || D'où doit venir le programme ? || De onde o programa deve vir? || Откуда взять программу? || プログラムの取得元は?
+Zoll || inch || 英寸 || pulgadas || pouces || polegadas || дюйм. || インチ
+kein Akku || no battery || 无电池 || sin batería || pas de batterie || sem bateria || нет аккумулятора || バッテリーなし
+⏱  Warten || ⏱  Wait || ⏱  等待 || ⏱  Esperar || ⏱  Attendre || ⏱  Aguardar || ⏱  Ждать || ⏱  待機
+▶  Programm starten || ▶  Start program || ▶  启动程序 || ▶  Iniciar programa || ▶  Lancer un programme || ▶  Iniciar programa || ▶  Запустить программу || ▶  プログラムを起動
+⚡  Energieplan setzen || ⚡  Set power plan || ⚡  设置电源计划 || ⚡  Establecer plan de energía || ⚡  Définir le mode d'alimentation || ⚡  Definir plano de energia || ⚡  Задать схему питания || ⚡  電源プランを設定
+⛔  Programm beenden || ⛔  Close program || ⛔  关闭程序 || ⛔  Cerrar programa || ⛔  Fermer le programme || ⛔  Fechar programa || ⛔  Закрыть программу || ⛔  プログラムを終了
+✏  Umbenennen || ✏  Rename || ✏  重命名 || ✏  Cambiar nombre || ✏  Renommer || ✏  Renomear || ✏  Переименовать || ✏  名前を変更
+＋ Schritt hinzufügen || ＋ Add step || ＋ 添加步骤 || ＋ Añadir paso || ＋ Ajouter une étape || ＋ Adicionar passo || ＋ Добавить шаг || ＋ 手順を追加
+🌐  Webseite öffnen || 🌐  Open website || 🌐  打开网页 || 🌐  Abrir sitio web || 🌐  Ouvrir un site web || 🌐  Abrir site || 🌐  Открыть сайт || 🌐  ウェブサイトを開く
+🎮  Spiel starten || 🎮  Start game || 🎮  启动游戏 || 🎮  Iniciar juego || 🎮  Lancer un jeu || 🎮  Iniciar jogo || 🎮  Запустить игру || 🎮  ゲームを起動
+💬  Meldung zeigen || 💬  Show message || 💬  显示提示 || 💬  Mostrar aviso || 💬  Afficher un message || 💬  Mostrar aviso || 💬  Показать сообщение || 💬  メッセージを表示
+🔁  Anderes Programm wählen || 🔁  Choose another program || 🔁  选择其他程序 || 🔁  Elegir otro programa || 🔁  Choisir un autre programme || 🔁  Escolher outro programa || 🔁  Выбрать другую программу || 🔁  別のプログラムを選ぶ
+🪟  Fenster platzieren || 🪟  Place window || 🪟  放置窗口 || 🪟  Colocar ventana || 🪟  Placer la fenêtre || 🪟  Posicionar janela || 🪟  Расположить окно || 🪟  ウィンドウを配置
+
+Welche Musikdienste sollen angezeigt werden? || Which music services should be shown? || 要显示哪些音乐服务? || ¿Qué servicios de música quieres mostrar? || Quels services de musique afficher ? || Quais serviços de música devem ser exibidos? || Какие музыкальные сервисы показывать? || 表示する音楽サービスを選んでください
+Wähle einen, zwei oder alle drei. Mindestens ein Dienst bleibt immer aktiv. || Pick one, two or all three. At least one service always stays active. || 可选择一个、两个或全部三个。至少会保留一个服务。 || Elige uno, dos o los tres. Siempre queda activo al menos un servicio. || Choisis-en un, deux ou les trois. Au moins un service reste toujours actif. || Escolha um, dois ou os três. Pelo menos um serviço fica sempre ativo. || Выберите один, два или все три. Хотя бы один сервис всегда остаётся включённым. || 1つ、2つ、または3つすべてを選べます。少なくとも1つは常に有効です。
+Mindestens ein Dienst muss aktiv bleiben. || At least one service must stay active. || 至少要保留一个服务。 || Al menos un servicio debe permanecer activo. || Au moins un service doit rester actif. || Pelo menos um serviço precisa ficar ativo. || Хотя бы один сервис должен оставаться включённым. || 少なくとも1つのサービスを有効にしておく必要があります。
+
+Minimieren || Minimize || 最小化 || Minimizar || Réduire || Minimizar || Свернуть || 最小化
+Maximieren || Maximize || 最大化 || Maximizar || Agrandir || Maximizar || Развернуть || 最大化
+Verkleinern || Restore down || 向下还原 || Restaurar || Restaurer || Restaurar || Восстановить || 元のサイズに戻す
+Seitenleiste und Registerkarten || Sidebar and tabs || 侧边栏和标签页 || Barra lateral y pestañas || Barre latérale et onglets || Barra lateral e abas || Боковая панель и вкладки || サイドバーとタブ
+Färbe den Hintergrund der Seitenleiste, die Registerkarten (Dashboard, Spiele, Tools …) und den ausgewählten Reiter getrennt ein. || Color the sidebar background, the tabs (Dashboard, Games, Tools …) and the selected tab separately. || 可分别为侧边栏背景、标签页(仪表盘、游戏、工具 …)和所选标签页设置颜色。 || Colorea por separado el fondo de la barra lateral, las pestañas (Panel, Juegos, Herramientas …) y la pestaña seleccionada. || Colore séparément l'arrière-plan de la barre latérale, les onglets (Tableau de bord, Jeux, Outils …) et l'onglet sélectionné. || Colore separadamente o fundo da barra lateral, as abas (Painel, Jogos, Ferramentas …) e a aba selecionada. || Раскрасьте отдельно фон боковой панели, вкладки (Панель, Игры, Инструменты …) и выбранную вкладку. || サイドバーの背景、タブ(ダッシュボード、ゲーム、ツール …)、選択中のタブを個別に色分けできます。
+Hintergrund der Seitenleiste || Sidebar background || 侧边栏背景 || Fondo de la barra lateral || Arrière-plan de la barre latérale || Fundo da barra lateral || Фон боковой панели || サイドバーの背景
+Farbe der Registerkarten || Tab color || 标签页颜色 || Color de las pestañas || Couleur des onglets || Cor das abas || Цвет вкладок || タブの色
+Farbe des ausgewählten Reiters || Selected tab color || 所选标签页颜色 || Color de la pestaña seleccionada || Couleur de l'onglet sélectionné || Cor da aba selecionada || Цвет выбранной вкладки || 選択中のタブの色
+🌈  RGB-Akzentfarbe || 🌈  RGB accent color || 🌈  RGB 强调色 || 🌈  Color de acento RGB || 🌈  Couleur d'accent RGB || 🌈  Cor de destaque RGB || 🌈  RGB-акцент || 🌈  RGBアクセントカラー
+Freigeschaltet durch den Konami-Code. Die Akzentfarbe wechselt dauernd durch alle Regenbogenfarben. || Unlocked by the Konami code. The accent color keeps cycling through all rainbow colors. || 通过科乐美秘技解锁。强调色会不断在所有彩虹色之间变化。 || Desbloqueado con el código Konami. El color de acento recorre sin parar todos los colores del arcoíris. || Débloquée par le code Konami. La couleur d'accent parcourt en continu toutes les couleurs de l'arc-en-ciel. || Desbloqueado pelo código Konami. A cor de destaque passa o tempo todo por todas as cores do arco-íris. || Разблокировано кодом Konami. Акцентный цвет постоянно меняется по всем цветам радуги. || コナミコマンドで解放。アクセントカラーが虹色に変わり続けます。
+Langsam || Slow || 慢 || Lento || Lent || Lento || Медленно || ゆっくり
+Mittel || Medium || 中 || Medio || Moyen || Médio || Средне || 普通
+Schnell || Fast || 快 || Rápido || Rapide || Rápido || Быстро || 速い
+RGB-Akzentfarbe freigeschaltet || RGB accent color unlocked || RGB 强调色已解锁 || Color de acento RGB desbloqueado || Couleur d'accent RGB débloquée || Cor de destaque RGB desbloqueada || RGB-акцент разблокирован || RGBアクセントカラーを解放しました
+Du hast den Konami-Code gefunden! Als Belohnung gibt es ab jetzt die RGB-Akzentfarbe: Sie wechselt dauernd durch alle Regenbogenfarben. Du findest sie für immer unter Einstellungen → Darstellung. || You found the Konami code! As a reward you now get the RGB accent color: it keeps cycling through all rainbow colors. You will always find it under Settings → Appearance. || 你找到了科乐美秘技!作为奖励,现在可以使用 RGB 强调色:它会不断在所有彩虹色之间变化。你可以随时在“设置 → 外观”中找到它。 || ¡Has encontrado el código Konami! Como recompensa, ahora tienes el color de acento RGB: recorre sin parar todos los colores del arcoíris. Lo encontrarás siempre en Ajustes → Apariencia. || Tu as trouvé le code Konami ! En récompense, tu obtiens la couleur d'accent RGB : elle parcourt en continu toutes les couleurs de l'arc-en-ciel. Tu la trouveras toujours dans Paramètres → Apparence. || Você encontrou o código Konami! Como recompensa, agora existe a cor de destaque RGB: ela passa o tempo todo por todas as cores do arco-íris. Você a encontra sempre em Configurações → Aparência. || Вы нашли код Konami! В награду теперь доступен RGB-акцент: он постоянно меняется по всем цветам радуги. Он всегда будет в разделе «Настройки → Оформление». || コナミコマンドを見つけました!ご褒美として、虹色に変わり続けるRGBアクセントカラーが使えるようになりました。「設定 → 外観」にずっと残ります。
+Jetzt einschalten || Turn on now || 立即开启 || Activar ahora || Activer maintenant || Ativar agora || Включить сейчас || 今すぐオンにする
+Controller-Akku niedrig || Controller battery low || 手柄电量低 || Batería del mando baja || Batterie de la manette faible || Bateria do controle baixa || Низкий заряд геймпада || コントローラーの電池残量が少なくなっています
+Der Akku deines Controllers ist fast leer. Zeit zum Aufladen. || Your controller's battery is almost empty. Time to charge it. || 你的手柄电量快用完了,该充电了。 || La batería de tu mando está casi vacía. Es hora de cargarla. || La batterie de ta manette est presque vide. Il est temps de la recharger. || A bateria do seu controle está quase acabando. Hora de carregar. || Заряд вашего геймпада почти закончился. Пора зарядить. || コントローラーの電池がほとんどありません。充電しましょう。
+Akku || Battery || 电池 || Batería || Batterie || Bateria || Батарея || バッテリー
+Voll || Full || 满 || Llena || Pleine || Cheia || Полный || 満充電
+Niedrig || Low || 低 || Baja || Faible || Baixa || Низкий || 低
+Leer || Empty || 空 || Vacía || Vide || Vazia || Пусто || 空
+Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
+
 """;
     }
 
@@ -2138,6 +2343,34 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
         [Interop.DllImport("user32.dll")]
         [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
         internal static extern bool GetLastInputInfo(ref LastInputInfo plii);
+
+        [Interop.StructLayout(Interop.LayoutKind.Sequential)]
+        internal struct NativeRect
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
+        [Interop.DllImport("user32.dll")]
+        internal static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+
+        [Interop.DllImport("user32.dll")]
+        [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
+        internal static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        [Interop.DllImport("user32.dll")]
+        [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
+        internal static extern bool IsWindowVisible(IntPtr hWnd);
+
+        [Interop.DllImport("user32.dll")]
+        [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
+        internal static extern bool GetWindowRect(IntPtr hWnd, out NativeRect rect);
+
+        [Interop.DllImport("user32.dll")]
+        [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
+        internal static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy, uint flags);
 
         [Interop.DllImport("user32.dll", CharSet = Interop.CharSet.Unicode)]
         [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
@@ -2627,6 +2860,8 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             InitExtras8();
             InitExtras9();
             InitExtras10();
+            InitExtras11();
+            InitExtras12();
 
             isLoadingSettings = false;
             RefreshDashboard();
@@ -2904,6 +3139,19 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             settings.EggSeen ??= new List<string>();
             settings.MilestonesReached ??= new List<int>();
             settings.FirstRunDate ??= string.Empty;
+            settings.SidebarColor ??= string.Empty;
+            settings.NavTextColor ??= string.Empty;
+            settings.NavActiveColor ??= string.Empty;
+            settings.RgbSpeed = Math.Clamp(settings.RgbSpeed, 1, 3);
+            if (!settings.RgbUnlocked) settings.RgbAccent = false;
+            settings.QuickButtons ??= new List<QuickButton>();
+            settings.Routines ??= new List<AutomationRoutine>();
+            if (string.IsNullOrWhiteSpace(settings.DeviceProfile)) settings.DeviceProfile = "auto";
+            if (string.IsNullOrWhiteSpace(settings.MusicService)) settings.MusicService = "spotify";
+            settings.MusicServicesOn ??= new List<string>();
+            settings.MusicServicesOn = settings.MusicServicesOn.Where(k => MusicServices.Any(s => s.Key == k)).Distinct().ToList();
+            if (settings.MusicServicesOn.Count == 0)
+                settings.MusicServicesOn.Add(MusicServices.Any(s => s.Key == settings.MusicService) ? settings.MusicService : "spotify");
             if (!settings.SgdbAnimatedMigrated)
             {
                 // Einmalig: Wer einen SteamGridDB-Schlüssel hat, bekommt ab jetzt animierte Cover
@@ -3229,6 +3477,14 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             }
 
             if (ReferenceEquals(sender, ChkDeals) && settings.ShowDeals) _ = RefreshDealsAsync(true);
+
+            if (ReferenceEquals(sender, ChkMusic) || ReferenceEquals(sender, ChkQuickButtons))
+            {
+                if (!settings.MusicPlayer) MusicPanel.Visibility = Visibility.Collapsed;
+                RenderSidebarExtras();
+            }
+
+            if (ReferenceEquals(sender, ChkPowerButtons) || ReferenceEquals(sender, ChkPowerConfirm)) RebuildStaticTiles();
 
             try
             {
@@ -4517,6 +4773,19 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
                 ("🔄", green, "Windows Update", "Updates suchen", "ms-settings:windowsupdate", "Spiele und Leistung")
             };
 
+            if (settings.PowerButtons)
+            {
+                const string red = "#EF4444";
+                tools = tools.Concat(new (string Icon, string Color, string Title, string Text, string Target, string Category)[]
+                {
+                    ("🔌", red, "Herunterfahren", "PC ausschalten", "power:shutdown", "Energie"),
+                    ("🔄", red, "Neu starten", "PC neu starten", "power:restart", "Energie"),
+                    ("🌙", red, "Energie sparen", "Standby", "power:sleep", "Energie"),
+                    ("👤", red, "Abmelden", "Benutzer abmelden", "power:logoff", "Energie"),
+                    ("🔒", red, "PC sperren", "Bildschirm sperren", "power:lock", "Energie")
+                }).ToArray();
+            }
+
             toolEntries = tools.Select(t => (t.Icon, t.Title, t.Text, t.Target)).ToArray();
 
             bool firstGroup = true;
@@ -4530,7 +4799,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
                 foreach (var tool in group)
                 {
                     string target = tool.Target;
-                    row.Children.Add(CreateToolTile(tool.Icon, tool.Color, tool.Title, tool.Text, () => OpenShell(target)));
+                    row.Children.Add(CreateToolTile(tool.Icon, tool.Color, tool.Title, tool.Text, () => HandleToolTarget(target)));
                 }
                 ToolsContainer.Children.Add(row);
             }
@@ -5316,6 +5585,8 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
 
         private void LaunchGame(GameItem game)
         {
+            if (!ConfirmBeforeLaunch(game)) return;
+
             PlayUiSound("launch");
             try
             {
@@ -5988,14 +6259,17 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             ApplySurfaceBrushes();
             bool glass = settings.GlassEffect && SupportsGlass();
             bool translucent = glass || HasBackgroundImage();
+            if (TopScrim != null) TopScrim.Visibility = translucent ? Visibility.Visible : Visibility.Collapsed;
 
             Resources["AppBackgroundBrush"] = glass
                 ? MakeAlphaBrush(EffectiveBackground(), 0xC8)
                 : MakeBrush(EffectiveBackground(), "#0F111A");
             Resources["AccentBrush"] = MakeBrush(settings.AccentColor, "#8B5CF6");
-            Resources["SidebarBrush"] = MakeAlphaBrush(settings.OledMode ? "#000000" : "#0B0E16", translucent ? (byte)0xD2 : (byte)0xFF);
+            Resources["SidebarBrush"] = MakeAlphaBrush(SidebarBaseColor(), translucent ? (byte)0xD2 : (byte)0xFF);
+            ApplyNavBrushes();
 
             if (BackgroundGlow != null) ApplyGlowBackground();
+            UpdateRgbAccent();
         }
 
         private void ApplyAppearance()
@@ -6080,6 +6354,19 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             brush.BeginAnimation(RadialGradientBrush.GradientOriginProperty, move);
         }
 
+        /// <summary>Farbe hinter dem Fenster. Sie scheint an Rändern durch, die das Programm nicht überdeckt (zum Beispiel eine Pixelreihe ganz oben).</summary>
+        private System.Windows.Media.Color WindowBackdropColor()
+        {
+            try
+            {
+                return (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(EffectiveBackground());
+            }
+            catch
+            {
+                return System.Windows.Media.Color.FromRgb(0x0F, 0x11, 0x1A);
+            }
+        }
+
         private void ApplyWindowEffects()
         {
             IntPtr hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
@@ -6090,6 +6377,9 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
                 int dark = 1;
                 NativeFeatures.DwmSetWindowAttribute(hwnd, 20, ref dark, sizeof(int)); // dunkle Titelleiste
 
+                int noBorder = unchecked((int)0xFFFFFFFE);                              // Windows 11: keinen hellen Fensterrand zeichnen
+                NativeFeatures.DwmSetWindowAttribute(hwnd, 34, ref noBorder, sizeof(int));
+
                 bool glass = settings.GlassEffect && SupportsGlass();
                 int backdrop = glass ? 2 : 1; // 2 = Mica, 1 = aus
                 NativeFeatures.DwmSetWindowAttribute(hwnd, 38, ref backdrop, sizeof(int));
@@ -6099,7 +6389,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
                 {
                     source.CompositionTarget.BackgroundColor = glass
                         ? System.Windows.Media.Colors.Transparent
-                        : System.Windows.SystemColors.WindowColor;
+                        : WindowBackdropColor();
                 }
 
                 var margins = glass
@@ -6115,6 +6405,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             bool collapsed = settings.SidebarCollapsed;
             double target = controllerMode ? 0 : collapsed ? 90 : settings.SidebarWidth;
             var textVisibility = collapsed ? Visibility.Collapsed : Visibility.Visible;
+            if (SidebarExtras != null && sidebarExtrasCompact != collapsed) RenderSidebarExtras();
 
             BrandText.Visibility = textVisibility;
             BrandTextHost.Visibility = textVisibility;
@@ -6996,6 +7287,24 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             if (controllerMode) HighlightControllerSelection();
         }
 
+        private static readonly SolidColorBrush CardMetaBrush = MakeBrush("#E5E7EB");
+
+        private static readonly LinearGradientBrush CardFooterScrim = CreateCardFooterScrim();
+
+        private static LinearGradientBrush CreateCardFooterScrim()
+        {
+            var brush = new LinearGradientBrush
+            {
+                StartPoint = new System.Windows.Point(0, 0),
+                EndPoint = new System.Windows.Point(0, 1)
+            };
+            brush.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, 0x08, 0x0A, 0x10), 0.0));
+            brush.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xB3, 0x08, 0x0A, 0x10), 0.55));
+            brush.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xEB, 0x08, 0x0A, 0x10), 1.0));
+            brush.Freeze();
+            return brush;
+        }
+
         private Border CreateGameCard(GameItem game, double width, int animIndex = -1)
         {
             double height = Math.Round(width * settings.CardAspect / 100.0);
@@ -7134,6 +7443,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             imageArea.Children.Add(playButton);
 
             Grid.SetRow(imageArea, 0);
+            Grid.SetRowSpan(imageArea, 2);   // das Cover behält die volle Kartenhöhe
             grid.Children.Add(imageArea);
 
             // ── Fußzeile: Name + Quelle ──
@@ -7155,7 +7465,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
                 footerPanel.Children.Add(new TextBlock
                 {
                     Text = BuildMetaText(game),
-                    Foreground = BrushSubtle,
+                    Foreground = CardMetaBrush,
                     FontSize = 11,
                     TextAlignment = TextAlignment.Center,
                     TextTrimming = TextTrimming.CharacterEllipsis,
@@ -7163,10 +7473,11 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
                 });
             }
 
+            // Die Fußzeile liegt als weicher Verlauf auf dem unteren Rand des Covers
             var footer = new Border
             {
-                Background = BrushFooter,
-                Padding = new Thickness(10, 8, 10, 8),
+                Background = CardFooterScrim,
+                Padding = new Thickness(10, 30, 10, 9),
                 Child = footerPanel,
                 Visibility = footerPanel.Children.Count > 0 ? Visibility.Visible : Visibility.Collapsed
             };
@@ -7220,7 +7531,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
                 if (!settings.DoubleClickLaunch || e.ClickCount >= 2) LaunchGame(game);
             };
             HookCoverDrop(outer, game);
-            AddModButton(imageArea, outer, game);
+            AddModButton(imageArea, outer, game, true);
             playButton.Click += (s, e) =>
             {
                 e.Handled = true;
@@ -7776,6 +8087,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
                     {
                         sessionStart[game] = now;
                         DiscordSessionStarted(game);
+                        RunRoutinesFor("gamestart", game);
                         if (game.Status == "backlog") game.Status = "playing";
                         if (ProfileWanted(game) && activeSessions.Count == 1) _ = ActivateGamingProfileAsync();
                         if (activeSessions.Count == 1 && CloseAppsWanted(game)) _ = CloseConfiguredAppsAsync(true);
@@ -7797,6 +8109,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
                         ShowSessionReport(game);
                         CheckMilestones();
                         DiscordSessionEnded(game);
+                        RunRoutinesFor("gameend", game);
                         if (settings.AutoBackupSaves && !string.IsNullOrEmpty(game.SavePath)) _ = BackupSavesAsync(game, true);
 
                         if (activeSessions.Count == 0)
@@ -8100,6 +8413,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
 
         private void OpenSpotlight()
         {
+            SuspendMusicOverlay();
             SpotlightLayer.Visibility = Visibility.Visible;
             SpotlightLayer.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(140)));
 
@@ -8115,6 +8429,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
 
         private void CloseSpotlight()
         {
+            ResumeMusicOverlay();
             SpotlightLayer.Visibility = Visibility.Collapsed;
         }
 
@@ -8166,7 +8481,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
                 foreach (var tool in toolEntries)
                 {
                     string target = tool.Target;
-                    Add(tool.Icon, tool.Title, tool.Text, () => OpenShell(target), 10);
+                    Add(tool.Icon, tool.Title, tool.Text, () => HandleToolTarget(target), 10);
                 }
                 foreach (var quickLink in settings.QuickLinks)
                 {
@@ -8181,6 +8496,11 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
                 Add("🎲", "Zufälliges Spiel", "Lass den Launcher entscheiden", () => BtnRandomGame_Click(this, new RoutedEventArgs()), 5);
                 Add("🎮", "Controller-Modus", "Vollbild mit Gamepad-Steuerung", ToggleControllerMode, 5);
                 Add("📡", "Streamer-Modus umschalten", "Verbirgt private Angaben", ToggleStreamerMode, 5);
+                foreach (var routineEntry in settings.Routines.Where(r => r.Enabled))
+                {
+                    var routine = routineEntry;
+                    Add("⚙", "Ablauf: " + routine.Name, "Ablauf ausführen", () => _ = RunRoutineAsync(routine, true), 8);
+                }
             }
 
             spotlightEntries.Clear();
@@ -8338,6 +8658,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
         private void ToggleControllerMode()
         {
             controllerMode = !controllerMode;
+            if (TitleBar != null) TitleBar.Visibility = controllerMode ? Visibility.Collapsed : Visibility.Visible;
 
             if (controllerMode)
             {
@@ -8365,6 +8686,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             ApplySidebar(true);
             ApplyFilter();
             UpdatePadHint();
+            FixMaximizedOverhang();
             PlayUiSound("select");
         }
 
@@ -8922,6 +9244,8 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             ReadExtra7Settings();
             ReadExtra8Settings();
             ReadExtra10Settings();
+            ReadExtra11Settings();
+            ReadExtra12Settings();
 
         }
 
@@ -8940,6 +9264,8 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             PopulateExtra7Settings();
             PopulateExtra8Settings();
             PopulateExtra10Settings();
+            PopulateExtra11Settings();
+            PopulateExtra12Settings();
         }
 
         private void UpdateExtraSliderLabels()
@@ -12328,6 +12654,8 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             BuildToolTiles();
             BuildLinkTiles();
             RefreshApps();
+            RenderSidebarExtras();
+            RenderRoutines();
         }
 
         private void AnimateShift(double x, double y)
@@ -12361,6 +12689,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
         private bool ReadXInput(out PadButton pad)
         {
             pad = PadButton.None;
+            padSlot = -1;
             if (xinputMissing) return false;
 
             for (uint slot = 0; slot < 4; slot++)
@@ -12391,6 +12720,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
                 if ((b & 0x0200) != 0) pad |= PadButton.NextTab;
                 if ((b & 0x0010) != 0) pad |= PadButton.Start;
 
+                padSlot = (int)slot;
                 padDescription = $"Xbox-Controller (Slot {slot + 1})";
                 return true;
             }
@@ -12519,6 +12849,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             string text = padDescription.Length > 0
                 ? Loc.T("Erkannt:") + " " + padDescription
                 : Loc.T("Kein Controller erkannt");
+            if (padDescription.Length > 0 && padBatteryLevel >= 0) text += " · " + Loc.T("Akku") + ": " + PadBatteryLabel();
             if (TxtPadStatus.Text != text) TxtPadStatus.Text = text;
         }
 
@@ -12546,6 +12877,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             }
 
             UpdatePadStatus();
+            TickPadBattery();
 
             PadButton pressed = pad & ~lastPad;
             lastPad = pad;
@@ -15162,6 +15494,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             };
 
             TxtPadHint.Text = string.Join("      ", keys.Select(k => k.Glyph + "  " + Loc.T(k.Word)));
+            UpdatePadBatteryUi();
         }
 
         // ───────────────────────────── Design teilen ─────────────────────────────
@@ -16772,7 +17105,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
         }
 
         /// <summary>Kleiner Knopf unten rechts auf dem Cover, der beim Darüberfahren erscheint.</summary>
-        private void AddModButton(System.Windows.Controls.Panel area, UIElement hoverTarget, GameItem game)
+        private void AddModButton(System.Windows.Controls.Panel area, UIElement hoverTarget, GameItem game, bool underStar = false)
         {
             if (!settings.ShowModButton || !modFolders.TryGetValue(game.Name, out var path)) return;
 
@@ -16785,8 +17118,8 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
                 BorderBrush = BrushCardBorder,
                 BorderThickness = new Thickness(1),
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
-                VerticalAlignment = System.Windows.VerticalAlignment.Bottom,
-                Margin = new Thickness(8),
+                VerticalAlignment = underStar ? System.Windows.VerticalAlignment.Top : System.Windows.VerticalAlignment.Bottom,
+                Margin = underStar ? new Thickness(8, 46, 8, 0) : new Thickness(8),
                 Opacity = 0,
                 Cursor = System.Windows.Input.Cursors.Hand,
                 ToolTip = Loc.T("Mod-Ordner öffnen"),
@@ -17632,7 +17965,11 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
 
         // ───────────────────────────── Bildschirme (jeder angeschlossene Monitor) ─────────────────────────────
 
-        private sealed record DisplayInfo(int Width, int Height, int Hertz, bool Primary, bool Portrait, int X, int Y);
+        private sealed record DisplayInfo(int Width, int Height, int Hertz, bool Primary, bool Portrait, int X, int Y)
+        {
+            public int RawWidth { get; init; }
+            public int RawHeight { get; init; }
+        }
 
         /// <summary>Windows meldet bei Bildwiederholraten wie 239,76 Hz nur die abgeschnittene Zahl (239).</summary>
         private static int NormalizeRefresh(int hertz)
@@ -17664,7 +18001,11 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
                     bool primary = (device.StateFlags & 0x4) != 0;
 
                     list.Add(new DisplayInfo(width, height, NormalizeRefresh(mode.dmDisplayFrequency), primary,
-                        portrait, mode.dmPositionX, mode.dmPositionY));
+                        portrait, mode.dmPositionX, mode.dmPositionY)
+                    {
+                        RawWidth = mode.dmPelsWidth,
+                        RawHeight = mode.dmPelsHeight
+                    });
                 }
             }
             catch { }
@@ -18986,7 +19327,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
 
         private void StartRainbow(int seconds, double step)
         {
-            if (settings.PerformanceMode) return;
+            if (settings.PerformanceMode || RgbActive) return;
 
             rainbowTimer?.Stop();
             rainbowEnd = DateTime.Now.AddSeconds(seconds);
@@ -19054,6 +19395,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             StartRainbow(60, 5);
             PlayUiSound("select");
             UnlockSecret("secret_konami");
+            UnlockRgbWithPopup();
         }
 
         // ───────────────────────────── Logo anklicken ─────────────────────────────
@@ -19331,25 +19673,21 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             if (!EggsOn || activeSessions.Count > 0 || WelcomeLayer.Visibility == Visibility.Visible) return;
 
             var now = DateTime.Now;
-            string name = DisplayUserName();
             bool celebrated = false;
 
             if (now.Month == 10 && now.Day == 31 && !SeenEgg($"halloween-{now.Year}"))
             {
-                EmojiRain(new[] { "🎃", "👻", "🦇", "🕸" }, 34, 7000);
-                EggToast("🎃", "Happy Halloween", Loc.T($"Gruselige Grüße, {name}!"), 8, false);
+                PlayHalloween();
                 celebrated = true;
             }
             else if (now.Month == 12 && now.Day is >= 24 and <= 26 && !SeenEgg($"xmas-{now.Year}"))
             {
-                EmojiRain(new[] { "❄", "❅", "❄", "🎄", "⭐" }, 70, 9000);
-                EggToast("🎄", "Frohe Weihnachten", Loc.T($"Schöne Feiertage, {name}!"), 8, false);
+                PlayChristmas();
                 celebrated = true;
             }
             else if (((now.Month == 12 && now.Day == 31 && now.Hour >= 17) || (now.Month == 1 && now.Day == 1)) && !SeenEgg($"newyear-{now.Year}"))
             {
-                Fireworks(7);
-                EggToast("🎆", "Frohes neues Jahr", Loc.T($"Auf ein tolles Spielejahr, {name}!"), 8, false);
+                PlayNewYear();
                 celebrated = true;
             }
 
@@ -19365,13 +19703,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
                 && now.Year > first.Year && now.Month == first.Month && now.Day == first.Day
                 && !SeenEgg($"birthday-{now.Year}"))
             {
-                int years = now.Year - first.Year;
-                string text = years == 1
-                    ? Loc.T("Heute vor einem Jahr hast du mich installiert. Alles Gute zum Launcher-Geburtstag!")
-                    : Loc.T($"Heute vor {years} Jahren hast du mich installiert. Alles Gute zum Launcher-Geburtstag!");
-                EggToast("🎂", "Geburtstag", text, 10, false);
-                Confetti();
-                UnlockSecret("secret_birthday");
+                PlayBirthday(now.Year - first.Year);
             }
         }
 
@@ -19447,8 +19779,7 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             if (!EggsOn || activeSessions.Count == 0 || now.Hour < 3 || now.Hour >= 5) return;
             if (SeenEgg($"owl-{now:yyyyMMdd}")) return;
 
-            EggToast("🦉", "Nachteule", "Dein Pudel schläft schon. Du auch bald?", 9, false);
-            UnlockSecret("secret_owl");
+            PlayNightOwl();
         }
 
         private string? PickGreeting(out bool rare)
@@ -19616,5 +19947,2214 @@ Testversion || Test version || 测试版 || Versión de prueba || Version de tes
             yield return Secret("secret_lucky", "🍀", "Glückspilz", "Einen seltenen Spruch beim Start bekommen.");
             yield return Secret("secret_season", "🎉", "Festtagsstimmung", "Einen besonderen Tag im Launcher gefeiert.");
         }
+
+        // ═════════════════════════════ Musik, Schnellstart, Akku, Geräteprofil, Abläufe, Energie ═════════════════════════════
+
+        // ───────────────────────────── Kleine Hilfen für Dialoge ─────────────────────────────
+
+        private int ChooseOne(string title, string hint, List<string> options)
+        {
+            var dialog = CreateDialog(title, 480, out var panel);
+
+            if (!string.IsNullOrEmpty(hint))
+                panel.Children.Add(new TextBlock { Text = hint, Foreground = BrushSubtle, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 12) });
+
+            int result = -1;
+            var list = new StackPanel();
+            for (int i = 0; i < options.Count; i++)
+            {
+                int index = i;
+                var button = new System.Windows.Controls.Button
+                {
+                    Content = options[i],
+                    HorizontalContentAlignment = System.Windows.HorizontalAlignment.Left,
+                    Padding = new Thickness(14, 9, 14, 9),
+                    Margin = new Thickness(0, 0, 0, 6)
+                };
+                button.Click += (s, e) =>
+                {
+                    result = index;
+                    dialog.DialogResult = true;
+                };
+                list.Children.Add(button);
+            }
+
+            panel.Children.Add(new ScrollViewer { MaxHeight = 340, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = list });
+            panel.Children.Add(new System.Windows.Controls.Button
+            {
+                Content = "Abbrechen",
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+                Margin = new Thickness(0, 12, 0, 0),
+                IsCancel = true
+            });
+
+            dialog.ShowDialog();
+            return result;
+        }
+
+        private TextBlock MutedLabel(string text) => new()
+        {
+            Text = Loc.T(text),
+            Foreground = BrushSubtle,
+            FontSize = 12,
+            TextWrapping = TextWrapping.Wrap
+        };
+
+        private WrapPanel ChipRow(IEnumerable<(string Key, string Label)> options, string selected, Action<string> changed)
+        {
+            var row = new WrapPanel { Margin = new Thickness(0, 6, 0, 14) };
+            var style = TryFindResource("ChipStyle") as Style;
+            string group = Guid.NewGuid().ToString("N");
+
+            foreach (var (key, label) in options)
+            {
+                string value = key;
+                var chip = new System.Windows.Controls.RadioButton
+                {
+                    Content = Loc.T(label),
+                    GroupName = group,
+                    IsChecked = key == selected
+                };
+                if (style != null) chip.Style = style;
+                chip.Checked += (s, e) => changed(value);
+                row.Children.Add(chip);
+            }
+            return row;
+        }
+
+        private Border MiniButton(string text, string tip, Action click, double width = 32)
+        {
+            var label = new TextBlock
+            {
+                Text = text,
+                Foreground = System.Windows.Media.Brushes.White,
+                FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center
+            };
+
+            var border = new Border
+            {
+                Width = width,
+                Height = 30,
+                CornerRadius = new CornerRadius(8),
+                Background = MakeBrush("#1AFFFFFF"),
+                Margin = new Thickness(0, 0, 4, 0),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                ToolTip = Loc.T(tip),
+                Child = label
+            };
+            border.MouseEnter += (s, e) => border.Background = MakeBrush("#33FFFFFF");
+            border.MouseLeave += (s, e) => border.Background = MakeBrush("#1AFFFFFF");
+            border.MouseLeftButtonUp += (s, e) =>
+            {
+                e.Handled = true;
+                click();
+            };
+            return border;
+        }
+
+        // ───────────────────────────── Seitenleiste: Schnellstart und Musik ─────────────────────────────
+
+        private readonly Dictionary<string, ImageSource?> quickIcons = new(StringComparer.OrdinalIgnoreCase);
+        private bool sidebarExtrasCompact;
+        private string nowPlaying = string.Empty;
+        private TextBlock? nowPlayingText;
+        private FrameworkElement? musicControls;
+
+        private static readonly (string Key, string Name, string Url, string Color)[] MusicServices =
+        {
+            ("spotify", "Spotify", "https://open.spotify.com", "#1DB954"),
+            ("ytmusic", "YouTube Music", "https://music.youtube.com", "#FF3355"),
+            ("apple", "Apple Music", "https://music.apple.com", "#FA586A")
+        };
+
+        private void RenderSidebarExtras()
+        {
+            if (SidebarExtras == null) return;
+
+            bool compact = settings.SidebarCollapsed;
+            sidebarExtrasCompact = compact;
+            SidebarExtras.Children.Clear();
+            nowPlayingText = null;
+            musicControls = null;
+
+            if (settings.QuickButtonsEnabled) SidebarExtras.Children.Add(BuildQuickButtons(compact));
+            if (settings.MusicPlayer) SidebarExtras.Children.Add(BuildMusicCard(compact));
+
+            SidebarExtras.Visibility = SidebarExtras.Children.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private ImageSource? QuickIcon(QuickButton button)
+        {
+            if (button.Path.StartsWith("app:", StringComparison.Ordinal))
+                return cachedApps.FirstOrDefault(a => a.Name == button.Path.Substring(4))?.Icon;
+
+            if (!quickIcons.TryGetValue(button.Path, out var icon))
+            {
+                icon = ShellImage(button.Path, 64) ?? ExtractIcon(button.Path);
+                quickIcons[button.Path] = icon;
+            }
+            return icon;
+        }
+
+        private FrameworkElement BuildQuickButtons(bool compact)
+        {
+            var host = new StackPanel { Margin = new Thickness(0, 14, 0, 0) };
+
+            if (!compact)
+            {
+                host.Children.Add(new TextBlock
+                {
+                    Text = Loc.T("Schnellstart"),
+                    Foreground = BrushSubtle,
+                    FontSize = 11,
+                    FontWeight = FontWeights.SemiBold,
+                    Margin = new Thickness(4, 0, 0, 6)
+                });
+            }
+
+            var wrap = new WrapPanel { HorizontalAlignment = compact ? System.Windows.HorizontalAlignment.Center : System.Windows.HorizontalAlignment.Left };
+            foreach (var button in settings.QuickButtons.ToList()) wrap.Children.Add(CreateQuickTile(button));
+            if (settings.QuickButtons.Count < 12) wrap.Children.Add(CreateQuickAddTile());
+            host.Children.Add(wrap);
+            return host;
+        }
+
+        private Border QuickTileShell(FrameworkElement content, string tip)
+        {
+            var tile = new Border
+            {
+                Width = 40,
+                Height = 40,
+                Margin = new Thickness(0, 0, 6, 6),
+                CornerRadius = new CornerRadius(10),
+                Background = MakeBrush("#161B28"),
+                BorderBrush = BrushCardBorder,
+                BorderThickness = new Thickness(1),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                ToolTip = tip,
+                Child = content
+            };
+            tile.MouseEnter += (s, e) => tile.Background = BrushTileHover;
+            tile.MouseLeave += (s, e) => tile.Background = MakeBrush("#161B28");
+            return tile;
+        }
+
+        private Border CreateQuickTile(QuickButton button)
+        {
+            FrameworkElement content;
+            var icon = QuickIcon(button);
+            if (icon != null)
+            {
+                var image = new System.Windows.Controls.Image { Source = icon, Width = 26, Height = 26, Stretch = Stretch.Uniform };
+                RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+                content = image;
+            }
+            else
+            {
+                content = new TextBlock
+                {
+                    Text = "🧩",
+                    FontSize = 20,
+                    FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center
+                };
+            }
+
+            var tile = QuickTileShell(content, button.Name);
+            tile.MouseLeftButtonUp += (s, e) => LaunchQuickButton(button);
+
+            var menu = CreateMenu();
+            AddMenuItem(menu, "▶  Starten", () => LaunchQuickButton(button));
+            AddMenuItem(menu, "✏  Umbenennen", () =>
+            {
+                string? name = PromptText("Schnellstart-Button", "Name des Buttons", button.Name);
+                if (name == null) return;
+                button.Name = name;
+                SaveSettings();
+                RenderSidebarExtras();
+            });
+            AddMenuItem(menu, "🔁  Anderes Programm wählen", () => PickQuickTarget(button));
+            AddMenuItem(menu, "🗑  Entfernen", () =>
+            {
+                settings.QuickButtons.Remove(button);
+                SaveSettings();
+                RenderSidebarExtras();
+            });
+            tile.ContextMenu = menu;
+            return tile;
+        }
+
+        private Border CreateQuickAddTile()
+        {
+            var plus = new TextBlock
+            {
+                Text = "＋",
+                FontSize = 18,
+                Foreground = BrushSubtle,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center
+            };
+            var tile = QuickTileShell(plus, Loc.T("Programm hinzufügen"));
+            tile.MouseLeftButtonUp += (s, e) => PickQuickTarget(null);
+            return tile;
+        }
+
+        private void PickQuickTarget(QuickButton? existing)
+        {
+            int source = ChooseOne(Loc.T("Schnellstart-Button"), Loc.T("Woher soll das Programm kommen?"),
+                new List<string> { Loc.T("Aus meinen Anwendungen wählen"), Loc.T("Datei auswählen ...") });
+            if (source < 0) return;
+
+            string path;
+            string name;
+
+            if (source == 0)
+            {
+                var names = cachedApps.Select(a => a.Name).OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase).ToList();
+                if (names.Count == 0)
+                {
+                    Msg("Es wurden noch keine Anwendungen gefunden. Wähle stattdessen eine Datei aus.");
+                    return;
+                }
+
+                int chosen = ChooseOne(Loc.T("Programm wählen"), string.Empty, names);
+                if (chosen < 0) return;
+                path = "app:" + names[chosen];
+                name = names[chosen];
+            }
+            else
+            {
+                var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "Programme und Verknüpfungen|*.exe;*.lnk;*.bat;*.cmd;*.url|Alle Dateien|*.*" };
+                if (dialog.ShowDialog() != true) return;
+                path = dialog.FileName;
+                name = System.IO.Path.GetFileNameWithoutExtension(path);
+            }
+
+            if (existing != null)
+            {
+                existing.Path = path;
+                if (string.IsNullOrWhiteSpace(existing.Name)) existing.Name = name;
+            }
+            else
+            {
+                settings.QuickButtons.Add(new QuickButton { Name = name, Path = path });
+            }
+
+            SaveSettings();
+            RenderSidebarExtras();
+        }
+
+        private void LaunchQuickButton(QuickButton button)
+        {
+            try
+            {
+                if (button.Path.StartsWith("app:", StringComparison.Ordinal))
+                {
+                    var app = cachedApps.FirstOrDefault(a => a.Name == button.Path.Substring(4));
+                    if (app != null) LaunchApp(app);
+                    else ShowToast("⚠", "Programm nicht gefunden", button.Name, 6, null, true);
+                    return;
+                }
+
+                if (!File.Exists(button.Path) && !Directory.Exists(button.Path))
+                {
+                    ShowToast("⚠", "Programm nicht gefunden", button.Name, 6, null, true);
+                    return;
+                }
+
+                Process.Start(new ProcessStartInfo(button.Path)
+                {
+                    UseShellExecute = true,
+                    WorkingDirectory = System.IO.Path.GetDirectoryName(button.Path) ?? string.Empty
+                });
+            }
+            catch (Exception ex)
+            {
+                LogError("Schnellstart", ex);
+                Msg($"Das Programm konnte nicht gestartet werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private FrameworkElement BuildMusicCard(bool compact)
+        {
+            var card = new Border
+            {
+                Margin = new Thickness(0, 14, 0, 0),
+                Padding = compact ? new Thickness(0, 8, 0, 8) : new Thickness(12),
+                Background = BrushCardBg,
+                BorderBrush = BrushCardBorder,
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(12)
+            };
+
+            var stack = new StackPanel();
+            card.Child = stack;
+
+            if (compact)
+            {
+                var open = MiniButton("🎵", "Musik", () => OpenMusic(null), 40);
+                open.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
+                open.Margin = new Thickness(0);
+                stack.Children.Add(open);
+                return card;
+            }
+
+            stack.Children.Add(new TextBlock
+            {
+                Text = "🎵  " + Loc.T("Musik"),
+                Foreground = System.Windows.Media.Brushes.White,
+                FontWeight = FontWeights.SemiBold,
+                FontSize = 12,
+                Margin = new Thickness(0, 0, 0, 8)
+            });
+
+            var services = new WrapPanel();
+            foreach (var service in ActiveMusicServices())
+            {
+                var item = service;
+                var chip = new Border
+                {
+                    Padding = new Thickness(8, 4, 8, 4),
+                    Margin = new Thickness(0, 0, 4, 4),
+                    CornerRadius = new CornerRadius(8),
+                    Background = MakeBrush("#1AFFFFFF"),
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    Child = new TextBlock
+                    {
+                        Text = item.Name,
+                        FontSize = 11,
+                        FontWeight = FontWeights.SemiBold,
+                        Foreground = MakeBrush(item.Color)
+                    }
+                };
+                chip.MouseEnter += (s, e) => chip.Background = MakeBrush("#33FFFFFF");
+                chip.MouseLeave += (s, e) => chip.Background = MakeBrush("#1AFFFFFF");
+                chip.MouseLeftButtonUp += (s, e) => OpenMusic(item.Key);
+                services.Children.Add(chip);
+            }
+            stack.Children.Add(services);
+
+            nowPlayingText = new TextBlock
+            {
+                Text = "♪ " + nowPlaying,
+                Foreground = MakeBrush("#D1D5DB"),
+                FontSize = 11,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                Margin = new Thickness(0, 6, 0, 0),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                ToolTip = nowPlaying,
+                Visibility = nowPlaying.Length > 0 ? Visibility.Visible : Visibility.Collapsed
+            };
+            nowPlayingText.MouseLeftButtonUp += (s, e) => OpenMusic(null);
+            stack.Children.Add(nowPlayingText);
+
+            var controls = new StackPanel
+            {
+                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                Margin = new Thickness(0, 8, 0, 0),
+                Visibility = musicView != null ? Visibility.Visible : Visibility.Collapsed
+            };
+            controls.Children.Add(MiniButton("⏮", "Vorheriges Lied", () => SendMediaKey(0xB1)));
+            controls.Children.Add(MiniButton("⏯", "Wiedergabe oder Pause", () => _ = MusicTogglePlayAsync()));
+            controls.Children.Add(MiniButton("⏭", "Nächstes Lied", () => SendMediaKey(0xB0)));
+            controls.Children.Add(MiniButton("⤢", "Player anzeigen", () => OpenMusic(null)));
+            musicControls = controls;
+            stack.Children.Add(controls);
+
+            return card;
+        }
+
+        // ───────────────────────────── Musik-Player (Browser-Player im Launcher) ─────────────────────────────
+
+        private Microsoft.Web.WebView2.Wpf.WebView2? musicView;
+        private string musicService = "spotify";
+        private string musicLoadedService = string.Empty;
+        private bool musicStarting;
+        private bool musicSuspendedForOverlay;
+
+        private void FitMusicPanel()
+        {
+            if (MusicPanel == null) return;
+            MusicPanel.Height = Math.Clamp(ActualHeight - 90, 380, 640);
+        }
+
+        private void HighlightMusicTabs()
+        {
+            if (MusicTabs == null) return;
+            foreach (var tab in MusicTabs.Children.OfType<System.Windows.Controls.Button>())
+            {
+                string tabKey = tab.Tag as string ?? string.Empty;
+                tab.Visibility = settings.MusicServicesOn.Contains(tabKey) ? Visibility.Visible : Visibility.Collapsed;
+                tab.Opacity = tabKey == musicService ? 1.0 : 0.55;
+            }
+        }
+
+        private async void OpenMusic(string? key)
+        {
+            if (!settings.MusicPlayer) return;
+            if (key != null && settings.MusicServicesOn.Contains(key)) musicService = key;
+            if (!settings.MusicServicesOn.Contains(musicService)) musicService = settings.MusicServicesOn[0];
+
+            var service = MusicServices.First(s => s.Key == musicService);
+            FitMusicPanel();
+            HighlightMusicTabs();
+            MusicPanel.Visibility = Visibility.Visible;
+
+            try
+            {
+                await EnsureMusicViewAsync();
+            }
+            catch (Exception ex)
+            {
+                MusicPanel.Visibility = Visibility.Collapsed;
+                MusicStartFailed(ex);
+                return;
+            }
+
+            if (musicView?.CoreWebView2 != null && musicLoadedService != musicService)
+            {
+                musicLoadedService = musicService;
+                nowPlaying = string.Empty;
+                musicView.CoreWebView2.Navigate(service.Url);
+            }
+
+            if (settings.MusicService != musicService)
+            {
+                settings.MusicService = musicService;
+                SaveSettings();
+            }
+        }
+
+        private async Task EnsureMusicViewAsync()
+        {
+            if (musicView?.CoreWebView2 != null) return;
+
+            while (musicStarting) await Task.Delay(100);
+            if (musicView?.CoreWebView2 != null) return;
+
+            musicStarting = true;
+            try
+            {
+                var view = musicView ?? new Microsoft.Web.WebView2.Wpf.WebView2();
+                if (musicView == null)
+                {
+                    musicView = view;
+                    MusicHost.Children.Add(view);
+                }
+
+                string data = System.IO.Path.Combine(SettingsDir, "webview2");
+                Directory.CreateDirectory(data);
+
+                var environment = await Microsoft.Web.WebView2.Core.CoreWebView2Environment.CreateAsync(null, data);
+                await view.EnsureCoreWebView2Async(environment);
+
+                view.CoreWebView2.Settings.AreDevToolsEnabled = false;
+                view.CoreWebView2.Settings.IsStatusBarEnabled = false;
+                view.CoreWebView2.DocumentTitleChanged += (s, e) => UpdateNowPlaying(view.CoreWebView2.DocumentTitle);
+
+                RenderSidebarExtras();
+            }
+            catch
+            {
+                if (musicView != null)
+                {
+                    try { MusicHost.Children.Remove(musicView); musicView.Dispose(); }
+                    catch { }
+                    musicView = null;
+                }
+                throw;
+            }
+            finally
+            {
+                musicStarting = false;
+            }
+        }
+
+        private void MusicStartFailed(Exception ex)
+        {
+            LogError("Musik-Player", ex);
+
+            if (ex is Microsoft.Web.WebView2.Core.WebView2RuntimeNotFoundException)
+            {
+                var answer = Msg("Der Musik-Player braucht die Microsoft Edge WebView2 Runtime. Sie ist bei Windows 11 meist schon da, bei Windows 10 manchmal nicht. Jetzt die Download-Seite öffnen?",
+                    "Musik-Player", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (answer == MessageBoxResult.Yes) OpenShell("https://developer.microsoft.com/microsoft-edge/webview2/");
+                return;
+            }
+
+            Msg($"Der Musik-Player konnte nicht gestartet werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+
+        private string CleanMusicTitle(string title)
+        {
+            if (string.IsNullOrWhiteSpace(title)) return string.Empty;
+            if (Regex.IsMatch(title, @"^(Spotify|Web Player|Apple Music|YouTube Music|music\.youtube|Wird geladen|Loading)", RegexOptions.IgnoreCase)) return string.Empty;
+
+            var parts = Regex.Split(title, @"\s[•\-–|·]\s")
+                .Select(p => p.Trim())
+                .Where(p => p.Length > 0 && !MusicServices.Any(s => p.Equals(s.Name, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+            return string.Join(" – ", parts);
+        }
+
+        private void UpdateNowPlaying(string rawTitle)
+        {
+            nowPlaying = CleanMusicTitle(rawTitle);
+            if (nowPlayingText == null) return;
+
+            nowPlayingText.Text = "♪ " + nowPlaying;
+            nowPlayingText.ToolTip = nowPlaying;
+            nowPlayingText.Visibility = nowPlaying.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private static void SendMediaKey(byte key)
+        {
+            try
+            {
+                NativeExtras.keybd_event(key, 0, 0, UIntPtr.Zero);
+                NativeExtras.keybd_event(key, 0, 2, UIntPtr.Zero);
+            }
+            catch { }
+        }
+
+        private async Task MusicTogglePlayAsync()
+        {
+            try
+            {
+                if (musicView?.CoreWebView2 != null)
+                {
+                    string result = await musicView.CoreWebView2.ExecuteScriptAsync(
+                        "(()=>{const m=[...document.querySelectorAll('audio,video')];if(!m.length)return 'none';const p=m.some(x=>!x.paused);m.forEach(x=>{if(p){x.pause();}else{x.play();}});return p?'paused':'playing';})()");
+                    if (!result.Contains("none")) return;
+                }
+            }
+            catch { }
+
+            SendMediaKey(0xB3);
+        }
+
+        private void MusicTab_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Button { Tag: string key }) OpenMusic(key);
+        }
+
+        private void BtnMusicHide_Click(object sender, RoutedEventArgs e) => MusicPanel.Visibility = Visibility.Collapsed;
+
+        private void BtnMusicStop_Click(object sender, RoutedEventArgs e)
+        {
+            MusicPanel.Visibility = Visibility.Collapsed;
+            nowPlaying = string.Empty;
+            musicLoadedService = string.Empty;
+
+            try
+            {
+                if (musicView != null)
+                {
+                    MusicHost.Children.Remove(musicView);
+                    musicView.Dispose();
+                    musicView = null;
+                }
+            }
+            catch { }
+
+            RenderSidebarExtras();
+        }
+
+        private void BtnMusicBrowser_Click(object sender, RoutedEventArgs e)
+        {
+            var service = MusicServices.First(s => s.Key == musicService);
+            OpenShell(service.Url);
+        }
+
+        /// <summary>Der Player liegt als eigenes Fenster-Element über der Oberfläche und würde die Suche verdecken.</summary>
+        private void SuspendMusicOverlay()
+        {
+            if (MusicPanel.Visibility != Visibility.Visible) return;
+            musicSuspendedForOverlay = true;
+            MusicPanel.Visibility = Visibility.Hidden;
+        }
+
+        private void ResumeMusicOverlay()
+        {
+            if (!musicSuspendedForOverlay) return;
+            musicSuspendedForOverlay = false;
+            MusicPanel.Visibility = Visibility.Visible;
+        }
+
+        // ───────────────────────────── Ladekabel-Warnung ─────────────────────────────
+
+        private bool ConfirmBeforeLaunch(GameItem game)
+        {
+            if (!settings.WarnBattery) return true;
+
+            try
+            {
+                var power = Forms.SystemInformation.PowerStatus;
+                bool hasBattery = (power.BatteryChargeStatus & Forms.BatteryChargeStatus.NoSystemBattery) == 0
+                                  && power.BatteryChargeStatus != Forms.BatteryChargeStatus.Unknown;
+                if (!hasBattery || power.PowerLineStatus != Forms.PowerLineStatus.Offline) return true;
+
+                int percent = (int)Math.Round(power.BatteryLifePercent * 100);
+                var answer = Msg($"Das Ladekabel ist nicht angeschlossen (Akku: {percent} %). Am Akku laufen Spiele langsamer und der Akku ist schnell leer. Trotzdem starten?",
+                    "Ladekabel fehlt", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                return answer == MessageBoxResult.Yes;
+            }
+            catch
+            {
+                return true;
+            }
+        }
+
+        // ───────────────────────────── Geräteprofil (Desktop, Laptop, Handheld) ─────────────────────────────
+
+        private sealed record DeviceInfo(string Kind, double Diagonal, bool Battery);
+
+        private static DeviceInfo DetectDevice()
+        {
+            bool battery = false;
+            try
+            {
+                var power = Forms.SystemInformation.PowerStatus;
+                battery = (power.BatteryChargeStatus & Forms.BatteryChargeStatus.NoSystemBattery) == 0
+                          && power.BatteryChargeStatus != Forms.BatteryChargeStatus.Unknown;
+            }
+            catch { }
+
+            double smallest = 0;
+            try
+            {
+                using var searcher = new System.Management.ManagementObjectSearcher(@"root\wmi",
+                    "SELECT Active, MaxHorizontalImageSize, MaxVerticalImageSize FROM WmiMonitorBasicDisplayParams");
+                foreach (System.Management.ManagementBaseObject monitor in searcher.Get())
+                {
+                    if (monitor["Active"] is bool active && !active) continue;
+
+                    double width = Convert.ToDouble(monitor["MaxHorizontalImageSize"]);
+                    double height = Convert.ToDouble(monitor["MaxVerticalImageSize"]);
+                    if (width <= 0 || height <= 0) continue;
+
+                    double inches = Math.Sqrt(width * width + height * height) / 2.54;
+                    if (smallest == 0 || inches < smallest) smallest = inches;
+                }
+            }
+            catch { }
+
+            var smallDisplay = ReadDisplays().OrderBy(d => (long)d.Width * d.Height).FirstOrDefault();
+
+            string kind;
+            if (!battery) kind = "desktop";
+            else if ((smallest > 0 && smallest <= 9.5) || (smallest == 0 && smallDisplay != null && smallDisplay.Width <= 1280 && smallDisplay.Height <= 800)) kind = "handheld";
+            else kind = "laptop";
+
+            return new DeviceInfo(kind, smallest, battery);
+        }
+
+        private static string DeviceKindName(string kind) => kind switch
+        {
+            "handheld" => "Handheld",
+            "laptop" => "Laptop",
+            _ => "Desktop-PC"
+        };
+
+        private string DeviceInfoText(DeviceInfo info)
+        {
+            string text = Loc.T($"Erkannt: {Loc.T(DeviceKindName(info.Kind))}");
+            if (info.Diagonal > 0) text += " · " + info.Diagonal.ToString("0.#") + " " + Loc.T("Zoll");
+            text += " · " + (info.Battery ? Loc.T("Akku vorhanden") : Loc.T("kein Akku"));
+            return text;
+        }
+
+        private void ApplyDevicePreset(string kind)
+        {
+            schemeUndo = SchemeSnapshot.Capture(settings);
+
+            switch (kind)
+            {
+                case "handheld":
+                    settings.SidebarCollapsed = true;
+                    settings.CardWidth = 170;
+                    settings.CardSpacing = 8;
+                    settings.NavFontSize = 14;
+                    settings.ShowCardSource = false;
+                    settings.ControllerSupport = true;
+                    break;
+
+                case "laptop":
+                    settings.SidebarCollapsed = false;
+                    settings.SidebarWidth = 220;
+                    settings.CardWidth = 190;
+                    settings.CardSpacing = 10;
+                    settings.NavFontSize = 13;
+                    settings.NavItemPadding = 7;
+                    break;
+
+                default:
+                    settings.SidebarCollapsed = false;
+                    settings.SidebarWidth = 250;
+                    settings.CardWidth = 220;
+                    settings.CardSpacing = 12;
+                    settings.NavFontSize = 14;
+                    settings.NavItemPadding = 8;
+                    break;
+            }
+
+            SaveSettings();
+            RefreshAfterScheme();
+            ShowToast("📱", "Für dein Gerät angepasst", Loc.T(DeviceKindName(kind)) + "  ·  " + Loc.T("Klicken zum Rückgängigmachen"), 9, UndoScheme, true);
+        }
+
+        private bool deviceUiUpdating;
+
+        private void UpdateDeviceUi(DeviceInfo? info = null)
+        {
+            if (ChipDevAuto == null) return;
+
+            deviceUiUpdating = true;
+            try
+            {
+                var chips = new[] { ChipDevAuto, ChipDevDesktop, ChipDevLaptop, ChipDevHandheld };
+                foreach (var chip in chips) chip.IsChecked = (chip.Tag as string) == settings.DeviceProfile;
+                if (chips.All(c => c.IsChecked != true)) ChipDevAuto.IsChecked = true;
+            }
+            finally
+            {
+                deviceUiUpdating = false;
+            }
+
+            if (info != null) TxtDeviceInfo.Text = DeviceInfoText(info);
+        }
+
+        private async Task AutoDetectDeviceAsync()
+        {
+            if (settings.DeviceProfile != "auto" || settings.DeviceAutoApplied) return;
+
+            var info = await Task.Run(DetectDevice);
+            settings.DeviceAutoApplied = true;
+            UpdateDeviceUi(info);
+
+            if (info.Kind == "desktop")
+            {
+                SaveSettings();
+                return;
+            }
+            ApplyDevicePreset(info.Kind);
+        }
+
+        private async void Device_Checked(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings || deviceUiUpdating || sender is not System.Windows.Controls.RadioButton { Tag: string kind }) return;
+
+            settings.DeviceProfile = kind;
+            SaveSettings();
+
+            var info = await Task.Run(DetectDevice);
+            UpdateDeviceUi(info);
+            ApplyDevicePreset(kind == "auto" ? info.Kind : kind);
+        }
+
+        private async void BtnDeviceDetect_Click(object sender, RoutedEventArgs e)
+        {
+            var info = await Task.Run(DetectDevice);
+            UpdateDeviceUi(info);
+            ApplyDevicePreset(settings.DeviceProfile == "auto" ? info.Kind : settings.DeviceProfile);
+        }
+
+        /// <summary>Auf kleinen Bildschirmen (Handhelds, kleine Laptops) darf das Fenster nicht über den Rand ragen.</summary>
+        private void FitWindowToScreen()
+        {
+            var area = SystemParameters.WorkArea;
+            MinWidth = Math.Min(MinWidth, area.Width);
+            MinHeight = Math.Min(MinHeight, area.Height);
+            if (Width > area.Width) Width = area.Width;
+            if (Height > area.Height) Height = area.Height;
+        }
+
+        // ───────────────────────────── Energie-Funktionen ─────────────────────────────
+
+        private void HandleToolTarget(string target)
+        {
+            if (target.StartsWith("power:", StringComparison.Ordinal)) PowerAction(target.Substring(6));
+            else OpenShell(target);
+        }
+
+        private void PowerAction(string kind)
+        {
+            (string Title, string Text, string File, string Args) action = kind switch
+            {
+                "shutdown" => ("PC herunterfahren", "Soll der PC jetzt heruntergefahren werden? Nicht gespeicherte Arbeit in anderen Programmen geht verloren.", "shutdown.exe", "/s /t 3"),
+                "restart" => ("PC neu starten", "Soll der PC jetzt neu gestartet werden? Nicht gespeicherte Arbeit in anderen Programmen geht verloren.", "shutdown.exe", "/r /t 3"),
+                "sleep" => ("Energie sparen", "Soll der PC jetzt in den Energiesparmodus wechseln?", "rundll32.exe", "powrprof.dll,SetSuspendState 0,1,0"),
+                "logoff" => ("Abmelden", "Soll der Benutzer jetzt abgemeldet werden? Nicht gespeicherte Arbeit geht verloren.", "shutdown.exe", "/l"),
+                _ => ("PC sperren", string.Empty, "rundll32.exe", "user32.dll,LockWorkStation")
+            };
+
+            if (kind != "lock" && settings.PowerConfirm)
+            {
+                string text = Loc.T(action.Text);
+                if (activeSessions.Count > 0 && (kind == "shutdown" || kind == "restart"))
+                    text += " " + Loc.T("Es läuft noch ein Spiel.");
+
+                var answer = Msg(text, action.Title, MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (answer != MessageBoxResult.Yes) return;
+            }
+
+            try
+            {
+                SaveSettings();
+                Process.Start(new ProcessStartInfo(action.File, action.Args) { UseShellExecute = false, CreateNoWindow = true });
+            }
+            catch (Exception ex)
+            {
+                LogError("Energie", ex);
+                Msg($"Das hat nicht geklappt:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        // ───────────────────────────── Abläufe (Automationen) ─────────────────────────────
+
+        private static readonly (string Key, string Label)[] RoutineTriggers =
+        {
+            ("manual", "Nur von Hand"),
+            ("start", "Wenn der Launcher startet"),
+            ("gamestart", "Wenn ein Spiel startet"),
+            ("gameend", "Wenn ein Spiel beendet wird")
+        };
+
+        private static readonly (string Key, string Label)[] StepTypes =
+        {
+            ("launch", "▶  Programm starten"),
+            ("window", "🪟  Fenster platzieren"),
+            ("wait", "⏱  Warten"),
+            ("url", "🌐  Webseite öffnen"),
+            ("game", "🎮  Spiel starten"),
+            ("power", "⚡  Energieplan setzen"),
+            ("streamer", "📡  Streamer-Modus"),
+            ("toast", "💬  Meldung zeigen"),
+            ("kill", "⛔  Programm beenden")
+        };
+
+        private static readonly (string Guid, string Label)[] PowerPlans =
+        {
+            ("a1841308-3541-4fab-bc81-f71556f20b4a", "Energiesparen"),
+            ("381b4222-f694-41f0-9685-ff5bb260df2e", "Ausbalanciert"),
+            ("8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c", "Höchstleistung"),
+            ("e9a42b02-d5df-448d-aa00-03f14749eb61", "Ultimative Leistung")
+        };
+
+        private static readonly string[] ProtectedProcesses =
+            { "explorer", "winlogon", "csrss", "wininit", "services", "lsass", "svchost", "dwm", "system", "smss", "DFPProLauncher" };
+
+        private readonly HashSet<string> runningRoutines = new();
+
+        private static AutomationStep CloneStep(AutomationStep s) => new()
+        {
+            Type = s.Type,
+            Target = s.Target,
+            ProcessName = s.ProcessName,
+            Number = s.Number,
+            Mode = s.Mode
+        };
+
+        private string TriggerLabel(string key)
+            => Loc.T(RoutineTriggers.FirstOrDefault(t => t.Key == key).Label ?? "Nur von Hand");
+
+        private string ModeLabel(string mode) => mode switch
+        {
+            "maximize" => Loc.T("Maximiert"),
+            "minimize" => Loc.T("Minimiert"),
+            _ => Loc.T("Verschoben")
+        };
+
+        private string DescribeStep(AutomationStep s) => s.Type switch
+        {
+            "launch" => Loc.T("Programm starten") + ": " + (s.Target.StartsWith("app:", StringComparison.Ordinal) ? s.Target.Substring(4) : System.IO.Path.GetFileName(s.Target)),
+            "wait" => Loc.T($"Warten: {s.Number} Sekunden"),
+            "window" => Loc.T("Fenster platzieren") + $": {s.ProcessName} → " + Loc.T($"Bildschirm {s.Number}") + ", " + ModeLabel(s.Mode),
+            "url" => Loc.T("Webseite öffnen") + ": " + s.Target,
+            "power" => Loc.T("Energieplan") + ": " + Loc.T(PowerPlans.FirstOrDefault(p => p.Guid == s.Target).Label ?? s.Target),
+            "toast" => Loc.T("Meldung zeigen") + ": " + s.Target,
+            "kill" => Loc.T("Programm beenden") + ": " + s.ProcessName,
+            "game" => Loc.T("Spiel starten") + ": " + s.Target,
+            "streamer" => s.Mode == "on" ? Loc.T("Streamer-Modus einschalten") : Loc.T("Streamer-Modus ausschalten"),
+            _ => s.Type
+        };
+
+        private AutomationStep? PromptStep(string type, AutomationStep? existing, List<AutomationStep> before)
+        {
+            var step = existing != null ? CloneStep(existing) : new AutomationStep { Type = type };
+
+            switch (type)
+            {
+                case "launch":
+                    {
+                        int source = ChooseOne(Loc.T("Programm starten"), Loc.T("Woher soll das Programm kommen?"),
+                            new List<string> { Loc.T("Aus meinen Anwendungen wählen"), Loc.T("Datei auswählen ...") });
+                        if (source < 0) return null;
+
+                        if (source == 0)
+                        {
+                            var names = cachedApps.Select(a => a.Name).OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase).ToList();
+                            if (names.Count == 0)
+                            {
+                                Msg("Es wurden noch keine Anwendungen gefunden. Wähle stattdessen eine Datei aus.");
+                                return null;
+                            }
+
+                            int chosen = ChooseOne(Loc.T("Programm wählen"), string.Empty, names);
+                            if (chosen < 0) return null;
+                            step.Target = "app:" + names[chosen];
+                        }
+                        else
+                        {
+                            var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "Programme und Verknüpfungen|*.exe;*.lnk;*.bat;*.cmd;*.url|Alle Dateien|*.*" };
+                            if (dialog.ShowDialog() != true) return null;
+                            step.Target = dialog.FileName;
+                        }
+                        return step;
+                    }
+
+                case "wait":
+                    {
+                        string? text = PromptText(Loc.T("Warten"), Loc.T("Wie viele Sekunden soll gewartet werden?"), (existing?.Number ?? 5).ToString());
+                        if (text == null || !int.TryParse(text, out int seconds)) return null;
+                        step.Number = Math.Clamp(seconds, 1, 600);
+                        return step;
+                    }
+
+                case "window":
+                    {
+                        var previous = before.LastOrDefault(s => s.Type == "launch");
+                        string guess = previous == null ? string.Empty
+                            : previous.Target.StartsWith("app:", StringComparison.Ordinal) ? previous.Target.Substring(4).Replace(" ", string.Empty)
+                            : System.IO.Path.GetFileNameWithoutExtension(previous.Target);
+
+                        string? name = PromptText(Loc.T("Fenster platzieren"),
+                            Loc.T("Name des Programms (Prozessname, zum Beispiel Discord)"), existing?.ProcessName ?? guess);
+                        if (name == null) return null;
+
+                        int count = Math.Max(1, ReadDisplays().Count);
+                        var monitors = Enumerable.Range(1, count)
+                            .Select(n => n == 1 ? Loc.T("Bildschirm 1 (Hauptbildschirm)") : Loc.T($"Bildschirm {n}")).ToList();
+                        int monitor = ChooseOne(Loc.T("Welcher Bildschirm?"), string.Empty, monitors);
+                        if (monitor < 0) return null;
+
+                        int mode = ChooseOne(Loc.T("Wie soll das Fenster aussehen?"), string.Empty,
+                            new List<string> { Loc.T("Maximiert (füllt den Bildschirm)"), Loc.T("Nur auf den Bildschirm verschieben"), Loc.T("Minimiert") });
+                        if (mode < 0) return null;
+
+                        step.ProcessName = name;
+                        step.Number = monitor + 1;
+                        step.Mode = new[] { "maximize", "move", "minimize" }[mode];
+                        return step;
+                    }
+
+                case "url":
+                    {
+                        string? url = PromptText(Loc.T("Webseite öffnen"), Loc.T("Adresse der Webseite"), existing?.Target ?? "https://");
+                        if (url == null) return null;
+                        step.Target = url.Contains("://") ? url : "https://" + url;
+                        return step;
+                    }
+
+                case "power":
+                    {
+                        int plan = ChooseOne(Loc.T("Energieplan setzen"), string.Empty, PowerPlans.Select(p => Loc.T(p.Label)).ToList());
+                        if (plan < 0) return null;
+                        step.Target = PowerPlans[plan].Guid;
+                        return step;
+                    }
+
+                case "toast":
+                    {
+                        string? text = PromptText(Loc.T("Meldung zeigen"), Loc.T("Text der Meldung"), existing?.Target ?? string.Empty);
+                        if (text == null) return null;
+                        step.Target = text;
+                        return step;
+                    }
+
+                case "kill":
+                    {
+                        string? name = PromptText(Loc.T("Programm beenden"), Loc.T("Name des Programms (Prozessname, zum Beispiel Discord)"), existing?.ProcessName ?? string.Empty);
+                        if (name == null) return null;
+                        step.ProcessName = name;
+                        return step;
+                    }
+
+                case "game":
+                    {
+                        var names = allGames.Select(g => g.Name).OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase).ToList();
+                        if (names.Count == 0) return null;
+
+                        int chosen = ChooseOne(Loc.T("Spiel starten"), string.Empty, names);
+                        if (chosen < 0) return null;
+                        step.Target = names[chosen];
+                        return step;
+                    }
+
+                case "streamer":
+                    {
+                        int choice = ChooseOne(Loc.T("Streamer-Modus"), string.Empty,
+                            new List<string> { Loc.T("Streamer-Modus einschalten"), Loc.T("Streamer-Modus ausschalten") });
+                        if (choice < 0) return null;
+                        step.Mode = choice == 0 ? "on" : "off";
+                        return step;
+                    }
+            }
+
+            return null;
+        }
+
+        private bool EditRoutine(AutomationRoutine routine)
+        {
+            var dialog = CreateDialog(Loc.T("Ablauf bearbeiten"), 640, out var panel);
+
+            panel.Children.Add(MutedLabel("Name des Ablaufs"));
+            var name = new System.Windows.Controls.TextBox { Text = routine.Name, Height = 38, Margin = new Thickness(0, 6, 0, 14) };
+            panel.Children.Add(name);
+
+            string trigger = routine.Trigger;
+            var filterPanel = new StackPanel { Visibility = trigger.StartsWith("game", StringComparison.Ordinal) ? Visibility.Visible : Visibility.Collapsed };
+
+            panel.Children.Add(MutedLabel("Wann soll der Ablauf starten?"));
+            panel.Children.Add(ChipRow(RoutineTriggers, trigger, key =>
+            {
+                trigger = key;
+                filterPanel.Visibility = key.StartsWith("game", StringComparison.Ordinal) ? Visibility.Visible : Visibility.Collapsed;
+            }));
+
+            filterPanel.Children.Add(MutedLabel("Nur für dieses Spiel (leer = für alle Spiele)"));
+            var filter = new System.Windows.Controls.TextBox { Text = routine.GameFilter, Height = 38, Margin = new Thickness(0, 6, 0, 14) };
+            filterPanel.Children.Add(filter);
+            panel.Children.Add(filterPanel);
+
+            panel.Children.Add(MutedLabel("Schritte (werden der Reihe nach ausgeführt)"));
+            var steps = routine.Steps.Select(CloneStep).ToList();
+            var stepsPanel = new StackPanel { Margin = new Thickness(0, 6, 0, 6) };
+            panel.Children.Add(stepsPanel);
+
+            void RenderSteps()
+            {
+                stepsPanel.Children.Clear();
+
+                if (steps.Count == 0)
+                {
+                    stepsPanel.Children.Add(new TextBlock
+                    {
+                        Text = Loc.T("Noch keine Schritte. Füge unten den ersten hinzu."),
+                        Foreground = BrushSubtle,
+                        Margin = new Thickness(0, 4, 0, 8)
+                    });
+                    return;
+                }
+
+                for (int i = 0; i < steps.Count; i++)
+                {
+                    int index = i;
+
+                    var row = new Grid();
+                    row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+                    row.Children.Add(new TextBlock
+                    {
+                        Text = $"{index + 1}.  {DescribeStep(steps[index])}",
+                        Foreground = System.Windows.Media.Brushes.White,
+                        TextWrapping = TextWrapping.Wrap,
+                        VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                        Margin = new Thickness(0, 0, 10, 0)
+                    });
+
+                    var tools = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
+                    tools.Children.Add(MiniButton("↑", "Nach oben", () =>
+                    {
+                        if (index == 0) return;
+                        (steps[index - 1], steps[index]) = (steps[index], steps[index - 1]);
+                        RenderSteps();
+                    }));
+                    tools.Children.Add(MiniButton("↓", "Nach unten", () =>
+                    {
+                        if (index >= steps.Count - 1) return;
+                        (steps[index + 1], steps[index]) = (steps[index], steps[index + 1]);
+                        RenderSteps();
+                    }));
+                    tools.Children.Add(MiniButton("✏", "Bearbeiten", () =>
+                    {
+                        var edited = PromptStep(steps[index].Type, steps[index], steps.Take(index).ToList());
+                        if (edited == null) return;
+                        steps[index] = edited;
+                        RenderSteps();
+                    }));
+                    tools.Children.Add(MiniButton("✕", "Entfernen", () =>
+                    {
+                        steps.RemoveAt(index);
+                        RenderSteps();
+                    }));
+                    Grid.SetColumn(tools, 1);
+                    row.Children.Add(tools);
+
+                    stepsPanel.Children.Add(new Border
+                    {
+                        Padding = new Thickness(12, 8, 8, 8),
+                        Margin = new Thickness(0, 0, 0, 6),
+                        CornerRadius = new CornerRadius(8),
+                        Background = MakeBrush("#0FFFFFFF"),
+                        Child = row
+                    });
+                }
+            }
+
+            RenderSteps();
+
+            var addButton = new System.Windows.Controls.Button
+            {
+                Content = Loc.T("＋ Schritt hinzufügen"),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                Margin = new Thickness(0, 4, 0, 20)
+            };
+            addButton.Click += (s, e) =>
+            {
+                var menu = CreateMenu();
+                foreach (var (typeKey, label) in StepTypes)
+                {
+                    string type = typeKey;
+                    AddMenuItem(menu, label, () =>
+                    {
+                        var added = PromptStep(type, null, steps);
+                        if (added == null) return;
+                        steps.Add(added);
+                        RenderSteps();
+                    });
+                }
+                menu.PlacementTarget = addButton;
+                menu.IsOpen = true;
+            };
+            panel.Children.Add(addButton);
+
+            bool saved = false;
+            var buttons = new StackPanel
+            {
+                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right
+            };
+            var cancel = new System.Windows.Controls.Button { Content = "Abbrechen", Margin = new Thickness(0, 0, 10, 0), IsCancel = true };
+            var save = new System.Windows.Controls.Button { Content = "Speichern", Padding = new Thickness(28, 8, 28, 8), IsDefault = true };
+            save.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            save.Click += (s, e) =>
+            {
+                if (string.IsNullOrWhiteSpace(name.Text))
+                {
+                    Msg("Bitte gib dem Ablauf einen Namen.");
+                    return;
+                }
+
+                routine.Name = name.Text.Trim();
+                routine.Trigger = trigger;
+                routine.GameFilter = filter.Text.Trim();
+                routine.Steps = steps;
+                saved = true;
+                dialog.DialogResult = true;
+            };
+            buttons.Children.Add(cancel);
+            buttons.Children.Add(save);
+            panel.Children.Add(buttons);
+
+            dialog.ShowDialog();
+            return saved;
+        }
+
+        private void RenderRoutines()
+        {
+            if (RoutinesPanel == null) return;
+            RoutinesPanel.Children.Clear();
+
+            if (settings.Routines.Count == 0)
+            {
+                RoutinesPanel.Children.Add(new TextBlock
+                {
+                    Text = Loc.T("Noch keine Abläufe. Lege einen neuen an oder füge das Beispiel ein."),
+                    Foreground = BrushSubtle,
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(0, 0, 0, 14)
+                });
+                return;
+            }
+
+            foreach (var entry in settings.Routines.ToList())
+            {
+                var routine = entry;
+
+                var row = new Grid();
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+                var texts = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0) };
+                texts.Children.Add(new TextBlock { Text = routine.Name, Foreground = System.Windows.Media.Brushes.White, FontWeight = FontWeights.SemiBold });
+
+                string trigger = TriggerLabel(routine.Trigger);
+                if (routine.Trigger.StartsWith("game", StringComparison.Ordinal) && routine.GameFilter.Length > 0)
+                    trigger += $" ({routine.GameFilter})";
+                texts.Children.Add(new TextBlock
+                {
+                    Text = trigger + "  ·  " + Loc.T($"{routine.Steps.Count} Schritte"),
+                    Foreground = BrushSubtle,
+                    FontSize = 12,
+                    Margin = new Thickness(0, 2, 0, 0)
+                });
+                row.Children.Add(texts);
+
+                var tools = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                tools.Children.Add(MiniButton("▶", "Jetzt ausführen", () => _ = RunRoutineAsync(routine, true)));
+                tools.Children.Add(MiniButton("✏", "Bearbeiten", () =>
+                {
+                    if (!EditRoutine(routine)) return;
+                    SaveSettings();
+                    RenderRoutines();
+                }));
+                tools.Children.Add(MiniButton("🗑", "Löschen", () =>
+                {
+                    settings.Routines.Remove(routine);
+                    SaveSettings();
+                    RenderRoutines();
+                }));
+                Grid.SetColumn(tools, 1);
+                row.Children.Add(tools);
+
+                var enabled = new System.Windows.Controls.CheckBox { IsChecked = routine.Enabled, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                enabled.Checked += (s, e) => { routine.Enabled = true; SaveSettings(); };
+                enabled.Unchecked += (s, e) => { routine.Enabled = false; SaveSettings(); };
+                Grid.SetColumn(enabled, 2);
+                row.Children.Add(enabled);
+
+                RoutinesPanel.Children.Add(new Border
+                {
+                    Padding = new Thickness(14, 10, 12, 10),
+                    Margin = new Thickness(0, 0, 0, 8),
+                    CornerRadius = new CornerRadius(10),
+                    Background = MakeBrush("#0FFFFFFF"),
+                    Child = row
+                });
+            }
+        }
+
+        private void BtnRoutineNew_Click(object sender, RoutedEventArgs e)
+        {
+            var routine = new AutomationRoutine { Name = Loc.T("Neuer Ablauf"), Trigger = "manual" };
+            if (!EditRoutine(routine)) return;
+
+            settings.Routines.Add(routine);
+            SaveSettings();
+            RenderRoutines();
+        }
+
+        private void BtnRoutineSample_Click(object sender, RoutedEventArgs e)
+        {
+            settings.Routines.Add(new AutomationRoutine
+            {
+                Name = Loc.T("Beispiel: Gaming-Abend"),
+                Trigger = "manual",
+                Steps = new List<AutomationStep>
+                {
+                    new() { Type = "launch", Target = "app:Discord" },
+                    new() { Type = "window", ProcessName = "Discord", Number = 2, Mode = "maximize" },
+                    new() { Type = "wait", Number = 3 },
+                    new() { Type = "launch", Target = "app:Spotify" },
+                    new() { Type = "toast", Target = "Viel Spaß!" }
+                }
+            });
+            SaveSettings();
+            RenderRoutines();
+            ShowToast("⚙", "Beispiel hinzugefügt", "Passe die Schritte mit dem Stift an deine Programme an.", 7, null, true);
+        }
+
+        private void RunRoutinesFor(string trigger, GameItem? game)
+        {
+            if (!settings.AutomationsEnabled) return;
+
+            foreach (var routine in settings.Routines.Where(r => r.Enabled && r.Trigger == trigger).ToList())
+            {
+                if (game != null && routine.GameFilter.Length > 0
+                    && !game.Name.Contains(routine.GameFilter, StringComparison.CurrentCultureIgnoreCase)) continue;
+
+                _ = RunRoutineAsync(routine, false);
+            }
+        }
+
+        private async Task RunRoutineAsync(AutomationRoutine routine, bool manual)
+        {
+            if (!settings.AutomationsEnabled && !manual) return;
+            if (!runningRoutines.Add(routine.Name)) return;
+
+            try
+            {
+                if (manual) ShowToast("⚙", "Ablauf gestartet", routine.Name, 4, null, true);
+
+                foreach (var step in routine.Steps.ToList())
+                {
+                    try
+                    {
+                        await RunStepAsync(step);
+                    }
+                    catch (Exception ex)
+                    {
+                        LogError("Ablauf: " + routine.Name, ex);
+                    }
+                }
+            }
+            finally
+            {
+                runningRoutines.Remove(routine.Name);
+            }
+        }
+
+        private async Task RunStepAsync(AutomationStep step)
+        {
+            switch (step.Type)
+            {
+                case "launch":
+                    if (step.Target.StartsWith("app:", StringComparison.Ordinal))
+                    {
+                        string appName = step.Target.Substring(4);
+                        var app = cachedApps.FirstOrDefault(a => a.Name == appName);
+                        if (app == null) throw new InvalidOperationException("App nicht gefunden: " + appName);
+                        LaunchApp(app);
+                    }
+                    else if (File.Exists(step.Target) || Directory.Exists(step.Target))
+                    {
+                        Process.Start(new ProcessStartInfo(step.Target)
+                        {
+                            UseShellExecute = true,
+                            WorkingDirectory = System.IO.Path.GetDirectoryName(step.Target) ?? string.Empty
+                        });
+                    }
+                    else
+                    {
+                        throw new FileNotFoundException("Datei nicht gefunden", step.Target);
+                    }
+                    await Task.Delay(800);
+                    break;
+
+                case "wait":
+                    await Task.Delay(Math.Clamp(step.Number, 1, 600) * 1000);
+                    break;
+
+                case "window":
+                    await PlaceWindowAsync(step.ProcessName, step.Number, step.Mode);
+                    break;
+
+                case "url":
+                    OpenShell(step.Target);
+                    break;
+
+                case "power":
+                    await ActivatePowerPlanAsync(step.Target);
+                    break;
+
+                case "toast":
+                    ShowToast("⚙", "Ablauf", step.Target, 6, null, true);
+                    break;
+
+                case "kill":
+                    await CloseProcessesAsync(step.ProcessName);
+                    break;
+
+                case "game":
+                    {
+                        var game = allGames.FirstOrDefault(g => string.Equals(g.Name, step.Target, StringComparison.OrdinalIgnoreCase));
+                        if (game == null) throw new InvalidOperationException("Spiel nicht gefunden: " + step.Target);
+                        LaunchGame(game);
+                        break;
+                    }
+
+                case "streamer":
+                    settings.StreamerMode = step.Mode == "on";
+                    SaveSettings();
+                    ApplyStreamerMode();
+                    break;
+            }
+        }
+
+        private static IntPtr FindWindowHandle(string name)
+        {
+            try
+            {
+                foreach (var process in Process.GetProcessesByName(name))
+                {
+                    using (process)
+                    {
+                        try
+                        {
+                            process.Refresh();
+                            if (process.MainWindowHandle != IntPtr.Zero && NativeExtras.IsWindowVisible(process.MainWindowHandle))
+                                return process.MainWindowHandle;
+                        }
+                        catch { }
+                    }
+                }
+
+                foreach (var process in Process.GetProcesses())
+                {
+                    using (process)
+                    {
+                        try
+                        {
+                            if (process.MainWindowHandle != IntPtr.Zero
+                                && process.MainWindowTitle.Contains(name, StringComparison.OrdinalIgnoreCase)
+                                && NativeExtras.IsWindowVisible(process.MainWindowHandle))
+                                return process.MainWindowHandle;
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch { }
+
+            return IntPtr.Zero;
+        }
+
+        private async Task PlaceWindowAsync(string processName, int monitor, string mode)
+        {
+            string name = Regex.Replace(processName.Trim(), @"\.exe$", string.Empty, RegexOptions.IgnoreCase);
+            if (name.Length == 0) return;
+
+            IntPtr handle = IntPtr.Zero;
+            for (int attempt = 0; attempt < 40 && handle == IntPtr.Zero; attempt++)
+            {
+                handle = await Task.Run(() => FindWindowHandle(name));
+                if (handle == IntPtr.Zero) await Task.Delay(500);
+            }
+
+            if (handle == IntPtr.Zero)
+            {
+                LogError("Ablauf", new InvalidOperationException("Kein Fenster gefunden für: " + processName));
+                return;
+            }
+
+            await Task.Delay(700);   // das Fenster in Ruhe fertig aufbauen lassen
+
+            NativeExtras.ShowWindow(handle, 9);   // zuerst normal darstellen
+            if (mode == "minimize")
+            {
+                NativeExtras.ShowWindow(handle, 6);
+                return;
+            }
+
+            var displays = ReadDisplays();
+            var target = displays.Count > 0 ? displays[Math.Clamp(monitor - 1, 0, displays.Count - 1)] : null;
+
+            if (target != null)
+            {
+                int rawWidth = target.RawWidth > 0 ? target.RawWidth : target.Width;
+                int rawHeight = target.RawHeight > 0 ? target.RawHeight : target.Height;
+
+                NativeExtras.GetWindowRect(handle, out var rect);
+                int width = Math.Min(Math.Max(rect.Right - rect.Left, 640), Math.Max(640, rawWidth - 160));
+                int height = Math.Min(Math.Max(rect.Bottom - rect.Top, 420), Math.Max(420, rawHeight - 160));
+
+                // 0x0004 = Reihenfolge nicht ändern, 0x0010 = nicht aktivieren
+                NativeExtras.SetWindowPos(handle, IntPtr.Zero, target.X + 80, target.Y + 80, width, height, 0x0004 | 0x0010);
+            }
+
+            if (mode == "maximize") NativeExtras.ShowWindow(handle, 3);
+        }
+
+        private async Task CloseProcessesAsync(string processName)
+        {
+            string name = Regex.Replace(processName.Trim(), @"\.exe$", string.Empty, RegexOptions.IgnoreCase);
+            if (name.Length == 0 || ProtectedProcesses.Any(p => p.Equals(name, StringComparison.OrdinalIgnoreCase)))
+                throw new InvalidOperationException("Dieses Programm darf nicht beendet werden: " + processName);
+
+            var processes = Process.GetProcessesByName(name);
+            foreach (var process in processes)
+            {
+                try { process.CloseMainWindow(); }
+                catch { }
+            }
+
+            await Task.Delay(2500);
+
+            foreach (var process in processes)
+            {
+                try
+                {
+                    if (!process.HasExited) process.Kill(true);
+                }
+                catch { }
+                finally
+                {
+                    process.Dispose();
+                }
+            }
+        }
+
+        // ───────────────────────────── Einstellungen und Start ─────────────────────────────
+
+        private void ReadExtra11Settings()
+        {
+            settings.MusicPlayer = ChkMusic.IsChecked == true;
+            settings.QuickButtonsEnabled = ChkQuickButtons.IsChecked == true;
+            settings.WarnBattery = ChkWarnBattery.IsChecked == true;
+            settings.PowerButtons = ChkPowerButtons.IsChecked == true;
+            settings.PowerConfirm = ChkPowerConfirm.IsChecked == true;
+            settings.AutomationsEnabled = ChkAutomations.IsChecked == true;
+        }
+
+        private void PopulateExtra11Settings()
+        {
+            ChkMusic.IsChecked = settings.MusicPlayer;
+            UpdateMusicServiceUi();
+            ChkQuickButtons.IsChecked = settings.QuickButtonsEnabled;
+            ChkWarnBattery.IsChecked = settings.WarnBattery;
+            ChkPowerButtons.IsChecked = settings.PowerButtons;
+            ChkPowerConfirm.IsChecked = settings.PowerConfirm;
+            ChkAutomations.IsChecked = settings.AutomationsEnabled;
+            UpdateDeviceUi();
+        }
+
+        private void InitExtras11()
+        {
+            musicService = MusicServices.Any(s => s.Key == settings.MusicService) ? settings.MusicService : "spotify";
+            if (!settings.MusicServicesOn.Contains(musicService)) musicService = settings.MusicServicesOn[0];
+
+            ChkMusic.Checked += (s, e) => UpdateMusicServiceVisibility();
+            ChkMusic.Unchecked += (s, e) => UpdateMusicServiceVisibility();
+
+            FitWindowToScreen();
+            RenderSidebarExtras();
+            RenderRoutines();
+            UpdateDeviceUi();
+
+            SizeChanged += (s, e) => FitMusicPanel();
+            Closed += (s, e) =>
+            {
+                try { musicView?.Dispose(); }
+                catch { }
+            };
+
+            Loaded += async (s, e) =>
+            {
+                await Task.Delay(4500);
+                await AutoDetectDeviceAsync();
+                RunRoutinesFor("start", null);
+            };
+        }
+
+        // ───────────────────────────── Musikdienste auswählen ─────────────────────────────
+
+        private IEnumerable<(string Key, string Name, string Url, string Color)> ActiveMusicServices()
+            => MusicServices.Where(s => settings.MusicServicesOn.Contains(s.Key));
+
+        private void UpdateMusicServiceVisibility()
+        {
+            if (MusicServicePanel != null)
+                MusicServicePanel.Visibility = ChkMusic.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void UpdateMusicServiceUi()
+        {
+            if (ChkMusicSpotify == null) return;
+
+            ChkMusicSpotify.IsChecked = settings.MusicServicesOn.Contains("spotify");
+            ChkMusicYtMusic.IsChecked = settings.MusicServicesOn.Contains("ytmusic");
+            ChkMusicApple.IsChecked = settings.MusicServicesOn.Contains("apple");
+            UpdateMusicServiceVisibility();
+        }
+
+        private void MusicServiceChoice_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+
+            var chosen = new List<string>();
+            if (ChkMusicSpotify.IsChecked == true) chosen.Add("spotify");
+            if (ChkMusicYtMusic.IsChecked == true) chosen.Add("ytmusic");
+            if (ChkMusicApple.IsChecked == true) chosen.Add("apple");
+
+            if (chosen.Count == 0)
+            {
+                // Mindestens ein Dienst bleibt aktiv: der gerade abgewählte wird wieder eingeschaltet
+                isLoadingSettings = true;
+                try
+                {
+                    if (sender is System.Windows.Controls.CheckBox box) box.IsChecked = true;
+                }
+                finally
+                {
+                    isLoadingSettings = false;
+                }
+
+                ShowToast("🎵", "Musik", "Mindestens ein Dienst muss aktiv bleiben.", 4);
+                return;
+            }
+
+            settings.MusicServicesOn = chosen;
+            SaveSettings();
+
+            bool switched = !chosen.Contains(musicService);
+            if (switched) musicService = chosen[0];
+
+            RenderSidebarExtras();
+            HighlightMusicTabs();
+
+            // Läuft der Player gerade mit einem abgewählten Dienst, wechselt er zum ersten gewählten
+            if (switched && MusicPanel.Visibility == Visibility.Visible) OpenMusic(null);
+        }
+
+        // ═════════════════════════════ Fensterleiste, Farben, RGB, Controller-Akku, Entwickler ═════════════════════════════
+
+        // ───────────────────────────── Eigene Fensterleiste (transparent) ─────────────────────────────
+
+        private void InitExtras12()
+        {
+            StateChanged += (s, e) =>
+            {
+                UpdateCaptionButtons();
+                FixMaximizedOverhang();
+            };
+            Loaded += (s, e) =>
+            {
+                UpdateCaptionButtons();
+                FixMaximizedOverhang();
+            };
+
+            UpdateRgbUi();
+            UpdateRgbAccent();
+
+#if DEBUG
+            BuildDevPanel();
+            ChipCatDev.Visibility = Visibility.Visible;
+#else
+            SettingsCards.Children.Remove(DevCard);
+            ChipCatDev.Visibility = Visibility.Collapsed;
+#endif
+        }
+
+        private void BtnWinMin_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+
+        private void BtnWinMax_Click(object sender, RoutedEventArgs e)
+            => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+
+        private void BtnWinClose_Click(object sender, RoutedEventArgs e) => Close();
+
+        private void UpdateCaptionButtons()
+        {
+            if (BtnWinMax == null) return;
+
+            bool maximized = WindowState == WindowState.Maximized;
+            BtnWinMax.Content = maximized ? "\uE923" : "\uE922";
+            BtnWinMax.ToolTip = Loc.T(maximized ? "Verkleinern" : "Maximieren");
+        }
+
+        /// <summary>Ein maximiertes Fenster ohne Windows-Rahmen ragt an den Rändern über den Bildschirm. Das gleichen wir hier aus.</summary>
+        private void FixMaximizedOverhang()
+        {
+            if (WindowRoot == null) return;
+
+            if (WindowState != WindowState.Maximized || WindowStyle == WindowStyle.None)
+            {
+                WindowRoot.Margin = new Thickness(0);
+                return;
+            }
+
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                try
+                {
+                    var handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+                    if (handle == IntPtr.Zero || !NativeExtras.GetWindowRect(handle, out var rect)) return;
+
+                    var work = Forms.Screen.FromHandle(handle).WorkingArea;
+                    var dpi = VisualTreeHelper.GetDpi(this);
+
+                    WindowRoot.Margin = new Thickness(
+                        Math.Max(0, work.Left - rect.Left) / dpi.DpiScaleX,
+                        Math.Max(0, work.Top - rect.Top) / dpi.DpiScaleY,
+                        Math.Max(0, rect.Right - work.Right) / dpi.DpiScaleX,
+                        Math.Max(0, rect.Bottom - work.Bottom) / dpi.DpiScaleY);
+                }
+                catch { }
+            }), DispatcherPriority.Loaded);
+        }
+
+        // ───────────────────────────── Farben der Seitenleiste und der Registerkarten ─────────────────────────────
+
+        private string SidebarBaseColor()
+            => !string.IsNullOrWhiteSpace(settings.SidebarColor) ? settings.SidebarColor : (settings.OledMode ? "#000000" : "#0B0E16");
+
+        private void ApplyNavBrushes()
+        {
+            Resources["NavTextBrush"] = MakeBrush(string.IsNullOrWhiteSpace(settings.NavTextColor) ? "#9CA3AF" : settings.NavTextColor, "#9CA3AF");
+
+            if (!string.IsNullOrWhiteSpace(settings.NavActiveColor))
+            {
+                Resources["NavActiveBrush"] = MakeBrush(settings.NavActiveColor, "#8B5CF6");
+                Resources["NavActiveBgBrush"] = MakeAlphaBrush(settings.NavActiveColor, 0x38);
+            }
+            else
+            {
+                Resources["NavActiveBrush"] = Resources["AccentBrush"];
+                Resources["NavActiveBgBrush"] = MakeBrush("#1C2233");
+            }
+        }
+
+        private void BtnPickSidebarColor_Click(object sender, RoutedEventArgs e)
+        {
+            if (!TryPickColor(SidebarBaseColor(), out string hex)) return;
+            settings.SidebarColor = hex;
+            SaveSettings();
+            RefreshAfterThemeChange();
+        }
+
+        private void BtnPickNavTextColor_Click(object sender, RoutedEventArgs e)
+        {
+            string current = string.IsNullOrWhiteSpace(settings.NavTextColor) ? "#9CA3AF" : settings.NavTextColor;
+            if (!TryPickColor(current, out string hex)) return;
+            settings.NavTextColor = hex;
+            SaveSettings();
+            RefreshAfterThemeChange();
+        }
+
+        private void BtnPickNavActiveColor_Click(object sender, RoutedEventArgs e)
+        {
+            string current = string.IsNullOrWhiteSpace(settings.NavActiveColor) ? settings.AccentColor : settings.NavActiveColor;
+            if (!TryPickColor(current, out string hex)) return;
+            settings.NavActiveColor = hex;
+            SaveSettings();
+            RefreshAfterThemeChange();
+        }
+
+        private void BtnResetNavColor_Click(object sender, RoutedEventArgs e)
+        {
+            switch ((sender as FrameworkElement)?.Tag as string)
+            {
+                case "sidebar": settings.SidebarColor = string.Empty; break;
+                case "text": settings.NavTextColor = string.Empty; break;
+                case "active": settings.NavActiveColor = string.Empty; break;
+                default: return;
+            }
+
+            SaveSettings();
+            RefreshAfterThemeChange();
+        }
+
+        // ───────────────────────────── RGB-Akzentfarbe (Belohnung für den Konami-Code) ─────────────────────────────
+
+        private DispatcherTimer? rgbTimer;
+        private double rgbHue;
+
+        private bool RgbActive => settings.RgbUnlocked && settings.RgbAccent && !settings.PerformanceMode;
+
+        private void UpdateRgbAccent()
+        {
+            if (!RgbActive)
+            {
+                if (rgbTimer != null && rgbTimer.IsEnabled)
+                {
+                    rgbTimer.Stop();
+                    Resources["AccentBrush"] = MakeBrush(settings.AccentColor, "#8B5CF6");
+                    if (string.IsNullOrWhiteSpace(settings.NavActiveColor)) Resources["NavActiveBrush"] = Resources["AccentBrush"];
+                }
+                return;
+            }
+
+            if (rgbTimer == null)
+            {
+                rgbTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(90) };
+                rgbTimer.Tick += (s, e) => RgbStep();
+            }
+            if (!rgbTimer.IsEnabled) rgbTimer.Start();
+        }
+
+        private void RgbStep()
+        {
+            double step = settings.RgbSpeed switch { 1 => 1.5, 3 => 6.0, _ => 3.0 };
+            rgbHue = (rgbHue + step) % 360;
+
+            var brush = new SolidColorBrush(HslColor(rgbHue, 0.85, 0.6));
+            brush.Freeze();
+            Resources["AccentBrush"] = brush;
+            if (string.IsNullOrWhiteSpace(settings.NavActiveColor)) Resources["NavActiveBrush"] = brush;
+        }
+
+        private void UpdateRgbUi()
+        {
+            if (RgbPanel == null) return;
+
+            RgbPanel.Visibility = settings.RgbUnlocked ? Visibility.Visible : Visibility.Collapsed;
+
+            bool before = isLoadingSettings;
+            isLoadingSettings = true;
+            try
+            {
+                ChkRgb.IsChecked = settings.RgbAccent;
+                ChipRgbSlow.IsChecked = settings.RgbSpeed == 1;
+                ChipRgbMid.IsChecked = settings.RgbSpeed == 2;
+                ChipRgbFast.IsChecked = settings.RgbSpeed == 3;
+            }
+            finally
+            {
+                isLoadingSettings = before;
+            }
+        }
+
+        private void RgbSpeed_Checked(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings || sender is not System.Windows.Controls.RadioButton { Tag: string tag }) return;
+
+            settings.RgbSpeed = int.TryParse(tag, out int value) ? Math.Clamp(value, 1, 3) : 2;
+            SaveSettings();
+        }
+
+        private void ReadExtra12Settings()
+        {
+            settings.RgbAccent = ChkRgb.IsChecked == true && settings.RgbUnlocked;
+            UpdateRgbAccent();
+        }
+
+        private void PopulateExtra12Settings() => UpdateRgbUi();
+
+        private void UnlockRgbWithPopup()
+        {
+            if (settings.RgbUnlocked) return;
+
+            settings.RgbUnlocked = true;
+            SaveSettings();
+            UpdateRgbUi();
+            Dispatcher.BeginInvoke(new Action(ShowRgbUnlockedDialog), DispatcherPriority.ApplicationIdle);
+        }
+
+        private void ShowRgbUnlockedDialog()
+        {
+            var dialog = CreateDialog("RGB-Akzentfarbe freigeschaltet", 520, out var panel);
+            dialog.Topmost = true;
+
+            panel.Children.Add(new TextBlock { Text = "🌈", FontSize = 52, HorizontalAlignment = System.Windows.HorizontalAlignment.Center });
+            panel.Children.Add(new TextBlock
+            {
+                Text = Loc.T("RGB-Akzentfarbe freigeschaltet"),
+                FontSize = 22,
+                FontWeight = FontWeights.Bold,
+                Foreground = System.Windows.Media.Brushes.White,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                TextAlignment = TextAlignment.Center,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 6, 0, 10)
+            });
+            panel.Children.Add(new TextBlock
+            {
+                Text = Loc.T("Du hast den Konami-Code gefunden! Als Belohnung gibt es ab jetzt die RGB-Akzentfarbe: Sie wechselt dauernd durch alle Regenbogenfarben. Du findest sie für immer unter Einstellungen → Darstellung."),
+                Foreground = MakeBrush("#D1D5DB"),
+                TextWrapping = TextWrapping.Wrap,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 20)
+            });
+
+            var buttons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Center };
+            var later = new System.Windows.Controls.Button { Content = Loc.T("Später"), Margin = new Thickness(0, 0, 10, 0), Padding = new Thickness(22, 8, 22, 8), IsCancel = true };
+            var enable = new System.Windows.Controls.Button { Content = Loc.T("Jetzt einschalten"), Padding = new Thickness(22, 8, 22, 8), IsDefault = true };
+            enable.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            buttons.Children.Add(later);
+            buttons.Children.Add(enable);
+            panel.Children.Add(buttons);
+
+            enable.Click += (s, e) =>
+            {
+                rainbowTimer?.Stop();
+                settings.RgbAccent = true;
+                SaveSettings();
+                UpdateRgbUi();
+                UpdateRgbAccent();
+                dialog.DialogResult = true;
+            };
+
+            dialog.ShowDialog();
+        }
+
+        // ───────────────────────────── Controller-Akku ─────────────────────────────
+
+        private int padSlot = -1;
+        private int padBatteryLevel = -1;        // -1 = unbekannt, 0 leer, 1 niedrig, 2 mittel, 3 voll
+        private bool padBatteryWired;
+        private bool padBatteryPreview;
+        private DateTime lastBatteryRead = DateTime.MinValue;
+
+        private void TickPadBattery()
+        {
+            if (padBatteryPreview) return;
+
+            if (padSlot < 0)
+            {
+                if (padBatteryLevel != -1) SetPadBattery(-1, false);
+                return;
+            }
+
+            if ((DateTime.Now - lastBatteryRead).TotalSeconds < 15) return;
+            lastBatteryRead = DateTime.Now;
+
+            try
+            {
+                if (NativeFeatures.XInputGetBatteryInformation((uint)padSlot, 0, out var info) != 0)
+                {
+                    SetPadBattery(-1, false);
+                    return;
+                }
+
+                if (info.BatteryType == 1) SetPadBattery(3, true);                                // Kabel
+                else if (info.BatteryType == 2 || info.BatteryType == 3) SetPadBattery(info.BatteryLevel, false);
+                else SetPadBattery(-1, false);
+            }
+            catch
+            {
+                SetPadBattery(-1, false);
+            }
+        }
+
+        private void SetPadBattery(int level, bool wired)
+        {
+            bool wasLow = !padBatteryWired && (padBatteryLevel == 0 || padBatteryLevel == 1);
+            padBatteryLevel = level;
+            padBatteryWired = wired;
+
+            UpdatePadBatteryUi();
+            UpdatePadStatus();
+
+            bool isLow = !wired && (level == 0 || level == 1);
+            if (isLow && !wasLow && controllerMode && !padBatteryPreview)
+                ShowToast("🎮", "Controller-Akku niedrig", "Der Akku deines Controllers ist fast leer. Zeit zum Aufladen.", 8, null, true);
+        }
+
+        private string PadBatteryLabel()
+        {
+            if (padBatteryLevel < 0) return string.Empty;
+            if (padBatteryWired) return "🔌 " + Loc.T("Kabel");
+
+            return padBatteryLevel switch
+            {
+                3 => "🔋 " + Loc.T("Voll"),
+                2 => "🔋 " + Loc.T("Mittel"),
+                1 => "🪫 " + Loc.T("Niedrig"),
+                _ => "🪫 " + Loc.T("Leer")
+            };
+        }
+
+        private void UpdatePadBatteryUi()
+        {
+            if (PadBatteryBadge == null) return;
+
+            bool show = padBatteryLevel >= 0 && (controllerMode || padBatteryPreview);
+            PadBatteryBadge.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            if (!show) return;
+
+            TxtPadBattery.Text = Loc.T("Akku") + ": " + PadBatteryLabel();
+            TxtPadBattery.Foreground = MakeBrush(padBatteryWired ? "#60A5FA" : padBatteryLevel switch
+            {
+                3 => "#34D399",
+                2 => "#A3E635",
+                1 => "#F59E0B",
+                _ => "#EF4444"
+            });
+        }
+
+        private void PreviewPadBattery(int level, bool wired)
+        {
+            padBatteryPreview = true;
+            padBatteryLevel = level;
+            padBatteryWired = wired;
+
+            PadHintBar.Visibility = Visibility.Visible;
+            if (!controllerMode) TxtPadHint.Text = Loc.T("Vorschau");
+            UpdatePadBatteryUi();
+
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(8) };
+            timer.Tick += (s, e) =>
+            {
+                timer.Stop();
+                padBatteryPreview = false;
+                padBatteryLevel = -1;
+                UpdatePadBatteryUi();
+                UpdatePadHint();
+            };
+            timer.Start();
+        }
+
+        // ───────────────────────────── Nach oben in den Einstellungen ─────────────────────────────
+
+        private void BtnSettingsTop_Click(object sender, RoutedEventArgs e) => ViewSettings.ScrollToTop();
+
+        // ───────────────────────────── Effekte, die auch die Entwickler-Einstellungen auslösen ─────────────────────────────
+
+        private void PlayHalloween()
+        {
+            EmojiRain(new[] { "🎃", "👻", "🦇", "🕸" }, 34, 7000);
+            EggToast("🎃", "Happy Halloween", Loc.T($"Gruselige Grüße, {DisplayUserName()}!"), 8, false);
+        }
+
+        private void PlayChristmas()
+        {
+            EmojiRain(new[] { "❄", "❅", "❄", "🎄", "⭐" }, 70, 9000);
+            EggToast("🎄", "Frohe Weihnachten", Loc.T($"Schöne Feiertage, {DisplayUserName()}!"), 8, false);
+        }
+
+        private void PlayNewYear()
+        {
+            Fireworks(7);
+            EggToast("🎆", "Frohes neues Jahr", Loc.T($"Auf ein tolles Spielejahr, {DisplayUserName()}!"), 8, false);
+        }
+
+        private void PlayBirthday(int years)
+        {
+            string text = years == 1
+                ? Loc.T("Heute vor einem Jahr hast du mich installiert. Alles Gute zum Launcher-Geburtstag!")
+                : Loc.T($"Heute vor {years} Jahren hast du mich installiert. Alles Gute zum Launcher-Geburtstag!");
+            EggToast("🎂", "Geburtstag", text, 10, false);
+            Confetti();
+            UnlockSecret("secret_birthday");
+        }
+
+        private void PlayNightOwl()
+        {
+            EggToast("🦉", "Nachteule", "Dein Pudel schläft schon. Du auch bald?", 9, false);
+            UnlockSecret("secret_owl");
+        }
+
+        private void PlayMilestone(int hours)
+        {
+            var milestone = PlaytimeMilestones.FirstOrDefault(m => m.Hours == hours);
+            if (milestone.Title == null) return;
+
+            ShowToast(milestone.Icon, Loc.T("Meilenstein") + ": " + Loc.T(milestone.Title),
+                Loc.T($"Du hast insgesamt {milestone.Hours} Stunden gespielt."), 10, null, true);
+            Confetti();
+        }
+
+#if DEBUG
+        // ───────────────────────────── Entwickler-Einstellungen (nur in Testversionen) ─────────────────────────────
+
+        private void BuildDevPanel()
+        {
+            DevPanel.Children.Clear();
+            WrapPanel row = new();
+
+            void Group(string title)
+            {
+                DevPanel.Children.Add(new TextBlock
+                {
+                    Text = title,
+                    Foreground = System.Windows.Media.Brushes.White,
+                    FontWeight = FontWeights.SemiBold,
+                    Margin = new Thickness(0, 16, 0, 8)
+                });
+                row = new WrapPanel();
+                DevPanel.Children.Add(row);
+            }
+
+            void Dev(string text, Action action)
+            {
+                var button = new System.Windows.Controls.Button { Content = text, Margin = new Thickness(0, 0, 8, 8), Padding = new Thickness(14, 8, 14, 8) };
+                button.Click += (s, e) =>
+                {
+                    try { action(); }
+                    catch (Exception ex)
+                    {
+                        LogError("Entwickler", ex);
+                        Msg("Das hat nicht geklappt:\n" + ex.Message, "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                };
+                row.Children.Add(button);
+            }
+
+            DevPanel.Children.Add(new TextBlock
+            {
+                Text = "Testversion: " + VersionLabel() + " · Diese Auswahl gibt es nur in Builds aus Visual Studio, nicht im Installer.",
+                Foreground = BrushSubtle,
+                FontSize = 12,
+                TextWrapping = TextWrapping.Wrap
+            });
+
+            Group("Feiertage und besondere Tage");
+            Dev("🎃 Halloween", PlayHalloween);
+            Dev("🎄 Weihnachten", PlayChristmas);
+            Dev("🎆 Neujahr", PlayNewYear);
+            Dev("🎂 Geburtstag (1 Jahr)", () => PlayBirthday(1));
+            Dev("🎂 Geburtstag (3 Jahre)", () => PlayBirthday(3));
+            Dev("🤡 1. April", ShowAprilFools);
+
+            Group("Easter Eggs");
+            Dev("🕹 Konami-Code", TriggerKonami);
+            Dev("🪩 Disco", StartDisco);
+            Dev("🐶 Pudel (Wuff)", PudelGreeting);
+            Dev("📊 Geheimstatistik", ShowSecretStats);
+            Dev("🦉 Nachteule", PlayNightOwl);
+            Dev("🎯 DVD-Logo starten", StartDvd);
+            Dev("🏆 Meilenstein 100 h", () => PlayMilestone(100));
+            Dev("🏆 Meilenstein 1000 h", () => PlayMilestone(1000));
+            Dev("🍀 Seltene Begrüßung", () =>
+            {
+                EggToast("🍀", "Begrüßung", Loc.T(RareGreetings[random.Next(RareGreetings.Length)]), 6);
+                UnlockSecret("secret_lucky");
+            });
+            Dev("✨ Willkommensanimation", StartWelcomeAnimation);
+            Dev("🎊 Konfetti", Confetti);
+
+            Group("Freischaltungen");
+            Dev("🌈 RGB-Popup zeigen", ShowRgbUnlockedDialog);
+            Dev("🌈 RGB freischalten", () =>
+            {
+                settings.RgbUnlocked = true;
+                SaveSettings();
+                UpdateRgbUi();
+            });
+            Dev("🌈 RGB sperren", () =>
+            {
+                settings.RgbUnlocked = false;
+                settings.RgbAccent = false;
+                SaveSettings();
+                UpdateRgbUi();
+                UpdateRgbAccent();
+            });
+            Dev("🏆 Alle Geheimerfolge freischalten", () =>
+            {
+                foreach (var def in SecretAchievementDefs())
+                    settings.Achievements[def.Id] = DateTime.Now.ToString("o", CultureInfo.InvariantCulture);
+                SaveSettings();
+                RefreshStatsExtras();
+            });
+            Dev("↺ Geheimerfolge zurücksetzen", () =>
+            {
+                foreach (string key in settings.Achievements.Keys.Where(k => k.StartsWith("secret_", StringComparison.Ordinal)).ToList())
+                    settings.Achievements.Remove(key);
+                SaveSettings();
+                RefreshStatsExtras();
+            });
+            Dev("↺ Easter-Egg-Gedächtnis löschen", () =>
+            {
+                settings.EggSeen.Clear();
+                settings.MilestonesReached.Clear();
+                settings.MilestonesInit = false;
+                SaveSettings();
+                ShowToast("🧹", "Entwickler", "Die gemerkten Easter Eggs und Meilensteine wurden gelöscht.", 5);
+            });
+
+            Group("Controller-Akku (Vorschau)");
+            Dev("🔋 Voll", () => PreviewPadBattery(3, false));
+            Dev("🔋 Mittel", () => PreviewPadBattery(2, false));
+            Dev("🪫 Niedrig", () => PreviewPadBattery(1, false));
+            Dev("🪫 Leer", () => PreviewPadBattery(0, false));
+            Dev("🔌 Kabel", () => PreviewPadBattery(3, true));
+
+            Group("Dialoge und Meldungen");
+            Dev("🔌 Ladekabel-Warnung", () =>
+            {
+                int percent = 42;
+                Msg($"Das Ladekabel ist nicht angeschlossen (Akku: {percent} %). Am Akku laufen Spiele langsamer und der Akku ist schnell leer. Trotzdem starten?",
+                    "Ladekabel fehlt", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            });
+            Dev("💬 Test-Meldung", () => ShowToast("🧪", "Testmeldung", "So sieht eine Meldung im Launcher aus.", 6));
+            Dev("ℹ Über-Dialog", ShowAbout);
+            Dev("🔄 Update jetzt prüfen", () => _ = CheckForUpdateAsync(true));
+        }
+#endif
     }
 }

@@ -1,32 +1,33 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <TargetFramework>net8.0-windows8.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <UseWPF>true</UseWPF>
-        <UseWindowsForms>true</UseWindowsForms>
-        <ApplicationIcon>DFP_Pro_Launcher.ico</ApplicationIcon>
-        <AssemblyName>DFPProLauncher</AssemblyName>
-        <Product>DFP Pro Launcher</Product>
-        <Authors>Der_Fette_Pudel</Authors>
-        <Version>1.0.0</Version>
-    </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
+		<ApplicationIcon>DFP_Pro_Launcher.ico</ApplicationIcon>
+		<AssemblyName>DFPProLauncher</AssemblyName>
+		<Product>DFP Pro Launcher</Product>
+		<Authors>Der_Fette_Pudel</Authors>
+		<Version>1.0.0</Version>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <Content Include="DFP_Pro_Launcher.ico" />
-    </ItemGroup>
+	<ItemGroup>
+		<Content Include="DFP_Pro_Launcher.ico" />
+	</ItemGroup>
 
-    <!-- Der GitHub-Workflow setzt UpdateRepository (Benutzer/Repository). Lokale Testversionen suchen deshalb keine Updates. -->
-    <ItemGroup Condition="'$(UpdateRepository)' != ''">
-        <AssemblyMetadata Include="UpdateRepository" Value="$(UpdateRepository)" />
-    </ItemGroup>
+	<!-- Der GitHub-Workflow setzt UpdateRepository (Benutzer/Repository). Lokale Testversionen suchen deshalb keine Updates. -->
+	<ItemGroup Condition="'$(UpdateRepository)' != ''">
+		<AssemblyMetadata Include="UpdateRepository" Value="$(UpdateRepository)" />
+	</ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.*" />
-        <PackageReference Include="SixLabors.ImageSharp" Version="3.1.*" />
-        <PackageReference Include="System.Management" Version="10.0.2" />
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="LibreHardwareMonitorLib" Version="0.9.*" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.*" />
+		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.*" />
+		<PackageReference Include="System.Management" Version="10.0.2" />
+	</ItemGroup>
 
 </Project>
