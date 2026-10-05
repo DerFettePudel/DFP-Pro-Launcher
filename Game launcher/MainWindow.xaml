@@ -1079,18 +1079,31 @@
                 <Grid x:Name="ViewApps" Visibility="Collapsed">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Grid Margin="0,0,0,20">
-                        <StackPanel>
+
+                    <Grid Margin="0,0,0,16">
+                        <StackPanel Margin="0,0,560,0">
                             <TextBlock Text="Anwendungen" Style="{StaticResource PageTitle}"/>
-                            <TextBlock Text="Deine wichtigsten Programme mit einem Klick. Bekannte Apps werden automatisch erkannt."
-                                   Style="{StaticResource SubtleText}" Margin="0,4,0,0"/>
+                            <TextBlock x:Name="TxtAppsSubtitle" Style="{StaticResource SubtleText}" Margin="0,4,0,0"/>
                         </StackPanel>
-                        <Button Content="＋ App hinzufügen" HorizontalAlignment="Right" VerticalAlignment="Top"
-                            Background="{DynamicResource AccentBrush}" Click="BtnAddApp_Click"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                            <Grid Width="230" Margin="0,0,8,0">
+                                <TextBox x:Name="TxtAppSearch" Height="38" Padding="36,0,10,0" TextChanged="TxtAppSearch_TextChanged"/>
+                                <TextBlock Text="🔍" Margin="12,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                       FontFamily="Segoe UI Emoji" IsHitTestVisible="False"/>
+                                <TextBlock x:Name="AppSearchHint" Text="App suchen ..." Margin="38,0,0,0" VerticalAlignment="Center"
+                                       Foreground="#6B7280" IsHitTestVisible="False"/>
+                            </Grid>
+                            <Button Content="🔄" ToolTip="Neu laden" Width="40" Height="38" Margin="0,0,8,0" Click="BtnRefreshApps_Click"/>
+                            <Button Content="＋ App hinzufügen" Height="38" Background="{DynamicResource AccentBrush}" Click="BtnAddApp_Click"/>
+                        </StackPanel>
                     </Grid>
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+
+                    <WrapPanel x:Name="AppsFilterPanel" Grid.Row="1" Margin="0,0,0,14"/>
+
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                         <StackPanel>
                             <WrapPanel x:Name="AppsContainer"/>
                             <TextBlock x:Name="TxtAppsEmpty" Text="Keine Apps erkannt. Füge deine Programme mit „App hinzufügen“ selbst hinzu."
@@ -1388,66 +1401,205 @@
                         <TextBlock Text="Optimierung" Style="{StaticResource PageTitle}"/>
                         <TextBlock Text="Mehr Leistung und Platz für deine Spiele." Style="{StaticResource SubtleText}" Margin="0,4,0,20"/>
 
-                        <WrapPanel>
-                            <Border Style="{StaticResource CardStyle}" Width="400" Margin="0,0,12,12">
-                                <StackPanel>
-                                    <TextBlock Text="⚡  Energiesparplan" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
-                                    <TextBlock x:Name="TxtPowerPlan" Text="Aktiver Plan: ..." Foreground="#34D399" FontWeight="SemiBold" Margin="0,0,0,6"/>
-                                    <TextBlock Text="Höchstleistung bringt mehr FPS, braucht aber mehr Strom." Style="{StaticResource SubtleText}" TextWrapping="Wrap" Margin="0,0,0,14"/>
-                                    <WrapPanel>
-                                        <Button Content="Energiesparen" Tag="a1841308-3541-4fab-bc81-f71556f20b4a" Margin="0,0,8,8" Click="BtnPowerPlan_Click"/>
-                                        <Button Content="Ausbalanciert" Tag="381b4222-f694-41f0-9685-ff5bb260df2e" Margin="0,0,8,8" Click="BtnPowerPlan_Click"/>
-                                        <Button Content="Höchstleistung" Tag="8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c" Margin="0,0,0,8"
-                                            Background="{DynamicResource AccentBrush}" Click="BtnPowerPlan_Click"/>
-                                        <Border Style="{StaticResource CardStyle}" Width="400" Margin="0,0,12,12">
-                                            <StackPanel>
-                                                <TextBlock Text="🖥  Grafiktreiber" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
-                                                <TextBlock x:Name="TxtDriverInfo" Foreground="#34D399" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,14"/>
-                                                <Button Content="Treiber-Seite öffnen" HorizontalAlignment="Left" Click="BtnOpenDriverPage_Click"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </WrapPanel>
-                                    <Border Style="{StaticResource CardStyle}" Margin="0,0,12,12">
+                        <!-- Gaming-Check -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Width="150" Height="150" Margin="0,0,28,0">
+                                    <Ellipse Stroke="#1F2937" StrokeThickness="12"/>
+                                    <Path x:Name="ArcGamingCheck" Stroke="{DynamicResource AccentBrush}" StrokeThickness="12"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <TextBlock x:Name="TxtGamingCheckScore" Text="0/4" FontSize="30" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="erfüllt" FontSize="12" Foreground="#9CA3AF" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Grid>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="Gaming-Check" Style="{StaticResource SectionTitle}" Margin="0,0,0,2"/>
+                                    <TextBlock x:Name="TxtGamingCheckHint" Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                        <TextBlock x:Name="IconCheckPower" Text="✓" Foreground="#34D399" FontWeight="Bold" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Energieplan: Höchstleistung" Foreground="#D1D5DB"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                        <TextBlock x:Name="IconCheckGameMode" Text="✓" Foreground="#34D399" FontWeight="Bold" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Spielmodus ist an" Foreground="#D1D5DB"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                        <TextBlock x:Name="IconCheckMouse" Text="✓" Foreground="#34D399" FontWeight="Bold" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Mausbeschleunigung ist aus" Foreground="#D1D5DB"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="0">
+                                        <TextBlock x:Name="IconCheckDvr" Text="✓" Foreground="#34D399" FontWeight="Bold" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Hintergrundaufnahme ist aus" Foreground="#D1D5DB"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Energieplan -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                            <StackPanel>
+                                <Grid>
+                                    <StackPanel>
+                                        <TextBlock Text="⚡  Energiesparplan" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
+                                        <TextBlock x:Name="TxtPowerPlan" Text="Aktiver Plan: ..." Foreground="#34D399" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                    <Button Content="Energieoptionen" Tag="powercfg.cpl" Click="BtnOpenSetting_Click"
+                                        HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                                </Grid>
+                                <TextBlock Text="Klicke auf einen Plan, um ihn sofort zu aktivieren." Style="{StaticResource SubtleText}" Margin="0,10,0,14"/>
+                                <UniformGrid Columns="4">
+                                    <Border x:Name="PlanSaver" Tag="a1841308-3541-4fab-bc81-f71556f20b4a" Background="#0FFFFFFF" BorderBrush="#26FFFFFF" BorderThickness="1"
+                                    CornerRadius="12" Padding="16,14" Margin="0,0,10,0" Cursor="Hand" MouseLeftButtonUp="PlanTile_Click">
                                         <StackPanel>
-                                            <TextBlock Text="🚀  Autostart-Programme" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
-                                            <TextBlock Text="Programme, die mit Windows starten. Abwählen verhindert den Start (nur für deinen Benutzer)."
-                                       Style="{StaticResource SubtleText}" TextWrapping="Wrap" Margin="0,0,0,14"/>
-                                            <StackPanel x:Name="AutostartPanel"/>
+                                            <Grid>
+                                                <TextBlock Text="Energiesparen" Foreground="White" FontWeight="SemiBold"/>
+                                                <Border x:Name="BadgePlanSaver" Visibility="Collapsed" HorizontalAlignment="Right" CornerRadius="8" Padding="8,2"
+                                                Background="{DynamicResource AccentBrush}">
+                                                    <TextBlock Text="Aktiv" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
+                                                </Border>
+                                            </Grid>
+                                            <TextBlock Text="Spart Strom, weniger Leistung" Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0"/>
                                         </StackPanel>
                                     </Border>
+                                    <Border x:Name="PlanBalanced" Tag="381b4222-f694-41f0-9685-ff5bb260df2e" Background="#0FFFFFFF" BorderBrush="#26FFFFFF" BorderThickness="1"
+                                    CornerRadius="12" Padding="16,14" Margin="0,0,10,0" Cursor="Hand" MouseLeftButtonUp="PlanTile_Click">
+                                        <StackPanel>
+                                            <Grid>
+                                                <TextBlock Text="Ausbalanciert" Foreground="White" FontWeight="SemiBold"/>
+                                                <Border x:Name="BadgePlanBalanced" Visibility="Collapsed" HorizontalAlignment="Right" CornerRadius="8" Padding="8,2"
+                                                Background="{DynamicResource AccentBrush}">
+                                                    <TextBlock Text="Aktiv" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
+                                                </Border>
+                                            </Grid>
+                                            <TextBlock Text="Empfohlen, passt sich automatisch an" Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border x:Name="PlanHigh" Tag="8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c" Background="#0FFFFFFF" BorderBrush="#26FFFFFF" BorderThickness="1"
+                                    CornerRadius="12" Padding="16,14" Margin="0,0,10,0" Cursor="Hand" MouseLeftButtonUp="PlanTile_Click">
+                                        <StackPanel>
+                                            <Grid>
+                                                <TextBlock Text="Höchstleistung" Foreground="White" FontWeight="SemiBold"/>
+                                                <Border x:Name="BadgePlanHigh" Visibility="Collapsed" HorizontalAlignment="Right" CornerRadius="8" Padding="8,2"
+                                                Background="{DynamicResource AccentBrush}">
+                                                    <TextBlock Text="Aktiv" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
+                                                </Border>
+                                            </Grid>
+                                            <TextBlock Text="Höhere Taktraten, etwas mehr Stromverbrauch" Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border x:Name="PlanUltimate" Tag="e9a42b02-d5df-448d-aa00-03f14749eb61" Background="#0FFFFFFF" BorderBrush="#26FFFFFF" BorderThickness="1"
+                                    CornerRadius="12" Padding="16,14" Margin="0,0,0,0" Cursor="Hand" MouseLeftButtonUp="PlanTile_Click">
+                                        <StackPanel>
+                                            <Grid>
+                                                <TextBlock Text="Ultimative Leistung" Foreground="White" FontWeight="SemiBold"/>
+                                                <Border x:Name="BadgePlanUltimate" Visibility="Collapsed" HorizontalAlignment="Right" CornerRadius="8" Padding="8,2"
+                                                Background="{DynamicResource AccentBrush}">
+                                                    <TextBlock Text="Aktiv" FontSize="11" FontWeight="SemiBold" Foreground="White"/>
+                                                </Border>
+                                            </Grid>
+                                            <TextBlock Text="Maximale Leistung, keine Stromsparfunktionen" Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Windows für Spiele und Grafiktreiber -->
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource CardStyle}" Margin="0,0,8,0" VerticalAlignment="Top">
+                                <StackPanel>
+                                    <TextBlock Text="🕹  Windows für Spiele" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Diese Windows-Einstellungen wirken sich direkt auf deine Spiele aus."
+                                           Style="{StaticResource SubtleText}" TextWrapping="Wrap" Margin="0,0,0,16"/>
+                                    <Grid Margin="0,0,0,14">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,16,0">
+                                            <TextBlock Text="Spielmodus" Foreground="White" FontWeight="SemiBold"/>
+                                            <TextBlock Text="Windows gibt dem Spiel Vorrang und hält Updates im Hintergrund zurück." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkGameMode" Grid.Column="1" VerticalAlignment="Center" Checked="ChkGameMode_Changed" Unchecked="ChkGameMode_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,14">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,16,0">
+                                            <TextBlock Text="Hintergrundaufnahme" Foreground="White" FontWeight="SemiBold"/>
+                                            <TextBlock Text="Nimmt ständig die letzten Minuten auf. Aus bedeutet mehr FPS, Screenshots und manuelle Aufnahmen gehen weiter." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkGameDvr" Grid.Column="1" VerticalAlignment="Center" Checked="ChkGameDvr_Changed" Unchecked="ChkGameDvr_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,16,0">
+                                            <TextBlock Text="Mausbeschleunigung" Foreground="White" FontWeight="SemiBold"/>
+                                            <TextBlock Text="Für Shooter besser aus: Die gleiche Handbewegung ergibt immer die gleiche Strecke auf dem Bildschirm." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkMouseAccel" Grid.Column="1" VerticalAlignment="Center" Checked="ChkMouseAccel_Changed" Unchecked="ChkMouseAccel_Changed"/>
+                                    </Grid>
                                 </StackPanel>
                             </Border>
-
-                            <Border Style="{StaticResource CardStyle}" Width="400" Margin="0,0,12,12">
+                            <Border Grid.Column="1" Style="{StaticResource CardStyle}" Margin="8,0,0,0" VerticalAlignment="Top">
                                 <StackPanel>
-                                    <TextBlock Text="🧹  Temporäre Dateien" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
-                                    <TextBlock Text="Löscht Dateien im Temp-Ordner, die älter als 24 Stunden sind. Dateien in Benutzung werden übersprungen."
-                                           Style="{StaticResource SubtleText}" TextWrapping="Wrap" Margin="0,0,0,14"/>
-                                    <Button Content="Jetzt bereinigen" HorizontalAlignment="Left" Background="#10B981" Click="BtnCleanTemp_Click"/>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Style="{StaticResource CardStyle}" Width="400" Margin="0,0,12,12">
-                                <StackPanel>
-                                    <TextBlock Text="🗑  Papierkorb" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
-                                    <TextBlock Text="Leert den Papierkorb aller Laufwerke und schafft sofort Platz."
-                                           Style="{StaticResource SubtleText}" TextWrapping="Wrap" Margin="0,0,0,14"/>
-                                    <Button Content="Papierkorb leeren" HorizontalAlignment="Left" Background="#10B981" Click="BtnEmptyRecycle_Click"/>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Style="{StaticResource CardStyle}" Width="400" Margin="0,0,12,12">
-                                <StackPanel>
-                                    <TextBlock Text="🎮  Windows Spielmodus" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
-                                    <TextBlock Text="Der Spielmodus gibt Spielen Vorrang. Prüfe hier, ob er aktiv ist, und stelle die Grafikleistung pro Spiel ein."
+                                    <TextBlock Text="🖥  Grafiktreiber" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="TxtDriverInfo" Foreground="#34D399" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                    <TextBlock Text="Neue Treiber bringen oft mehr FPS und beheben Abstürze in neuen Spielen."
                                            Style="{StaticResource SubtleText}" TextWrapping="Wrap" Margin="0,0,0,14"/>
                                     <WrapPanel>
-                                        <Button Content="Spielmodus" Margin="0,0,8,8" Tag="ms-settings:gaming-gamemode" Click="BtnOpenSetting_Click"/>
-                                        <Button Content="Grafikeinstellungen" Margin="0,0,0,8" Tag="ms-settings:display-advancedgraphics" Click="BtnOpenSetting_Click"/>
+                                        <Button Content="Treiber-Seite öffnen" Margin="0,0,8,8" Background="{DynamicResource AccentBrush}" Click="BtnOpenDriverPage_Click"/>
+                                        <Button Content="Geräte-Manager" Margin="0,0,0,8" Tag="devmgmt.msc" Click="BtnOpenSetting_Click"/>
                                     </WrapPanel>
                                 </StackPanel>
                             </Border>
-                        </WrapPanel>
+                        </Grid>
+
+                        <!-- Autostart -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,4">
+                                    <TextBlock Text="🚀  Autostart-Programme" Style="{StaticResource SectionTitle}"/>
+                                    <Button Content="Task-Manager" Tag="taskmgr.exe" Click="BtnOpenSetting_Click" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <TextBlock Text="Programme, die mit Windows starten. Abwählen verhindert den Start (nur für deinen Benutzer)."
+                                       Style="{StaticResource SubtleText}" TextWrapping="Wrap" Margin="0,0,0,14"/>
+                                <StackPanel x:Name="AutostartPanel"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Aufräumen -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                            <StackPanel>
+                                <Grid>
+                                    <TextBlock Text="🧹  Aufräumen" Style="{StaticResource SectionTitle}" VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <TextBlock x:Name="TxtCleanupTotal" Foreground="#34D399" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                                        <Button x:Name="BtnCleanupRefresh" Content="Neu berechnen" Margin="0,0,8,0" Click="BtnCleanupRefresh_Click"/>
+                                        <Button x:Name="BtnCleanupAll" Content="Alles leeren" Background="#10B981" Click="BtnCleanupAll_Click"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock Text="Nur Dateien, die sicher weg können. Dateien, die gerade benutzt werden, bleiben einfach liegen."
+                                       Style="{StaticResource SubtleText}" TextWrapping="Wrap" Margin="0,4,0,12"/>
+                                <StackPanel x:Name="CleanupPanel"/>
+                                <TextBlock x:Name="TxtCleanupNote" Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap"
+                                       Margin="0,10,0,0" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </ScrollViewer>
 
@@ -1456,7 +1608,7 @@
                     <StackPanel Margin="0,0,12,24">
                         <TextBlock Text="Tools" Style="{StaticResource PageTitle}"/>
                         <TextBlock Text="Nützliche Windows-Werkzeuge für Gamer, immer griffbereit." Style="{StaticResource SubtleText}" Margin="0,4,0,20"/>
-                        <WrapPanel x:Name="ToolsContainer"/>
+                        <StackPanel x:Name="ToolsContainer"/>
                     </StackPanel>
                 </ScrollViewer>
 
@@ -1743,13 +1895,17 @@
                                         <CheckBox x:Name="ChkUpdates" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
                                     </Grid>
                                     <StackPanel Margin="0,0,0,10">
-                                        <TextBlock Text="Update-Quelle (GitHub: Benutzer/Repository)" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                        <TextBlock Text="Hier steht, wo die neuesten Versionen veröffentlicht werden. Ohne Eintrag wird nicht gesucht." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
-                                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                            <TextBox x:Name="TxtUpdateRepo" Width="300" Height="38"/>
-                                            <Button Content="Jetzt prüfen" Margin="10,0,0,0" Padding="18,0" Background="{DynamicResource AccentBrush}" Click="BtnCheckUpdate_Click"/>
+                                        <TextBlock x:Name="TxtVersion" Foreground="White" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Updates werden direkt im Launcher heruntergeladen und installiert. Dabei öffnet sich kein Browser." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        <WrapPanel Margin="0,12,0,0">
+                                            <Button Content="Jetzt nach Updates suchen" Margin="0,0,10,10" Padding="18,0" Height="38" Background="{DynamicResource AccentBrush}" Click="BtnCheckUpdate_Click"/>
+                                        </WrapPanel>
+                                        <TextBlock x:Name="TxtUpdateStatus" Foreground="#34D399" FontSize="12" TextWrapping="Wrap"/>
+                                        <StackPanel x:Name="UpdateRepoPanel" Visibility="Collapsed" Margin="0,18,0,0">
+                                            <TextBlock Text="Update-Quelle (GitHub: Benutzer/Repository)" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Hier steht, wo die neuesten Versionen veröffentlicht werden. Ohne Eintrag wird nicht gesucht." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                            <TextBox x:Name="TxtUpdateRepo" Width="300" Height="38" HorizontalAlignment="Left" Margin="0,10,0,0"/>
                                         </StackPanel>
-                                        <TextBlock x:Name="TxtUpdateStatus" Foreground="#34D399" FontSize="12" TextWrapping="Wrap" Margin="0,8,0,0"/>
                                     </StackPanel>
                                 </StackPanel>
                             </Border>
@@ -2946,7 +3102,7 @@
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="data" Visibility="Collapsed">
                                 <StackPanel>
                                     <TextBlock Text="Über DFP Pro Launcher" Style="{StaticResource SectionTitle}"/>
-                                    <TextBlock Text="Version 1.0" Foreground="White" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="TxtAboutVersion" Text="Version 1.0" Foreground="White" FontWeight="SemiBold"/>
                                     <TextBlock Text="Erstellt von Der_Fette_Pudel" Style="{StaticResource SubtleText}" Margin="0,4,0,14"/>
                                     <Button Content="Über anzeigen" HorizontalAlignment="Left" Click="BtnAbout_Click"/>
                                 </StackPanel>

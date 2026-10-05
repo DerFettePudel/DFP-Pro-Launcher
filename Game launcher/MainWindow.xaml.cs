@@ -97,6 +97,9 @@ namespace Game_launcher
         public string Arguments { get; set; } = string.Empty;
         public bool IsManual { get; set; }
         public ImageSource? Icon { get; set; }
+        public string AppId { get; set; } = string.Empty;
+        public string Category { get; set; } = "Sonstige";
+        public bool IsFavorite { get; set; }
     }
 
     public class AppSettings
@@ -250,6 +253,8 @@ namespace Game_launcher
         public bool CheckUpdates { get; set; } = true;
         public string UpdateRepo { get; set; } = string.Empty;
         public DateTime LastUpdateCheck { get; set; }
+        public string SkippedUpdate { get; set; } = string.Empty;
+        public List<string> AppFavorites { get; set; } = new();
         public bool SetupDone { get; set; }
         public string CloudBackupFolder { get; set; } = string.Empty;
 
@@ -339,6 +344,17 @@ namespace Game_launcher
     {
         [System.Runtime.InteropServices.DllImport("shell32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
         internal static extern int SHEmptyRecycleBin(IntPtr hwnd, string? pszRootPath, uint dwFlags);
+
+        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential, Pack = 1)]
+        internal struct ShQueryRbInfo
+        {
+            public int cbSize;
+            public long i64Size;
+            public long i64NumItems;
+        }
+
+        [System.Runtime.InteropServices.DllImport("shell32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+        internal static extern int SHQueryRecycleBin(string? pszRootPath, ref ShQueryRbInfo pSHQueryRBInfo);
     }
 
     // ───────────────────────────── Zusätzliche Modelle ─────────────────────────────
@@ -1860,6 +1876,98 @@ Guten Tag || Good afternoon || 你好 || Buenas tardes || Bon après-midi || Boa
 Guten Abend || Good evening || 晚上好 || Buenas noches || Bonsoir || Boa noite || Добрый вечер || こんばんは
 Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite || Доброй ночи || おやすみなさい
 
+
+# ───────── Updates direkt im Launcher (Ergänzung) ─────────
+Update verfügbar || Update available || 有可用更新 || Actualización disponible || Mise à jour disponible || Atualização disponível || Доступно обновление || アップデートがあります
+Eine neue Version des DFP Pro Launcher ist bereit. Sie wird direkt hier heruntergeladen und installiert. || A new version of DFP Pro Launcher is ready. It is downloaded and installed right here. || DFP Pro Launcher 的新版本已就绪。它将直接在此处下载并安装。 || Hay una nueva versión de DFP Pro Launcher. Se descarga e instala directamente aquí. || Une nouvelle version de DFP Pro Launcher est prête. Elle est téléchargée et installée directement ici. || Uma nova versão do DFP Pro Launcher está pronta. Ela é baixada e instalada aqui mesmo. || Готова новая версия DFP Pro Launcher. Она будет загружена и установлена прямо здесь. || DFP Pro Launcherの新しいバージョンが利用できます。ここで直接ダウンロードしてインストールします。
+Neuigkeiten in dieser Version || What's new in this version || 此版本的新内容 || Novedades de esta versión || Nouveautés de cette version || Novidades desta versão || Что нового в этой версии || このバージョンの新機能
+Keine Beschreibung vorhanden. || No description available. || 没有可用的说明。 || No hay descripción disponible. || Aucune description disponible. || Nenhuma descrição disponível. || Описание отсутствует. || 説明はありません。
+Jetzt aktualisieren || Update now || 立即更新 || Actualizar ahora || Mettre à jour maintenant || Atualizar agora || Обновить сейчас || 今すぐ更新
+Später || Later || 稍后 || Más tarde || Plus tard || Mais tarde || Позже || 後で
+Diese Version überspringen || Skip this version || 跳过此版本 || Omitir esta versión || Ignorer cette version || Pular esta versão || Пропустить эту версию || このバージョンをスキップ
+Abbrechen || Cancel || 取消 || Cancelar || Annuler || Cancelar || Отмена || キャンセル
+Lade herunter ... {#0} % || Downloading ... {0} % || 正在下载 ... {0} % || Descargando ... {0} % || Téléchargement ... {0} % || Baixando ... {0} % || Загрузка ... {0} % || ダウンロード中 ... {0} %
+Starte die Installation. Der Launcher schließt sich kurz und öffnet sich danach von selbst wieder. || Starting the installation. The launcher closes briefly and reopens by itself afterwards. || 正在开始安装。启动器会短暂关闭,之后自动重新打开。 || Iniciando la instalación. El launcher se cierra un momento y después se vuelve a abrir solo. || Démarrage de l'installation. Le launcher se ferme brièvement puis se rouvre tout seul. || Iniciando a instalação. O launcher fecha por um instante e depois reabre sozinho. || Запуск установки. Лаунчер ненадолго закроется и затем откроется сам. || インストールを開始します。ランチャーは一度閉じて、その後自動的に再び開きます。
+Es läuft noch ein Spiel. Installiere das Update nach dem Spiel. || A game is still running. Install the update after the game. || 仍有游戏在运行。请在游戏结束后再安装更新。 || Todavía hay un juego en ejecución. Instala la actualización después del juego. || Un jeu est encore en cours. Installez la mise à jour après le jeu. || Ainda há um jogo em execução. Instale a atualização depois do jogo. || Игра ещё запущена. Установите обновление после игры. || ゲームがまだ実行中です。ゲーム終了後にアップデートをインストールしてください。
+Das Update konnte nicht geladen werden: || The update could not be downloaded: || 无法下载更新: || No se pudo descargar la actualización: || La mise à jour n'a pas pu être téléchargée : || Não foi possível baixar a atualização: || Не удалось загрузить обновление: || アップデートをダウンロードできませんでした:
+Die Prüfsumme stimmt nicht. Der Download wurde verworfen. || The checksum does not match. The download was discarded. || 校验和不匹配,已丢弃下载内容。 || La suma de comprobación no coincide. Se descartó la descarga. || La somme de contrôle ne correspond pas. Le téléchargement a été rejeté. || A soma de verificação não confere. O download foi descartado. || Контрольная сумма не совпадает. Загрузка отклонена. || チェックサムが一致しません。ダウンロードを破棄しました。
+Für dieses Update fehlt die Prüfsumme. Aus Sicherheitsgründen wird es nicht installiert. || The checksum for this update is missing. For security reasons it will not be installed. || 此更新缺少校验和。出于安全原因不会安装。 || Falta la suma de comprobación de esta actualización. Por seguridad no se instalará. || La somme de contrôle de cette mise à jour est absente. Par sécurité, elle ne sera pas installée. || Falta a soma de verificação desta atualização. Por segurança, ela não será instalada. || Для этого обновления нет контрольной суммы. В целях безопасности оно не будет установлено. || このアップデートにはチェックサムがありません。安全のためインストールしません。
+Für diese Version ist keine Update-Quelle hinterlegt. || No update source is set for this version. || 此版本未设置更新来源。 || No hay un origen de actualizaciones para esta versión. || Aucune source de mises à jour n'est définie pour cette version. || Nenhuma fonte de atualizações está definida para esta versão. || Для этой версии не задан источник обновлений. || このバージョンにはアップデートの取得元が設定されていません。
+Installierte Version: {0} || Installed version: {0} || 已安装版本:{0} || Versión instalada: {0} || Version installée : {0} || Versão instalada: {0} || Установленная версия: {0} || インストール済みバージョン:{0}
+Jetzt nach Updates suchen || Check for updates now || 立即检查更新 || Buscar actualizaciones ahora || Rechercher des mises à jour maintenant || Procurar atualizações agora || Проверить обновления сейчас || 今すぐアップデートを確認
+Updates werden direkt im Launcher heruntergeladen und installiert. Dabei öffnet sich kein Browser. || Updates are downloaded and installed right in the launcher. No browser opens. || 更新会直接在启动器内下载并安装,不会打开浏览器。 || Las actualizaciones se descargan e instalan directamente en el launcher. No se abre ningún navegador. || Les mises à jour sont téléchargées et installées directement dans le launcher. Aucun navigateur ne s'ouvre. || As atualizações são baixadas e instaladas diretamente no launcher. Nenhum navegador é aberto. || Обновления загружаются и устанавливаются прямо в лаунчере. Браузер не открывается. || アップデートはランチャー内で直接ダウンロードしてインストールされます。ブラウザーは開きません。
+
+
+# ───────── Tools-Gruppen, Gaming-Check, Windows-Schalter (Ergänzung) ─────────
+Anzeige und Sound || Display and sound || 显示与声音 || Pantalla y sonido || Affichage et son || Tela e som || Экран и звук || 画面とサウンド
+System und Diagnose || System and diagnostics || 系统与诊断 || Sistema y diagnóstico || Système et diagnostic || Sistema e diagnóstico || Система и диагностика || システムと診断
+Spiele und Leistung || Games and performance || 游戏与性能 || Juegos y rendimiento || Jeux et performances || Jogos e desempenho || Игры и производительность || ゲームとパフォーマンス
+Gaming-Check || Gaming check || 游戏检查 || Comprobación gaming || Vérification gaming || Verificação gaming || Проверка для игр || ゲーミングチェック
+erfüllt || met || 项已满足 || cumplidos || remplis || atendidos || выполнено || 達成
+Energieplan: Höchstleistung || Power plan: High performance || 电源计划:高性能 || Plan de energía: Alto rendimiento || Mode d'alimentation : Hautes performances || Plano de energia: Alto desempenho || Схема питания: Высокая производительность || 電源プラン:高パフォーマンス
+Spielmodus ist an || Game mode is on || 游戏模式已开启 || El modo de juego está activado || Le mode jeu est activé || O modo de jogo está ativado || Игровой режим включён || ゲームモードがオン
+Mausbeschleunigung ist aus || Mouse acceleration is off || 鼠标加速已关闭 || La aceleración del ratón está desactivada || L'accélération de la souris est désactivée || A aceleração do mouse está desativada || Ускорение мыши выключено || マウス加速がオフ
+Hintergrundaufnahme ist aus || Background recording is off || 后台录制已关闭 || La grabación en segundo plano está desactivada || L'enregistrement en arrière-plan est désactivé || A gravação em segundo plano está desativada || Фоновая запись выключена || バックグラウンド録画がオフ
+🕹  Windows für Spiele || 🕹 Windows for games || 🕹 适用于游戏的 Windows 设置 || 🕹 Windows para juegos || 🕹 Windows pour les jeux || 🕹 Windows para jogos || 🕹 Windows для игр || 🕹 ゲーム向けWindows設定
+Diese Windows-Einstellungen wirken sich direkt auf deine Spiele aus. || These Windows settings directly affect your games. || 这些 Windows 设置会直接影响你的游戏。 || Estos ajustes de Windows afectan directamente a tus juegos. || Ces paramètres Windows affectent directement vos jeux. || Essas configurações do Windows afetam diretamente seus jogos. || Эти настройки Windows напрямую влияют на ваши игры. || これらのWindows設定はゲームに直接影響します。
+Windows gibt dem Spiel Vorrang und hält Updates im Hintergrund zurück. || Windows gives the game priority and holds back updates in the background. || Windows 会优先处理游戏,并在后台推迟更新。 || Windows prioriza el juego y retiene las actualizaciones en segundo plano. || Windows donne la priorité au jeu et retient les mises à jour en arrière-plan. || O Windows prioriza o jogo e segura atualizações em segundo plano. || Windows отдаёт приоритет игре и откладывает обновления в фоне. || Windowsがゲームを優先し、更新をバックグラウンドで保留します。
+Hintergrundaufnahme || Background recording || 后台录制 || Grabación en segundo plano || Enregistrement en arrière-plan || Gravação em segundo plano || Фоновая запись || バックグラウンド録画
+Nimmt ständig die letzten Minuten auf. Aus bedeutet mehr FPS, Screenshots und manuelle Aufnahmen gehen weiter. || Constantly records the last few minutes. Off means more FPS; screenshots and manual recordings still work. || 持续录制最近几分钟的画面。关闭可提升帧率,截图和手动录制仍可使用。 || Graba constantemente los últimos minutos. Desactivado significa más FPS; las capturas y grabaciones manuales siguen funcionando. || Enregistre en permanence les dernières minutes. Désactivé signifie plus de FPS ; les captures d'écran et enregistrements manuels continuent de fonctionner. || Grava constantemente os últimos minutos. Desligado significa mais FPS; capturas de tela e gravações manuais continuam funcionando. || Постоянно записывает последние несколько минут. Выключено означает больше FPS; скриншоты и ручная запись по-прежнему работают. || 常に直近の数分間を録画します。オフにするとFPSが向上し、スクリーンショットと手動録画は引き続き使えます。
+Mausbeschleunigung || Mouse acceleration || 鼠标加速 || Aceleración del ratón || Accélération de la souris || Aceleração do mouse || Ускорение мыши || マウス加速
+Für Shooter besser aus: Die gleiche Handbewegung ergibt immer die gleiche Strecke auf dem Bildschirm. || Better off for shooters: the same hand movement always covers the same distance on screen. || 对射击游戏来说关闭更好:相同的手部动作始终对应屏幕上相同的移动距离。 || Mejor desactivada para shooters: el mismo movimiento de la mano siempre recorre la misma distancia en pantalla. || Mieux vaut la désactiver pour les FPS : le même mouvement de la main parcourt toujours la même distance à l'écran. || Melhor desligada para jogos de tiro: o mesmo movimento da mão sempre percorre a mesma distância na tela. || Для шутеров лучше выключить: одинаковое движение руки всегда даёт одинаковое расстояние на экране. || シューティングゲームではオフが有利:同じ手の動きが常に画面上で同じ距離になります。
+
+
+# ───────── Anwendungen, Optimierung, Aufräumen (Runde 11) ─────────
+Gaming || Gaming || 游戏 || Juegos || Jeux || Jogos || Игры || ゲーム
+Chat || Chat || 聊天 || Chat || Chat || Chat || Чаты || チャット
+Browser || Browser || 浏览器 || Navegador || Navigateur || Navegador || Браузеры || ブラウザー
+Medien || Media || 媒体 || Multimedia || Médias || Mídia || Медиа || メディア
+Office || Office || 办公 || Ofimática || Bureautique || Escritório || Офис || オフィス
+Sonstige || Other || 其他 || Otros || Autres || Outros || Прочее || その他
+Anwendungen werden gesucht ... || Searching for applications ... || 正在查找应用程序 ... || Buscando aplicaciones ... || Recherche des applications ... || Procurando aplicativos ... || Поиск приложений ... || アプリを検索中 ...
+{#0} Apps gefunden · Klick zum Starten, Rechtsklick für mehr || {0} apps found · Click to start, right-click for more || 找到 {0} 个应用 · 点击启动,右键查看更多 || {0} aplicaciones encontradas · Clic para iniciar, clic derecho para más || {0} applications trouvées · Clic pour lancer, clic droit pour plus || {0} aplicativos encontrados · Clique para iniciar, botão direito para mais || Найдено приложений: {0} · Щелчок — запуск, правый щелчок — меню || {0}個のアプリが見つかりました · クリックで起動、右クリックでその他
+App suchen ... || Search apps ... || 搜索应用 ... || Buscar aplicaciones ... || Rechercher une application ... || Buscar aplicativos ... || Поиск приложений ... || アプリを検索 ...
+Neu laden || Reload || 重新加载 || Recargar || Recharger || Recarregar || Обновить || 再読み込み
+▶  Starten || ▶  Start || ▶  启动 || ▶  Iniciar || ▶  Lancer || ▶  Iniciar || ▶  Запустить || ▶  起動
+📂  Dateispeicherort öffnen || 📂  Open file location || 📂  打开文件所在位置 || 📂  Abrir ubicación del archivo || 📂  Ouvrir l'emplacement du fichier || 📂  Abrir local do arquivo || 📂  Открыть расположение файла || 📂  ファイルの場所を開く
+Hochformat || Portrait || 竖屏 || Vertical || Portrait || Retrato || Книжная ориентация || 縦向き
+Aktiv || Active || 已启用 || Activo || Actif || Ativo || Активно || 有効
+Energieoptionen || Power options || 电源选项 || Opciones de energía || Options d'alimentation || Opções de energia || Электропитание || 電源オプション
+Klicke auf einen Plan, um ihn sofort zu aktivieren. || Click a plan to activate it right away. || 点击某个计划即可立即启用。 || Haz clic en un plan para activarlo al instante. || Cliquez sur un mode pour l'activer immédiatement. || Clique em um plano para ativá-lo na hora. || Нажмите на схему, чтобы сразу включить её. || プランをクリックすると、すぐに切り替わります。
+Spart Strom, weniger Leistung || Saves power, less performance || 省电,性能较低 || Ahorra energía, menos rendimiento || Économise l'énergie, moins de performances || Economiza energia, menos desempenho || Экономит энергию, ниже производительность || 省電力、性能は控えめ
+Empfohlen, passt sich automatisch an || Recommended, adapts automatically || 推荐,自动调整 || Recomendado, se adapta automáticamente || Recommandé, s'adapte automatiquement || Recomendado, adapta-se automaticamente || Рекомендуется, подстраивается автоматически || おすすめ、自動で調整
+Höhere Taktraten, etwas mehr Stromverbrauch || Higher clock speeds, slightly more power use || 更高的频率,耗电略多 || Mayores frecuencias, algo más de consumo || Fréquences plus élevées, consommation un peu plus forte || Frequências maiores, um pouco mais de consumo || Выше частоты, чуть больше расход энергии || クロックが高く、消費電力はやや増加
+Maximale Leistung, keine Stromsparfunktionen || Maximum performance, no power-saving features || 最高性能,无节能功能 || Máximo rendimiento, sin ahorro de energía || Performances maximales, sans économie d'énergie || Desempenho máximo, sem economia de energia || Максимальная производительность, без энергосбережения || 最大性能、省電力機能なし
+Neue Treiber bringen oft mehr FPS und beheben Abstürze in neuen Spielen. || New drivers often bring more FPS and fix crashes in new games. || 新驱动通常能提升帧率并修复新游戏中的崩溃。 || Los controladores nuevos suelen dar más FPS y corrigen cierres en juegos nuevos. || Les nouveaux pilotes apportent souvent plus de FPS et corrigent des plantages dans les nouveaux jeux. || Drivers novos costumam dar mais FPS e corrigir travamentos em jogos novos. || Новые драйверы часто повышают FPS и устраняют вылеты в новых играх. || 新しいドライバーはFPSが上がり、新作ゲームのクラッシュも直ることが多いです。
+Alles bereit. Dein PC ist für Spiele optimal eingestellt. || All set. Your PC is optimally configured for games. || 一切就绪。你的电脑已针对游戏进行了最佳设置。 || Todo listo. Tu PC está configurado de forma óptima para jugar. || Tout est prêt. Votre PC est configuré de façon optimale pour les jeux. || Tudo pronto. Seu PC está configurado de forma ideal para jogos. || Всё готово. Ваш ПК оптимально настроен для игр. || 準備完了。PCはゲームに最適な設定です。
+Noch {#0} von 4 Punkten offen. Du kannst sie unten mit einem Klick verbessern. || {0} of 4 points still open. You can improve them below with one click. || 还有 {0} 项(共 4 项)待完成。可在下方一键改善。 || Quedan {0} de 4 puntos. Puedes mejorarlos abajo con un clic. || Encore {0} point(s) sur 4 à régler. Vous pouvez les améliorer ci-dessous en un clic. || Ainda faltam {0} de 4 pontos. Você pode melhorá-los abaixo com um clique. || Осталось пунктов: {0} из 4. Исправить их можно ниже одним щелчком. || 4項目中あと{0}項目が未達成です。下のボタンでワンクリックで改善できます。
+🧹  Aufräumen || 🧹  Clean up || 🧹  清理 || 🧹  Limpiar || 🧹  Nettoyage || 🧹  Limpeza || 🧹  Очистка || 🧹  クリーンアップ
+Neu berechnen || Recalculate || 重新计算 || Recalcular || Recalculer || Recalcular || Пересчитать || 再計算
+Alles leeren || Empty everything || 全部清空 || Vaciar todo || Tout vider || Esvaziar tudo || Очистить всё || すべて空にする
+Leeren || Empty || 清空 || Vaciar || Vider || Esvaziar || Очистить || 空にする
+Nur Dateien, die sicher weg können. Dateien, die gerade benutzt werden, bleiben einfach liegen. || Only files that are safe to remove. Files currently in use are simply left alone. || 仅清理可安全删除的文件。正在使用的文件会被保留。 || Solo archivos que se pueden eliminar sin riesgo. Los archivos en uso simplemente se dejan. || Seulement les fichiers qui peuvent être supprimés sans risque. Les fichiers en cours d'utilisation sont laissés en place. || Apenas arquivos que podem ser removidos com segurança. Arquivos em uso são simplesmente mantidos. || Только файлы, которые можно безопасно удалить. Используемые файлы остаются на месте. || 安全に削除できるファイルのみが対象です。使用中のファイルはそのまま残ります。
+Temporäre Dateien || Temporary files || 临时文件 || Archivos temporales || Fichiers temporaires || Arquivos temporários || Временные файлы || 一時ファイル
+Dateien in den Temp-Ordnern, die älter als 24 Stunden sind || Files in the temp folders that are older than 24 hours || 临时文件夹中超过 24 小时的文件 || Archivos de las carpetas temporales con más de 24 horas || Fichiers des dossiers temporaires de plus de 24 heures || Arquivos das pastas temporárias com mais de 24 horas || Файлы во временных папках старше 24 часов || 24時間以上前の一時フォルダー内のファイル
+Shader-Cache || Shader cache || 着色器缓存 || Caché de shaders || Cache de shaders || Cache de shaders || Кэш шейдеров || シェーダーキャッシュ
+DirectX, NVIDIA, AMD, Intel – sinnvoll nach Treiber-Updates (der erste Spielstart danach dauert kurz länger) || DirectX, NVIDIA, AMD, Intel – useful after driver updates (the first game launch afterwards takes a little longer) || DirectX、NVIDIA、AMD、Intel——驱动更新后很有用(之后首次启动游戏会稍慢) || DirectX, NVIDIA, AMD, Intel – útil tras actualizar controladores (el primer inicio del juego tarda un poco más) || DirectX, NVIDIA, AMD, Intel – utile après une mise à jour des pilotes (le premier lancement d'un jeu est un peu plus long) || DirectX, NVIDIA, AMD, Intel – útil após atualizar drivers (a primeira abertura do jogo demora um pouco mais) || DirectX, NVIDIA, AMD, Intel — полезно после обновления драйверов (первый запуск игры будет чуть дольше) || DirectX、NVIDIA、AMD、Intel – ドライバー更新後におすすめ(その後の初回起動は少し長くなります)
+Papierkorb || Recycle Bin || 回收站 || Papelera de reciclaje || Corbeille || Lixeira || Корзина || ごみ箱
+Gelöschte Dateien endgültig entfernen || Permanently remove deleted files || 彻底删除已删除的文件 || Eliminar definitivamente los archivos borrados || Supprimer définitivement les fichiers supprimés || Remover permanentemente os arquivos excluídos || Окончательно удалить удалённые файлы || 削除済みファイルを完全に削除
+Absturzberichte || Crash reports || 崩溃报告 || Informes de fallos || Rapports de plantage || Relatórios de falhas || Отчёты о сбоях || クラッシュレポート
+Speicherabbilder und Fehlerberichte abgestürzter Programme || Memory dumps and error reports of crashed programs || 崩溃程序的内存转储和错误报告 || Volcados de memoria e informes de error de programas bloqueados || Vidages mémoire et rapports d'erreur de programmes plantés || Despejos de memória e relatórios de erro de programas que travaram || Дампы памяти и отчёты об ошибках аварийно завершённых программ || 異常終了したプログラムのメモリダンプとエラーレポート
+Cover-Cache || Cover cache || 封面缓存 || Caché de portadas || Cache des jaquettes || Cache de capas || Кэш обложек || カバーキャッシュ
+Heruntergeladene Cover – werden danach automatisch neu geladen || Downloaded covers – reloaded automatically afterwards || 已下载的封面——之后会自动重新加载 || Portadas descargadas: se vuelven a cargar automáticamente || Jaquettes téléchargées – rechargées automatiquement ensuite || Capas baixadas – recarregadas automaticamente depois || Загруженные обложки — затем загружаются заново автоматически || ダウンロード済みのカバー – 後で自動的に再取得されます
+Launcher-Protokolle || Launcher logs || 启动器日志 || Registros del launcher || Journaux du launcher || Registros do launcher || Журналы лаунчера || ランチャーのログ
+Fehlerprotokolle dieses Launchers || Error logs of this launcher || 此启动器的错误日志 || Registros de errores de este launcher || Journaux d'erreurs de ce launcher || Registros de erro deste launcher || Журналы ошибок этого лаунчера || このランチャーのエラーログ
+DNS-Cache || DNS cache || DNS 缓存 || Caché DNS || Cache DNS || Cache DNS || Кэш DNS || DNSキャッシュ
+Hilft bei Verbindungsproblemen zu Spiele-Servern und Launchern || Helps with connection problems to game servers and launchers || 有助于解决与游戏服务器和启动器的连接问题 || Ayuda con problemas de conexión a servidores de juegos y launchers || Aide en cas de problèmes de connexion aux serveurs de jeux et aux launchers || Ajuda com problemas de conexão a servidores de jogos e launchers || Помогает при проблемах с подключением к игровым серверам и лаунчерам || ゲームサーバーやランチャーへの接続問題の解消に役立ちます
+{0} lassen sich freigeben || {0} can be freed up || 可释放 {0} || Se pueden liberar {0} || {0} peuvent être libérés || {0} podem ser liberados || Можно освободить {0} || {0}を解放できます
+Alles sauber || All clean || 一切干净 || Todo limpio || Tout est propre || Tudo limpo || Всё чисто || すべてきれいです
+Systemberichte: {0} lassen sich nur mit Administratorrechten löschen. || System reports: {0} can only be deleted with administrator rights. || 系统报告:{0} 只能使用管理员权限删除。 || Informes del sistema: {0} solo se pueden eliminar con derechos de administrador. || Rapports système : {0} ne peuvent être supprimés qu'avec les droits d'administrateur. || Relatórios do sistema: {0} só podem ser excluídos com direitos de administrador. || Системные отчёты: {0} можно удалить только с правами администратора. || システムレポート:{0}は管理者権限がある場合のみ削除できます。
+Aufgeräumt || Cleaned up || 已清理 || Limpiado || Nettoyé || Limpo || Очищено || クリーンアップ完了
+{0} freigegeben || {0} freed || 已释放 {0} || {0} liberados || {0} libérés || {0} liberados || Освобождено: {0} || {0}を解放しました
+Der DNS-Cache wurde geleert. || The DNS cache was flushed. || DNS 缓存已清空。 || Se vació la caché DNS. || Le cache DNS a été vidé. || O cache DNS foi limpo. || Кэш DNS очищен. || DNSキャッシュを消去しました。
+Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert. || Empty all areas in the list? The recycle bin will be emptied permanently. || 清空列表中的所有项目?回收站将被永久清空。 || ¿Vaciar todas las áreas de la lista? La papelera se vaciará definitivamente. || Vider toutes les zones de la liste ? La corbeille sera vidée définitivement. || Esvaziar todas as áreas da lista? A lixeira será esvaziada permanentemente. || Очистить все пункты списка? Корзина будет очищена безвозвратно. || リスト内のすべてを空にしますか?ごみ箱は完全に空になります。
+
 """;
     }
 
@@ -1872,6 +1980,91 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
         [Interop.DllImport("user32.dll")]
         [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
         internal static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
+        [Interop.DllImport("user32.dll", EntryPoint = "SystemParametersInfo", SetLastError = true)]
+        internal static extern bool SystemParametersInfoMouse(uint uiAction, uint uiParam, int[] pvParam, uint fWinIni);
+
+        [Interop.StructLayout(Interop.LayoutKind.Sequential, CharSet = Interop.CharSet.Unicode)]
+        internal struct DisplayDevice
+        {
+            public int cb;
+            [Interop.MarshalAs(Interop.UnmanagedType.ByValTStr, SizeConst = 32)] public string DeviceName;
+            [Interop.MarshalAs(Interop.UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceString;
+            public int StateFlags;
+            [Interop.MarshalAs(Interop.UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceID;
+            [Interop.MarshalAs(Interop.UnmanagedType.ByValTStr, SizeConst = 128)] public string DeviceKey;
+        }
+
+        [Interop.StructLayout(Interop.LayoutKind.Sequential, CharSet = Interop.CharSet.Unicode)]
+        internal struct DisplayMode
+        {
+            [Interop.MarshalAs(Interop.UnmanagedType.ByValTStr, SizeConst = 32)] public string dmDeviceName;
+            public short dmSpecVersion;
+            public short dmDriverVersion;
+            public short dmSize;
+            public short dmDriverExtra;
+            public int dmFields;
+            public int dmPositionX;
+            public int dmPositionY;
+            public int dmDisplayOrientation;
+            public int dmDisplayFixedOutput;
+            public short dmColor;
+            public short dmDuplex;
+            public short dmYResolution;
+            public short dmTTOption;
+            public short dmCollate;
+            [Interop.MarshalAs(Interop.UnmanagedType.ByValTStr, SizeConst = 32)] public string dmFormName;
+            public short dmLogPixels;
+            public int dmBitsPerPel;
+            public int dmPelsWidth;
+            public int dmPelsHeight;
+            public int dmDisplayFlags;
+            public int dmDisplayFrequency;
+            public int dmICMMethod;
+            public int dmICMIntent;
+            public int dmMediaType;
+            public int dmDitherType;
+            public int dmReserved1;
+            public int dmReserved2;
+            public int dmPanningWidth;
+            public int dmPanningHeight;
+        }
+
+        [Interop.DllImport("user32.dll", CharSet = Interop.CharSet.Unicode)]
+        [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
+        internal static extern bool EnumDisplayDevices(string? lpDevice, uint iDevNum, ref DisplayDevice lpDisplayDevice, uint dwFlags);
+
+        [Interop.DllImport("user32.dll", CharSet = Interop.CharSet.Unicode)]
+        [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
+        internal static extern bool EnumDisplaySettings(string? lpszDeviceName, int iModeNum, ref DisplayMode lpDevMode);
+    }
+
+    internal static class ShellNative
+    {
+        [Interop.StructLayout(Interop.LayoutKind.Sequential)]
+        internal struct NativeSize
+        {
+            public int cx;
+            public int cy;
+        }
+
+        [Interop.ComImport]
+        [Interop.Guid("bcc18b79-ba16-442f-80c4-8a59c30c463b")]
+        [Interop.InterfaceType(Interop.ComInterfaceType.InterfaceIsIUnknown)]
+        internal interface IShellItemImageFactory
+        {
+            [Interop.PreserveSig]
+            int GetImage([Interop.In, Interop.MarshalAs(Interop.UnmanagedType.Struct)] NativeSize size, [Interop.In] int flags, out IntPtr phbm);
+        }
+
+        [Interop.DllImport("shell32.dll", CharSet = Interop.CharSet.Unicode, PreserveSig = false)]
+        internal static extern void SHCreateItemFromParsingName(
+            [Interop.MarshalAs(Interop.UnmanagedType.LPWStr)] string pszPath, IntPtr pbc, ref Guid riid,
+            [Interop.MarshalAs(Interop.UnmanagedType.Interface)] out IShellItemImageFactory ppv);
+
+        [Interop.DllImport("gdi32.dll")]
+        [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
+        internal static extern bool DeleteObject(IntPtr hObject);
     }
 
     public class WishItem
@@ -2147,7 +2340,7 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
 
             $cpu   = @(Get-CimInstance Win32_Processor | Select-Object Name, Manufacturer, NumberOfCores, NumberOfLogicalProcessors, MaxClockSpeed, L2CacheSize, L3CacheSize)
             $ram   = @(Get-CimInstance Win32_PhysicalMemory | Select-Object Manufacturer, PartNumber, Capacity, Speed, ConfiguredClockSpeed, DeviceLocator, SMBIOSMemoryType)
-            $gpu   = @(Get-CimInstance Win32_VideoController | Select-Object Name, CurrentRefreshRate)
+            $gpu   = @(Get-CimInstance Win32_VideoController | Select-Object Name, CurrentRefreshRate, CurrentHorizontalResolution, CurrentVerticalResolution)
             $board = @(Get-CimInstance Win32_BaseBoard | Select-Object Manufacturer, Product)
             $bios  = @(Get-CimInstance Win32_BIOS | Select-Object Manufacturer, SMBIOSBIOSVersion, @{n='ReleaseDate';e={ if ($_.ReleaseDate) { $_.ReleaseDate.ToString('dd.MM.yyyy') } else { '' } }})
             $disks = @(Get-PhysicalDisk | Select-Object FriendlyName, Size, @{n='MediaType';e={[string]$_.MediaType}}, @{n='BusType';e={[string]$_.BusType}})
@@ -2310,6 +2503,7 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
             InitExtras6();
             InitExtras7();
             InitExtras8();
+            InitExtras9();
 
             isLoadingSettings = false;
             RefreshDashboard();
@@ -2581,6 +2775,8 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
             settings.DashboardOrder ??= new List<string>();
             settings.DashboardHidden ??= new List<string>();
             settings.DiscordWebhook ??= string.Empty;
+            settings.SkippedUpdate ??= string.Empty;
+            settings.AppFavorites ??= new List<string>();
             if (!new[] { 500, 1000, 2000, 5000 }.Contains(settings.MonitorIntervalMs)) settings.MonitorIntervalMs = 1000;
 
             ApplyTheme();
@@ -3010,6 +3206,9 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
         {
             ShowView(ViewOptimization);
             RefreshAutostart();
+            PopulateOptimizationToggles();
+            RenderCleanup();
+            _ = MeasureCleanupAsync();
             await RefreshPowerPlanAsync();
         }
 
@@ -3577,13 +3776,37 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
                 monitorIndex++;
             }
 
-            long refresh = Items("gpu").Select(g => JsonLong(g, "CurrentRefreshRate")).FirstOrDefault(v => v > 0);
-            int screenIndex = 1;
-            foreach (var screen in Forms.Screen.AllScreens)
+            var gpuRows = Items("gpu").ToList();
+            long wmiRefresh = gpuRows.Select(row => JsonLong(row, "CurrentRefreshRate")).FirstOrDefault(v => v > 0);
+
+            // Auflösung und Bildrate jedes angeschlossenen Bildschirms direkt von Windows (echte Pixel, unabhängig von der DPI-Skalierung)
+            var displays = ReadDisplays();
+
+            if (displays.Count == 0)
             {
-                string resolution = $"{screen.Bounds.Width} × {screen.Bounds.Height}";
-                if (screen.Primary && refresh > 0) resolution += $" @ {refresh} Hz";
-                if (screen.Primary) resolution += "  (Hauptanzeige)";
+                foreach (var gpuRow in gpuRows)
+                {
+                    long wmiWidth = JsonLong(gpuRow, "CurrentHorizontalResolution");
+                    long wmiHeight = JsonLong(gpuRow, "CurrentVerticalResolution");
+                    if (wmiWidth > 0 && wmiHeight > 0)
+                        displays.Add(new DisplayInfo((int)wmiWidth, (int)wmiHeight, NormalizeRefresh((int)wmiRefresh), displays.Count == 0, false, 0, 0));
+                }
+            }
+
+            if (displays.Count == 0)
+            {
+                foreach (var screen in Forms.Screen.AllScreens)
+                    displays.Add(new DisplayInfo(screen.Bounds.Width, screen.Bounds.Height, NormalizeRefresh((int)wmiRefresh),
+                        screen.Primary, false, screen.Bounds.X, screen.Bounds.Y));
+            }
+
+            int screenIndex = 1;
+            foreach (var info in displays)
+            {
+                string resolution = $"{info.Width} × {info.Height}";
+                if (info.Hertz > 0) resolution += $" @ {info.Hertz} Hz";
+                if (info.Portrait) resolution += "  ·  " + Loc.T("Hochformat");
+                if (info.Primary) resolution += "  (Hauptanzeige)";
                 Row(display, $"Auflösung {screenIndex}", resolution);
                 screenIndex++;
             }
@@ -3717,23 +3940,193 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
             var result = await Task.Run(() => RunHidden("powercfg", "/getactivescheme"));
             var match = Regex.Match(result.Output, @"[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}");
 
-            string name = !match.Success ? "unbekannt"
-                        : PowerPlanNames.TryGetValue(match.Value, out var known) ? known
-                        : "Benutzerdefiniert";
+            string name;
+            if (!match.Success)
+            {
+                name = "unbekannt";
+            }
+            else if (PowerPlanNames.TryGetValue(match.Value, out var known))
+            {
+                name = known;
+            }
+            else
+            {
+                var label = Regex.Match(result.Output, @"\(([^)]+)\)");
+                string shown = label.Success ? label.Groups[1].Value.Trim() : string.Empty;
+                name = Regex.IsMatch(shown, "Ultimat", RegexOptions.IgnoreCase) ? "Ultimative Leistung"
+                     : shown.Length > 0 ? shown
+                     : "Benutzerdefiniert";
+            }
 
+            currentPowerPlanName = name;
             TxtPowerPlan.Text = $"Aktiver Plan: {name}";
+            UpdatePlanTiles(name);
+            RefreshGamingCheck();
         }
 
         private async void BtnPowerPlan_Click(object sender, RoutedEventArgs e)
         {
             if (sender is not System.Windows.Controls.Button button || button.Tag is not string guid) return;
+            await ActivatePowerPlanAsync(guid);
+        }
 
-            var result = await Task.Run(() => RunHidden("powercfg", $"/setactive {guid}"));
-            if (result.ExitCode != 0)
-                Msg("Dieser Energiesparplan ist auf deinem PC nicht verfügbar.", "Energiesparplan",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+        // ───────────────────────────── Gaming-Check: Windows-Einstellungen für Spiele ─────────────────────────────
 
-            await RefreshPowerPlanAsync();
+        private static bool ReadGameModeEnabled()
+        {
+            try
+            {
+                using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\GameBar");
+                object? value = key?.GetValue("AutoGameModeEnabled");
+                return value == null || Convert.ToInt32(value) != 0;
+            }
+            catch
+            {
+                return true;
+            }
+        }
+
+        private static void SetGameModeEnabled(bool enabled)
+        {
+            try
+            {
+                using var key = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\GameBar");
+                key?.SetValue("AutoGameModeEnabled", enabled ? 1 : 0, RegistryValueKind.DWord);
+            }
+            catch { }
+        }
+
+        private static bool ReadGameDvrEnabled()
+        {
+            try
+            {
+                using var key = Registry.CurrentUser.OpenSubKey(@"System\GameConfigStore");
+                object? value = key?.GetValue("GameDVR_Enabled");
+                return value == null || Convert.ToInt32(value) != 0;
+            }
+            catch
+            {
+                return true;
+            }
+        }
+
+        private static void SetGameDvrEnabled(bool enabled)
+        {
+            try
+            {
+                using var key = Registry.CurrentUser.CreateSubKey(@"System\GameConfigStore");
+                key?.SetValue("GameDVR_Enabled", enabled ? 1 : 0, RegistryValueKind.DWord);
+            }
+            catch { }
+
+            try
+            {
+                using var key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR");
+                key?.SetValue("AppCaptureEnabled", enabled ? 1 : 0, RegistryValueKind.DWord);
+            }
+            catch { }
+        }
+
+        private static bool ReadMouseAccelEnabled()
+        {
+            try
+            {
+                using var key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Mouse");
+                return (key?.GetValue("MouseSpeed") as string) == "1";
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static void SetMouseAccelEnabled(bool enabled)
+        {
+            try
+            {
+                using var key = Registry.CurrentUser.CreateSubKey(@"Control Panel\Mouse");
+                key?.SetValue("MouseSpeed", enabled ? "1" : "0");
+                key?.SetValue("MouseThreshold1", enabled ? "6" : "0");
+                key?.SetValue("MouseThreshold2", enabled ? "10" : "0");
+            }
+            catch { }
+
+            // Sofort anwenden, ohne dass sich der Nutzer ab- und wieder anmelden muss
+            try
+            {
+                NativeExtras.SystemParametersInfoMouse(0x0004 /* SPI_SETMOUSE */, 0,
+                    new[] { 0, 0, enabled ? 1 : 0 }, 0x02 /* SPIF_SENDCHANGE */);
+            }
+            catch { }
+        }
+
+        private void PopulateOptimizationToggles()
+        {
+            if (ChkGameMode == null) return;
+
+            loadingOptimizationToggles = true;
+            try
+            {
+                ChkGameMode.IsChecked = ReadGameModeEnabled();
+                ChkGameDvr.IsChecked = ReadGameDvrEnabled();
+                ChkMouseAccel.IsChecked = ReadMouseAccelEnabled();
+            }
+            finally
+            {
+                loadingOptimizationToggles = false;
+            }
+
+            RefreshGamingCheck();
+        }
+
+        private void ChkGameMode_Changed(object sender, RoutedEventArgs e)
+        {
+            if (loadingOptimizationToggles) return;
+            SetGameModeEnabled(ChkGameMode.IsChecked == true);
+            RefreshGamingCheck();
+        }
+
+        private void ChkGameDvr_Changed(object sender, RoutedEventArgs e)
+        {
+            if (loadingOptimizationToggles) return;
+            SetGameDvrEnabled(ChkGameDvr.IsChecked == true);
+            RefreshGamingCheck();
+        }
+
+        private void ChkMouseAccel_Changed(object sender, RoutedEventArgs e)
+        {
+            if (loadingOptimizationToggles) return;
+            SetMouseAccelEnabled(ChkMouseAccel.IsChecked == true);
+            RefreshGamingCheck();
+        }
+
+        private void RefreshGamingCheck()
+        {
+            if (ArcGamingCheck == null) return;
+
+            bool powerOk = currentPowerPlanName is "Höchstleistung" or "Ultimative Leistung";
+            bool gameModeOk = ReadGameModeEnabled();
+            bool mouseOk = !ReadMouseAccelEnabled();
+            bool dvrOk = !ReadGameDvrEnabled();
+
+            int score = (powerOk ? 1 : 0) + (gameModeOk ? 1 : 0) + (mouseOk ? 1 : 0) + (dvrOk ? 1 : 0);
+
+            SetArc(ArcGamingCheck, score / 4.0 * 100);
+            TxtGamingCheckScore.Text = $"{score}/4";
+            TxtGamingCheckHint.Text = score == 4
+                ? Loc.T("Alles bereit. Dein PC ist für Spiele optimal eingestellt.")
+                : Loc.T($"Noch {4 - score} von 4 Punkten offen. Du kannst sie unten mit einem Klick verbessern.");
+
+            void SetRow(TextBlock icon, bool ok)
+            {
+                icon.Text = ok ? "✓" : "⚠";
+                icon.Foreground = ok ? MakeBrush("#34D399") : MakeBrush("#F59E0B");
+            }
+
+            SetRow(IconCheckPower, powerOk);
+            SetRow(IconCheckGameMode, gameModeOk);
+            SetRow(IconCheckMouse, mouseOk);
+            SetRow(IconCheckDvr, dvrOk);
         }
 
         private async void BtnCleanTemp_Click(object sender, RoutedEventArgs e)
@@ -3873,41 +4266,125 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
             return tile;
         }
 
+        private Border CreateToolTile(string icon, string colorHex, string title, string subtitle, Action onClick)
+        {
+            var badge = new Border
+            {
+                Width = 42,
+                Height = 42,
+                CornerRadius = new CornerRadius(11),
+                Background = MakeBrush(colorHex),
+                Margin = new Thickness(0, 0, 0, 12),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                Child = new TextBlock
+                {
+                    Text = icon,
+                    FontSize = 19,
+                    FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                    Foreground = System.Windows.Media.Brushes.White,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center
+                }
+            };
+
+            var stack = new StackPanel();
+            stack.Children.Add(badge);
+            stack.Children.Add(new TextBlock
+            {
+                Text = Loc.T(title),
+                Foreground = System.Windows.Media.Brushes.White,
+                FontWeight = FontWeights.SemiBold,
+                FontSize = 14,
+                TextTrimming = TextTrimming.CharacterEllipsis
+            });
+            stack.Children.Add(new TextBlock
+            {
+                Text = Loc.T(subtitle),
+                Foreground = MakeBrush("#B4BCCB"),
+                FontSize = 12,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 3, 0, 0)
+            });
+
+            var tile = new Border
+            {
+                Width = 190,
+                Height = 138,
+                Margin = new Thickness(0, 0, 12, 12),
+                Padding = new Thickness(16),
+                Background = BrushCardBg,
+                BorderBrush = BrushCardBorder,
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(14),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                Child = stack
+            };
+            tile.MouseEnter += (s, e) => tile.Background = BrushTileHover;
+            tile.MouseLeave += (s, e) => tile.Background = BrushCardBg;
+            tile.MouseLeftButtonUp += (s, e) => onClick();
+            return tile;
+        }
+
+        private TextBlock ToolSectionHeader(string text) => new()
+        {
+            Text = Loc.T(text),
+            Foreground = BrushSubtle,
+            FontSize = 13,
+            FontWeight = FontWeights.SemiBold,
+            Margin = new Thickness(0, 18, 0, 10)
+        };
+
         private void BuildToolTiles()
         {
             string pictures = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
             string screenshots = System.IO.Path.Combine(pictures, "Screenshots");
             string screenshotTarget = Directory.Exists(screenshots) ? screenshots : pictures;
 
-            var tools = new (string Icon, string Title, string Text, string Target)[]
+            const string blue = "#3B82F6";
+            const string purple = "#8B5CF6";
+            const string green = "#10B981";
+
+            var tools = new (string Icon, string Color, string Title, string Text, string Target, string Category)[]
             {
-                ("🖼", "Screenshots", "Ordner öffnen", screenshotTarget),
-                ("✂", "Snipping Tool", "Bildschirmausschnitt", "ms-screenclip:"),
-                ("🩺", "DxDiag", "DirectX-Diagnose", "dxdiag.exe"),
-                ("📋", "Task-Manager", "Windows Task-Manager", "taskmgr.exe"),
-                ("📈", "Ressourcenmonitor", "Detaillierte Auslastung", "resmon.exe"),
-                ("ℹ", "Systeminfo", "Hardware und System", "msinfo32.exe"),
-                ("🔧", "Geräte-Manager", "Treiber verwalten", "devmgmt.msc"),
-                ("🌐", "Netzwerk", "Netzwerkverbindungen", "ncpa.cpl"),
-                ("🔊", "Sound", "Audioeinstellungen", "ms-settings:sound"),
-                ("🖥", "Anzeige", "Auflösung und Bildrate", "ms-settings:display"),
-                ("🕹", "Spielmodus", "Windows Game Mode", "ms-settings:gaming-gamemode"),
-                ("🚀", "Autostart-Apps", "Programme beim Start", "ms-settings:startupapps"),
-                ("🔄", "Windows Update", "Updates suchen", "ms-settings:windowsupdate")
+                ("🖥", blue, "Anzeige", "Auflösung und Bildrate", "ms-settings:display", "Anzeige und Sound"),
+                ("🔊", blue, "Sound", "Audioeinstellungen", "ms-settings:sound", "Anzeige und Sound"),
+                ("🖼", blue, "Screenshots", "Ordner öffnen", screenshotTarget, "Anzeige und Sound"),
+                ("✂", blue, "Snipping Tool", "Bildschirmausschnitt", "ms-screenclip:", "Anzeige und Sound"),
+
+                ("📋", purple, "Task-Manager", "Windows Task-Manager", "taskmgr.exe", "System und Diagnose"),
+                ("📈", purple, "Ressourcenmonitor", "Detaillierte Auslastung", "resmon.exe", "System und Diagnose"),
+                ("ℹ", purple, "Systeminfo", "Hardware und System", "msinfo32.exe", "System und Diagnose"),
+                ("🩺", purple, "DxDiag", "DirectX-Diagnose", "dxdiag.exe", "System und Diagnose"),
+                ("🔧", purple, "Geräte-Manager", "Treiber verwalten", "devmgmt.msc", "System und Diagnose"),
+                ("🌐", purple, "Netzwerk", "Netzwerkverbindungen", "ncpa.cpl", "System und Diagnose"),
+
+                ("🕹", green, "Spielmodus", "Windows Game Mode", "ms-settings:gaming-gamemode", "Spiele und Leistung"),
+                ("🚀", green, "Autostart-Apps", "Programme beim Start", "ms-settings:startupapps", "Spiele und Leistung"),
+                ("🔄", green, "Windows Update", "Updates suchen", "ms-settings:windowsupdate", "Spiele und Leistung")
             };
 
-            toolEntries = tools;
+            toolEntries = tools.Select(t => (t.Icon, t.Title, t.Text, t.Target)).ToArray();
 
-            foreach (var tool in tools)
+            bool firstGroup = true;
+            foreach (var group in tools.GroupBy(t => t.Category))
             {
-                string target = tool.Target;
-                ToolsContainer.Children.Add(CreateTile(tool.Icon, null, tool.Title, tool.Text, () => OpenShell(target)));
+                var header = ToolSectionHeader(group.Key);
+                if (firstGroup) { header.Margin = new Thickness(0, 0, 0, 10); firstGroup = false; }
+                ToolsContainer.Children.Add(header);
+
+                var row = new WrapPanel();
+                foreach (var tool in group)
+                {
+                    string target = tool.Target;
+                    row.Children.Add(CreateToolTile(tool.Icon, tool.Color, tool.Title, tool.Text, () => OpenShell(target)));
+                }
+                ToolsContainer.Children.Add(row);
             }
         }
 
         // ───────────────────────────── Anwendungen ─────────────────────────────
 
-        private List<AppEntry> LoadApps()
+        private List<AppEntry> LoadFallbackApps()
         {
             var apps = new List<AppEntry>();
 
@@ -3930,14 +4407,8 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
                 });
             }
 
-            string? steamPath = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam", "SteamPath", null) as string;
-            if (!string.IsNullOrEmpty(steamPath))
-                AddApp("Steam", null, System.IO.Path.GetFullPath(System.IO.Path.Combine(steamPath, "steam.exe")));
-
-            AddApp("Epic Games Launcher", null,
-                System.IO.Path.Combine(programFilesX86, "Epic Games", "Launcher", "Portal", "Binaries", "Win64", "EpicGamesLauncher.exe"),
-                System.IO.Path.Combine(programFilesX86, "Epic Games", "Launcher", "Portal", "Binaries", "Win32", "EpicGamesLauncher.exe"));
-            AddApp("Battle.net", null, System.IO.Path.Combine(programFilesX86, "Battle.net", "Battle.net Launcher.exe"));
+            // Spiele-Launcher (Steam, Epic, Battle.net, ...) tauchen bereits über die Spiele-Bibliothek auf
+            // und werden hier bewusst nicht mit aufgenommen, damit Spiele und Programme getrennt bleiben.
             AddApp("Discord", "--processStart Discord.exe", System.IO.Path.Combine(local, "Discord", "Update.exe"));
             AddApp("Spotify", null,
                 System.IO.Path.Combine(roaming, "Spotify", "Spotify.exe"),
@@ -3951,48 +4422,19 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
                 System.IO.Path.Combine(programFiles, "Microsoft", "Edge", "Application", "msedge.exe"));
             AddApp("Firefox", null, System.IO.Path.Combine(programFiles, "Mozilla Firefox", "firefox.exe"));
 
-            foreach (var manual in settings.ManualApps)
-            {
-                if (!File.Exists(manual.ExePath)) continue;
-
-                apps.Add(new AppEntry
-                {
-                    Name = manual.Name,
-                    ExePath = manual.ExePath,
-                    IsManual = true,
-                    Icon = ExtractIcon(manual.ExePath)
-                });
-            }
-
             return apps;
-        }
-
-        private void RefreshApps()
-        {
-            AppsContainer.Children.Clear();
-            var apps = LoadApps();
-            cachedApps = apps;
-
-            foreach (var app in apps)
-            {
-                System.Windows.Controls.ContextMenu? menu = null;
-                if (app.IsManual)
-                {
-                    menu = CreateMenu();
-                    AddMenuItem(menu, "🗑  Aus Liste entfernen", () => RemoveManualApp(app));
-                }
-
-                AppsContainer.Children.Add(CreateTile("🧩", app.Icon, app.Name,
-                    app.IsManual ? "Eigene App" : "Erkannt", () => LaunchApp(app), menu, 190));
-            }
-
-            TxtAppsEmpty.Visibility = apps.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void LaunchApp(AppEntry app)
         {
             try
             {
+                if (app.AppId.Length > 0)
+                {
+                    Process.Start(new ProcessStartInfo("explorer.exe", "shell:AppsFolder\\" + app.AppId) { UseShellExecute = true });
+                    return;
+                }
+
                 var info = new ProcessStartInfo(app.ExePath)
                 {
                     UseShellExecute = true,
@@ -5134,6 +5576,8 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
         private readonly Dictionary<GameItem, DateTime> sessionStart = new();
         private int playSaveCounter;
         private bool profileActive;
+        private string currentPowerPlanName = string.Empty;
+        private bool loadingOptimizationToggles;
 
         // Mini-Overlay
         private Window? overlayWindow;
@@ -7944,6 +8388,7 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
             CheckMissingManualGames();
             _ = LoadGameInfoAsync();
             _ = ScanModFoldersAsync();
+            RefreshApps();
             await RunMaintenanceAsync();
         }
 
@@ -11366,7 +11811,7 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
             });
             panel.Children.Add(new TextBlock
             {
-                Text = "Version 1.0",
+                Text = "Version " + VersionText(),
                 Foreground = BrushSubtle,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
                 Margin = new Thickness(0, 2, 0, 18)
@@ -14342,7 +14787,6 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
 
         // ═════════════════════════════ Profile, Klänge, Design, Updates, Sicherung, Einrichtung ═════════════════════════════
 
-        private static string? BuiltInUpdateRepo => null;   // hier "Benutzer/Repository" eintragen, damit alle Nutzer Updates sehen
 
         private readonly Dictionary<string, System.Media.SoundPlayer> uiSounds = new();
 
@@ -14610,36 +15054,115 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
             }
         }
 
-        // ───────────────────────────── Nach Updates suchen ─────────────────────────────
+        // ───────────────────────────── Updates direkt im Launcher ─────────────────────────────
+
+        private const string InstallerAssetName = "DFP_Pro_Launcher_Setup.exe";
+        private string updatePromptedVersion = string.Empty;
+        private bool updateDialogOpen;
+
+        private sealed class UpdateInfo
+        {
+            public Version Version = new(0, 0);
+            public string Tag = string.Empty;
+            public string Notes = string.Empty;
+            public string InstallerUrl = string.Empty;
+            public string HashUrl = string.Empty;
+            public string Repo = string.Empty;
+            public long Size;
+        }
 
         private static Version? CurrentVersion()
             => System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version;
 
-        private async Task<(Version Version, string Tag, string Url)?> FetchLatestReleaseAsync(string repo)
+        private static string VersionText()
+        {
+            var version = CurrentVersion();
+            return version == null ? "1.0.0" : $"{version.Major}.{version.Minor}.{Math.Max(0, version.Build)}";
+        }
+
+        /// <summary>Das GitHub-Repository wird beim automatischen Bau in das Programm geschrieben.</summary>
+        private static string BuiltInUpdateRepo()
+        {
+            try
+            {
+                return System.Reflection.Assembly.GetEntryAssembly()?
+                    .GetCustomAttributes(typeof(System.Reflection.AssemblyMetadataAttribute), false)
+                    .OfType<System.Reflection.AssemblyMetadataAttribute>()
+                    .FirstOrDefault(a => a.Key == "UpdateRepository")?.Value ?? string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        private string UpdateRepository()
+            => !string.IsNullOrWhiteSpace(settings.UpdateRepo) ? settings.UpdateRepo.Trim() : BuiltInUpdateRepo();
+
+        private static bool IsValidRepository(string repo) => Regex.IsMatch(repo ?? string.Empty, @"^[\w.\-]+/[\w.\-]+$");
+
+        /// <summary>Downloads sind nur von der Release-Seite des eigenen Repositorys erlaubt.</summary>
+        private static bool IsTrustedDownload(string url, string repo)
+        {
+            try
+            {
+                var uri = new Uri(url);
+                return uri.Scheme == Uri.UriSchemeHttps
+                       && uri.Host.Equals("github.com", StringComparison.OrdinalIgnoreCase)
+                       && uri.AbsolutePath.StartsWith($"/{repo}/releases/download/", StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private async Task<UpdateInfo?> FetchLatestReleaseAsync(string repo)
         {
             using var request = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Get, $"https://api.github.com/repos/{repo}/releases/latest");
             request.Headers.UserAgent.ParseAdd("DFPProLauncher");
+            request.Headers.Accept.ParseAdd("application/vnd.github+json");
             using var response = await Http.SendAsync(request);
             if (!response.IsSuccessStatusCode) return null;
 
             using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-            string tag = GetJsonString(doc.RootElement, "tag_name");
-            string url = GetJsonString(doc.RootElement, "html_url");
-            if (tag.Length == 0) return null;
+            var root = doc.RootElement;
 
-            if (!Version.TryParse(tag.TrimStart('v', 'V'), out var version)) return null;
-            return (version, tag, url);
+            string tag = GetJsonString(root, "tag_name");
+            if (tag.Length == 0 || !Version.TryParse(tag.TrimStart('v', 'V'), out var version)) return null;
+
+            var info = new UpdateInfo { Version = version, Tag = tag, Notes = GetJsonString(root, "body"), Repo = repo };
+
+            if (root.TryGetProperty("assets", out var assets) && assets.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var asset in assets.EnumerateArray())
+                {
+                    string name = GetJsonString(asset, "name");
+                    string url = GetJsonString(asset, "browser_download_url");
+
+                    if (name.Equals(InstallerAssetName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        info.InstallerUrl = url;
+                        info.Size = JsonLong(asset, "size");
+                    }
+                    else if (name.Equals(InstallerAssetName + ".sha256", StringComparison.OrdinalIgnoreCase))
+                    {
+                        info.HashUrl = url;
+                    }
+                }
+            }
+
+            // Erst anzeigen, wenn der Installer wirklich am Release hängt
+            return info.InstallerUrl.Length > 0 ? info : null;
         }
-
-        private string UpdateRepository() => !string.IsNullOrWhiteSpace(settings.UpdateRepo) ? settings.UpdateRepo.Trim() : (BuiltInUpdateRepo ?? string.Empty);
 
         /// <summary>Gibt true zurück, wenn eine neuere Version gefunden wurde.</summary>
         private async Task<bool> CheckForUpdateAsync(bool manual)
         {
             string repo = UpdateRepository();
-            if (repo.Length == 0 || !repo.Contains('/'))
+            if (!IsValidRepository(repo))
             {
-                if (manual) TxtUpdateStatus.Text = Loc.T("Trage zuerst eine Update-Quelle ein (Benutzer/Repository).");
+                if (manual) TxtUpdateStatus.Text = Loc.T("Für diese Version ist keine Update-Quelle hinterlegt.");
                 return false;
             }
 
@@ -14649,26 +15172,34 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
                 settings.LastUpdateCheck = DateTime.Now;
                 SaveSettings();
 
-                var current = CurrentVersion();
                 if (latest == null)
                 {
                     if (manual) TxtUpdateStatus.Text = Loc.T("Es wurde keine Version gefunden.");
                     return false;
                 }
 
-                if (current != null && latest.Value.Version > current)
+                var current = CurrentVersion();
+                if (current != null && latest.Version > current)
                 {
-                    string url = latest.Value.Url;
-                    ShowBanner("update", "⬆", $"Version {latest.Value.Tag} ist verfügbar.", "Herunterladen", () => OpenShell(url));
-                    if (manual) TxtUpdateStatus.Text = $"Version {latest.Value.Tag} ist verfügbar.";
+                    ShowBanner("update", "⬆", $"Version {latest.Tag} ist verfügbar.", "Jetzt aktualisieren", () => ShowUpdateDialog(latest));
+                    if (manual) TxtUpdateStatus.Text = $"Version {latest.Tag} ist verfügbar.";
+
+                    bool alreadySkipped = settings.SkippedUpdate == latest.Tag;
+                    bool alreadyAsked = updatePromptedVersion == latest.Tag;
+                    if (manual || (!alreadySkipped && !alreadyAsked && activeSessions.Count == 0))
+                    {
+                        updatePromptedVersion = latest.Tag;
+                        ShowUpdateDialog(latest);
+                    }
                     return true;
                 }
 
                 RemoveBanner("update");
                 if (manual) TxtUpdateStatus.Text = Loc.T("Du hast die neueste Version.");
             }
-            catch
+            catch (Exception ex)
             {
+                LogError("Update-Suche", ex);
                 if (manual) TxtUpdateStatus.Text = Loc.T("Die Suche ist fehlgeschlagen. Prüfe deine Internetverbindung.");
             }
             return false;
@@ -14677,16 +15208,278 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
         private async Task CheckForUpdateIfDueAsync()
         {
             if (!settings.CheckUpdates || !settings.OnlineFeatures) return;
-            if ((DateTime.Now - settings.LastUpdateCheck).TotalHours < 24) return;
+            if ((DateTime.Now - settings.LastUpdateCheck).TotalHours < 2) return;
             await CheckForUpdateAsync(false);
         }
 
         private async void BtnCheckUpdate_Click(object sender, RoutedEventArgs e)
         {
-            settings.UpdateRepo = TxtUpdateRepo.Text.Trim();
-            SaveSettings();
+            if (UpdateRepoPanel.Visibility == Visibility.Visible)
+            {
+                settings.UpdateRepo = TxtUpdateRepo.Text.Trim();
+                SaveSettings();
+            }
+
             TxtUpdateStatus.Text = Loc.T("Suche läuft ...");
             await CheckForUpdateAsync(true);
+        }
+
+        private void ApplyUpdateUi()
+        {
+            if (TxtVersion == null) return;
+
+            TxtVersion.Text = Loc.T($"Installierte Version: {VersionText()}");
+            UpdateRepoPanel.Visibility = BuiltInUpdateRepo().Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+            if (TxtAboutVersion != null) TxtAboutVersion.Text = "Version " + VersionText();
+        }
+
+        private static string CleanReleaseNotes(string markdown)
+        {
+            string text = (markdown ?? string.Empty).Replace("\r", string.Empty);
+            text = Regex.Replace(text, @"^.*Full Changelog.*$\n?", string.Empty, RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            text = Regex.Replace(text, @"\[([^\]]+)\]\([^)]*\)", "$1");
+            text = Regex.Replace(text, @"https?://\S+", string.Empty);
+            text = text.Replace("**", string.Empty).Replace("`", string.Empty);
+            text = Regex.Replace(text, @"^#+\s*", string.Empty, RegexOptions.Multiline);
+            text = Regex.Replace(text, @"^\s*[\*\-]\s+", "• ", RegexOptions.Multiline);
+            text = Regex.Replace(text, @"\n{3,}", "\n\n").Trim();
+            return text.Length > 1600 ? text.Substring(0, 1600) + " ..." : text;
+        }
+
+        private async Task<string> DownloadUpdateAsync(UpdateInfo info, IProgress<(long Done, long Total)> progress, System.Threading.CancellationToken token)
+        {
+            if (!IsTrustedDownload(info.InstallerUrl, info.Repo))
+                throw new InvalidOperationException("Der Download-Link gehört nicht zum Update-Repository.");
+
+            string folder = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "DFPProLauncher_Update");
+            Directory.CreateDirectory(folder);
+            string target = System.IO.Path.Combine(folder, $"DFP_Pro_Launcher_Setup_{info.Tag.TrimStart('v', 'V')}.exe");
+
+            using var client = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromMinutes(30) };
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("DFPProLauncher");
+
+            using (var response = await client.GetAsync(info.InstallerUrl, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, token))
+            {
+                response.EnsureSuccessStatusCode();
+                long total = response.Content.Headers.ContentLength ?? info.Size;
+
+                await using var input = await response.Content.ReadAsStreamAsync(token);
+                await using var output = File.Create(target);
+
+                var buffer = new byte[81920];
+                long done = 0;
+                int read;
+                while ((read = await input.ReadAsync(buffer.AsMemory(0, buffer.Length), token)) > 0)
+                {
+                    await output.WriteAsync(buffer.AsMemory(0, read), token);
+                    done += read;
+                    progress.Report((done, total));
+                }
+            }
+
+            // Prüfsumme: ohne passende Prüfsumme wird nichts installiert
+            if (info.HashUrl.Length == 0 || !IsTrustedDownload(info.HashUrl, info.Repo))
+            {
+                TryDelete(target);
+                throw new InvalidDataException(Loc.T("Für dieses Update fehlt die Prüfsumme. Aus Sicherheitsgründen wird es nicht installiert."));
+            }
+
+            string expected = (await client.GetStringAsync(info.HashUrl, token)).Trim()
+                .Split(new[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault()?.ToLowerInvariant() ?? string.Empty;
+
+            string actual;
+            await using (var stream = File.OpenRead(target))
+                actual = Convert.ToHexString(await System.Security.Cryptography.SHA256.HashDataAsync(stream, token)).ToLowerInvariant();
+
+            if (expected != actual)
+            {
+                TryDelete(target);
+                throw new InvalidDataException(Loc.T("Die Prüfsumme stimmt nicht. Der Download wurde verworfen."));
+            }
+
+            return target;
+        }
+
+        private static void TryDelete(string path)
+        {
+            try { File.Delete(path); }
+            catch { }
+        }
+
+        private void ShowUpdateDialog(UpdateInfo info)
+        {
+            if (updateDialogOpen) return;
+            updateDialogOpen = true;
+
+            try
+            {
+                var dialog = CreateDialog("Update verfügbar", 580, out var panel);
+                var cts = new System.Threading.CancellationTokenSource();
+                bool busy = false;
+
+                panel.Children.Add(new TextBlock
+                {
+                    Text = Loc.T("Update verfügbar"),
+                    Foreground = System.Windows.Media.Brushes.White,
+                    FontSize = 24,
+                    FontWeight = FontWeights.Bold
+                });
+
+                var versions = new TextBlock
+                {
+                    Text = $"{VersionText()}   →   {info.Version.Major}.{info.Version.Minor}.{Math.Max(0, info.Version.Build)}",
+                    FontSize = 16,
+                    FontWeight = FontWeights.SemiBold,
+                    Margin = new Thickness(0, 6, 0, 4)
+                };
+                versions.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
+                panel.Children.Add(versions);
+
+                panel.Children.Add(new TextBlock
+                {
+                    Text = Loc.T("Eine neue Version des DFP Pro Launcher ist bereit. Sie wird direkt hier heruntergeladen und installiert."),
+                    Foreground = BrushSubtle,
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(0, 0, 0, 16)
+                });
+
+                panel.Children.Add(new TextBlock
+                {
+                    Text = Loc.T("Neuigkeiten in dieser Version"),
+                    Foreground = System.Windows.Media.Brushes.White,
+                    FontWeight = FontWeights.SemiBold,
+                    Margin = new Thickness(0, 0, 0, 6)
+                });
+
+                string notes = CleanReleaseNotes(info.Notes);
+                var notesBox = new Border
+                {
+                    Background = BrushFooter,
+                    BorderBrush = BrushCardBorder,
+                    BorderThickness = new Thickness(1),
+                    CornerRadius = new CornerRadius(10),
+                    Padding = new Thickness(14, 10, 8, 10),
+                    Margin = new Thickness(0, 0, 0, 18),
+                    Child = new ScrollViewer
+                    {
+                        MaxHeight = 190,
+                        VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                        Content = new TextBlock
+                        {
+                            Text = notes.Length == 0 ? Loc.T("Keine Beschreibung vorhanden.") : notes,
+                            Foreground = MakeBrush("#D1D5DB"),
+                            TextWrapping = TextWrapping.Wrap,
+                            Margin = new Thickness(0, 0, 8, 0)
+                        }
+                    }
+                };
+                panel.Children.Add(notesBox);
+
+                // Fortschritt
+                var status = new TextBlock { Foreground = BrushSubtle, Margin = new Thickness(0, 0, 0, 8), TextWrapping = TextWrapping.Wrap, Visibility = Visibility.Collapsed };
+                var track = new Border { Height = 10, CornerRadius = new CornerRadius(5), Background = MakeBrush("#1F2937") };
+                var fill = new Border { Height = 10, CornerRadius = new CornerRadius(5), HorizontalAlignment = System.Windows.HorizontalAlignment.Left, Width = 0 };
+                fill.SetResourceReference(Border.BackgroundProperty, "AccentBrush");
+                var bar = new Grid { Margin = new Thickness(0, 0, 0, 18), Visibility = Visibility.Collapsed };
+                bar.Children.Add(track);
+                bar.Children.Add(fill);
+                panel.Children.Add(status);
+                panel.Children.Add(bar);
+
+                var buttons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
+                var skip = new System.Windows.Controls.Button { Content = Loc.T("Diese Version überspringen"), Margin = new Thickness(0, 0, 10, 0) };
+                var later = new System.Windows.Controls.Button { Content = Loc.T("Später"), Margin = new Thickness(0, 0, 10, 0), IsCancel = true };
+                var install = new System.Windows.Controls.Button { Content = Loc.T("Jetzt aktualisieren"), Padding = new Thickness(26, 8, 26, 8), IsDefault = true };
+                install.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+                buttons.Children.Add(skip);
+                buttons.Children.Add(later);
+                buttons.Children.Add(install);
+                panel.Children.Add(buttons);
+
+                skip.Click += (s, e) =>
+                {
+                    settings.SkippedUpdate = info.Tag;
+                    SaveSettings();
+                    RemoveBanner("update");
+                    dialog.DialogResult = true;
+                };
+
+                later.Click += (s, e) =>
+                {
+                    if (busy) cts.Cancel();
+                    else dialog.DialogResult = false;
+                };
+
+                dialog.Closing += (s, e) =>
+                {
+                    if (busy) e.Cancel = true;   // während des Downloads nicht schließen
+                };
+
+                install.Click += async (s, e) =>
+                {
+                    if (activeSessions.Count > 0)
+                    {
+                        Msg("Es läuft noch ein Spiel. Installiere das Update nach dem Spiel.", "Update verfügbar", MessageBoxButton.OK, MessageBoxImage.Information);
+                        return;
+                    }
+
+                    busy = true;
+                    install.IsEnabled = false;
+                    skip.IsEnabled = false;
+                    later.Content = Loc.T("Abbrechen");
+                    status.Visibility = Visibility.Visible;
+                    bar.Visibility = Visibility.Visible;
+                    status.Text = Loc.T("Lade herunter ... 0 %");
+
+                    var progress = new Progress<(long Done, long Total)>(p =>
+                    {
+                        double fraction = p.Total > 0 ? Math.Clamp((double)p.Done / p.Total, 0, 1) : 0;
+                        fill.Width = bar.ActualWidth * fraction;
+                        status.Text = Loc.T($"Lade herunter ... {(int)(fraction * 100)} %");
+                    });
+
+                    try
+                    {
+                        string installer = await DownloadUpdateAsync(info, progress, cts.Token);
+
+                        status.Text = Loc.T("Starte die Installation. Der Launcher schließt sich kurz und öffnet sich danach von selbst wieder.");
+                        fill.Width = bar.ActualWidth;
+                        await Task.Delay(1200);
+
+                        Process.Start(new ProcessStartInfo(installer, "/SILENT /NORESTART /CLOSEAPPLICATIONS /SUPPRESSMSGBOXES") { UseShellExecute = true });
+
+                        busy = false;
+                        dialog.DialogResult = true;
+                        Dispatcher.BeginInvoke(new Action(ExitApplication), DispatcherPriority.Background);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        busy = false;
+                        dialog.DialogResult = false;
+                    }
+                    catch (Exception ex)
+                    {
+                        LogError("Update", ex);
+                        busy = false;
+                        install.IsEnabled = true;
+                        skip.IsEnabled = true;
+                        later.Content = Loc.T("Später");
+                        bar.Visibility = Visibility.Collapsed;
+                        status.Text = Loc.T("Das Update konnte nicht geladen werden:") + " " + ex.Message;
+                    }
+                };
+
+                dialog.ShowDialog();
+            }
+            finally
+            {
+                updateDialogOpen = false;
+            }
+        }
+
+        private void InitExtras9()
+        {
+            ApplyUpdateUi();
         }
 
         // ───────────────────────────── Sicherungsordner (zum Beispiel OneDrive) ─────────────────────────────
@@ -16569,5 +17362,1107 @@ Gute Nacht || Good night || 晚安 || Buenas noches || Bonne nuit || Boa noite |
             ChkDiscordName.IsChecked = settings.DiscordSendName;
             TxtDiscordWebhook.Text = settings.DiscordWebhook;
         }
+
+        // ═════════════════════════════ Bildschirme, Energieplan, Anwendungen ═════════════════════════════
+
+        // ───────────────────────────── Bildschirme (jeder angeschlossene Monitor) ─────────────────────────────
+
+        private sealed record DisplayInfo(int Width, int Height, int Hertz, bool Primary, bool Portrait, int X, int Y);
+
+        /// <summary>Windows meldet bei Bildwiederholraten wie 239,76 Hz nur die abgeschnittene Zahl (239).</summary>
+        private static int NormalizeRefresh(int hertz)
+            => Array.IndexOf(new[] { 60, 75, 100, 120, 144, 165, 180, 240, 360, 480 }, hertz + 1) >= 0 ? hertz + 1 : hertz;
+
+        private static List<DisplayInfo> ReadDisplays()
+        {
+            var list = new List<DisplayInfo>();
+
+            try
+            {
+                for (uint index = 0; index < 32; index++)
+                {
+                    var device = new NativeExtras.DisplayDevice { cb = Interop.Marshal.SizeOf<NativeExtras.DisplayDevice>() };
+                    if (!NativeExtras.EnumDisplayDevices(null, index, ref device, 0)) break;
+
+                    bool attached = (device.StateFlags & 0x1) != 0;     // am Desktop angeschlossen
+                    bool mirror = (device.StateFlags & 0x8) != 0;       // Spiegel-Treiber
+                    if (!attached || mirror) continue;
+
+                    var mode = new NativeExtras.DisplayMode { dmSize = (short)Interop.Marshal.SizeOf<NativeExtras.DisplayMode>() };
+                    if (!NativeExtras.EnumDisplaySettings(device.DeviceName, -1, ref mode)) continue;
+                    if (mode.dmPelsWidth <= 0 || mode.dmPelsHeight <= 0) continue;
+
+                    // Gedrehte Bildschirme (90° oder 270°) melden Breite und Höhe vertauscht
+                    bool portrait = mode.dmDisplayOrientation is 1 or 3;
+                    int width = portrait ? mode.dmPelsHeight : mode.dmPelsWidth;
+                    int height = portrait ? mode.dmPelsWidth : mode.dmPelsHeight;
+                    bool primary = (device.StateFlags & 0x4) != 0;
+
+                    list.Add(new DisplayInfo(width, height, NormalizeRefresh(mode.dmDisplayFrequency), primary,
+                        portrait, mode.dmPositionX, mode.dmPositionY));
+                }
+            }
+            catch { }
+
+            return list.OrderByDescending(d => d.Primary).ThenBy(d => d.X).ThenBy(d => d.Y).ToList();
+        }
+
+        // ───────────────────────────── Energieplan als Kacheln ─────────────────────────────
+
+        private void UpdatePlanTiles(string activeName)
+        {
+            void Mark(Border? tile, Border? badge, string planName)
+            {
+                if (tile == null || badge == null) return;
+
+                bool active = activeName == planName;
+                badge.Visibility = active ? Visibility.Visible : Visibility.Collapsed;
+
+                if (active)
+                {
+                    tile.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
+                    tile.Background = MakeBrush("#1AFFFFFF");
+                }
+                else
+                {
+                    tile.BorderBrush = MakeBrush("#26FFFFFF");
+                    tile.Background = MakeBrush("#0FFFFFFF");
+                }
+            }
+
+            Mark(PlanSaver, BadgePlanSaver, "Energiesparen");
+            Mark(PlanBalanced, BadgePlanBalanced, "Ausbalanciert");
+            Mark(PlanHigh, BadgePlanHigh, "Höchstleistung");
+            Mark(PlanUltimate, BadgePlanUltimate, "Ultimative Leistung");
+        }
+
+        private async Task<string?> FindPlanGuidAsync(string namePattern)
+        {
+            var list = await Task.Run(() => RunHidden("powercfg", "/list"));
+            foreach (Match match in Regex.Matches(list.Output, @"([0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12})\s+\(([^)]+)\)"))
+            {
+                if (Regex.IsMatch(match.Groups[2].Value, namePattern, RegexOptions.IgnoreCase))
+                    return match.Groups[1].Value;
+            }
+            return null;
+        }
+
+        private async Task ActivatePowerPlanAsync(string guid)
+        {
+            const string ultimate = "e9a42b02-d5df-448d-aa00-03f14749eb61";
+            string target = guid;
+
+            // "Ultimative Leistung" ist auf vielen PCs versteckt und muss erst angelegt werden
+            if (guid.Equals(ultimate, StringComparison.OrdinalIgnoreCase))
+            {
+                string? existing = await FindPlanGuidAsync("Ultimat");
+                if (existing != null)
+                {
+                    target = existing;
+                }
+                else
+                {
+                    var copy = await Task.Run(() => RunHidden("powercfg", $"-duplicatescheme {ultimate}"));
+                    var created = Regex.Match(copy.Output, "[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}");
+                    if (copy.ExitCode == 0 && created.Success) target = created.Value;
+                }
+            }
+
+            var result = await Task.Run(() => RunHidden("powercfg", $"/setactive {target}"));
+            if (result.ExitCode != 0)
+                Msg("Dieser Energiesparplan ist auf deinem PC nicht verfügbar.", "Energiesparplan",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+
+            await RefreshPowerPlanAsync();
+        }
+
+        private async void PlanTile_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (sender is FrameworkElement { Tag: string guid }) await ActivatePowerPlanAsync(guid);
+        }
+
+        // ───────────────────────────── Anwendungen: alle Programme mit großen Symbolen ─────────────────────────────
+
+        private const string StartAppsScript = """
+            $ErrorActionPreference = 'SilentlyContinue'
+            [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+            $items = @(Get-StartApps | Select-Object Name, AppID)
+            ConvertTo-Json -InputObject $items -Compress
+            """;
+
+        private readonly List<AppEntry> discoveredApps = new();
+        private readonly Dictionary<string, ImageSource?> manualAppIcons = new(StringComparer.OrdinalIgnoreCase);
+        private bool appsDiscovered;
+        private bool appsLoading;
+        private string appFilter = "all";
+        private string appSearch = string.Empty;
+
+        private static readonly string[] AppCategories = { "Gaming", "Chat", "Browser", "Medien", "Office", "Tools", "Sonstige" };
+
+        private static readonly Regex AppExcluded = new(
+            @"uninstall|deinstall|readme|release ?notes|documentation|dokumentation|\bhelp\b|\bhilfe\b|website|webseite|\blicen[cs]e|lizenz|changelog|\bmanual\b|handbuch|\beula\b|feedback|\bsupport\b",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private static readonly (string Category, Regex Pattern)[] AppCategoryRules =
+        {
+            ("Gaming", new Regex(@"steam|epic games|gog galaxy|battle\.net|ubisoft|\bea app\b|\borigin\b|rockstar|xbox|geforce|nvidia|logitech g|g hub|razer|corsair|icue|afterburner|\bmsi\b|gigabyte|steelseries|adrenalin|amd software|overwolf|playnite|wargaming|riot|valorant|league of legends|minecraft|curseforge|\bgames?\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+            ("Chat", new Regex(@"discord|teamspeak|skype|telegram|whatsapp|\bsignal\b|slack|\bteams\b|zoom|\belement\b|viber|messenger|mumble|guilded", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+            ("Browser", new Regex(@"chrome|\bedge\b|firefox|\bopera\b|brave|vivaldi|tor browser|browser", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+            ("Medien", new Regex(@"spotify|\bvlc\b|\bobs\b|streamlabs|audacity|davinci|premiere|after effects|photoshop|lightroom|illustrator|itunes|media player|handbrake|wallpaper|stream deck|blender|gimp|\bpaint\b|krita|foobar|voicemeeter|reaper|fl studio|ableton|capcut|clipchamp|elgato|kamera|camera|movies|filme|fotos|photos|musik|music|groove|tidal|deezer|youtube|netflix|twitch", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+            ("Office", new Regex(@"\bword\b|excel|powerpoint|outlook|onenote|\baccess\b|publisher|libreoffice|acrobat|\breader\b|notion|obsidian|\boffice\b|openoffice|onlyoffice|\bwps\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
+            ("Tools", new Regex(@"notepad|visual studio|\bcode\b|terminal|powershell|7-zip|winrar|everything|powertoys|\bgit\b|python|node\.js|putty|filezilla|onedrive|explorer|task.?manager|\bcmd\b|regedit|systemsteuerung|control panel|rechner|calculator|snipping|ausschneiden|defender|sicherheit|winscp|docker|postman|unity|unreal|android studio|intellij|rider|pycharm|sublime|tailscale|teamviewer|anydesk|cpu-z|gpu-z|hwinfo|crystaldisk|ccleaner|bitwarden|keepass|1password|veracrypt|rufus|etcher|wireshark|vmware|virtualbox|hyper-v|dxdiag|editor|einstellungen|settings", RegexOptions.IgnoreCase | RegexOptions.Compiled))
+        };
+
+        private static string GuessAppCategory(string name)
+        {
+            foreach (var (category, pattern) in AppCategoryRules)
+            {
+                if (pattern.IsMatch(name)) return category;
+            }
+            return "Sonstige";
+        }
+
+        /// <summary>Löst Pfade aus Get-StartApps auf (zum Beispiel {GUID}\Programm\app.exe) und gibt sie zurück, wenn die Datei existiert.</summary>
+        private static string ResolveStartAppPath(string appId)
+        {
+            try
+            {
+                if (System.IO.Path.IsPathRooted(appId) && appId.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                    return File.Exists(appId) ? appId : string.Empty;
+
+                var match = Regex.Match(appId, @"^\{([0-9A-Fa-f\-]{36})\}\\(.+)$");
+                if (!match.Success) return string.Empty;
+
+                string? root = match.Groups[1].Value.ToUpperInvariant() switch
+                {
+                    "6D809377-6AF0-444B-8957-A3773F02200E" or "905E63B6-C1BF-494E-B29C-65B732D3D21A"
+                        => Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+                    "7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E" => Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+                    "1AC14E77-02E7-4E5D-B744-2EB1AE5198B7" => Environment.GetFolderPath(Environment.SpecialFolder.System),
+                    "D65231B0-B2F1-4857-A4CE-A8E7C6EA7D27" => Environment.GetFolderPath(Environment.SpecialFolder.SystemX86),
+                    "F38BF404-1D43-42F2-9305-67DE0B28FC23" => Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+                    "F1B32785-6FBA-4FCF-9D55-7B8E7F157091" => Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "3EB685DB-65F9-4CF6-A03A-E3EF65729F3D" => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "62AB5D82-FDC1-4DC3-A9DD-070D1D495D97" => Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                    _ => null
+                };
+                if (root == null) return string.Empty;
+
+                string full = System.IO.Path.Combine(root, match.Groups[2].Value);
+                return full.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) && File.Exists(full) ? full : string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        /// <summary>Liest alle Programme aus dem Startmenü (Win32 und Store-Apps).</summary>
+        private List<AppEntry> DiscoverApps()
+        {
+            var apps = new List<AppEntry>();
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            var result = RunPowerShell(StartAppsScript, 30000);
+            if (!string.IsNullOrWhiteSpace(result.Output))
+            {
+                try
+                {
+                    using var doc = JsonDocument.Parse(result.Output);
+                    var root = doc.RootElement;
+                    var items = root.ValueKind == JsonValueKind.Array
+                        ? root.EnumerateArray().ToList()
+                        : new List<JsonElement> { root };
+
+                    foreach (var item in items)
+                    {
+                        if (item.ValueKind != JsonValueKind.Object) continue;
+
+                        string name = GetJsonString(item, "Name").Trim();
+                        string appId = GetJsonString(item, "AppID").Trim();
+                        if (name.Length == 0 || appId.Length == 0) continue;
+                        if (AppExcluded.IsMatch(name)) continue;
+                        if (appId.EndsWith(".url", StringComparison.OrdinalIgnoreCase)) continue;   // Spiele-Verknüpfungen
+                        if (name.Equals("DFP Pro Launcher", StringComparison.OrdinalIgnoreCase)) continue;
+                        if (!seen.Add(name)) continue;
+
+                        apps.Add(new AppEntry
+                        {
+                            Name = name,
+                            AppId = appId,
+                            ExePath = ResolveStartAppPath(appId),
+                            Category = GuessAppCategory(name)
+                        });
+                    }
+                }
+                catch { }
+            }
+
+            if (apps.Count == 0)
+            {
+                foreach (var fallback in LoadFallbackApps())
+                {
+                    fallback.Category = GuessAppCategory(fallback.Name);
+                    apps.Add(fallback);
+                }
+            }
+
+            return apps;
+        }
+
+        /// <summary>Holt das große Symbol einer App über die Windows-Shell (bis 256 Pixel).</summary>
+        private static ImageSource? ShellImage(string parsingName, int size)
+        {
+            if (string.IsNullOrWhiteSpace(parsingName)) return null;
+
+            IntPtr bitmap = IntPtr.Zero;
+            ShellNative.IShellItemImageFactory? factory = null;
+
+            try
+            {
+                var iid = new Guid("bcc18b79-ba16-442f-80c4-8a59c30c463b");
+                ShellNative.SHCreateItemFromParsingName(parsingName, IntPtr.Zero, ref iid, out factory);
+
+                int hr = factory.GetImage(new ShellNative.NativeSize { cx = size, cy = size }, 0x4 /* nur Symbol */, out bitmap);
+                if (hr != 0 || bitmap == IntPtr.Zero) return null;
+
+                var source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+                    bitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                source.Freeze();
+                return source;
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                if (bitmap != IntPtr.Zero) ShellNative.DeleteObject(bitmap);
+                if (factory != null)
+                {
+                    try { Interop.Marshal.ReleaseComObject(factory); }
+                    catch { }
+                }
+            }
+        }
+
+        private static void LoadAppIcons(List<AppEntry> apps, int size)
+        {
+            // Die Shell-Symbole brauchen einen Thread mit STA-Modus
+            var thread = new System.Threading.Thread(() =>
+            {
+                foreach (var app in apps)
+                {
+                    if (app.Icon != null) continue;
+
+                    string parsing = app.AppId.Length > 0 ? "shell:AppsFolder\\" + app.AppId : app.ExePath;
+                    app.Icon = ShellImage(parsing, size)
+                               ?? (app.ExePath.Length > 0 ? ExtractIcon(app.ExePath) : null);
+                }
+            })
+            { IsBackground = true };
+
+            thread.SetApartmentState(System.Threading.ApartmentState.STA);
+            thread.Start();
+            thread.Join(120000);
+        }
+
+        private bool IsGameShortcut(AppEntry app)
+        {
+            foreach (var game in allGames)
+            {
+                if (string.Equals(game.Name, app.Name, StringComparison.OrdinalIgnoreCase)) return true;
+                if (app.ExePath.Length > 0 && game.InstallDir.Length > 0
+                    && app.ExePath.StartsWith(game.InstallDir, StringComparison.OrdinalIgnoreCase)) return true;
+            }
+            return false;
+        }
+
+        private List<AppEntry> BuildAppList()
+        {
+            var list = new List<AppEntry>();
+
+            foreach (var app in discoveredApps)
+            {
+                if (IsGameShortcut(app)) continue;
+                app.IsFavorite = settings.AppFavorites.Contains(app.Name, StringComparer.OrdinalIgnoreCase);
+                list.Add(app);
+            }
+
+            foreach (var manual in settings.ManualApps)
+            {
+                if (!File.Exists(manual.ExePath)) continue;
+
+                if (!manualAppIcons.TryGetValue(manual.ExePath, out var icon))
+                {
+                    icon = ShellImage(manual.ExePath, 96) ?? ExtractIcon(manual.ExePath);
+                    manualAppIcons[manual.ExePath] = icon;
+                }
+
+                list.RemoveAll(a => string.Equals(a.ExePath, manual.ExePath, StringComparison.OrdinalIgnoreCase));
+                list.Add(new AppEntry
+                {
+                    Name = manual.Name,
+                    ExePath = manual.ExePath,
+                    IsManual = true,
+                    Icon = icon,
+                    Category = GuessAppCategory(manual.Name),
+                    IsFavorite = settings.AppFavorites.Contains(manual.Name, StringComparer.OrdinalIgnoreCase)
+                });
+            }
+
+            return list.OrderBy(a => a.Name, StringComparer.CurrentCultureIgnoreCase).ToList();
+        }
+
+        private void RefreshApps()
+        {
+            if (AppsContainer == null) return;
+
+            RenderApps();
+            if (!appsDiscovered && !appsLoading) _ = DiscoverAppsAsync(false);
+        }
+
+        private async Task DiscoverAppsAsync(bool force)
+        {
+            if (appsLoading || (appsDiscovered && !force)) return;
+
+            appsLoading = true;
+            RenderApps();
+
+            try
+            {
+                var found = await Task.Run(() =>
+                {
+                    var apps = DiscoverApps();
+                    LoadAppIcons(apps, 96);
+                    return apps;
+                });
+
+                discoveredApps.Clear();
+                discoveredApps.AddRange(found);
+                appsDiscovered = true;
+            }
+            catch (Exception ex)
+            {
+                LogError("Anwendungen", ex);
+            }
+            finally
+            {
+                appsLoading = false;
+            }
+
+            RenderApps();
+        }
+
+        private void BtnRefreshApps_Click(object sender, RoutedEventArgs e)
+        {
+            manualAppIcons.Clear();
+            _ = DiscoverAppsAsync(true);
+        }
+
+        private void TxtAppSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (AppsContainer == null) return;
+
+            appSearch = TxtAppSearch.Text.Trim();
+            AppSearchHint.Visibility = TxtAppSearch.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+            RenderAppTiles(cachedApps);
+        }
+
+        private void RenderApps()
+        {
+            if (AppsContainer == null) return;
+
+            var all = BuildAppList();
+            cachedApps = all;
+
+            if (appFilter != "all" && appFilter != "fav" && !all.Any(a => a.Category == appFilter)) appFilter = "all";
+
+            BuildAppFilterChips(all);
+            RenderAppTiles(all);
+        }
+
+        private void BuildAppFilterChips(List<AppEntry> all)
+        {
+            AppsFilterPanel.Children.Clear();
+            var chipStyle = TryFindResource("ChipStyle") as Style;
+
+            void AddChip(string key, string label, int count)
+            {
+                var chip = new System.Windows.Controls.RadioButton
+                {
+                    Content = $"{label}  {count}",
+                    GroupName = "AppsCategory",
+                    Tag = key,
+                    IsChecked = appFilter == key
+                };
+                if (chipStyle != null) chip.Style = chipStyle;
+                chip.Checked += (s, e) =>
+                {
+                    appFilter = key;
+                    RenderAppTiles(cachedApps);
+                };
+                AppsFilterPanel.Children.Add(chip);
+            }
+
+            AddChip("all", Loc.T("Alle"), all.Count);
+            AddChip("fav", Loc.T("Favoriten"), all.Count(a => a.IsFavorite));
+            foreach (string category in AppCategories)
+            {
+                int count = all.Count(a => a.Category == category);
+                if (count > 0) AddChip(category, Loc.T(category), count);
+            }
+        }
+
+        private void RenderAppTiles(List<AppEntry> all)
+        {
+            AppsContainer.Children.Clear();
+
+            IEnumerable<AppEntry> query = all;
+            if (appFilter == "fav") query = query.Where(a => a.IsFavorite);
+            else if (appFilter != "all") query = query.Where(a => a.Category == appFilter);
+            if (appSearch.Length > 0) query = query.Where(a => a.Name.Contains(appSearch, StringComparison.CurrentCultureIgnoreCase));
+
+            var shown = query.ToList();
+            foreach (var app in shown) AppsContainer.Children.Add(CreateAppTile(app));
+
+            if (appsLoading && all.Count == 0)
+            {
+                TxtAppsEmpty.Text = Loc.T("Anwendungen werden gesucht ...");
+                TxtAppsEmpty.Visibility = Visibility.Visible;
+            }
+            else if (shown.Count == 0)
+            {
+                TxtAppsEmpty.Text = Loc.T("Keine Apps erkannt. Füge deine Programme mit „App hinzufügen“ selbst hinzu.");
+                TxtAppsEmpty.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                TxtAppsEmpty.Visibility = Visibility.Collapsed;
+            }
+
+            TxtAppsSubtitle.Text = Loc.T($"{all.Count} Apps gefunden · Klick zum Starten, Rechtsklick für mehr");
+        }
+
+        private Border CreateAppTile(AppEntry app)
+        {
+            var content = new StackPanel
+            {
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center
+            };
+
+            if (app.Icon != null)
+            {
+                var image = new System.Windows.Controls.Image
+                {
+                    Source = app.Icon,
+                    Width = 56,
+                    Height = 56,
+                    Stretch = Stretch.Uniform,
+                    Margin = new Thickness(0, 0, 0, 10)
+                };
+                RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+                content.Children.Add(image);
+            }
+            else
+            {
+                content.Children.Add(new TextBlock
+                {
+                    Text = "🧩",
+                    FontSize = 40,
+                    FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                    Foreground = System.Windows.Media.Brushes.White,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                    Margin = new Thickness(0, 0, 0, 6)
+                });
+            }
+
+            content.Children.Add(new TextBlock
+            {
+                Text = app.Name,
+                Foreground = System.Windows.Media.Brushes.White,
+                FontWeight = FontWeights.SemiBold,
+                FontSize = 13,
+                TextAlignment = TextAlignment.Center,
+                TextWrapping = TextWrapping.Wrap,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                MaxHeight = 36,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center
+            });
+            content.Children.Add(new TextBlock
+            {
+                Text = Loc.T(app.IsManual ? "Eigene App" : app.Category),
+                Foreground = BrushSubtle,
+                FontSize = 11,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                Margin = new Thickness(0, 3, 0, 0)
+            });
+
+            var layout = new Grid();
+            layout.Children.Add(content);
+            if (app.IsFavorite)
+            {
+                layout.Children.Add(new TextBlock
+                {
+                    Text = "★",
+                    Foreground = BrushGold,
+                    FontSize = 14,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Top
+                });
+            }
+
+            var menu = CreateMenu();
+            AddMenuItem(menu, "▶  Starten", () => LaunchApp(app));
+            AddMenuItem(menu, app.IsFavorite ? "☆  Aus Favoriten entfernen" : "★  Zu Favoriten hinzufügen", () => ToggleAppFavorite(app));
+            if (app.ExePath.Length > 0 && File.Exists(app.ExePath))
+            {
+                string? folder = System.IO.Path.GetDirectoryName(app.ExePath);
+                if (!string.IsNullOrEmpty(folder)) AddMenuItem(menu, "📂  Dateispeicherort öffnen", () => OpenShell(folder));
+            }
+            if (app.IsManual) AddMenuItem(menu, "🗑  Aus Liste entfernen", () => RemoveManualApp(app));
+
+            var tile = new Border
+            {
+                Width = 150,
+                Height = 150,
+                Margin = new Thickness(0, 0, 12, 12),
+                Padding = new Thickness(12),
+                Background = BrushCardBg,
+                BorderBrush = BrushCardBorder,
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(14),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                ContextMenu = menu,
+                Child = layout
+            };
+            tile.MouseEnter += (s, e) => tile.Background = BrushTileHover;
+            tile.MouseLeave += (s, e) => tile.Background = BrushCardBg;
+            tile.MouseLeftButtonUp += (s, e) => LaunchApp(app);
+            return tile;
+        }
+
+        private void ToggleAppFavorite(AppEntry app)
+        {
+            if (app.IsFavorite) settings.AppFavorites.RemoveAll(n => string.Equals(n, app.Name, StringComparison.OrdinalIgnoreCase));
+            else settings.AppFavorites.Add(app.Name);
+
+            SaveSettings();
+            RenderApps();
+        }
+
+        // ═════════════════════════════ Aufräumen ═════════════════════════════
+
+        private sealed class CleanupItem
+        {
+            public string Icon = string.Empty;
+            public string Title = string.Empty;
+            public string Description = string.Empty;
+            public bool ShowCount;
+            public bool NoSize;
+            public Func<(long Bytes, int Count)> Measure = () => (0L, 0);
+            public Func<Task<long>> Clear = () => Task.FromResult(0L);
+            public long Bytes;
+            public int Count;
+            public TextBlock? SizeText;
+            public System.Windows.Controls.Button? Button;
+        }
+
+        private readonly List<CleanupItem> cleanupItems = new();
+        private bool cleanupBusy;
+        private long systemCrashBytes;
+
+        private static readonly EnumerationOptions CleanupEnumeration = new()
+        {
+            RecurseSubdirectories = true,
+            IgnoreInaccessible = true,
+            AttributesToSkip = FileAttributes.ReparsePoint
+        };
+
+        private static string FormatCleanupSize(long bytes)
+        {
+            if (bytes < 1024) return $"{bytes} B";
+
+            double kb = bytes / 1024.0;
+            if (kb < 1024) return $"{kb:F0} KB";
+
+            double mb = kb / 1024.0;
+            if (mb < 1024) return $"{mb:F0} MB";
+
+            return $"{mb / 1024.0:F1} GB";
+        }
+
+        private static (long Bytes, int Count) MeasureFolder(string path, TimeSpan? olderThan = null)
+        {
+            long bytes = 0;
+            int count = 0;
+
+            try
+            {
+                if (!Directory.Exists(path)) return (0L, 0);
+
+                foreach (var file in new DirectoryInfo(path).EnumerateFiles("*", CleanupEnumeration))
+                {
+                    try
+                    {
+                        if (olderThan.HasValue && DateTime.UtcNow - file.LastWriteTimeUtc < olderThan.Value) continue;
+                        bytes += file.Length;
+                        count++;
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+
+            return (bytes, count);
+        }
+
+        private static long ClearFolder(string path, TimeSpan? olderThan = null)
+        {
+            long freed = 0;
+
+            try
+            {
+                if (!Directory.Exists(path)) return 0;
+                var root = new DirectoryInfo(path);
+
+                foreach (var file in root.EnumerateFiles("*", CleanupEnumeration))
+                {
+                    try
+                    {
+                        if (olderThan.HasValue && DateTime.UtcNow - file.LastWriteTimeUtc < olderThan.Value) continue;
+                        long length = file.Length;
+                        file.Delete();
+                        freed += length;
+                    }
+                    catch { }   // Datei wird gerade benutzt: bleibt einfach liegen
+                }
+
+                foreach (var dir in root.EnumerateDirectories("*", CleanupEnumeration).OrderByDescending(d => d.FullName.Length).ToList())
+                {
+                    try
+                    {
+                        if (!dir.EnumerateFileSystemInfos().Any()) dir.Delete();
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+
+            return freed;
+        }
+
+        private static (long Bytes, int Count) SumMeasures(IEnumerable<(long Bytes, int Count)> parts)
+        {
+            long bytes = 0;
+            int count = 0;
+            foreach (var part in parts)
+            {
+                bytes += part.Bytes;
+                count += part.Count;
+            }
+            return (bytes, count);
+        }
+
+        private static string[] ShaderFolders()
+        {
+            string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string data = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+
+            return new[]
+            {
+                System.IO.Path.Combine(local, "D3DSCache"),
+                System.IO.Path.Combine(local, "NVIDIA", "DXCache"),
+                System.IO.Path.Combine(local, "NVIDIA", "GLCache"),
+                System.IO.Path.Combine(data, "NVIDIA Corporation", "NV_Cache"),
+                System.IO.Path.Combine(local, "AMD", "DxCache"),
+                System.IO.Path.Combine(local, "AMD", "DxcCache"),
+                System.IO.Path.Combine(local, "AMD", "GLCache"),
+                System.IO.Path.Combine(local, "AMD", "VkCache"),
+                System.IO.Path.Combine(local, "Intel", "ShaderCache")
+            };
+        }
+
+        private static string[] UserCrashFolders()
+        {
+            string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+            return new[]
+            {
+                System.IO.Path.Combine(local, "CrashDumps"),
+                System.IO.Path.Combine(local, "Microsoft", "Windows", "WER", "ReportArchive"),
+                System.IO.Path.Combine(local, "Microsoft", "Windows", "WER", "ReportQueue"),
+                System.IO.Path.Combine(local, "Microsoft", "Windows", "WER", "Temp")
+            };
+        }
+
+        private static string[] SystemCrashFolders()
+        {
+            string data = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+            string windows = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+
+            return new[]
+            {
+                System.IO.Path.Combine(data, "Microsoft", "Windows", "WER", "ReportArchive"),
+                System.IO.Path.Combine(data, "Microsoft", "Windows", "WER", "ReportQueue"),
+                System.IO.Path.Combine(data, "Microsoft", "Windows", "WER", "Temp"),
+                System.IO.Path.Combine(windows, "Minidump")
+            };
+        }
+
+        private static long MemoryDumpSize()
+        {
+            try
+            {
+                var file = new FileInfo(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "MEMORY.DMP"));
+                return file.Exists ? file.Length : 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        private static (long Bytes, int Count) QueryRecycleBin()
+        {
+            try
+            {
+                var info = new NativeMethods.ShQueryRbInfo { cbSize = Interop.Marshal.SizeOf<NativeMethods.ShQueryRbInfo>() };
+                int result = NativeMethods.SHQueryRecycleBin(null, ref info);
+                return result == 0 ? (info.i64Size, (int)info.i64NumItems) : (0L, 0);
+            }
+            catch
+            {
+                return (0L, 0);
+            }
+        }
+
+        private void BuildCleanupItems()
+        {
+            if (cleanupItems.Count > 0) return;
+
+            string temp = System.IO.Path.GetTempPath();
+            string windowsTemp = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "Temp");
+            var day = TimeSpan.FromHours(24);
+
+            cleanupItems.Add(new CleanupItem
+            {
+                Icon = "🗂",
+                Title = "Temporäre Dateien",
+                Description = "Dateien in den Temp-Ordnern, die älter als 24 Stunden sind",
+                Measure = () => SumMeasures(new[] { MeasureFolder(temp, day) }
+                    .Concat(IsRunningAsAdmin() ? new[] { MeasureFolder(windowsTemp, day) } : Array.Empty<(long Bytes, int Count)>())),
+                Clear = () => Task.Run(() => ClearFolder(temp, day) + (IsRunningAsAdmin() ? ClearFolder(windowsTemp, day) : 0))
+            });
+
+            cleanupItems.Add(new CleanupItem
+            {
+                Icon = "🎮",
+                Title = "Shader-Cache",
+                Description = "DirectX, NVIDIA, AMD, Intel – sinnvoll nach Treiber-Updates (der erste Spielstart danach dauert kurz länger)",
+                Measure = () => SumMeasures(ShaderFolders().Select(f => MeasureFolder(f))),
+                Clear = () => Task.Run(() => ShaderFolders().Sum(f => ClearFolder(f)))
+            });
+
+            cleanupItems.Add(new CleanupItem
+            {
+                Icon = "🗑",
+                Title = "Papierkorb",
+                Description = "Gelöschte Dateien endgültig entfernen",
+                ShowCount = true,
+                Measure = QueryRecycleBin,
+                Clear = () => Task.Run(() =>
+                {
+                    long before = QueryRecycleBin().Bytes;
+                    NativeMethods.SHEmptyRecycleBin(IntPtr.Zero, null, 7);   // ohne Rückfrage, Fortschritt und Ton
+                    return before;
+                })
+            });
+
+            cleanupItems.Add(new CleanupItem
+            {
+                Icon = "⚠",
+                Title = "Absturzberichte",
+                Description = "Speicherabbilder und Fehlerberichte abgestürzter Programme",
+                Measure = () =>
+                {
+                    var user = SumMeasures(UserCrashFolders().Select(f => MeasureFolder(f)));
+                    long system = SystemCrashFolders().Sum(f => MeasureFolder(f).Bytes) + MemoryDumpSize();
+                    systemCrashBytes = system;
+                    return IsRunningAsAdmin() ? (user.Bytes + system, user.Count) : user;
+                },
+                Clear = () => Task.Run(() =>
+                {
+                    long freed = UserCrashFolders().Sum(f => ClearFolder(f));
+                    if (IsRunningAsAdmin())
+                    {
+                        freed += SystemCrashFolders().Sum(f => ClearFolder(f));
+                        try
+                        {
+                            string dump = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "MEMORY.DMP");
+                            long length = MemoryDumpSize();
+                            File.Delete(dump);
+                            freed += length;
+                        }
+                        catch { }
+                    }
+                    return freed;
+                })
+            });
+
+            cleanupItems.Add(new CleanupItem
+            {
+                Icon = "🖼",
+                Title = "Cover-Cache",
+                Description = "Heruntergeladene Cover – werden danach automatisch neu geladen",
+                Measure = () => MeasureFolder(CoversDir),
+                Clear = async () =>
+                {
+                    long freed = await Task.Run(() =>
+                    {
+                        long before = MeasureFolder(CoversDir).Bytes;
+                        try { if (Directory.Exists(CoversDir)) Directory.Delete(CoversDir, true); }
+                        catch { }
+                        return Math.Max(0, before - MeasureFolder(CoversDir).Bytes);
+                    });
+
+                    lock (settings.SteamIds)
+                    {
+                        foreach (var key in settings.SteamIds.Where(p => p.Value <= 0).Select(p => p.Key).ToList())
+                            settings.SteamIds.Remove(key);
+                    }
+
+                    imageCache.Clear();
+                    foreach (var game in allGames) game.CoverPath = string.Empty;
+                    ApplyFilter();
+                    _ = DownloadCoversAsync(allGames);
+                    return freed;
+                }
+            });
+
+            cleanupItems.Add(new CleanupItem
+            {
+                Icon = "📄",
+                Title = "Launcher-Protokolle",
+                Description = "Fehlerprotokolle dieses Launchers",
+                Measure = () => MeasureFolder(LogDir),
+                Clear = () => Task.Run(() => ClearFolder(LogDir))
+            });
+
+            cleanupItems.Add(new CleanupItem
+            {
+                Icon = "🌐",
+                Title = "DNS-Cache",
+                Description = "Hilft bei Verbindungsproblemen zu Spiele-Servern und Launchern",
+                NoSize = true,
+                Measure = () => (0L, 0),
+                Clear = () => Task.Run(() =>
+                {
+                    RunHidden("ipconfig", "/flushdns");
+                    return 0L;
+                })
+            });
+        }
+
+        private void RenderCleanup()
+        {
+            if (CleanupPanel == null) return;
+
+            BuildCleanupItems();
+            CleanupPanel.Children.Clear();
+
+            bool first = true;
+            foreach (var entry in cleanupItems)
+            {
+                var item = entry;
+
+                var badge = new Border
+                {
+                    Width = 38,
+                    Height = 38,
+                    CornerRadius = new CornerRadius(10),
+                    Background = MakeBrush("#1AFFFFFF"),
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                    Child = new TextBlock
+                    {
+                        Text = item.Icon,
+                        FontSize = 17,
+                        FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                        Foreground = System.Windows.Media.Brushes.White,
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                        VerticalAlignment = System.Windows.VerticalAlignment.Center
+                    }
+                };
+
+                var texts = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(14, 0, 14, 0) };
+                texts.Children.Add(new TextBlock
+                {
+                    Text = Loc.T(item.Title),
+                    Foreground = System.Windows.Media.Brushes.White,
+                    FontWeight = FontWeights.SemiBold
+                });
+                texts.Children.Add(new TextBlock
+                {
+                    Text = Loc.T(item.Description),
+                    Foreground = BrushSubtle,
+                    FontSize = 12,
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(0, 2, 0, 0)
+                });
+
+                item.SizeText = new TextBlock
+                {
+                    Text = item.NoSize ? string.Empty : "…",
+                    Foreground = System.Windows.Media.Brushes.White,
+                    FontWeight = FontWeights.SemiBold,
+                    MinWidth = 96,
+                    TextAlignment = TextAlignment.Right,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center
+                };
+
+                item.Button = new System.Windows.Controls.Button
+                {
+                    Content = Loc.T("Leeren"),
+                    MinWidth = 78,
+                    Padding = new Thickness(14, 7, 14, 7),
+                    Margin = new Thickness(16, 0, 0, 0),
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                    IsEnabled = item.NoSize
+                };
+                item.Button.Click += async (s, e) => await ClearCleanupItemAsync(item);
+
+                var layout = new Grid();
+                layout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                layout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                layout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                layout.Children.Add(badge);
+                Grid.SetColumn(texts, 1);
+                layout.Children.Add(texts);
+                Grid.SetColumn(item.SizeText, 2);
+                layout.Children.Add(item.SizeText);
+                Grid.SetColumn(item.Button, 3);
+                layout.Children.Add(item.Button);
+
+                CleanupPanel.Children.Add(new Border
+                {
+                    BorderBrush = MakeBrush("#14FFFFFF"),
+                    BorderThickness = first ? new Thickness(0) : new Thickness(0, 1, 0, 0),
+                    Padding = new Thickness(0, 10, 0, 10),
+                    Child = layout
+                });
+                first = false;
+            }
+        }
+
+        private void UpdateCleanupRow(CleanupItem item)
+        {
+            if (item.SizeText != null)
+            {
+                item.SizeText.Text = item.NoSize ? string.Empty
+                    : item.ShowCount && item.Count > 0 ? $"{FormatCleanupSize(item.Bytes)} ({item.Count})"
+                    : FormatCleanupSize(item.Bytes);
+            }
+
+            if (item.Button != null)
+                item.Button.IsEnabled = !cleanupBusy && (item.NoSize || item.Bytes > 0 || item.Count > 0);
+        }
+
+        private void SetCleanupBusy(bool busy)
+        {
+            cleanupBusy = busy;
+            foreach (var item in cleanupItems) UpdateCleanupRow(item);
+            if (BtnCleanupAll != null) BtnCleanupAll.IsEnabled = !busy;
+            if (BtnCleanupRefresh != null) BtnCleanupRefresh.IsEnabled = !busy;
+        }
+
+        private async Task MeasureCleanupAsync()
+        {
+            if (CleanupPanel == null) return;
+            BuildCleanupItems();
+
+            var tasks = cleanupItems
+                .Select(item => Task.Run<(long Bytes, int Count)>(() =>
+                {
+                    try { return item.Measure(); }
+                    catch { return (0L, 0); }
+                }))
+                .ToList();
+            var results = await Task.WhenAll(tasks);
+
+            long total = 0;
+            for (int i = 0; i < cleanupItems.Count; i++)
+            {
+                cleanupItems[i].Bytes = results[i].Bytes;
+                cleanupItems[i].Count = results[i].Count;
+                total += results[i].Bytes;
+                UpdateCleanupRow(cleanupItems[i]);
+            }
+
+            TxtCleanupTotal.Text = total > 0
+                ? Loc.T($"{FormatCleanupSize(total)} lassen sich freigeben")
+                : Loc.T("Alles sauber");
+
+            bool needAdmin = !IsRunningAsAdmin() && systemCrashBytes > 0;
+            TxtCleanupNote.Visibility = needAdmin ? Visibility.Visible : Visibility.Collapsed;
+            if (needAdmin)
+                TxtCleanupNote.Text = Loc.T($"Systemberichte: {FormatCleanupSize(systemCrashBytes)} lassen sich nur mit Administratorrechten löschen.");
+        }
+
+        private async Task ClearCleanupItemAsync(CleanupItem item)
+        {
+            if (cleanupBusy) return;
+            SetCleanupBusy(true);
+
+            try
+            {
+                long freed = await item.Clear();
+                ShowToast("🧹", "Aufgeräumt",
+                    item.NoSize ? Loc.T("Der DNS-Cache wurde geleert.") : Loc.T($"{FormatCleanupSize(freed)} freigegeben"), 5);
+            }
+            catch (Exception ex)
+            {
+                LogError("Aufräumen", ex);
+            }
+            finally
+            {
+                SetCleanupBusy(false);
+            }
+
+            await MeasureCleanupAsync();
+        }
+
+        private async void BtnCleanupAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (cleanupBusy) return;
+
+            var answer = Msg("Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.", "Alles leeren",
+                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (answer != MessageBoxResult.Yes) return;
+
+            SetCleanupBusy(true);
+            long freed = 0;
+
+            try
+            {
+                foreach (var item in cleanupItems.Where(i => i.NoSize || i.Bytes > 0 || i.Count > 0).ToList())
+                    freed += await item.Clear();
+
+                ShowToast("🧹", "Aufgeräumt", Loc.T($"{FormatCleanupSize(freed)} freigegeben"), 6);
+            }
+            catch (Exception ex)
+            {
+                LogError("Aufräumen", ex);
+            }
+            finally
+            {
+                SetCleanupBusy(false);
+            }
+
+            await MeasureCleanupAsync();
+        }
+
+        private async void BtnCleanupRefresh_Click(object sender, RoutedEventArgs e) => await MeasureCleanupAsync();
     }
 }
