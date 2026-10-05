@@ -241,7 +241,9 @@ namespace Game_launcher
         public bool ShowToasts { get; set; } = true;
         public bool DoubleClickLaunch { get; set; }
         public bool ExitWarning { get; set; } = true;
-        public bool SgdbAnimated { get; set; }
+        public bool SgdbAnimated { get; set; } = true;
+        public bool SgdbAnimatedMigrated { get; set; }
+        public List<string> AnimatedChecked { get; set; } = new();
 
         // Wunschliste, Spielinfos, Sensoren, Klänge, Updates, Einrichtung, Sicherung
         public List<WishItem> Wishlist { get; set; } = new();
@@ -1968,6 +1970,9 @@ Aufgeräumt || Cleaned up || 已清理 || Limpiado || Nettoyé || Limpo || Оч�
 Der DNS-Cache wurde geleert. || The DNS cache was flushed. || DNS 缓存已清空。 || Se vació la caché DNS. || Le cache DNS a été vidé. || O cache DNS foi limpo. || Кэш DNS очищен. || DNSキャッシュを消去しました。
 Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert. || Empty all areas in the list? The recycle bin will be emptied permanently. || 清空列表中的所有项目?回收站将被永久清空。 || ¿Vaciar todas las áreas de la lista? La papelera se vaciará definitivamente. || Vider toutes les zones de la liste ? La corbeille sera vidée définitivement. || Esvaziar todas as áreas da lista? A lixeira será esvaziada permanentemente. || Очистить все пункты списка? Корзина будет очищена безвозвратно. || リスト内のすべてを空にしますか?ごみ箱は完全に空になります。
 
+Animierte Cover || Animated covers || 动画封面 || Portadas animadas || Jaquettes animées || Capas animadas || Анимированные обложки || アニメーションカバー
+Die animierten Cover werden im Hintergrund geladen. || The animated covers are being loaded in the background. || 动画封面正在后台加载。 || Las portadas animadas se cargan en segundo plano. || Les jaquettes animées sont chargées en arrière-plan. || As capas animadas estão sendo carregadas em segundo plano. || Анимированные обложки загружаются в фоне. || アニメーションカバーをバックグラウンドで読み込んでいます。
+
 """;
     }
 
@@ -2127,6 +2132,9 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
     /// <summary>Spielt animierte GIFs ab (WPF kann das nicht von Haus aus). Teilbilder werden zusammengesetzt.</summary>
     public sealed class GifAnimator
     {
+        /// <summary>Warum die letzte Animation nicht geladen werden konnte (für das Fehlerprotokoll).</summary>
+        public static string? LastError { get; private set; }
+
         private readonly List<BitmapSource> frames = new();
         private readonly List<int> delays = new();
         private DispatcherTimer? timer;
@@ -2174,14 +2182,23 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
         {
             try
             {
-                if (new FileInfo(path).Length > 30L * 1024 * 1024) return null;
+                LastError = null;
+                if (new FileInfo(path).Length > 30L * 1024 * 1024)
+                {
+                    LastError = "Datei größer als 30 MB";
+                    return null;
+                }
 
                 string extension = System.IO.Path.GetExtension(path).ToLowerInvariant();
                 var options = new SixLabors.ImageSharp.Formats.DecoderOptions { MaxFrames = 150 };
                 using var image = SixLabors.ImageSharp.Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(options, path);
 
                 int total = image.Frames.Count;
-                if (total < 2) return null;
+                if (total < 2)
+                {
+                    LastError = "Das Bild enthält keine Animation";
+                    return null;
+                }
 
                 int stride = (int)Math.Ceiling(total / 90.0);   // höchstens etwa 90 Bilder im Speicher
                 int width = Math.Max(1, Math.Min(maxWidth, image.Width));
@@ -2213,8 +2230,9 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
 
                 return animator.frames.Count > 1 ? animator : null;
             }
-            catch
+            catch (Exception ex)
             {
+                LastError = ex.GetType().Name + ": " + ex.Message;
                 return null;
             }
         }
@@ -2777,6 +2795,13 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
             settings.DiscordWebhook ??= string.Empty;
             settings.SkippedUpdate ??= string.Empty;
             settings.AppFavorites ??= new List<string>();
+            settings.AnimatedChecked ??= new List<string>();
+            if (!settings.SgdbAnimatedMigrated)
+            {
+                // Einmalig: Wer einen SteamGridDB-Schlüssel hat, bekommt ab jetzt animierte Cover
+                settings.SgdbAnimatedMigrated = true;
+                if (!string.IsNullOrWhiteSpace(settings.SteamGridDbKey)) settings.SgdbAnimated = true;
+            }
             if (!new[] { 500, 1000, 2000, 5000 }.Contains(settings.MonitorIntervalMs)) settings.MonitorIntervalMs = 1000;
 
             ApplyTheme();
@@ -3031,7 +3056,7 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
             if (!TryPickColor(settings.BackgroundColor, out string hex)) return;
             settings.BackgroundColor = hex;
             SaveSettings();
-            ApplyTheme();
+            RefreshAfterThemeChange();
         }
 
         private void BtnPickPlayColor_Click(object sender, RoutedEventArgs e)
@@ -3039,7 +3064,7 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
             if (!TryPickColor(settings.AccentColor, out string hex)) return;
             settings.AccentColor = hex;
             SaveSettings();
-            ApplyTheme();
+            RefreshAfterThemeChange();
         }
 
         private void BtnResetTheme_Click(object sender, RoutedEventArgs e)
@@ -3047,7 +3072,7 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
             settings.BackgroundColor = "#0F111A";
             settings.AccentColor = "#8B5CF6";
             SaveSettings();
-            ApplyTheme();
+            RefreshAfterThemeChange();
         }
 
         private void Slider_Changed(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -3082,7 +3107,27 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
             if (ReferenceEquals(sender, ChkSensors)) ApplySensorSettings();
 
             if (ReferenceEquals(sender, ChkSgdbAnimated))
-                ShowToast("🖼", "Cover-Quelle geändert", "Klicke auf „Cover neu laden“, damit die Änderung greift.", 6);
+            {
+                if (settings.SgdbAnimated)
+                {
+                    settings.AnimatedChecked.Clear();
+                    ShowToast("🖼", "Animierte Cover", "Die animierten Cover werden im Hintergrund geladen.", 6);
+                    _ = UpgradeToAnimatedCoversAsync();
+                }
+                else
+                {
+                    ShowToast("🖼", "Cover-Quelle geändert", "Klicke auf „Cover neu laden“, damit die Änderung greift.", 6);
+                }
+            }
+
+            if (ReferenceEquals(sender, ChkDeals) && settings.ShowDeals) _ = RefreshDealsAsync(true);
+
+            try
+            {
+                ApplyOverlayLook();
+                UpdateOverlayVisibility();
+            }
+            catch { }
 
             if (ReferenceEquals(sender, ChkSoftware))
                 Msg("Die Änderung wird nach einem Neustart des Launchers wirksam.");
@@ -3128,6 +3173,7 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
             }
 
             imageCache.Clear();
+            settings.AnimatedChecked.Clear();
             foreach (var game in allGames) game.CoverPath = string.Empty;
             ApplyFilter();
 
@@ -5873,16 +5919,7 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
             {
                 try
                 {
-                    var image = new BitmapImage();
-                    image.BeginInit();
-                    image.UriSource = new Uri(settings.BackgroundImagePath);
-                    image.CacheOption = BitmapCacheOption.OnLoad;
-                    image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                    image.DecodePixelWidth = 1920;
-                    image.EndInit();
-                    image.Freeze();
-
-                    BackgroundImage.Source = image;
+                    BackgroundImage.Source = LoadBackgroundBitmap(settings.BackgroundImagePath);
                     loadedBackgroundPath = settings.BackgroundImagePath;
                 }
                 catch
@@ -5972,6 +6009,7 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
             var textVisibility = collapsed ? Visibility.Collapsed : Visibility.Visible;
 
             BrandText.Visibility = textVisibility;
+            BrandTextHost.Visibility = textVisibility;
             UserCard.Visibility = textVisibility;
             SidebarFooterText.Visibility = textVisibility;
             SidebarCredit.Visibility = textVisibility;
@@ -6040,7 +6078,7 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
                     settings.BackgroundColor = bg;
                     settings.AccentColor = accent;
                     SaveSettings();
-                    ApplyTheme();
+                    RefreshAfterThemeChange();
                 };
 
                 ThemePresetsPanel.Children.Add(button);
@@ -8389,6 +8427,7 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
             _ = LoadGameInfoAsync();
             _ = ScanModFoldersAsync();
             RefreshApps();
+            _ = UpgradeToAnimatedCoversAsync();
             await RunMaintenanceAsync();
         }
 
@@ -10702,12 +10741,23 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
         {
             ApplyFilter();
             RefreshDashboard();
+            RebuildStaticTiles();
             RefreshApps();
             RefreshBoard();
             RenderDeals();
             UpdateClock();
             UpdateSliderLabels();
             RebuildTrayMenu();
+            BuildSchemeTiles();
+            BuildDashWidgetSettings();
+            RenderWishlist();
+            ApplyUpdateUi();
+            UpdatePlanTiles(currentPowerPlanName);
+            if (ViewOptimization.Visibility == Visibility.Visible)
+            {
+                RenderCleanup();
+                _ = MeasureCleanupAsync();
+            }
 
             if (ViewStats.Visibility == Visibility.Visible) RefreshStats(false);
             if (ViewDownloads.Visibility == Visibility.Visible) RefreshDownloads();
@@ -11966,8 +12016,15 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
                     }
                     else
                     {
+                        if (gifFailed.Contains(path)) return;
+
                         var loaded = await Task.Run(() => GifAnimator.TryLoad(path, 300));
-                        if (loaded == null) return;
+                        if (loaded == null)
+                        {
+                            gifFailed.Add(path);
+                            LogError("Animation", new InvalidOperationException(System.IO.Path.GetFileName(path) + ": " + (GifAnimator.LastError ?? "unbekannt")));
+                            return;
+                        }
 
                         if (gifCache.Count >= 4) gifCache.Clear();
                         gifCache[path] = loaded;
@@ -12623,6 +12680,12 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
             }
 
             double logoSize = settings.SidebarCollapsed ? Math.Min(settings.BrandLogoSize, 54) : settings.BrandLogoSize;
+            if (!settings.SidebarCollapsed)
+            {
+                // Das Logo darf nie mehr Platz brauchen, als die Seitenleiste hergibt (mit Name höchstens die Hälfte)
+                double content = Math.Max(120, settings.SidebarWidth - 36);
+                logoSize = Math.Min(logoSize, settings.BrandShowName ? content * 0.5 : content);
+            }
             BrandLogo.Width = logoSize;
             BrandLogo.Height = logoSize;
 
@@ -13615,7 +13678,7 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
             return id;
         }
 
-        private async Task<(string Url, bool Animated)?> SgdbPickFromBaseAsync(string basePath)
+        private async Task<(string Url, bool Animated)?> SgdbPickFromBaseAsync(string basePath, bool animatedOnly = false)
         {
             const string common = "dimensions=600x900,342x482&nsfw=false&humor=false";
 
@@ -13627,12 +13690,14 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
                 }
             }
 
+            if (animatedOnly) return null;
+
             var still = SgdbGridUrls(await SgdbGetAsync($"{basePath}?{common}&types=static&mimes=image/png,image/jpeg"));
             return still.Count > 0 ? (still[0], false) : null;
         }
 
         /// <summary>Sucht bei SteamGridDB das passende Cover, wenn gewünscht auch eine animierte Fassung.</summary>
-        private async Task<(string Url, bool Animated)?> FindSgdbCoverAsync(GameItem game)
+        private async Task<(string Url, bool Animated)?> FindSgdbCoverAsync(GameItem game, bool animatedOnly = false)
         {
             if (string.IsNullOrWhiteSpace(settings.SteamGridDbKey) || !settings.OnlineFeatures) return null;
 
@@ -13640,12 +13705,12 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
             {
                 if (game.Source == "Steam" && game.AppId.Length > 0)
                 {
-                    var viaSteam = await SgdbPickFromBaseAsync($"/grids/steam/{game.AppId}");
+                    var viaSteam = await SgdbPickFromBaseAsync($"/grids/steam/{game.AppId}", animatedOnly);
                     if (viaSteam != null) return viaSteam;
                 }
 
                 long id = await FindSgdbGameIdAsync(game.Name);
-                return id > 0 ? await SgdbPickFromBaseAsync($"/grids/game/{id}") : null;
+                return id > 0 ? await SgdbPickFromBaseAsync($"/grids/game/{id}", animatedOnly) : null;
             }
             catch
             {
@@ -18507,5 +18572,135 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
         }
 
         private async void BtnCleanupRefresh_Click(object sender, RoutedEventArgs e) => await MeasureCleanupAsync();
+
+        // ═════════════════════════════ Hintergrund, Farben und animierte Cover ═════════════════════════════
+
+        private readonly HashSet<string> gifFailed = new(StringComparer.OrdinalIgnoreCase);
+        private bool upgradingCovers;
+
+        private static (int Width, int Height) LargestScreenSize()
+        {
+            int width = 0, height = 0;
+            foreach (var display in ReadDisplays())
+            {
+                width = Math.Max(width, display.Width);
+                height = Math.Max(height, display.Height);
+            }
+            return width > 0 ? (width, height) : (2560, 1440);
+        }
+
+        /// <summary>Lädt das Hintergrundbild in voller Schärfe: nur verkleinern, wenn es größer als der größte Bildschirm ist.</summary>
+        private static BitmapImage LoadBackgroundBitmap(string path)
+        {
+            var screen = LargestScreenSize();
+            int nativeWidth = 0, nativeHeight = 0;
+
+            try
+            {
+                using var stream = File.OpenRead(path);
+                var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.DelayCreation, BitmapCacheOption.None);
+                nativeWidth = decoder.Frames[0].PixelWidth;
+                nativeHeight = decoder.Frames[0].PixelHeight;
+            }
+            catch { }
+
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.UriSource = new Uri(path);
+            image.CacheOption = BitmapCacheOption.OnLoad;
+            image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+
+            if (nativeWidth > 0 && nativeHeight > 0)
+            {
+                double need = Math.Max(screen.Width / (double)nativeWidth, screen.Height / (double)nativeHeight);
+                if (need < 1.0) image.DecodePixelWidth = (int)Math.Ceiling(nativeWidth * need);
+            }
+            else
+            {
+                image.DecodePixelWidth = Math.Max(screen.Width, 1920);
+            }
+
+            image.EndInit();
+            image.Freeze();
+            return image;
+        }
+
+        /// <summary>Wendet Farbänderungen überall an, nicht nur auf den Hintergrund.</summary>
+        private void RefreshAfterThemeChange()
+        {
+            ApplyViewSettings();
+            ApplyFilter();
+            RefreshDashboard();
+            RebuildStaticTiles();
+            BuildSchemeTiles();
+        }
+
+        /// <summary>Ersetzt vorhandene Standbild-Cover durch animierte Fassungen von SteamGridDB (einmal pro Spiel).</summary>
+        private async Task UpgradeToAnimatedCoversAsync()
+        {
+            if (upgradingCovers || !settings.SgdbAnimated || !settings.OnlineFeatures
+                || string.IsNullOrWhiteSpace(settings.SteamGridDbKey)) return;
+
+            upgradingCovers = true;
+            try
+            {
+                var pending = allGames
+                    .Where(g => !string.IsNullOrEmpty(g.CoverPath) && !IsAnimatedCover(g.CoverPath)
+                                && !settings.AnimatedChecked.Contains(g.Name))
+                    .ToList();
+                if (pending.Count == 0) return;
+
+                int done = 0;
+                using var gate = new System.Threading.SemaphoreSlim(2);
+
+                var tasks = pending.Select(async game =>
+                {
+                    await gate.WaitAsync();
+                    try
+                    {
+                        var found = await FindSgdbCoverAsync(game, true);
+                        if (found != null && found.Value.Animated)
+                        {
+                            string extension = GridExtension(found.Value.Url);
+                            string target = System.IO.Path.ChangeExtension(CoverFilePath(game), extension == ".png" ? ".apng" : extension);
+
+                            if (await TryDownloadAsync(new[] { found.Value.Url }, target))
+                            {
+                                RemoveOtherCoverVariants(game, target);
+                                game.CoverPath = target;
+                            }
+                        }
+
+                        lock (settings.AnimatedChecked) settings.AnimatedChecked.Add(game.Name);
+                    }
+                    catch { }
+                    finally
+                    {
+                        gate.Release();
+
+                        int finished = System.Threading.Interlocked.Increment(ref done);
+                        if (finished % 6 == 0 || finished == pending.Count)
+                        {
+                            await Dispatcher.InvokeAsync(() =>
+                            {
+                                ApplyFilter();
+                                RefreshDashboard();
+                            });
+                        }
+                    }
+                }).ToList();
+
+                await Task.WhenAll(tasks);
+                SaveSettings();
+            }
+            catch (Exception ex)
+            {
+                LogError("Animierte Cover", ex);
+            }
+            finally
+            {
+                upgradingCovers = false;
+            }
+        }
     }
 }

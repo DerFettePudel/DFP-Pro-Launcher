@@ -495,7 +495,8 @@
     </Window.Resources>
 
     <Grid>
-        <Image x:Name="BackgroundImage" Stretch="UniformToFill" Visibility="Collapsed" IsHitTestVisible="False"/>
+        <Image x:Name="BackgroundImage" Stretch="UniformToFill" Visibility="Collapsed" IsHitTestVisible="False"
+           RenderOptions.BitmapScalingMode="HighQuality"/>
         <Border x:Name="BackgroundDim" Background="{DynamicResource AppBackgroundBrush}" Opacity="0.55" Visibility="Collapsed" IsHitTestVisible="False"/>
         <Border x:Name="BackgroundGlow" Visibility="Collapsed" IsHitTestVisible="False"/>
 
@@ -517,13 +518,20 @@
                     </Grid.RowDefinitions>
 
                     <!-- Logo und Name -->
-                    <StackPanel Orientation="Horizontal" Margin="4,0,0,22">
+                    <Grid Margin="4,0,0,22">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
                         <ContentControl x:Name="BrandLogo" Content="{StaticResource DfpLogo}" Width="54" Height="54" VerticalAlignment="Center"/>
-                        <StackPanel x:Name="BrandText" VerticalAlignment="Center" Margin="12,0,0,0">
-                            <TextBlock x:Name="BrandTitle" Text="DFP PRO" Foreground="White" FontSize="20" FontWeight="ExtraBold"/>
-                            <TextBlock x:Name="BrandSubtitle" Text="LAUNCHER" Foreground="{DynamicResource AccentBrush}" FontSize="12" FontWeight="SemiBold"/>
-                        </StackPanel>
-                    </StackPanel>
+                        <Viewbox x:Name="BrandTextHost" Grid.Column="1" Stretch="Uniform" StretchDirection="DownOnly"
+                             HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12,0,0,0">
+                            <StackPanel x:Name="BrandText">
+                                <TextBlock x:Name="BrandTitle" Text="DFP PRO" Foreground="White" FontSize="20" FontWeight="ExtraBold"/>
+                                <TextBlock x:Name="BrandSubtitle" Text="LAUNCHER" Foreground="{DynamicResource AccentBrush}" FontSize="12" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Viewbox>
+                    </Grid>
 
                     <!-- Benutzer -->
                     <Border x:Name="UserCard" Grid.Row="1" Background="{DynamicResource CardBrush}" CornerRadius="12" Padding="14,10" Margin="0,0,0,16">
