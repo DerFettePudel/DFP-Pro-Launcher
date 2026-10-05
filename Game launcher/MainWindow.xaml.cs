@@ -15096,8 +15096,16 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
             }
         }
 
+        /// <summary>Reserve, falls beim Bau keine Update-Quelle eingetragen wurde.</summary>
+        private const string FallbackUpdateRepository = "DerFettePudel/DFP-Pro-Launcher";
+
         private string UpdateRepository()
-            => !string.IsNullOrWhiteSpace(settings.UpdateRepo) ? settings.UpdateRepo.Trim() : BuiltInUpdateRepo();
+        {
+            if (!string.IsNullOrWhiteSpace(settings.UpdateRepo)) return settings.UpdateRepo.Trim();
+
+            string built = BuiltInUpdateRepo();
+            return built.Length > 0 ? built : FallbackUpdateRepository;
+        }
 
         private static bool IsValidRepository(string repo) => Regex.IsMatch(repo ?? string.Empty, @"^[\w.\-]+/[\w.\-]+$");
 
@@ -15205,11 +15213,31 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
             return false;
         }
 
+        private bool updateChecking;
+        private bool updateCheckedThisSession;
+        private readonly DispatcherTimer updateTimer = new();
+
         private async Task CheckForUpdateIfDueAsync()
         {
-            if (!settings.CheckUpdates || !settings.OnlineFeatures) return;
-            if ((DateTime.Now - settings.LastUpdateCheck).TotalHours < 2) return;
-            await CheckForUpdateAsync(false);
+#if DEBUG
+            await Task.CompletedTask;   // Testversionen aus Visual Studio fragen nicht automatisch nach Updates
+#else
+            if (updateChecking || !settings.CheckUpdates || !settings.OnlineFeatures) return;
+
+            // Beim ersten Mal nach dem Start wird immer geprüft, danach höchstens alle 15 Minuten
+            if (updateCheckedThisSession && (DateTime.Now - settings.LastUpdateCheck).TotalMinutes < 15) return;
+
+            updateChecking = true;
+            try
+            {
+                updateCheckedThisSession = true;
+                await CheckForUpdateAsync(false);
+            }
+            finally
+            {
+                updateChecking = false;
+            }
+#endif
         }
 
         private async void BtnCheckUpdate_Click(object sender, RoutedEventArgs e)
@@ -15229,7 +15257,7 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
             if (TxtVersion == null) return;
 
             TxtVersion.Text = Loc.T($"Installierte Version: {VersionText()}");
-            UpdateRepoPanel.Visibility = BuiltInUpdateRepo().Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+            UpdateRepoPanel.Visibility = Visibility.Collapsed;
             if (TxtAboutVersion != null) TxtAboutVersion.Text = "Version " + VersionText();
         }
 
@@ -15313,7 +15341,12 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
 
             try
             {
+                // Ist der Launcher minimiert, holen wir ihn nach vorn, damit das Fenster nicht verschwindet
+                if (IsVisible && WindowState == WindowState.Minimized) ShowFromTray();
+
                 var dialog = CreateDialog("Update verfügbar", 580, out var panel);
+                dialog.Topmost = true;
+                dialog.ShowInTaskbar = true;
                 var cts = new System.Threading.CancellationTokenSource();
                 bool busy = false;
 
@@ -15480,6 +15513,16 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
         private void InitExtras9()
         {
             ApplyUpdateUi();
+
+            updateTimer.Interval = TimeSpan.FromMinutes(15);
+            updateTimer.Tick += async (s, e) => await CheckForUpdateIfDueAsync();
+            updateTimer.Start();
+
+            Loaded += async (s, e) =>
+            {
+                await Task.Delay(6000);
+                await CheckForUpdateIfDueAsync();
+            };
         }
 
         // ───────────────────────────── Sicherungsordner (zum Beispiel OneDrive) ─────────────────────────────
