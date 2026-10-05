@@ -1836,6 +1836,17 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Überraschungen (Easter Eggs)" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Versteckte Kleinigkeiten, Feiertags-Effekte und Geheimerfolge. Aus: Der Launcher bleibt komplett ernst." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkEggs" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
                                             <TextBlock Text="Launcher nach dem Spielstart minimieren" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
                                             <TextBlock Text="Gibt Bildschirm und Arbeitsspeicher frei, sobald ein Spiel läuft." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                         </StackPanel>
@@ -3254,6 +3265,11 @@
 
         <TextBlock Text="DFP PRO LAUNCHER" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,30,9"
                FontSize="10" FontWeight="SemiBold" Foreground="#40FFFFFF" IsHitTestVisible="False" Panel.ZIndex="5"/>
+
+        <!-- ========== DVD-LOGO BEI LEERLAUF ========== -->
+        <Canvas x:Name="DvdLayer" Visibility="Collapsed" Panel.ZIndex="40" Background="#EB000000" ClipToBounds="True">
+            <ContentControl x:Name="DvdLogo" Content="{StaticResource DfpLogo}" Width="96" Height="96" IsHitTestVisible="False" Opacity="0.92"/>
+        </Canvas>
 
         <Canvas x:Name="ConfettiLayer" IsHitTestVisible="False" Panel.ZIndex="50"/>
         <StackPanel x:Name="ToastHost" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,24,24" Panel.ZIndex="60"/>

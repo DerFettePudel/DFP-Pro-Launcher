@@ -257,6 +257,11 @@ namespace Game_launcher
         public DateTime LastUpdateCheck { get; set; }
         public string SkippedUpdate { get; set; } = string.Empty;
         public List<string> AppFavorites { get; set; } = new();
+        public bool EasterEggs { get; set; } = true;
+        public string FirstRunDate { get; set; } = string.Empty;
+        public List<string> EggSeen { get; set; } = new();
+        public bool MilestonesInit { get; set; }
+        public List<int> MilestonesReached { get; set; } = new();
         public bool SetupDone { get; set; }
         public string CloudBackupFolder { get; set; } = string.Empty;
 
@@ -509,6 +514,7 @@ namespace Game_launcher
         public string Description { get; set; } = string.Empty;
         public double Current { get; set; }
         public double Target { get; set; }
+        public bool Secret { get; set; }
     }
 
     public class ShotInfo
@@ -1973,6 +1979,93 @@ Alle Bereiche in der Liste leeren? Der Papierkorb wird dabei endgültig geleert.
 Animierte Cover || Animated covers || 动画封面 || Portadas animadas || Jaquettes animées || Capas animadas || Анимированные обложки || アニメーションカバー
 Die animierten Cover werden im Hintergrund geladen. || The animated covers are being loaded in the background. || 动画封面正在后台加载。 || Las portadas animadas se cargan en segundo plano. || Les jaquettes animées sont chargées en arrière-plan. || As capas animadas estão sendo carregadas em segundo plano. || Анимированные обложки загружаются в фоне. || アニメーションカバーをバックグラウンドで読み込んでいます。
 
+Überraschungen (Easter Eggs) || Surprises (Easter eggs) || 彩蛋(惊喜) || Sorpresas (Easter eggs) || Surprises (Easter eggs) || Surpresas (Easter eggs) || Сюрпризы (пасхалки) || サプライズ(イースターエッグ)
+Versteckte Kleinigkeiten, Feiertags-Effekte und Geheimerfolge. Aus: Der Launcher bleibt komplett ernst. || Hidden little things, holiday effects and secret achievements. Off: the launcher stays completely serious. || 隐藏的小细节、节日特效和隐藏成就。关闭后,启动器会保持完全严肃。 || Pequeños detalles ocultos, efectos festivos y logros secretos. Desactivado: el launcher se mantiene totalmente serio. || Petits détails cachés, effets de fête et succès secrets. Désactivé : le launcher reste totalement sérieux. || Pequenos detalhes escondidos, efeitos de datas festivas e conquistas secretas. Desligado: o launcher fica totalmente sério. || Скрытые мелочи, праздничные эффекты и секретные достижения. Выключено: лаунчер остаётся полностью серьёзным. || 隠し要素、季節のエフェクト、シークレット実績。オフにすると、ランチャーは完全にまじめなままです。
++30 Leben || +30 lives || +30 条命 || +30 vidas || +30 vies || +30 vidas || +30 жизней || ライフ+30
+Konami-Code eingegeben. Der Regenbogen-Modus läuft eine Minute. || Konami code entered. Rainbow mode runs for one minute. || 已输入科乐美秘技。彩虹模式将持续一分钟。 || Código Konami introducido. El modo arcoíris dura un minuto. || Code Konami saisi. Le mode arc-en-ciel dure une minute. || Código Konami digitado. O modo arco-íris dura um minuto. || Код Konami введён. Радужный режим работает одну минуту. || コナミコマンドを入力しました。レインボーモードが1分間続きます。
+Wuff! || Woof! || 汪! || ¡Guau! || Ouaf ! || Au au! || Гав! || ワン!
+Der Pudel freut sich, dich zu sehen. || The poodle is happy to see you. || 贵宾犬很高兴见到你。 || El caniche se alegra de verte. || Le caniche est content de te voir. || O poodle está feliz em ver você. || Пудель рад тебя видеть. || プードルはあなたに会えて嬉しそうです。
+Geheimer Erfolg: || Secret achievement: || 隐藏成就: || Logro secreto: || Succès secret : || Conquista secreta: || Секретное достижение: || シークレット実績:
+Geheimstatistik || Secret statistics || 隐藏统计 || Estadística secreta || Statistique secrète || Estatística secreta || Секретная статистика || シークレット統計
+Du hast insgesamt {#0} Stunden gespielt, das sind {#1} Tage am Stück. || You have played {0} hours in total, that is {1} days in a row. || 你一共玩了 {0} 小时,相当于连续 {1} 天。 || Has jugado {0} horas en total, son {1} días seguidos. || Tu as joué {0} heures au total, soit {1} jours d'affilée. || Você jogou {0} horas no total, isso dá {1} dias seguidos. || Всего вы наиграли {0} ч, это {1} дн. подряд. || 合計{0}時間プレイしました。{1}日間ぶっ通しに相当します。
+In dieser Zeit hättest du {#0} Filme schauen können. || In that time you could have watched {0} movies. || 这段时间你本可以看 {0} 部电影。 || En ese tiempo habrías podido ver {0} películas. || Pendant ce temps, tu aurais pu regarder {0} films. || Nesse tempo você poderia ter assistido a {0} filmes. || За это время можно было посмотреть {0} фильмов. || その間に映画を{0}本観られました。
+Bei einer Tasse alle drei Stunden wären das {#0} Tassen Kaffee. || With one cup every three hours that would be {0} cups of coffee. || 每三小时一杯的话,就是 {0} 杯咖啡。 || Con una taza cada tres horas serían {0} tazas de café. || Avec une tasse toutes les trois heures, cela ferait {0} tasses de café. || Com uma xícara a cada três horas, seriam {0} xícaras de café. || По чашке каждые три часа — это {0} чашек кофе. || 3時間にコーヒー1杯なら、{0}杯分です。
+Du hast {#0}-mal ein Spiel über den Launcher gestartet. || You started a game through the launcher {0} times. || 你通过启动器启动游戏 {0} 次。 || Has iniciado un juego desde el launcher {0} veces. || Tu as lancé un jeu depuis le launcher {0} fois. || Você iniciou um jogo pelo launcher {0} vezes. || Вы запускали игру через лаунчер {0} раз. || ランチャーからゲームを{0}回起動しました。
+Dein Dauerbrenner ist „{0}“ mit {#1} Stunden. || Your all-time favorite is "{0}" with {1} hours. || 你最常玩的是“{0}”,共 {1} 小时。 || Tu juego más jugado es «{0}» con {1} horas. || Ton jeu le plus joué est « {0} » avec {1} heures. || Seu jogo mais jogado é "{0}" com {1} horas. || Ваша любимая игра — «{0}», {1} ч. || 一番遊んだのは「{0}」で{1}時間です。
+Der Pudel begleitet dich seit {#0} Tagen. || The poodle has been with you for {0} days. || 贵宾犬已陪伴你 {0} 天。 || El caniche te acompaña desde hace {0} días. || Le caniche t'accompagne depuis {0} jours. || O poodle acompanha você há {0} dias. || Пудель с вами уже {0} дн. || プードルは{0}日間あなたと一緒です。
+Würfel || Dice || 骰子 || Dado || Dé || Dado || Кубик || サイコロ
+Du hast eine {#0} gewürfelt. ({#1} Seiten) || You rolled a {0}. ({1} sides) || 你掷出了 {0}。({1} 面) || Has sacado un {0}. ({1} caras) || Tu as fait {0}. ({1} faces) || Você tirou {0}. ({1} lados) || Выпало {0}. ({1} граней) || {0}が出ました。({1}面)
+Münze || Coin || 硬币 || Moneda || Pièce || Moeda || Монета || コイン
+Kopf! || Heads! || 正面! || ¡Cara! || Pile ! || Cara! || Орёл! || 表!
+Zahl! || Tails! || 反面! || ¡Cruz! || Face ! || Coroa! || Решка! || 裏!
+Disco || Disco || 迪斯科 || Disco || Disco || Disco || Диско || ディスコ
+Die Party läuft für zehn Sekunden. || The party runs for ten seconds. || 派对将持续十秒。 || La fiesta dura diez segundos. || La fête dure dix secondes. || A festa dura dez segundos. || Вечеринка продлится десять секунд. || パーティーは10秒間続きます。
+Würfelt eine Zahl (zum Beispiel /würfel 20) || Rolls a number (for example /dice 20) || 掷出一个数字(例如 /dice 20) || Tira un dado (por ejemplo /dice 20) || Lance un dé (par exemple /dice 20) || Rola um dado (por exemplo /dice 20) || Бросает кубик (например, /dice 20) || サイコロを振ります(例:/dice 20)
+Wirft eine Münze || Flips a coin || 抛硬币 || Lanza una moneda || Lance une pièce || Joga uma moeda || Подбрасывает монету || コインを投げます
+Wählt ein Spiel für dich aus || Picks a game for you || 为你挑选一款游戏 || Elige un juego para ti || Choisit un jeu pour toi || Escolhe um jogo para você || Выбирает для вас игру || あなたのためにゲームを選びます
+Startet die Party || Starts the party || 开始派对 || Empieza la fiesta || Lance la fête || Começa a festa || Запускает вечеринку || パーティーを始めます
+Sag dem Pudel Hallo || Say hello to the poodle || 向贵宾犬问好 || Saluda al caniche || Dis bonjour au caniche || Diga olá ao poodle || Поздоровайтесь с пуделем || プードルにあいさつしましょう
+Zeigt die geheimen Befehle || Shows the secret commands || 显示隐藏指令 || Muestra los comandos secretos || Affiche les commandes secrètes || Mostra os comandos secretos || Показывает секретные команды || シークレットコマンドを表示します
+Geheime Befehle || Secret commands || 隐藏指令 || Comandos secretos || Commandes secrètes || Comandos secretos || Секретные команды || シークレットコマンド
+Happy Halloween || Happy Halloween || 万圣节快乐 || Feliz Halloween || Joyeux Halloween || Feliz Halloween || Весёлого Хэллоуина || ハッピーハロウィン
+Gruselige Grüße, {0}! || Spooky greetings, {0}! || 来自{0}的诡异问候! || ¡Saludos escalofriantes, {0}! || Salutations terrifiantes, {0} ! || Saudações assustadoras, {0}! || Жуткие приветствия, {0}! || {0}さん、不気味なごあいさつを!
+Frohe Weihnachten || Merry Christmas || 圣诞快乐 || Feliz Navidad || Joyeux Noël || Feliz Natal || Счастливого Рождества || メリークリスマス
+Schöne Feiertage, {0}! || Happy holidays, {0}! || {0},节日快乐! || ¡Felices fiestas, {0}! || Bonnes fêtes, {0} ! || Boas festas, {0}! || С праздниками, {0}! || {0}さん、よい休日を!
+Frohes neues Jahr || Happy New Year || 新年快乐 || Feliz Año Nuevo || Bonne année || Feliz Ano Novo || С Новым годом || あけましておめでとうございます
+Auf ein tolles Spielejahr, {0}! || Here's to a great gaming year, {0}! || {0},祝你游戏之年精彩! || ¡Por un gran año de juegos, {0}! || À une super année de jeux, {0} ! || A um ótimo ano de jogos, {0}! || За отличный игровой год, {0}! || {0}さん、すてきなゲームの一年を!
+DFP Pro Launcher funktioniert nicht mehr || DFP Pro Launcher has stopped working || DFP Pro Launcher 已停止工作 || DFP Pro Launcher ha dejado de funcionar || DFP Pro Launcher ne fonctionne plus || O DFP Pro Launcher parou de funcionar || DFP Pro Launcher перестал работать || DFP Pro Launcherは動作を停止しました
+Ein Problem hat dazu geführt, dass das Programm nicht mehr richtig funktioniert. Windows sucht nach einer Lösung für das Problem ... || A problem caused the program to stop working correctly. Windows is searching for a solution to the problem ... || 出现问题,导致程序无法正常工作。Windows 正在查找问题的解决方案 ... || Un problema ha hecho que el programa deje de funcionar correctamente. Windows está buscando una solución al problema ... || Un problème a empêché le programme de fonctionner correctement. Windows recherche une solution au problème ... || Um problema fez o programa parar de funcionar corretamente. O Windows está procurando uma solução para o problema ... || Из-за проблемы программа перестала работать правильно. Windows ищет решение проблемы ... || 問題が発生したため、プログラムが正しく動作しなくなりました。Windowsは問題の解決策を探しています ...
+Programm schließen || Close the program || 关闭程序 || Cerrar el programa || Fermer le programme || Fechar o programa || Закрыть программу || プログラムを閉じる
+Auf Lösung warten || Wait for a solution || 等待解决方案 || Esperar una solución || Attendre une solution || Aguardar uma solução || Ждать решения || 解決策を待つ
+April, April! || April Fools! || 愚人节快乐! || ¡Inocente! || Poisson d'avril ! || Primeiro de abril! || С первым апреля! || エイプリルフール!
+Alles ist in Ordnung. Der Pudel hat dich nur kurz erschreckt. || Everything is fine. The poodle just gave you a little scare. || 一切正常。贵宾犬只是想吓你一下。 || Todo está bien. El caniche solo te ha dado un pequeño susto. || Tout va bien. Le caniche t'a juste fait un peu peur. || Está tudo bem. O poodle só deu um susto em você. || Всё в порядке. Пудель просто слегка тебя напугал. || すべて問題ありません。プードルがちょっと驚かせただけです。
+Puh, danke! || Phew, thanks! || 呼,谢谢! || ¡Uf, gracias! || Ouf, merci ! || Ufa, obrigado! || Фух, спасибо! || ふう、ありがとう!
+Geburtstag || Birthday || 生日 || Cumpleaños || Anniversaire || Aniversário || День рождения || 誕生日
+Heute vor einem Jahr hast du mich installiert. Alles Gute zum Launcher-Geburtstag! || A year ago today you installed me. Happy launcher birthday! || 一年前的今天你安装了我。启动器生日快乐! || Hace un año que me instalaste. ¡Feliz cumpleaños del launcher! || Il y a un an aujourd'hui, tu m'as installé. Joyeux anniversaire du launcher ! || Há um ano você me instalou. Feliz aniversário do launcher! || Ровно год назад вы установили меня. С днём рождения лаунчера! || ちょうど1年前の今日、私をインストールしてくれました。ランチャーの誕生日おめでとう!
+Heute vor {#0} Jahren hast du mich installiert. Alles Gute zum Launcher-Geburtstag! || {0} years ago today you installed me. Happy launcher birthday! || {0} 年前的今天你安装了我。启动器生日快乐! || Hace {0} años que me instalaste. ¡Feliz cumpleaños del launcher! || Il y a {0} ans aujourd'hui, tu m'as installé. Joyeux anniversaire du launcher ! || Há {0} anos você me instalou. Feliz aniversário do launcher! || Ровно {0} лет назад вы установили меня. С днём рождения лаунчера! || ちょうど{0}年前の今日、私をインストールしてくれました。ランチャーの誕生日おめでとう!
+Nachteule || Night owl || 夜猫子 || Búho nocturno || Oiseau de nuit || Coruja noturna || Ночная сова || 夜更かしさん
+Dein Pudel schläft schon. Du auch bald? || Your poodle is already asleep. Will you be soon? || 你的贵宾犬已经睡了。你也快睡吧? || Tu caniche ya duerme. ¿Y tú pronto? || Ton caniche dort déjà. Toi aussi bientôt ? || Seu poodle já está dormindo. E você, em breve? || Ваш пудель уже спит. А вы скоро? || プードルはもう寝ています。あなたももうすぐ?
+Der Creator persönlich || The creator in person || 创作者本人 || El creador en persona || Le créateur en personne || O criador em pessoa || Сам создатель || 作者ご本人
+Na, wer da? || Well, who's there? || 咦,是谁来了? || ¿Quién anda por ahí? || Tiens, qui voilà ? || Opa, quem é? || О, кто пришёл? || おや、どなたかな?
+Schön, dass du da bist || Nice to have you here || 很高兴你来了 || Qué bien que estés aquí || Content que tu sois là || Que bom que você está aqui || Рад тебя видеть || 来てくれて嬉しいです
+Der Pudel hat dich vermisst || The poodle missed you || 贵宾犬想你了 || El caniche te echaba de menos || Le caniche t'a manqué || O poodle sentiu sua falta || Пудель скучал по тебе || プードルはあなたに会いたがっていました
+Level up, Legende || Level up, legend || 升级啦,传奇 || Sube de nivel, leyenda || Monte en niveau, légende || Suba de nível, lenda || Повышай уровень, легенда || レベルアップ、伝説の人
+Neues Spiel, neues Glück || New game, new luck || 新游戏,新运气 || Juego nuevo, suerte nueva || Nouveau jeu, nouvelle chance || Jogo novo, sorte nova || Новая игра, новая удача || 新しいゲーム、新しい運
+Zeit zu zocken || Time to game || 该玩游戏了 || Hora de jugar || C'est l'heure de jouer || Hora de jogar || Пора играть || ゲームの時間です
+Willkommen im Hauptquartier || Welcome to headquarters || 欢迎来到总部 || Bienvenido al cuartel general || Bienvenue au quartier général || Bem-vindo ao quartel-general || Добро пожаловать в штаб || 司令部へようこそ
+Bereit für ein Abenteuer || Ready for an adventure || 准备好冒险了吗 || Listo para una aventura || Prêt pour l'aventure || Pronto para uma aventura || Готов к приключениям || 冒険の準備はいいですか
+Meilenstein || Milestone || 里程碑 || Hito || Étape || Marco || Веха || マイルストーン
+Du hast insgesamt {#0} Stunden gespielt. || You have played {0} hours in total. || 你一共玩了 {0} 小时。 || Has jugado {0} horas en total. || Tu as joué {0} heures au total. || Você jogou {0} horas no total. || Всего вы наиграли {0} ч. || 合計{0}時間プレイしました。
+Couch-Rookie || Couch rookie || 沙发新手 || Novato del sofá || Débutant du canapé || Novato do sofá || Новичок дивана || ソファの新人
+Couch-Veteran || Couch veteran || 沙发老兵 || Veterano del sofá || Vétéran du canapé || Veterano do sofá || Ветеран дивана || ソファのベテラン
+Pudel-Legende || Poodle legend || 贵宾犬传奇 || Leyenda del caniche || Légende du caniche || Lenda do poodle || Легенда пуделя || プードルの伝説
+Zeitlos || Timeless || 永恒 || Atemporal || Intemporel || Atemporal || Вне времени || 時を超えて
+Unsterblich || Immortal || 不朽 || Inmortal || Immortel || Imortal || Бессмертный || 不滅
+Volltreffer || Bullseye || 命中角落 || ¡En el blanco! || En plein dans le mille || Na mosca || В яблочко || ど真ん中
+Das Logo hat genau eine Ecke getroffen. || The logo hit a corner exactly. || 标志正好撞到了角落。 || El logotipo ha dado justo en una esquina. || Le logo a touché exactement un coin. || O logotipo acertou exatamente um canto. || Логотип попал точно в угол. || ロゴがちょうど角に当たりました。
+Geheim || Secret || 隐藏 || Secreto || Secret || Secreto || Секрет || シークレット
+Geheim: Finde das passende Easter Egg. || Secret: find the matching Easter egg. || 隐藏:找到对应的彩蛋。 || Secreto: encuentra el Easter egg correspondiente. || Secret : trouve l'Easter egg correspondant. || Secreto: encontre o Easter egg correspondente. || Секрет: найдите подходящую пасхалку. || シークレット:対応するイースターエッグを見つけよう。
+Konami-Code || Konami code || 科乐美秘技 || Código Konami || Code Konami || Código Konami || Код Konami || コナミコマンド
+Du kennst die alten Cheats. || You know the old cheats. || 你知道那些经典秘技。 || Conoces los viejos trucos. || Tu connais les vieux cheats. || Você conhece os velhos códigos. || Ты знаешь старые читы. || 昔のコマンドを知っていますね。
+Pudel-Freund || Poodle friend || 贵宾犬之友 || Amigo del caniche || Ami du caniche || Amigo do poodle || Друг пуделя || プードルの友達
+Du hast dem Pudel Hallo gesagt. || You said hello to the poodle. || 你向贵宾犬问好了。 || Has saludado al caniche. || Tu as dit bonjour au caniche. || Você disse olá ao poodle. || Ты поздоровался с пуделем. || プードルにあいさつしました。
+Würfelglück || Lucky roll || 掷骰好运 || Suerte con los dados || Chance aux dés || Sorte nos dados || Удачный бросок || サイコロ運
+Drei Sechsen in Folge gewürfelt. || Rolled three sixes in a row. || 连续掷出三个六。 || Sacaste tres seises seguidos. || Trois six d'affilée aux dés. || Tirou três seis seguidos. || Три шестёрки подряд. || 6を3回連続で出しました。
+Disco-Fieber || Disco fever || 迪斯科狂热 || Fiebre disco || Fièvre disco || Febre disco || Диско-лихорадка || ディスコフィーバー
+Die Party gestartet. || Started the party. || 开启了派对。 || Has empezado la fiesta. || Tu as lancé la fête. || Você começou a festa. || Ты начал вечеринку. || パーティーを始めました。
+Das Logo hat eine Ecke getroffen. || The logo hit a corner. || 标志撞到了角落。 || El logotipo ha dado en una esquina. || Le logo a touché un coin. || O logotipo acertou um canto. || Логотип попал в угол. || ロゴが角に当たりました。
+Nach drei Uhr nachts gespielt. || Played after 3 a.m. || 凌晨三点后还在玩游戏。 || Jugaste después de las 3 de la madrugada. || Joué après 3 h du matin. || Jogou depois das 3 da manhã. || Играл после трёх часов ночи. || 午前3時を過ぎてプレイしました。
+Geburtstagskind || Birthday child || 寿星 || Cumpleañero || Enfant du jour || Aniversariante || Именинник || 誕生日の主役
+Am Jahrestag der Installation gestartet. || Launched on the anniversary of the installation. || 在安装周年纪念日启动。 || Iniciado en el aniversario de la instalación. || Lancé le jour anniversaire de l'installation. || Iniciado no aniversário da instalação. || Запущен в годовщину установки. || インストール記念日に起動しました。
+Zahlenmensch || Numbers person || 数字达人 || Amante de los números || Fan de chiffres || Fã de números || Любитель цифр || 数字好き
+Die Geheimstatistik gefunden. || Found the secret statistics. || 找到了隐藏统计。 || Has encontrado la estadística secreta. || Tu as trouvé la statistique secrète. || Você encontrou a estatística secreta. || Ты нашёл секретную статистику. || シークレット統計を見つけました。
+Glückspilz || Lucky one || 幸运儿 || Afortunado || Veinard || Sortudo || Счастливчик || 幸運の持ち主
+Einen seltenen Spruch beim Start bekommen. || Got a rare saying at startup. || 启动时看到了一句稀有的话。 || Recibiste una frase rara al iniciar. || Tu as eu une phrase rare au démarrage. || Recebeu uma frase rara ao iniciar. || Получил редкую фразу при запуске. || 起動時にレアなひと言が出ました。
+Festtagsstimmung || Festive spirit || 节日气氛 || Ambiente festivo || Esprit de fête || Clima de festa || Праздничное настроение || お祝いムード
+Einen besonderen Tag im Launcher gefeiert. || Celebrated a special day in the launcher. || 在启动器里庆祝了一个特别的日子。 || Celebraste un día especial en el launcher. || Tu as fêté un jour spécial dans le launcher. || Você comemorou um dia especial no launcher. || Ты отметил особый день в лаунчере. || ランチャーで特別な日を祝いました。
+
+Testversion || Test version || 测试版 || Versión de prueba || Version de test || Versão de teste || Тестовая версия || テスト版
+
 """;
     }
 
@@ -2034,6 +2127,17 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
             public int dmPanningWidth;
             public int dmPanningHeight;
         }
+
+        [Interop.StructLayout(Interop.LayoutKind.Sequential)]
+        internal struct LastInputInfo
+        {
+            public uint cbSize;
+            public uint dwTime;
+        }
+
+        [Interop.DllImport("user32.dll")]
+        [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
+        internal static extern bool GetLastInputInfo(ref LastInputInfo plii);
 
         [Interop.DllImport("user32.dll", CharSet = Interop.CharSet.Unicode)]
         [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
@@ -2522,6 +2626,7 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
             InitExtras7();
             InitExtras8();
             InitExtras9();
+            InitExtras10();
 
             isLoadingSettings = false;
             RefreshDashboard();
@@ -2796,6 +2901,9 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
             settings.SkippedUpdate ??= string.Empty;
             settings.AppFavorites ??= new List<string>();
             settings.AnimatedChecked ??= new List<string>();
+            settings.EggSeen ??= new List<string>();
+            settings.MilestonesReached ??= new List<int>();
+            settings.FirstRunDate ??= string.Empty;
             if (!settings.SgdbAnimatedMigrated)
             {
                 // Einmalig: Wer einen SteamGridDB-Schlüssel hat, bekommt ab jetzt animierte Cover
@@ -7687,6 +7795,7 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
                         sessionEnded = true;
                         sessionBreakCount.Remove(game);
                         ShowSessionReport(game);
+                        CheckMilestones();
                         DiscordSessionEnded(game);
                         if (settings.AutoBackupSaves && !string.IsNullOrEmpty(game.SavePath)) _ = BackupSavesAsync(game, true);
 
@@ -7706,6 +7815,7 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
             CheckBreakReminders(now);
             SampleSessions();
             CheckDailyLimit(now);
+            CheckNightEgg(now);
 
             // Zwischendurch speichern (etwa jede Minute)
             playSaveCounter++;
@@ -8020,6 +8130,15 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
                 entries.Add(new SpotlightEntry { Icon = icon, Title = title, Subtitle = subtitle, Action = action, Score = score + bonus });
             }
 
+            if (query.StartsWith("/", StringComparison.Ordinal) && AddEggCommands(query, entries))
+            {
+                spotlightEntries.Clear();
+                spotlightEntries.AddRange(entries);
+                spotlightIndex = 0;
+                RenderSpotlight();
+                return;
+            }
+
             if (query.Length == 0)
             {
                 foreach (var game in VisibleGames.Where(g => g.LastPlayed.HasValue).OrderByDescending(g => g.LastPlayed).Take(4))
@@ -8175,6 +8294,15 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
 
         private void MainWindow_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
+            if (DvdLayer != null && DvdLayer.Visibility == Visibility.Visible)
+            {
+                StopDvd();
+                e.Handled = true;
+                return;
+            }
+
+            TrackKonami(e.Key);
+
             bool ctrl = (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) != 0;
 
             if (ctrl && e.Key == System.Windows.Input.Key.K)
@@ -8428,6 +8556,7 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
             _ = ScanModFoldersAsync();
             RefreshApps();
             _ = UpgradeToAnimatedCoversAsync();
+            CheckMilestones();
             await RunMaintenanceAsync();
         }
 
@@ -8792,6 +8921,7 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
             ReadExtra6Settings();
             ReadExtra7Settings();
             ReadExtra8Settings();
+            ReadExtra10Settings();
 
         }
 
@@ -8809,6 +8939,7 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
             PopulateExtra6Settings();
             PopulateExtra7Settings();
             PopulateExtra8Settings();
+            PopulateExtra10Settings();
         }
 
         private void UpdateExtraSliderLabels()
@@ -10158,6 +10289,13 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
 
         private List<AchievementDef> GetAchievementDefs()
         {
+            var list = GetBaseAchievementDefs();
+            if (EggsOn) list.AddRange(SecretAchievementDefs());
+            return list;
+        }
+
+        private List<AchievementDef> GetBaseAchievementDefs()
+        {
             int games = VisibleGames.Count();
             int launches = VisibleGames.Sum(g => g.LaunchCount);
             double hours = VisibleGames.Where(g => !IsTrackingIgnored(g)).Sum(g => g.PlaySeconds) / 3600.0;
@@ -10249,16 +10387,17 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
             var rows = defs.Select(d =>
             {
                 bool done = settings.Achievements.ContainsKey(d.Id);
+                bool hidden = d.Secret && !done;
                 double percent = Math.Min(100, d.Current / d.Target * 100);
                 return new AchievementRow
                 {
-                    Icon = d.Icon,
-                    Title = d.Title,
-                    Description = d.Description,
+                    Icon = hidden ? "❓" : d.Icon,
+                    Title = hidden ? "???" : d.Title,
+                    Description = hidden ? "Geheim: Finde das passende Easter Egg." : d.Description,
                     Unlocked = done,
                     Percent = done ? 100 : percent,
                     Opacity = done ? 1.0 : 0.5,
-                    ProgressText = done ? "Freigeschaltet" : $"{Math.Min(d.Current, d.Target):F0} / {d.Target:F0}"
+                    ProgressText = done ? "Freigeschaltet" : d.Secret ? "Geheim" : $"{Math.Min(d.Current, d.Target):F0} / {d.Target:F0}"
                 };
             })
             .OrderByDescending(r => r.Unlocked)
@@ -11859,13 +11998,15 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
                 Foreground = System.Windows.Media.Brushes.White,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Center
             });
-            panel.Children.Add(new TextBlock
+            var versionLabel = new TextBlock
             {
-                Text = "Version " + VersionText(),
+                Text = "Version " + VersionLabel(),
                 Foreground = BrushSubtle,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
                 Margin = new Thickness(0, 2, 0, 18)
-            });
+            };
+            versionLabel.MouseLeftButtonUp += VersionText_Click;
+            panel.Children.Add(versionLabel);
 
             var creator = new TextBlock
             {
@@ -12415,6 +12556,8 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
                 ToggleControllerMode();
                 return;
             }
+
+            TrackKonamiPad(pressed);
 
             if (!controllerMode) return;
 
@@ -14989,6 +15132,8 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
                     {
                         "move" => MakeToneWav((880, 35)),
                         "launch" => MakeToneWav((660, 70), (990, 110)),
+                        "bark" => MakeToneWav((520, 55), (400, 80), (520, 55), (330, 130)),
+                        "dice" => MakeToneWav((660, 40), (520, 40), (780, 70)),
                         _ => MakeToneWav((740, 55))
                     };
                     player = new System.Media.SoundPlayer(new MemoryStream(wav));
@@ -15143,6 +15288,16 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
         {
             var version = CurrentVersion();
             return version == null ? "1.0.0" : $"{version.Major}.{version.Minor}.{Math.Max(0, version.Build)}";
+        }
+
+        /// <summary>Versionsanzeige: Testversionen aus Visual Studio tragen den Zusatz „Testversion“.</summary>
+        private static string VersionLabel()
+        {
+#if DEBUG
+            return VersionText() + " (" + Loc.T("Testversion") + ")";
+#else
+            return VersionText();
+#endif
         }
 
         /// <summary>Das GitHub-Repository wird beim automatischen Bau in das Programm geschrieben.</summary>
@@ -15321,9 +15476,9 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
         {
             if (TxtVersion == null) return;
 
-            TxtVersion.Text = Loc.T($"Installierte Version: {VersionText()}");
+            TxtVersion.Text = Loc.T($"Installierte Version: {VersionLabel()}");
             UpdateRepoPanel.Visibility = Visibility.Collapsed;
-            if (TxtAboutVersion != null) TxtAboutVersion.Text = "Version " + VersionText();
+            if (TxtAboutVersion != null) TxtAboutVersion.Text = "Version " + VersionLabel();
         }
 
         private static string CleanReleaseNotes(string markdown)
@@ -17386,7 +17541,9 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
 
             bool reduced = settings.PerformanceMode || !settings.PageAnimations;
 
-            WelcomeGreeting.Text = Loc.T(GetGreeting()) + ",";
+            string? specialGreeting = PickGreeting(out bool rareGreeting);
+            WelcomeGreeting.Text = (specialGreeting ?? Loc.T(GetGreeting())) + ",";
+            if (rareGreeting) Dispatcher.BeginInvoke(new Action(() => UnlockSecret("secret_lucky")), DispatcherPriority.ApplicationIdle);
             WelcomeName.Text = DisplayUserName();
             WelcomeLayer.Opacity = 1;
             WelcomeLayer.Visibility = Visibility.Visible;
@@ -18701,6 +18858,763 @@ Die animierten Cover werden im Hintergrund geladen. || The animated covers are b
             {
                 upgradingCovers = false;
             }
+        }
+
+        // ═════════════════════════════ Easter Eggs ═════════════════════════════
+
+        private static readonly System.Windows.Input.Key[] KonamiKeys =
+        {
+            System.Windows.Input.Key.Up, System.Windows.Input.Key.Up, System.Windows.Input.Key.Down, System.Windows.Input.Key.Down,
+            System.Windows.Input.Key.Left, System.Windows.Input.Key.Right, System.Windows.Input.Key.Left, System.Windows.Input.Key.Right,
+            System.Windows.Input.Key.B, System.Windows.Input.Key.A
+        };
+
+        private static readonly PadButton[] KonamiPad =
+        {
+            PadButton.Up, PadButton.Up, PadButton.Down, PadButton.Down,
+            PadButton.Left, PadButton.Right, PadButton.Left, PadButton.Right,
+            PadButton.Back, PadButton.Confirm
+        };
+
+        private static readonly string[] RareGreetings =
+        {
+            "Na, wer da?", "Schön, dass du da bist", "Der Pudel hat dich vermisst", "Level up, Legende",
+            "Neues Spiel, neues Glück", "Zeit zu zocken", "Willkommen im Hauptquartier", "Bereit für ein Abenteuer"
+        };
+
+        private static readonly (int Hours, string Icon, string Title)[] PlaytimeMilestones =
+        {
+            (100, "🏃", "Couch-Rookie"),
+            (500, "🛋", "Couch-Veteran"),
+            (1000, "👑", "Pudel-Legende"),
+            (2500, "🌌", "Zeitlos"),
+            (5000, "♾", "Unsterblich")
+        };
+
+        private int konamiIndex;
+        private int konamiPadIndex;
+        private int logoClicks;
+        private DateTime lastLogoClick = DateTime.MinValue;
+        private int versionClicks;
+        private DateTime lastVersionClick = DateTime.MinValue;
+        private int diceSixes;
+        private DispatcherTimer? rainbowTimer;
+        private DateTime rainbowEnd;
+        private double rainbowHue;
+        private DispatcherTimer? idleTimer;
+        private DispatcherTimer? dvdTimer;
+        private double dvdX, dvdY, dvdVx, dvdVy;
+        private int dvdFrame, dvdBounceX = -100, dvdBounceY = -100;
+        private bool dvdCorner;
+
+        private bool EggsOn => settings.EasterEggs;
+
+        private void InitExtras10()
+        {
+            if (string.IsNullOrEmpty(settings.FirstRunDate))
+            {
+                settings.FirstRunDate = DateTime.Now.ToString("o", CultureInfo.InvariantCulture);
+                SaveSettings();
+            }
+
+            BrandLogo.Background = System.Windows.Media.Brushes.Transparent;
+            BrandLogo.MouseLeftButtonUp += BrandLogo_Click;
+            TxtAboutVersion.MouseLeftButtonUp += VersionText_Click;
+
+            idleTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
+            idleTimer.Tick += (s, e) => CheckIdleForDvd();
+            idleTimer.Start();
+
+            Loaded += async (s, e) =>
+            {
+                await Task.Delay(3800);
+                CheckSeasonalEggs();
+            };
+        }
+
+        // ───────────────────────────── Hilfen ─────────────────────────────
+
+        private void EggToast(string icon, string title, string text, int seconds = 7, bool byUser = true)
+            => ShowToast(icon, title, text, seconds, null, byUser);
+
+        private void UnlockSecret(string id)
+        {
+            if (!EggsOn || settings.Achievements.ContainsKey(id)) return;
+
+            settings.Achievements[id] = DateTime.Now.ToString("o", CultureInfo.InvariantCulture);
+            SaveSettings();
+
+            var def = GetAchievementDefs().FirstOrDefault(d => d.Id == id);
+            if (def != null)
+                ShowToast("🏆", Loc.T("Geheimer Erfolg:") + " " + Loc.T(def.Title), Loc.T(def.Description), 8, () => NavigateTo("stats"), true);
+
+            Confetti();
+            if (ViewStats.Visibility == Visibility.Visible) RefreshStatsExtras();
+        }
+
+        private bool SeenEgg(string key)
+        {
+            if (settings.EggSeen.Contains(key)) return true;
+
+            settings.EggSeen.Add(key);
+            if (settings.EggSeen.Count > 60) settings.EggSeen.RemoveRange(0, settings.EggSeen.Count - 60);
+            SaveSettings();
+            return false;
+        }
+
+        private static System.Windows.Media.Color HslColor(double hue, double saturation, double lightness)
+        {
+            double c = (1 - Math.Abs(2 * lightness - 1)) * saturation;
+            double x = c * (1 - Math.Abs(hue / 60 % 2 - 1));
+            double m = lightness - c / 2;
+            double r, g, b;
+
+            if (hue < 60) { r = c; g = x; b = 0; }
+            else if (hue < 120) { r = x; g = c; b = 0; }
+            else if (hue < 180) { r = 0; g = c; b = x; }
+            else if (hue < 240) { r = 0; g = x; b = c; }
+            else if (hue < 300) { r = x; g = 0; b = c; }
+            else { r = c; g = 0; b = x; }
+
+            return System.Windows.Media.Color.FromRgb((byte)((r + m) * 255), (byte)((g + m) * 255), (byte)((b + m) * 255));
+        }
+
+        private static bool IsCreatorName(string name)
+            => Regex.Replace((name ?? string.Empty).ToLowerInvariant(), "[^a-z]", string.Empty) == "derfettepudel";
+
+        // ───────────────────────────── Regenbogen und Disco ─────────────────────────────
+
+        private void StartRainbow(int seconds, double step)
+        {
+            if (settings.PerformanceMode) return;
+
+            rainbowTimer?.Stop();
+            rainbowEnd = DateTime.Now.AddSeconds(seconds);
+            rainbowTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(90) };
+            rainbowTimer.Tick += (s, e) =>
+            {
+                if (DateTime.Now >= rainbowEnd)
+                {
+                    rainbowTimer?.Stop();
+                    ApplyTheme();
+                    return;
+                }
+
+                rainbowHue = (rainbowHue + step) % 360;
+                Resources["AccentBrush"] = new SolidColorBrush(HslColor(rainbowHue, 0.85, 0.6));
+            };
+            rainbowTimer.Start();
+        }
+
+        // ───────────────────────────── Konami-Code ─────────────────────────────
+
+        private void TrackKonami(System.Windows.Input.Key key)
+        {
+            if (!EggsOn || System.Windows.Input.Keyboard.FocusedElement is System.Windows.Controls.TextBox) return;
+
+            if (key == KonamiKeys[konamiIndex])
+            {
+                konamiIndex++;
+                if (konamiIndex == KonamiKeys.Length)
+                {
+                    konamiIndex = 0;
+                    TriggerKonami();
+                }
+            }
+            else
+            {
+                konamiIndex = key == KonamiKeys[0] ? 1 : 0;
+            }
+        }
+
+        private void TrackKonamiPad(PadButton pressed)
+        {
+            if (!EggsOn || controllerMode || pressed == PadButton.None) return;
+
+            if (pressed == KonamiPad[konamiPadIndex])
+            {
+                konamiPadIndex++;
+                if (konamiPadIndex == KonamiPad.Length)
+                {
+                    konamiPadIndex = 0;
+                    TriggerKonami();
+                }
+            }
+            else
+            {
+                konamiPadIndex = pressed == KonamiPad[0] ? 1 : 0;
+            }
+        }
+
+        private void TriggerKonami()
+        {
+            Confetti();
+            Dispatcher.BeginInvoke(new Action(Confetti), DispatcherPriority.Background);
+            EggToast("🕹", "+30 Leben", "Konami-Code eingegeben. Der Regenbogen-Modus läuft eine Minute.", 8);
+            StartRainbow(60, 5);
+            PlayUiSound("select");
+            UnlockSecret("secret_konami");
+        }
+
+        // ───────────────────────────── Logo anklicken ─────────────────────────────
+
+        private void HopLogo(bool spin)
+        {
+            if (!settings.PageAnimations) return;
+
+            var group = BrandLogo.RenderTransform as TransformGroup;
+            if (group == null)
+            {
+                group = new TransformGroup();
+                group.Children.Add(new RotateTransform(0));
+                group.Children.Add(new TranslateTransform(0, 0));
+                BrandLogo.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
+                BrandLogo.RenderTransform = group;
+            }
+
+            var rotate = (RotateTransform)group.Children[0];
+            var move = (TranslateTransform)group.Children[1];
+
+            move.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(0, spin ? -26 : -12, TimeSpan.FromMilliseconds(spin ? 320 : 130))
+            {
+                AutoReverse = true,
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            });
+
+            if (spin)
+            {
+                rotate.BeginAnimation(RotateTransform.AngleProperty, new DoubleAnimation(0, 360, TimeSpan.FromMilliseconds(640))
+                {
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
+                });
+            }
+        }
+
+        private void BrandLogo_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (!EggsOn) return;
+
+            if ((DateTime.Now - lastLogoClick).TotalSeconds > 2) logoClicks = 0;
+            lastLogoClick = DateTime.Now;
+            logoClicks++;
+
+            if (logoClicks < 7)
+            {
+                HopLogo(false);
+                return;
+            }
+
+            logoClicks = 0;
+            PudelGreeting();
+        }
+
+        private void PudelGreeting()
+        {
+            HopLogo(true);
+            PlayUiSound("bark");
+            EggToast("🐶", "Wuff!", "Der Pudel freut sich, dich zu sehen.", 6);
+            UnlockSecret("secret_pudel");
+        }
+
+        // ───────────────────────────── Versionsnummer anklicken ─────────────────────────────
+
+        private void VersionText_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (!EggsOn) return;
+
+            if ((DateTime.Now - lastVersionClick).TotalSeconds > 3) versionClicks = 0;
+            lastVersionClick = DateTime.Now;
+            versionClicks++;
+
+            if (versionClicks < 10) return;
+
+            versionClicks = 0;
+            ShowSecretStats();
+        }
+
+        private void ShowSecretStats()
+        {
+            double seconds = allGames.Sum(g => (double)g.PlaySeconds);
+            long hours = (long)(seconds / 3600);
+            long days = hours / 24;
+            long films = hours / 2;
+            long coffee = hours / 3;
+            int launches = allGames.Sum(g => g.LaunchCount);
+            var top = allGames.OrderByDescending(g => g.PlaySeconds).FirstOrDefault();
+
+            var dialog = CreateDialog("Geheimstatistik", 520, out var panel);
+            panel.Children.Add(new TextBlock { Text = "🔍", FontSize = 40, HorizontalAlignment = System.Windows.HorizontalAlignment.Center, Margin = new Thickness(0, 0, 0, 6) });
+            panel.Children.Add(new TextBlock
+            {
+                Text = Loc.T("Geheimstatistik"),
+                FontSize = 24,
+                FontWeight = FontWeights.Bold,
+                Foreground = System.Windows.Media.Brushes.White,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 16)
+            });
+
+            void Line(string text)
+                => panel.Children.Add(new TextBlock
+                {
+                    Text = text,
+                    Foreground = MakeBrush("#D1D5DB"),
+                    TextWrapping = TextWrapping.Wrap,
+                    TextAlignment = TextAlignment.Center,
+                    Margin = new Thickness(0, 0, 0, 10)
+                });
+
+            Line(Loc.T($"Du hast insgesamt {hours} Stunden gespielt, das sind {days} Tage am Stück."));
+            Line(Loc.T($"In dieser Zeit hättest du {films} Filme schauen können."));
+            Line(Loc.T($"Bei einer Tasse alle drei Stunden wären das {coffee} Tassen Kaffee."));
+            Line(Loc.T($"Du hast {launches}-mal ein Spiel über den Launcher gestartet."));
+            if (top != null && top.PlaySeconds >= 60)
+                Line(Loc.T($"Dein Dauerbrenner ist „{top.Name}“ mit {top.PlaySeconds / 3600} Stunden."));
+
+            if (DateTime.TryParse(settings.FirstRunDate, null, DateTimeStyles.RoundtripKind, out var first))
+            {
+                int daysTogether = Math.Max(0, (int)(DateTime.Now - first).TotalDays);
+                Line(Loc.T($"Der Pudel begleitet dich seit {daysTogether} Tagen."));
+            }
+
+            var close = new System.Windows.Controls.Button
+            {
+                Content = Loc.T("Schließen"),
+                Padding = new Thickness(28, 8, 28, 8),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                Margin = new Thickness(0, 10, 0, 0),
+                IsCancel = true,
+                IsDefault = true
+            };
+            close.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            panel.Children.Add(close);
+
+            UnlockSecret("secret_stats");
+            dialog.ShowDialog();
+        }
+
+        // ───────────────────────────── Suchbefehle ─────────────────────────────
+
+        private bool AddEggCommands(string query, List<SpotlightEntry> entries)
+        {
+            if (!EggsOn || !query.StartsWith("/", StringComparison.Ordinal)) return false;
+
+            string[] parts = query.Substring(1).Trim().ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 0) return false;
+
+            string token = parts[0];
+            string argument = parts.Length > 1 ? parts[1] : string.Empty;
+
+            void Command(string icon, string title, string subtitle, Action action, params string[] names)
+            {
+                if (names.Any(n => n.StartsWith(token, StringComparison.Ordinal)))
+                    entries.Add(new SpotlightEntry { Icon = icon, Title = title, Subtitle = subtitle, Action = action, Score = 100 });
+            }
+
+            Command("🎲", "/würfel", "Würfelt eine Zahl (zum Beispiel /würfel 20)", () => RollDice(argument), "würfel", "wuerfel", "dice");
+            Command("🪙", "/münze", "Wirft eine Münze", FlipCoin, "münze", "muenze", "coin");
+            Command("🎮", "/zufall", "Wählt ein Spiel für dich aus", () => BtnRandomGame_Click(this, new RoutedEventArgs()), "zufall", "random");
+            Command("🪩", "/disco", "Startet die Party", StartDisco, "disco", "party");
+            Command("🐶", "/pudel", "Sag dem Pudel Hallo", PudelGreeting, "pudel", "wuff", "hund");
+            Command("❓", "/hilfe", "Zeigt die geheimen Befehle", ShowEggHelp, "hilfe", "help");
+
+            return entries.Count > 0;
+        }
+
+        private void ShowEggHelp()
+            => EggToast("❓", "Geheime Befehle", "/würfel  /münze  /zufall  /disco  /pudel", 10);
+
+        private void RollDice(string argument)
+        {
+            int sides = int.TryParse(argument, out int parsed) ? Math.Clamp(parsed, 2, 1000) : 6;
+            int value = random.Next(1, sides + 1);
+            PlayUiSound("dice");
+            EggToast("🎲", "Würfel", Loc.T($"Du hast eine {value} gewürfelt. ({sides} Seiten)"), 6);
+
+            diceSixes = sides == 6 && value == 6 ? diceSixes + 1 : 0;
+            if (diceSixes >= 3)
+            {
+                diceSixes = 0;
+                UnlockSecret("secret_dice");
+            }
+        }
+
+        private void FlipCoin()
+        {
+            PlayUiSound("dice");
+            EggToast("🪙", "Münze", random.Next(2) == 0 ? Loc.T("Kopf!") : Loc.T("Zahl!"), 5);
+        }
+
+        private void StartDisco()
+        {
+            Confetti();
+            StartRainbow(10, 16);
+            EggToast("🪩", "Disco", "Die Party läuft für zehn Sekunden.", 6);
+            UnlockSecret("secret_disco");
+        }
+
+        // ───────────────────────────── Besondere Tage ─────────────────────────────
+
+        private void EmojiRain(string[] glyphs, int count, int milliseconds)
+        {
+            if (!settings.PageAnimations || ConfettiLayer == null) return;
+
+            double width = ConfettiLayer.ActualWidth > 0 ? ConfettiLayer.ActualWidth : ActualWidth;
+            double height = ConfettiLayer.ActualHeight > 0 ? ConfettiLayer.ActualHeight : ActualHeight;
+
+            for (int i = 0; i < count; i++)
+            {
+                var flake = new TextBlock
+                {
+                    Text = glyphs[random.Next(glyphs.Length)],
+                    FontSize = random.Next(16, 34),
+                    Foreground = System.Windows.Media.Brushes.White,
+                    FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                    Opacity = 0.9
+                };
+
+                double startX = random.NextDouble() * width;
+                Canvas.SetLeft(flake, startX);
+                Canvas.SetTop(flake, -40);
+                ConfettiLayer.Children.Add(flake);
+
+                var duration = TimeSpan.FromMilliseconds(milliseconds * (0.55 + random.NextDouble() * 0.45));
+                var delay = TimeSpan.FromMilliseconds(random.Next(0, milliseconds / 2));
+
+                var fall = new DoubleAnimation(-40, height + 50, duration) { BeginTime = delay };
+                fall.Completed += (s, e) => ConfettiLayer.Children.Remove(flake);
+
+                flake.BeginAnimation(Canvas.TopProperty, fall);
+                flake.BeginAnimation(Canvas.LeftProperty, new DoubleAnimation(startX, startX + random.Next(-70, 70), duration) { BeginTime = delay });
+            }
+        }
+
+        private void Fireworks(int bursts)
+        {
+            if (!settings.PageAnimations || ConfettiLayer == null) return;
+
+            double width = ConfettiLayer.ActualWidth > 0 ? ConfettiLayer.ActualWidth : ActualWidth;
+            double height = ConfettiLayer.ActualHeight > 0 ? ConfettiLayer.ActualHeight : ActualHeight;
+            string[] colors = { "#FBBF24", "#F472B6", "#60A5FA", "#34D399", "#F87171", "#A78BFA" };
+
+            for (int burst = 0; burst < bursts; burst++)
+            {
+                double centerX = width * (0.15 + 0.7 * random.NextDouble());
+                double centerY = height * (0.15 + 0.45 * random.NextDouble());
+                var brush = MakeBrush(colors[random.Next(colors.Length)]);
+                var delay = TimeSpan.FromMilliseconds(burst * 480);
+                const int rays = 28;
+
+                for (int ray = 0; ray < rays; ray++)
+                {
+                    double angle = Math.PI * 2 * ray / rays;
+                    double distance = 80 + random.Next(0, 90);
+                    var spark = new System.Windows.Shapes.Ellipse { Width = 6, Height = 6, Fill = brush };
+
+                    Canvas.SetLeft(spark, centerX);
+                    Canvas.SetTop(spark, centerY);
+                    ConfettiLayer.Children.Add(spark);
+
+                    var time = TimeSpan.FromMilliseconds(1200);
+                    var fade = new DoubleAnimation(1, 0, time) { BeginTime = delay };
+                    fade.Completed += (s, e) => ConfettiLayer.Children.Remove(spark);
+
+                    spark.BeginAnimation(Canvas.LeftProperty, new DoubleAnimation(centerX, centerX + Math.Cos(angle) * distance, time) { BeginTime = delay });
+                    spark.BeginAnimation(Canvas.TopProperty, new DoubleAnimation(centerY, centerY + Math.Sin(angle) * distance + 36, time) { BeginTime = delay });
+                    spark.BeginAnimation(UIElement.OpacityProperty, fade);
+                }
+            }
+        }
+
+        private void CheckSeasonalEggs()
+        {
+            if (!EggsOn || activeSessions.Count > 0 || WelcomeLayer.Visibility == Visibility.Visible) return;
+
+            var now = DateTime.Now;
+            string name = DisplayUserName();
+            bool celebrated = false;
+
+            if (now.Month == 10 && now.Day == 31 && !SeenEgg($"halloween-{now.Year}"))
+            {
+                EmojiRain(new[] { "🎃", "👻", "🦇", "🕸" }, 34, 7000);
+                EggToast("🎃", "Happy Halloween", Loc.T($"Gruselige Grüße, {name}!"), 8, false);
+                celebrated = true;
+            }
+            else if (now.Month == 12 && now.Day is >= 24 and <= 26 && !SeenEgg($"xmas-{now.Year}"))
+            {
+                EmojiRain(new[] { "❄", "❅", "❄", "🎄", "⭐" }, 70, 9000);
+                EggToast("🎄", "Frohe Weihnachten", Loc.T($"Schöne Feiertage, {name}!"), 8, false);
+                celebrated = true;
+            }
+            else if (((now.Month == 12 && now.Day == 31 && now.Hour >= 17) || (now.Month == 1 && now.Day == 1)) && !SeenEgg($"newyear-{now.Year}"))
+            {
+                Fireworks(7);
+                EggToast("🎆", "Frohes neues Jahr", Loc.T($"Auf ein tolles Spielejahr, {name}!"), 8, false);
+                celebrated = true;
+            }
+
+            if (celebrated) UnlockSecret("secret_season");
+
+            if (now.Month == 4 && now.Day == 1 && !StreamerOn && !SeenEgg($"april-{now.Year}"))
+            {
+                ShowAprilFools();
+                UnlockSecret("secret_season");
+            }
+
+            if (DateTime.TryParse(settings.FirstRunDate, null, DateTimeStyles.RoundtripKind, out var first)
+                && now.Year > first.Year && now.Month == first.Month && now.Day == first.Day
+                && !SeenEgg($"birthday-{now.Year}"))
+            {
+                int years = now.Year - first.Year;
+                string text = years == 1
+                    ? Loc.T("Heute vor einem Jahr hast du mich installiert. Alles Gute zum Launcher-Geburtstag!")
+                    : Loc.T($"Heute vor {years} Jahren hast du mich installiert. Alles Gute zum Launcher-Geburtstag!");
+                EggToast("🎂", "Geburtstag", text, 10, false);
+                Confetti();
+                UnlockSecret("secret_birthday");
+            }
+        }
+
+        private void ShowAprilFools()
+        {
+            var dialog = CreateDialog("DFP Pro Launcher", 540, out var panel);
+            dialog.Topmost = true;
+
+            var icon = new TextBlock { Text = "⚠", FontSize = 44, Foreground = MakeBrush("#FBBF24"), HorizontalAlignment = System.Windows.HorizontalAlignment.Left };
+            var title = new TextBlock
+            {
+                Text = Loc.T("DFP Pro Launcher funktioniert nicht mehr"),
+                FontSize = 20,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = System.Windows.Media.Brushes.White,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 8, 0, 8)
+            };
+            var message = new TextBlock
+            {
+                Text = Loc.T("Ein Problem hat dazu geführt, dass das Programm nicht mehr richtig funktioniert. Windows sucht nach einer Lösung für das Problem ..."),
+                Foreground = BrushSubtle,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 20)
+            };
+            panel.Children.Add(icon);
+            panel.Children.Add(title);
+            panel.Children.Add(message);
+
+            var buttons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
+            var first = new System.Windows.Controls.Button { Content = Loc.T("Programm schließen"), Margin = new Thickness(0, 0, 10, 0) };
+            var second = new System.Windows.Controls.Button { Content = Loc.T("Auf Lösung warten"), Padding = new Thickness(20, 8, 20, 8) };
+            second.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            buttons.Children.Add(first);
+            buttons.Children.Add(second);
+            panel.Children.Add(buttons);
+
+            bool revealed = false;
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(4.5) };
+
+            void Reveal()
+            {
+                if (revealed) return;
+                revealed = true;
+                timer.Stop();
+
+                icon.Text = "🐶";
+                title.Text = Loc.T("April, April!");
+                message.Text = Loc.T("Alles ist in Ordnung. Der Pudel hat dich nur kurz erschreckt.");
+                first.Visibility = Visibility.Collapsed;
+                second.Content = Loc.T("Puh, danke!");
+                second.IsDefault = true;
+                Confetti();
+            }
+
+            timer.Tick += (s, e) => Reveal();
+            first.Click += (s, e) => Reveal();
+            second.Click += (s, e) =>
+            {
+                if (!revealed) Reveal();
+                else dialog.DialogResult = true;
+            };
+            dialog.Closed += (s, e) => timer.Stop();
+
+            timer.Start();
+            dialog.ShowDialog();
+        }
+
+        // ───────────────────────────── Nachteule, Begrüßung, Meilensteine ─────────────────────────────
+
+        private void CheckNightEgg(DateTime now)
+        {
+            if (!EggsOn || activeSessions.Count == 0 || now.Hour < 3 || now.Hour >= 5) return;
+            if (SeenEgg($"owl-{now:yyyyMMdd}")) return;
+
+            EggToast("🦉", "Nachteule", "Dein Pudel schläft schon. Du auch bald?", 9, false);
+            UnlockSecret("secret_owl");
+        }
+
+        private string? PickGreeting(out bool rare)
+        {
+            rare = false;
+            if (!EggsOn) return null;
+
+            if (IsCreatorName(DisplayUserName())) return Loc.T("Der Creator persönlich");
+
+            if (random.Next(50) == 0)
+            {
+                rare = true;
+                return Loc.T(RareGreetings[random.Next(RareGreetings.Length)]);
+            }
+            return null;
+        }
+
+        private void CheckMilestones()
+        {
+            double hours = allGames.Sum(g => (double)g.PlaySeconds) / 3600.0;
+            bool baseline = !settings.MilestonesInit;
+            settings.MilestonesInit = true;
+
+            foreach (var milestone in PlaytimeMilestones)
+            {
+                if (hours < milestone.Hours || settings.MilestonesReached.Contains(milestone.Hours)) continue;
+
+                settings.MilestonesReached.Add(milestone.Hours);
+                if (baseline || !EggsOn) continue;
+
+                ShowToast(milestone.Icon, Loc.T("Meilenstein") + ": " + Loc.T(milestone.Title),
+                    Loc.T($"Du hast insgesamt {milestone.Hours} Stunden gespielt."), 10, null, true);
+                Confetti();
+            }
+
+            SaveSettings();
+        }
+
+        // ───────────────────────────── DVD-Logo bei Leerlauf ─────────────────────────────
+
+        private static uint IdleMilliseconds()
+        {
+            var info = new NativeExtras.LastInputInfo { cbSize = (uint)Interop.Marshal.SizeOf<NativeExtras.LastInputInfo>() };
+            return NativeExtras.GetLastInputInfo(ref info) ? unchecked((uint)Environment.TickCount - info.dwTime) : 0;
+        }
+
+        private void CheckIdleForDvd()
+        {
+            if (!EggsOn || DvdLayer == null || DvdLayer.Visibility == Visibility.Visible) return;
+            if (!IsVisible || WindowState == WindowState.Minimized || settings.PerformanceMode) return;
+            if (activeSessions.Count > 0 || controllerMode || OwnedWindows.Count > 0) return;
+            if (SpotlightLayer.Visibility == Visibility.Visible || WelcomeLayer.Visibility == Visibility.Visible) return;
+            if (IdleMilliseconds() < 5 * 60 * 1000) return;
+
+            StartDvd();
+        }
+
+        private void StartDvd()
+        {
+            double width = DvdLayer.ActualWidth, height = DvdLayer.ActualHeight;
+            if (width < 300 || height < 300) return;
+
+            double rangeX = width - DvdLogo.Width, rangeY = height - DvdLogo.Height;
+            bool lucky = random.Next(3) == 0;
+
+            // Glücksfall: Die Geschwindigkeiten passen so zusammen, dass das Logo nach etwa 15 Sekunden eine Ecke trifft
+            int framesX = lucky ? 300 : random.Next(260, 341);
+            int framesY = lucky ? 200 : random.Next(170, 231);
+            dvdVx = rangeX / framesX;
+            dvdVy = rangeY / framesY;
+            dvdX = lucky ? 0 : random.NextDouble() * rangeX;
+            dvdY = lucky ? 0 : random.NextDouble() * rangeY;
+            dvdFrame = 0;
+            dvdBounceX = dvdBounceY = -100;
+            dvdCorner = false;
+
+            Canvas.SetLeft(DvdLogo, dvdX);
+            Canvas.SetTop(DvdLogo, dvdY);
+            DvdLayer.Opacity = 0;
+            DvdLayer.Visibility = Visibility.Visible;
+            DvdLayer.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(700)));
+
+            dvdTimer?.Stop();
+            dvdTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(40) };
+            dvdTimer.Tick += (s, e) => DvdStep();
+            dvdTimer.Start();
+        }
+
+        private void DvdStep()
+        {
+            if (IdleMilliseconds() < 1200)
+            {
+                StopDvd();
+                return;
+            }
+
+            dvdFrame++;
+            double rangeX = Math.Max(1, DvdLayer.ActualWidth - DvdLogo.Width);
+            double rangeY = Math.Max(1, DvdLayer.ActualHeight - DvdLogo.Height);
+
+            dvdX += dvdVx;
+            dvdY += dvdVy;
+
+            if (dvdX <= 0 || dvdX >= rangeX)
+            {
+                dvdX = Math.Clamp(dvdX, 0, rangeX);
+                dvdVx = -dvdVx;
+                dvdBounceX = dvdFrame;
+            }
+            if (dvdY <= 0 || dvdY >= rangeY)
+            {
+                dvdY = Math.Clamp(dvdY, 0, rangeY);
+                dvdVy = -dvdVy;
+                dvdBounceY = dvdFrame;
+            }
+
+            if (!dvdCorner && Math.Abs(dvdBounceX - dvdBounceY) <= 1 && dvdFrame > 20 && dvdBounceX > 0)
+            {
+                dvdCorner = true;
+                Confetti();
+                Dispatcher.BeginInvoke(new Action(Confetti), DispatcherPriority.Background);
+                EggToast("🎯", "Volltreffer", "Das Logo hat genau eine Ecke getroffen.", 8);
+                UnlockSecret("secret_corner");
+            }
+
+            Canvas.SetLeft(DvdLogo, dvdX);
+            Canvas.SetTop(DvdLogo, dvdY);
+        }
+
+        private void StopDvd()
+        {
+            dvdTimer?.Stop();
+            DvdLayer.BeginAnimation(UIElement.OpacityProperty, null);
+            DvdLayer.Visibility = Visibility.Collapsed;
+        }
+
+        // ───────────────────────────── Einstellungen ─────────────────────────────
+
+        private void ReadExtra10Settings() => settings.EasterEggs = ChkEggs.IsChecked == true;
+
+        private void PopulateExtra10Settings() => ChkEggs.IsChecked = settings.EasterEggs;
+
+        private IEnumerable<AchievementDef> SecretAchievementDefs()
+        {
+            AchievementDef Secret(string id, string icon, string title, string description)
+                => new()
+                {
+                    Id = id,
+                    Icon = icon,
+                    Title = title,
+                    Description = description,
+                    Current = settings.Achievements.ContainsKey(id) ? 1 : 0,
+                    Target = 1,
+                    Secret = true
+                };
+
+            yield return Secret("secret_konami", "🕹", "Konami-Code", "Du kennst die alten Cheats.");
+            yield return Secret("secret_pudel", "🐶", "Pudel-Freund", "Du hast dem Pudel Hallo gesagt.");
+            yield return Secret("secret_dice", "🎲", "Würfelglück", "Drei Sechsen in Folge gewürfelt.");
+            yield return Secret("secret_disco", "🪩", "Disco-Fieber", "Die Party gestartet.");
+            yield return Secret("secret_corner", "🎯", "Volltreffer", "Das Logo hat eine Ecke getroffen.");
+            yield return Secret("secret_owl", "🦉", "Nachteule", "Nach drei Uhr nachts gespielt.");
+            yield return Secret("secret_birthday", "🎂", "Geburtstagskind", "Am Jahrestag der Installation gestartet.");
+            yield return Secret("secret_stats", "📊", "Zahlenmensch", "Die Geheimstatistik gefunden.");
+            yield return Secret("secret_lucky", "🍀", "Glückspilz", "Einen seltenen Spruch beim Start bekommen.");
+            yield return Secret("secret_season", "🎉", "Festtagsstimmung", "Einen besonderen Tag im Launcher gefeiert.");
         }
     }
 }
