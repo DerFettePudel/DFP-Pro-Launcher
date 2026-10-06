@@ -1908,6 +1908,22 @@
                                     </StackPanel>
                                 </StackPanel>
                             </Border>
+                            <Border x:Name="ProfilesCard" Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="general">
+                                <StackPanel>
+                                    <TextBlock Text="Einstellungs-Profile" Style="{StaticResource SectionTitle}"/>
+                                    <TextBlock Text="Ein Profil merkt sich ausgewählte Einstellungen, zum Beispiel Design, Streamer-Modus und Energieplan. Beim Umschalten werden genau diese übernommen, alles andere bleibt, wie es ist. Umschalten geht auch mit Strg+K und per Rechtsklick auf das Symbol im Infobereich." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                    <StackPanel x:Name="ProfilesPanel"/>
+                                    <WrapPanel Margin="0,4,0,16">
+                                        <Button Content="＋ Neues Profil" Margin="0,0,10,0" Click="BtnNewProfile_Click"/>
+                                    </WrapPanel>
+                                    <TextBlock Text="Automatisch umschalten" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                    <TextBlock Text="Danach kehrt der Launcher zu deinen vorherigen Einstellungen zurück: nach dem Spiel bzw. wenn OBS beendet wird. Für den Spielstart muss die Spielzeit-Erfassung eingeschaltet sein." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,10"/>
+                                    <TextBlock Text="Beim Start eines Spiels" Style="{StaticResource SubtleText}" FontSize="12" Margin="0,0,0,6"/>
+                                    <WrapPanel x:Name="ProfileOnGamePanel" Margin="0,0,0,10"/>
+                                    <TextBlock Text="Wenn OBS gestartet wird" Style="{StaticResource SubtleText}" FontSize="12" Margin="0,0,0,6"/>
+                                    <WrapPanel x:Name="ProfileOnObsPanel"/>
+                                </StackPanel>
+                            </Border>
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="general">
                                 <StackPanel>
                                     <TextBlock Text="Sprache" Style="{StaticResource SectionTitle}"/>
@@ -3479,9 +3495,11 @@
                                     <TextBlock Text="Daten und Werkzeuge" Style="{StaticResource SectionTitle}"/>
                                     <StackPanel Margin="0,0,0,10">
                                         <TextBlock Text="Fehlerprotokoll und Sicherungen" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                        <TextBlock Text="Bei Problemen hilft das Fehlerprotokoll. Der Launcher sichert deine Einstellungen außerdem täglich und stellt sie bei einer beschädigten Datei automatisch wieder her." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        <TextBlock Text="Bei Problemen hilft das Fehlerprotokoll. Der Launcher sichert deine Einstellungen jede Woche beim Start, vor jedem Update und vor jedem Import. Die letzten 5 Sicherungen bleiben erhalten, und bei einer beschädigten Datei wird automatisch die neueste geladen." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        <TextBlock x:Name="TxtLastBackup" Foreground="#9CA3AF" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0"/>
                                         <WrapPanel Margin="0,10,0,0">
                                             <Button Content="Fehlerprotokoll öffnen" Margin="0,0,10,10" Click="BtnOpenLog_Click"/>
+                                            <Button Content="Jetzt sichern" Margin="0,0,10,10" Click="BtnBackupSettingsNow_Click"/>
                                             <Button Content="Einstellungs-Sicherungen öffnen" Margin="0,0,10,10" Click="BtnOpenBackups_Click"/>
                                             <Button Content="Einrichtungs-Assistent starten" Margin="0,0,10,10" Click="BtnWizard_Click"/>
                                         </WrapPanel>
@@ -3495,7 +3513,7 @@
                                     </StackPanel>
                                     <StackPanel Margin="0,0,0,10">
                                         <TextBlock Text="Einstellungen sichern und laden" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                        <TextBlock Text="Speichert alle Einstellungen in einer Datei oder lädt sie wieder, zum Beispiel auf einem neuen PC." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        <TextBlock Text="Speichert alle Einstellungen in einer Datei oder lädt sie wieder, zum Beispiel auf einem neuen PC. Vor dem Laden siehst du, was übernommen wird, und deine aktuellen Einstellungen werden vorher gesichert." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                         <WrapPanel Margin="0,10,0,0">
                                             <Button Content="Einstellungen sichern" Margin="0,0,10,10" Click="BtnExportSettings_Click"/>
                                             <Button Content="Einstellungen laden" Margin="0,0,10,10" Click="BtnImportSettings_Click"/>

@@ -371,6 +371,34 @@ namespace Game_launcher
         public string ObsPasswordProtected { get; set; } = string.Empty;   // mit Windows DPAPI verschlüsselt, nie im Klartext
         public bool ObsAutoStreamer { get; set; } = true;
         public List<string> ObsStreamerScenes { get; set; } = new();
+
+        // Einstellungs-Profile
+        public List<SettingsProfile> Profiles { get; set; } = new();
+        public bool ProfilesSeeded { get; set; }
+        public string ActiveProfileId { get; set; } = string.Empty;
+        public string ProfileOnGame { get; set; } = string.Empty;   // Profil-Id oder leer = aus
+        public string ProfileOnObs { get; set; } = string.Empty;
+    }
+
+    /// <summary>Ein Profil speichert eine Auswahl von Einstellungen (nach Bereichen) und optional einen Energieplan.</summary>
+    public class SettingsProfile
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString("N");
+        public string Name { get; set; } = string.Empty;
+        public string Icon { get; set; } = "⭐";
+        public List<string> Groups { get; set; } = new();
+        public Dictionary<string, JsonElement> Values { get; set; } = new();
+        public string PowerPlan { get; set; } = string.Empty;   // GUID des Energieplans, leer = nicht ändern
+    }
+
+    /// <summary>Datei beim Export der Einstellungen: Versionsangaben plus die eigentlichen Einstellungen.</summary>
+    public class SettingsExportFile
+    {
+        public string Format { get; set; } = string.Empty;
+        public int FormatVersion { get; set; }
+        public string AppVersion { get; set; } = string.Empty;
+        public DateTime Exported { get; set; }
+        public AppSettings? Settings { get; set; }
     }
 
     public class InfoRow
@@ -2551,6 +2579,69 @@ OBS: Aufnahme beenden || OBS: Stop recording || OBS：停止录制 || OBS: Deten
 OBS: Mikrofon stumm schalten || OBS: Mute microphone || OBS：麦克风静音 || OBS: Silenciar micrófono || OBS : Couper le micro || OBS: Silenciar microfone || OBS: выключить микрофон || OBS: マイクをミュート
 OBS: Mikrofon einschalten || OBS: Unmute microphone || OBS：开启麦克风 || OBS: Activar micrófono || OBS : Réactiver le micro || OBS: Ligar microfone || OBS: включить микрофон || OBS: マイクのミュートを解除
 OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Scène OBS : {0} || Cena do OBS: {0} || Сцена OBS: {0} || OBS シーン: {0}
+
+# ───────── Sicherungen, Import und Profile ─────────
+Bei Problemen hilft das Fehlerprotokoll. Der Launcher sichert deine Einstellungen jede Woche beim Start, vor jedem Update und vor jedem Import. Die letzten 5 Sicherungen bleiben erhalten, und bei einer beschädigten Datei wird automatisch die neueste geladen. || If something goes wrong, the error log helps. The launcher backs up your settings once a week at startup, before every update and before every import. The last 5 backups are kept, and if the file is damaged the newest one is loaded automatically. || 遇到问题时，错误日志会有所帮助。启动器每周启动时、每次更新前和每次导入前都会备份你的设置。保留最近 5 个备份，设置文件损坏时会自动加载最新的备份。 || Si hay problemas, el registro de errores ayuda. El launcher guarda una copia de tus ajustes cada semana al iniciar, antes de cada actualización y antes de cada importación. Se conservan las últimas 5 copias y, si el archivo se daña, se carga automáticamente la más reciente. || En cas de problème, le journal des erreurs t'aide. Le launcher sauvegarde tes paramètres chaque semaine au démarrage, avant chaque mise à jour et avant chaque importation. Les 5 dernières sauvegardes sont conservées et, si le fichier est endommagé, la plus récente est chargée automatiquement. || Em caso de problemas, o registro de erros ajuda. O launcher faz backup das suas configurações toda semana ao iniciar, antes de cada atualização e antes de cada importação. Os 5 últimos backups são mantidos e, se o arquivo estiver danificado, o mais recente é carregado automaticamente. || При проблемах поможет журнал ошибок. Лаунчер сохраняет резервную копию настроек раз в неделю при запуске, перед каждым обновлением и перед каждым импортом. Хранятся последние 5 копий, а при повреждении файла автоматически загружается самая новая. || 問題が起きたときはエラーログが役立ちます。ランチャーは毎週の起動時、更新の前、インポートの前に設定をバックアップします。最新の 5 件が保存され、ファイルが壊れた場合は最新のバックアップが自動で読み込まれます。
+Speichert alle Einstellungen in einer Datei oder lädt sie wieder, zum Beispiel auf einem neuen PC. Vor dem Laden siehst du, was übernommen wird, und deine aktuellen Einstellungen werden vorher gesichert. || Saves all settings to a file or loads them again, for example on a new PC. Before loading you see what will be applied, and your current settings are backed up first. || 将所有设置保存到文件或重新加载，例如在新电脑上。加载前你可以看到将要应用的内容，并且会先备份当前设置。 || Guarda todos los ajustes en un archivo o los vuelve a cargar, por ejemplo en un PC nuevo. Antes de cargar ves qué se aplicará y tus ajustes actuales se guardan primero. || Enregistre tous les paramètres dans un fichier ou les recharge, par exemple sur un nouveau PC. Avant le chargement, tu vois ce qui sera appliqué, et tes paramètres actuels sont sauvegardés d'abord. || Salva todas as configurações em um arquivo ou as carrega de novo, por exemplo em um PC novo. Antes de carregar, você vê o que será aplicado, e suas configurações atuais são salvas antes. || Сохраняет все настройки в файл или загружает их снова, например на новом ПК. Перед загрузкой вы видите, что будет применено, а текущие настройки сначала сохраняются. || すべての設定をファイルに保存したり、新しい PC などで読み込んだりします。読み込む前に適用内容を確認でき、現在の設定は先にバックアップされます。
+Noch keine Sicherung vorhanden. || No backup yet. || 还没有备份。 || Todavía no hay ninguna copia. || Aucune sauvegarde pour l'instant. || Ainda não há backup. || Резервных копий пока нет. || まだバックアップがありません。
+Letzte Sicherung: {0} || Last backup: {0} || 上次备份：{0} || Última copia: {0} || Dernière sauvegarde : {0} || Último backup: {0} || Последняя копия: {0} || 前回のバックアップ: {0}
+Gesichert || Backed up || 已备份 || Guardado || Sauvegardé || Salvo || Сохранено || バックアップ済み
+Deine Einstellungen wurden gesichert. || Your settings have been backed up. || 你的设置已备份。 || Tus ajustes se han guardado. || Tes paramètres ont été sauvegardés. || Suas configurações foram salvas. || Ваши настройки сохранены. || 設定をバックアップしました。
+Die Sicherung konnte nicht angelegt werden. || The backup could not be created. || 无法创建备份。 || No se pudo crear la copia. || Impossible de créer la sauvegarde. || Não foi possível criar o backup. || Не удалось создать резервную копию. || バックアップを作成できませんでした。
+Die Datei enthält keine gültigen Einstellungen. || The file does not contain valid settings. || 该文件不包含有效的设置。 || El archivo no contiene ajustes válidos. || Le fichier ne contient pas de paramètres valides. || O arquivo não contém configurações válidas. || Файл не содержит допустимых настроек. || このファイルには有効な設定が含まれていません。
+Das wird übernommen || This will be applied || 将应用以下内容 || Esto se aplicará || Voici ce qui sera appliqué || Isto será aplicado || Будет применено || 適用される内容
+Gesichert mit Version {0} am {1} || Saved with version {0} on {1} || 使用版本 {0} 于 {1} 保存 || Guardado con la versión {0} el {1} || Sauvegardé avec la version {0} le {1} || Salvo com a versão {0} em {1} || Сохранено версией {0}, {1} || バージョン {0} で {1} に保存
+Ältere Sicherungsdatei ohne Versionsangabe || Older backup file without version information || 没有版本信息的旧备份文件 || Archivo de copia antiguo sin versión || Ancien fichier de sauvegarde sans version || Arquivo de backup antigo sem versão || Старый файл копии без указания версии || バージョン情報のない古いバックアップファイル
+Die Datei stammt aus einer neueren Version ({0}). Einstellungen, die diese Version noch nicht kennt, werden übersprungen. || The file comes from a newer version ({0}). Settings this version does not know yet will be skipped. || 该文件来自较新的版本（{0}）。此版本尚不支持的设置将被跳过。 || El archivo procede de una versión más reciente ({0}). Se omitirán los ajustes que esta versión aún no conoce. || Le fichier provient d'une version plus récente ({0}). Les paramètres que cette version ne connaît pas encore seront ignorés. || O arquivo vem de uma versão mais nova ({0}). Configurações que esta versão ainda não conhece serão ignoradas. || Файл создан более новой версией ({0}). Настройки, которые эта версия ещё не знает, будут пропущены. || このファイルは新しいバージョン（{0}）のものです。このバージョンが認識できない設定はスキップされます。
+Spiele mit Spielzeit, Favoriten oder Notizen: {#0} || Games with playtime, favorites or notes: {0} || 有游戏时间、收藏或备注的游戏：{0} || Juegos con tiempo de juego, favoritos o notas: {0} || Jeux avec temps de jeu, favoris ou notes : {0} || Jogos com tempo de jogo, favoritos ou notas: {0} || Игры со временем, избранным или заметками: {0} || プレイ時間・お気に入り・メモのあるゲーム: {0}
+Manuell hinzugefügte Spiele: {#0} || Manually added games: {0} || 手动添加的游戏：{0} || Juegos añadidos manualmente: {0} || Jeux ajoutés manuellement : {0} || Jogos adicionados manualmente: {0} || Игры, добавленные вручную: {0} || 手動で追加したゲーム: {0}
+Schnellzugriffe und Links: {#0} || Shortcuts and links: {0} || 快捷方式和链接：{0} || Accesos directos y enlaces: {0} || Raccourcis et liens : {0} || Atalhos e links: {0} || Ярлыки и ссылки: {0} || ショートカットとリンク: {0}
+Abläufe: {#0} || Routines: {0} || 流程：{0} || Rutinas: {0} || Routines : {0} || Rotinas: {0} || Сценарии: {0} || ルーチン: {0}
+Wunschliste: {#0} || Wishlist: {0} || 愿望单：{0} || Lista de deseos: {0} || Liste de souhaits : {0} || Lista de desejos: {0} || Список желаний: {0} || ウィッシュリスト: {0}
+Einstellungs-Profile: {#0} || Settings profiles: {0} || 设置配置文件：{0} || Perfiles de ajustes: {0} || Profils de paramètres : {0} || Perfis de configuração: {0} || Профили настроек: {0} || 設定プロファイル: {0}
+Geänderte Einstellungen insgesamt: {#0} || Changed settings in total: {0} || 共更改的设置：{0} || Ajustes modificados en total: {0} || Paramètres modifiés au total : {0} || Configurações alteradas no total: {0} || Всего изменённых настроек: {0} || 変更される設定の合計: {0}
+Alles wird durch den Inhalt der Datei ersetzt, auch Spielzeiten. Deine aktuellen Einstellungen werden vorher automatisch gesichert. Danach startet der Launcher neu. || Everything is replaced by the contents of the file, including playtime. Your current settings are backed up automatically first. The launcher then restarts. || 所有内容都将被文件内容替换，包括游戏时间。当前设置会先自动备份。之后启动器将重新启动。 || Todo se sustituye por el contenido del archivo, también el tiempo de juego. Tus ajustes actuales se guardan antes automáticamente. Después, el launcher se reinicia. || Tout est remplacé par le contenu du fichier, y compris le temps de jeu. Tes paramètres actuels sont sauvegardés automatiquement avant. Ensuite, le launcher redémarre. || Tudo é substituído pelo conteúdo do arquivo, inclusive o tempo de jogo. Suas configurações atuais são salvas automaticamente antes. Depois, o launcher reinicia. || Всё будет заменено содержимым файла, включая игровое время. Текущие настройки сначала сохраняются автоматически. Затем лаунчер перезапустится. || プレイ時間を含め、すべてがファイルの内容に置き換わります。現在の設定は先に自動でバックアップされます。その後ランチャーが再起動します。
+Übernehmen und neu starten || Apply and restart || 应用并重新启动 || Aplicar y reiniciar || Appliquer et redémarrer || Aplicar e reiniciar || Применить и перезапустить || 適用して再起動
+Es läuft noch ein Spiel. Lade die Einstellungen bitte nach dem Spiel. || A game is still running. Please load the settings after the game. || 仍有游戏在运行。请在游戏结束后再加载设置。 || Todavía hay un juego en marcha. Carga los ajustes después de jugar. || Un jeu est encore en cours. Charge les paramètres après la partie. || Ainda há um jogo em execução. Carregue as configurações depois do jogo. || Игра ещё запущена. Загрузите настройки после игры. || まだゲームが実行中です。ゲーム終了後に設定を読み込んでください。
+Bitte starte den Launcher jetzt neu, damit die geladenen Einstellungen übernommen werden. || Please restart the launcher now so the loaded settings take effect. || 请立即重新启动启动器以应用加载的设置。 || Reinicia ahora el launcher para que se apliquen los ajustes cargados. || Redémarre maintenant le launcher pour appliquer les paramètres chargés. || Reinicie o launcher agora para aplicar as configurações carregadas. || Перезапустите лаунчер, чтобы применить загруженные настройки. || 読み込んだ設定を反映するため、ランチャーを再起動してください。
+Einstellungs-Profile || Settings profiles || 设置配置文件 || Perfiles de ajustes || Profils de paramètres || Perfis de configuração || Профили настроек || 設定プロファイル
+Ein Profil merkt sich ausgewählte Einstellungen, zum Beispiel Design, Streamer-Modus und Energieplan. Beim Umschalten werden genau diese übernommen, alles andere bleibt, wie es ist. Umschalten geht auch mit Strg+K und per Rechtsklick auf das Symbol im Infobereich. || A profile remembers selected settings, for example design, streamer mode and power plan. When you switch, exactly these are applied and everything else stays as it is. You can also switch with Ctrl+K and by right-clicking the tray icon. || 配置文件会记住选定的设置，例如设计、主播模式和电源计划。切换时只应用这些设置，其他设置保持不变。也可以通过 Ctrl+K 或右键单击通知区域图标进行切换。 || Un perfil recuerda ajustes seleccionados, por ejemplo el diseño, el modo streamer y el plan de energía. Al cambiar se aplican exactamente esos y todo lo demás se queda igual. También puedes cambiar con Ctrl+K y con clic derecho en el icono de la bandeja. || Un profil retient certains paramètres, par exemple le design, le mode streamer et le mode d'alimentation. En changeant, exactement ceux-ci sont appliqués, tout le reste ne change pas. Tu peux aussi changer avec Ctrl+K et par clic droit sur l'icône de la zone de notification. || Um perfil guarda configurações selecionadas, por exemplo o design, o modo streamer e o plano de energia. Ao trocar, exatamente essas são aplicadas e o resto continua igual. Também dá para trocar com Ctrl+K e clicando com o botão direito no ícone da bandeja. || Профиль запоминает выбранные настройки, например оформление, режим стримера и схему питания. При переключении применяются только они, остальное не меняется. Переключать можно также через Ctrl+K и правым щелчком по значку в области уведомлений. || プロファイルはデザイン、配信者モード、電源プランなど選んだ設定を記憶します。切り替えるとその設定だけが適用され、ほかはそのままです。Ctrl+K や通知領域アイコンの右クリックでも切り替えられます。
+＋ Neues Profil || ＋ New profile || ＋ 新建配置文件 || ＋ Nuevo perfil || ＋ Nouveau profil || ＋ Novo perfil || ＋ Новый профиль || ＋ 新しいプロファイル
+Automatisch umschalten || Switch automatically || 自动切换 || Cambiar automáticamente || Changer automatiquement || Trocar automaticamente || Переключать автоматически || 自動で切り替え
+Danach kehrt der Launcher zu deinen vorherigen Einstellungen zurück: nach dem Spiel bzw. wenn OBS beendet wird. Für den Spielstart muss die Spielzeit-Erfassung eingeschaltet sein. || Afterwards the launcher returns to your previous settings: after the game or when OBS is closed. For game start, playtime tracking must be turned on. || 之后启动器会恢复你之前的设置：游戏结束后或关闭 OBS 时。游戏启动切换需要开启游戏时间记录。 || Después, el launcher vuelve a tus ajustes anteriores: al terminar el juego o al cerrar OBS. Para el inicio de juego, el registro del tiempo de juego debe estar activado. || Ensuite, le launcher revient à tes paramètres précédents : après la partie ou à la fermeture d'OBS. Pour le lancement d'un jeu, le suivi du temps de jeu doit être activé. || Depois, o launcher volta às suas configurações anteriores: após o jogo ou quando o OBS é fechado. Para o início do jogo, o registro do tempo de jogo precisa estar ligado. || Затем лаунчер вернёт прежние настройки: после игры или при закрытии OBS. Для запуска игры должен быть включён учёт игрового времени. || その後、ゲーム終了後または OBS 終了時に以前の設定へ戻ります。ゲーム開始時の切り替えにはプレイ時間の記録をオンにする必要があります。
+Beim Start eines Spiels || When a game starts || 游戏启动时 || Al iniciar un juego || Au lancement d'un jeu || Ao iniciar um jogo || При запуске игры || ゲーム開始時
+Wenn OBS gestartet wird || When OBS is started || 启动 OBS 时 || Al iniciar OBS || Au démarrage d'OBS || Quando o OBS é iniciado || При запуске OBS || OBS の起動時
+Farben und Design || Colors and design || 颜色和设计 || Colores y diseño || Couleurs et design || Cores e design || Цвета и оформление || 色とデザイン
+Hintergrund || Background || 背景 || Fondo || Arrière-plan || Plano de fundo || Фон || 背景
+Seitenleisten-Bereiche || Sidebar sections || 侧边栏区域 || Secciones de la barra lateral || Sections de la barre latérale || Seções da barra lateral || Разделы боковой панели || サイドバーの項目
+Controller-Optionen || Controller options || 手柄选项 || Opciones del mando || Options de la manette || Opções do controle || Параметры контроллера || コントローラーのオプション
+Zocken || Gaming || 游戏 || Jugar || Jeu || Jogar || Игра || ゲーム
+Streamen || Streaming || 直播 || Streaming || Streaming || Transmissão || Стрим || 配信
+Büro || Office || 办公 || Oficina || Bureau || Escritório || Работа || 仕事
+Profil automatisch gewechselt || Profile switched automatically || 已自动切换配置文件 || Perfil cambiado automáticamente || Profil changé automatiquement || Perfil trocado automaticamente || Профиль переключён автоматически || プロファイルを自動で切り替えました
+Profil gewechselt || Profile switched || 已切换配置文件 || Perfil cambiado || Profil changé || Perfil trocado || Профиль переключён || プロファイルを切り替えました
+Profil „{0}“ ist aktiv. || Profile “{0}” is active. || 配置文件“{0}”已启用。 || El perfil «{0}» está activo. || Le profil « {0} » est actif. || O perfil “{0}” está ativo. || Профиль «{0}» активен. || プロファイル「{0}」が有効です。
+Profil zurückgesetzt || Profile restored || 已恢复配置文件 || Perfil restablecido || Profil rétabli || Perfil restaurado || Профиль восстановлен || プロファイルを元に戻しました
+Das Spiel ist beendet. Deine vorherigen Einstellungen gelten wieder. || The game has ended. Your previous settings apply again. || 游戏已结束。你之前的设置已恢复。 || El juego ha terminado. Vuelven a aplicarse tus ajustes anteriores. || Le jeu est terminé. Tes paramètres précédents s'appliquent de nouveau. || O jogo terminou. Suas configurações anteriores voltaram a valer. || Игра завершена. Снова действуют прежние настройки. || ゲームが終了しました。以前の設定に戻りました。
+OBS wurde beendet. Deine vorherigen Einstellungen gelten wieder. || OBS was closed. Your previous settings apply again. || OBS 已关闭。你之前的设置已恢复。 || Se cerró OBS. Vuelven a aplicarse tus ajustes anteriores. || OBS a été fermé. Tes paramètres précédents s'appliquent de nouveau. || O OBS foi fechado. Suas configurações anteriores voltaram a valer. || OBS закрыт. Снова действуют прежние настройки. || OBS が終了しました。以前の設定に戻りました。
+Streamer-Modus an || Streamer mode on || 主播模式开启 || Modo streamer activado || Mode streamer activé || Modo streamer ligado || Режим стримера вкл. || 配信者モード オン
+Schaltet noch nichts um || Doesn't switch anything yet || 尚未切换任何内容 || Todavía no cambia nada || Ne change encore rien || Ainda não troca nada || Пока ничего не переключает || まだ何も切り替えません
+aktiv || active || 已启用 || activo || actif || ativo || активен || 有効
+Aktivieren || Activate || 启用 || Activar || Activer || Ativar || Включить || 有効にする
+Noch keine Profile angelegt. || No profiles created yet. || 还没有创建配置文件。 || Todavía no hay perfiles. || Aucun profil créé pour l'instant. || Nenhum perfil criado ainda. || Профилей пока нет. || まだプロファイルがありません。
+Neues Profil || New profile || 新建配置文件 || Nuevo perfil || Nouveau profil || Novo perfil || Новый профиль || 新しいプロファイル
+Profil bearbeiten || Edit profile || 编辑配置文件 || Editar perfil || Modifier le profil || Editar perfil || Изменить профиль || プロファイルを編集
+Symbol || Icon || 图标 || Icono || Icône || Ícone || Значок || アイコン
+Was das Profil umschaltet || What the profile switches || 配置文件切换的内容 || Qué cambia el perfil || Ce que le profil change || O que o perfil troca || Что переключает профиль || プロファイルで切り替える内容
+Meine aktuellen Einstellungen in das Profil übernehmen || Save my current settings into the profile || 将我当前的设置保存到配置文件 || Guardar mis ajustes actuales en el perfil || Enregistrer mes paramètres actuels dans le profil || Salvar minhas configurações atuais no perfil || Сохранить текущие настройки в профиль || 現在の設定をプロファイルに保存
+Das Profil merkt sich deine jetzigen Einstellungen für die ausgewählten Bereiche. || The profile remembers your current settings for the selected areas. || 配置文件会记住你在所选区域的当前设置。 || El perfil recuerda tus ajustes actuales de las áreas seleccionadas. || Le profil retient tes paramètres actuels pour les domaines sélectionnés. || O perfil guarda suas configurações atuais das áreas selecionadas. || Профиль запомнит ваши текущие настройки выбранных разделов. || プロファイルは選択した項目の現在の設定を記憶します。
+Neu ausgewählte Bereiche übernehmen immer deine jetzigen Einstellungen. || Newly selected areas always take your current settings. || 新选择的区域始终使用你当前的设置。 || Las áreas recién seleccionadas siempre toman tus ajustes actuales. || Les domaines nouvellement sélectionnés reprennent toujours tes paramètres actuels. || Áreas recém-selecionadas sempre usam suas configurações atuais. || Новые выбранные разделы всегда получают текущие настройки. || 新たに選んだ項目には常に現在の設定が使われます。
+Profil „{0}“ wirklich löschen? || Really delete profile “{0}”? || 确定要删除配置文件“{0}”吗？ || ¿Seguro que quieres eliminar el perfil «{0}»? || Vraiment supprimer le profil « {0} » ? || Excluir mesmo o perfil “{0}”? || Точно удалить профиль «{0}»? || プロファイル「{0}」を削除しますか？
+Profil löschen || Delete profile || 删除配置文件 || Eliminar perfil || Supprimer le profil || Excluir perfil || Удалить профиль || プロファイルを削除
+Profil wechseln || Switch profile || 切换配置文件 || Cambiar perfil || Changer de profil || Trocar perfil || Сменить профиль || プロファイルを切り替え
+Profil: {0} || Profile: {0} || 配置文件：{0} || Perfil: {0} || Profil : {0} || Perfil: {0} || Профиль: {0} || プロファイル: {0}
+Aktives Profil || Active profile || 当前配置文件 || Perfil activo || Profil actif || Perfil ativo || Активный профиль || 有効なプロファイル
+Profil aktivieren || Activate profile || 启用配置文件 || Activar perfil || Activer le profil || Ativar perfil || Включить профиль || プロファイルを有効にする
 """;
     }
 
@@ -3146,6 +3237,7 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
             InitExtras14();
             InitExtras15();
             InitExtras16();
+            InitExtras17();
 
             isLoadingSettings = false;
             RefreshDashboard();
@@ -3455,6 +3547,20 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
             if (settings.ObsPort is < 1 or > 65535) settings.ObsPort = 4455;
             settings.ObsPasswordProtected ??= string.Empty;
             settings.ObsStreamerScenes ??= new List<string>();
+            settings.Profiles ??= new List<SettingsProfile>();
+            settings.Profiles.RemoveAll(p => p == null);
+            foreach (var profile in settings.Profiles)
+            {
+                if (string.IsNullOrWhiteSpace(profile.Id)) profile.Id = Guid.NewGuid().ToString("N");
+                if (string.IsNullOrWhiteSpace(profile.Name)) profile.Name = "Profil";
+                profile.Icon ??= "⭐";
+                profile.Groups ??= new List<string>();
+                profile.Values ??= new Dictionary<string, JsonElement>();
+                profile.PowerPlan ??= string.Empty;
+            }
+            settings.ActiveProfileId ??= string.Empty;
+            settings.ProfileOnGame ??= string.Empty;
+            settings.ProfileOnObs ??= string.Empty;
 
             ApplyTheme();
             UpdateUserNameDisplay();
@@ -3463,6 +3569,9 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
 
         private void SaveSettings()
         {
+            // Nach einem Import wartet die neue Datei auf den Neustart und darf nicht mehr überschrieben werden
+            if (settingsSaveBlocked) return;
+
             try
             {
                 Directory.CreateDirectory(SettingsDir);
@@ -6834,19 +6943,33 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
             timer.Start();
         }
 
+        private const string SettingsExportFormat = "DFP-Pro-Launcher-Einstellungen";
+        private const int SettingsExportFormatVersion = 1;
+
         private void BtnExportSettings_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new Microsoft.Win32.SaveFileDialog
             {
-                FileName = "DFP_Pro_Launcher_Einstellungen.json",
-                Filter = "Einstellungen (*.json)|*.json"
+                FileName = $"DFP_Pro_Launcher_Einstellungen_{DateTime.Now:yyyy-MM-dd}.json",
+                Filter = Loc.T("Einstellungen") + " (*.json)|*.json"
             };
             if (dialog.ShowDialog() != true) return;
 
             try
             {
                 SaveSettings();
-                File.Copy(SettingsFilePath, dialog.FileName, true);
+                var file = new SettingsExportFile
+                {
+                    Format = SettingsExportFormat,
+                    FormatVersion = SettingsExportFormatVersion,
+                    AppVersion = VersionText(),
+                    Exported = DateTime.Now,
+                    Settings = settings
+                };
+
+                string json;
+                lock (settings.SteamIds) json = JsonSerializer.Serialize(file, JsonOptions);
+                File.WriteAllText(dialog.FileName, json);
                 Msg("Die Einstellungen wurden gesichert.");
             }
             catch (Exception ex)
@@ -6855,27 +6978,196 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
             }
         }
 
+        private sealed class SettingsImport
+        {
+            public AppSettings Settings = new();
+            public string AppVersion = string.Empty;   // leer = alte Datei ohne Versionsangabe
+            public DateTime? Exported;
+            public bool NewerFormat;
+        }
+
+        /// <summary>Liest eine exportierte Datei (neues Format mit Versionsangabe oder eine alte settings.json).</summary>
+        private static SettingsImport ReadSettingsImport(string path)
+        {
+            using var doc = JsonDocument.Parse(File.ReadAllText(path));
+            var root = doc.RootElement;
+            if (root.ValueKind != JsonValueKind.Object) throw new InvalidDataException(Loc.T("Die Datei enthält keine gültigen Einstellungen."));
+
+            if (root.TryGetProperty("Format", out var format) && format.ValueKind == JsonValueKind.String
+                && format.GetString() == SettingsExportFormat)
+            {
+                var file = root.Deserialize<SettingsExportFile>();
+                if (file?.Settings == null) throw new InvalidDataException(Loc.T("Die Datei enthält keine gültigen Einstellungen."));
+                return new SettingsImport
+                {
+                    Settings = file.Settings,
+                    AppVersion = file.AppVersion ?? string.Empty,
+                    Exported = file.Exported == default ? null : file.Exported,
+                    NewerFormat = file.FormatVersion > SettingsExportFormatVersion
+                };
+            }
+
+            // Alte Sicherung: direkt eine settings.json. Ein paar typische Einträge müssen vorhanden sein.
+            if (!root.TryGetProperty("UserName", out _) && !root.TryGetProperty("AccentColor", out _) && !root.TryGetProperty("GameStates", out _))
+                throw new InvalidDataException(Loc.T("Die Datei enthält keine gültigen Einstellungen."));
+
+            var plain = root.Deserialize<AppSettings>() ?? throw new InvalidDataException(Loc.T("Die Datei enthält keine gültigen Einstellungen."));
+            return new SettingsImport { Settings = plain };
+        }
+
+        /// <summary>Zählt die Einstellungen, die sich durch den Import ändern würden (ohne Fensterposition).</summary>
+        private int CountChangedSettings(AppSettings incoming)
+        {
+            try
+            {
+                string currentJson, incomingJson;
+                lock (settings.SteamIds) currentJson = JsonSerializer.Serialize(settings);
+                incomingJson = JsonSerializer.Serialize(incoming);
+
+                using var current = JsonDocument.Parse(currentJson);
+                using var next = JsonDocument.Parse(incomingJson);
+                int changed = 0;
+                foreach (var property in next.RootElement.EnumerateObject())
+                {
+                    if (property.Name.StartsWith("Win", StringComparison.Ordinal)) continue;
+                    if (!current.RootElement.TryGetProperty(property.Name, out var old) || old.GetRawText() != property.Value.GetRawText())
+                        changed++;
+                }
+                return changed;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>Vorschau „Das wird übernommen“. Gibt true zurück, wenn der Nutzer den Import bestätigt.</summary>
+        private bool ShowImportPreview(SettingsImport import)
+        {
+            var dialog = CreateDialog("Einstellungen laden", 560, out var panel);
+            var incoming = import.Settings;
+
+            panel.Children.Add(new TextBlock { Text = Loc.T("Das wird übernommen"), Foreground = System.Windows.Media.Brushes.White, FontSize = 18, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 10) });
+
+            void Line(string text, string color = "#D1D5DB")
+                => panel.Children.Add(new TextBlock { Text = text, Foreground = MakeBrush(color), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 6) });
+
+            if (import.AppVersion.Length > 0)
+            {
+                string when = import.Exported is DateTime date ? date.ToString("dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture) : "?";
+                Line(Loc.T($"Gesichert mit Version {import.AppVersion} am {when}"), "#9CA3AF");
+            }
+            else
+            {
+                Line(Loc.T("Ältere Sicherungsdatei ohne Versionsangabe"), "#9CA3AF");
+            }
+
+            bool newerVersion = Version.TryParse(import.AppVersion, out var fileVersion) && CurrentVersion() is Version mine && fileVersion > mine;
+            if (newerVersion || import.NewerFormat)
+                Line(Loc.T($"Die Datei stammt aus einer neueren Version ({import.AppVersion}). Einstellungen, die diese Version noch nicht kennt, werden übersprungen."), "#F59E0B");
+
+            panel.Children.Add(new Border { Height = 1, Background = MakeBrush("#26FFFFFF"), Margin = new Thickness(0, 6, 0, 12) });
+
+            Line("• " + Loc.T($"Spiele mit Spielzeit, Favoriten oder Notizen: {incoming.GameStates?.Count ?? 0}"));
+            Line("• " + Loc.T($"Manuell hinzugefügte Spiele: {incoming.ManualGames?.Count ?? 0}"));
+            Line("• " + Loc.T($"Schnellzugriffe und Links: {(incoming.QuickLinks?.Count ?? 0) + (incoming.StreamerLinks?.Count ?? 0)}"));
+            Line("• " + Loc.T($"Abläufe: {incoming.Routines?.Count ?? 0}"));
+            Line("• " + Loc.T($"Wunschliste: {incoming.Wishlist?.Count ?? 0}"));
+            Line("• " + Loc.T($"Einstellungs-Profile: {incoming.Profiles?.Count ?? 0}"));
+            Line("• " + Loc.T($"Geänderte Einstellungen insgesamt: {CountChangedSettings(incoming)}"));
+
+            panel.Children.Add(new TextBlock
+            {
+                Text = Loc.T("Alles wird durch den Inhalt der Datei ersetzt, auch Spielzeiten. Deine aktuellen Einstellungen werden vorher automatisch gesichert. Danach startet der Launcher neu."),
+                Foreground = BrushSubtle,
+                FontSize = 12,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 10, 0, 18)
+            });
+
+            bool confirmed = false;
+            var buttons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
+            var cancel = new System.Windows.Controls.Button { Content = "Abbrechen", Margin = new Thickness(0, 0, 10, 0), IsCancel = true };
+            var ok = new System.Windows.Controls.Button { Content = "Übernehmen und neu starten", Padding = new Thickness(20, 8, 20, 8) };
+            ok.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            ok.Click += (s, e) =>
+            {
+                confirmed = true;
+                dialog.DialogResult = true;
+            };
+            buttons.Children.Add(cancel);
+            buttons.Children.Add(ok);
+            panel.Children.Add(buttons);
+
+            dialog.ShowDialog();
+            return confirmed;
+        }
+
         private void BtnImportSettings_Click(object sender, RoutedEventArgs e)
         {
+            if (activeSessions.Count > 0)
+            {
+                Msg("Es läuft noch ein Spiel. Lade die Einstellungen bitte nach dem Spiel.", "Einstellungen laden");
+                return;
+            }
+
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
-                Filter = "Einstellungen (*.json)|*.json",
-                Title = "Einstellungen laden"
+                Filter = Loc.T("Einstellungen") + " (*.json)|*.json",
+                Title = Loc.T("Einstellungen laden")
             };
             if (dialog.ShowDialog() != true) return;
 
+            SettingsImport import;
             try
             {
-                var check = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(dialog.FileName));
-                if (check == null) throw new InvalidDataException("Die Datei enthält keine gültigen Einstellungen.");
+                import = ReadSettingsImport(dialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                string reason = ex is JsonException ? Loc.T("Die Datei enthält keine gültigen Einstellungen.") : ex.Message;
+                Msg($"Laden fehlgeschlagen:\n{reason}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (!ShowImportPreview(import)) return;
+
+            try
+            {
+                // Vorher den aktuellen Stand sichern
+                SaveSettings();
+                CreateSettingsBackup("vor-import");
 
                 Directory.CreateDirectory(SettingsDir);
-                File.Copy(dialog.FileName, SettingsFilePath, true);
-                Msg("Die Einstellungen wurden geladen.\nBitte starte den Launcher neu, damit alles übernommen wird.");
+                string temp = SettingsFilePath + ".tmp";
+                File.WriteAllText(temp, JsonSerializer.Serialize(import.Settings, JsonOptions));
+                File.Move(temp, SettingsFilePath, true);
+
+                // Ab jetzt nichts mehr speichern, sonst würde der alte Stand beim Beenden die neue Datei überschreiben
+                settingsSaveBlocked = true;
             }
             catch (Exception ex)
             {
                 Msg($"Laden fehlgeschlagen:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            RestartLauncher();
+        }
+
+        private void RestartLauncher()
+        {
+            try
+            {
+                string? exe = Environment.ProcessPath;
+                if (string.IsNullOrEmpty(exe)) throw new InvalidOperationException();
+
+                Process.Start(new ProcessStartInfo(exe, "--restart") { UseShellExecute = true });
+                ExitApplication();
+            }
+            catch
+            {
+                Msg("Bitte starte den Launcher jetzt neu, damit die geladenen Einstellungen übernommen werden.", "Einstellungen laden");
             }
         }
 
@@ -8334,6 +8626,7 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
                         RunRoutinesFor("gamestart", game);
                         if (game.Status == "backlog") game.Status = "playing";
                         if (ProfileWanted(game) && activeSessions.Count == 1) _ = ActivateGamingProfileAsync();
+                        if (activeSessions.Count == 1) OnProfileGameStarted();
                         if (activeSessions.Count == 1 && CloseAppsWanted(game)) _ = CloseConfiguredAppsAsync(true);
                     }
 
@@ -8361,6 +8654,7 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
                         {
                             _ = DeactivateGamingProfileAsync();
                             RestoreClosedApps();
+                            OnProfileGameEnded();
                         }
                     }
                     else
@@ -8771,6 +9065,12 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
                     Add("🎥", "OBS verbinden", "OBS-Steuerung", RestartObs, 6);
                 }
                 Add("🎥", "OBS-Einstellungen", "Verbindung zu OBS einrichten", OpenObsSettings, 4);
+                foreach (var profileEntry in settings.Profiles)
+                {
+                    var profile = profileEntry;
+                    Add(profile.Icon, "Profil: " + profile.Name, profile.Id == settings.ActiveProfileId ? "Aktives Profil" : "Profil aktivieren",
+                        () => ActivateProfileManually(profile), 9);
+                }
                 foreach (var routineEntry in settings.Routines.Where(r => r.Enabled))
                 {
                     var routine = routineEntry;
@@ -12088,6 +12388,7 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
                 ShowFromTray();
                 ShowRoulette();
             });
+            AddTrayProfilesMenu(menu);
             menu.Items.Add(new Forms.ToolStripSeparator());
             menu.Items.Add(Loc.T("Beenden"), null, (s, e) => ExitApplication());
             menu.Opening += (s, e) => RefreshTrayRecents(menu);
@@ -13963,7 +14264,8 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
         private void InitExtras5()
         {
             HookErrorLogging();
-            BackupSettingsDaily();
+            BackupSettingsIfDue();
+            UpdateLastBackupText();
 
             if (settingsRecovered)
             {
@@ -14038,23 +14340,87 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
 
         // ───────────────────────────── Einstellungen sichern und wiederherstellen ─────────────────────────────
 
-        private static void BackupSettingsDaily()
+        private const int SettingsBackupKeep = 5;
+        private static readonly TimeSpan SettingsBackupInterval = TimeSpan.FromDays(7);
+        private static bool settingsSaveBlocked;
+
+        /// <summary>Alle Sicherungen, die neueste zuerst. Der Dateiname beginnt mit dem Datum (settings_JJJJMMTT…).</summary>
+        private static List<string> SettingsBackupFiles()
         {
             try
             {
-                if (!File.Exists(SettingsFilePath) || new FileInfo(SettingsFilePath).Length < 20) return;
+                if (!Directory.Exists(SettingsBackupDir)) return new List<string>();
+                return Directory.GetFiles(SettingsBackupDir, "settings_*.json")
+                    .OrderByDescending(f => System.IO.Path.GetFileName(f), StringComparer.Ordinal)
+                    .ToList();
+            }
+            catch
+            {
+                return new List<string>();
+            }
+        }
+
+        /// <summary>Datum einer Sicherung aus dem Namen: settings_20261006.json (alt) oder settings_20261006_142301_start.json.</summary>
+        private static DateTime? SettingsBackupDate(string file)
+        {
+            var match = Regex.Match(System.IO.Path.GetFileName(file), @"^settings_(\d{8})(?:_(\d{6}))?");
+            if (!match.Success) return null;
+
+            string stamp = match.Groups[1].Value + (match.Groups[2].Success ? match.Groups[2].Value : "000000");
+            return DateTime.TryParseExact(stamp, "yyyyMMddHHmmss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)
+                ? date : null;
+        }
+
+        /// <summary>Legt eine Sicherung der gespeicherten Einstellungsdatei an und behält nur die letzten 5.</summary>
+        private static string? CreateSettingsBackup(string reason)
+        {
+            try
+            {
+                if (!File.Exists(SettingsFilePath) || new FileInfo(SettingsFilePath).Length < 20) return null;
 
                 // Nur eine gültige Datei sichern, damit keine defekte Fassung die gute ersetzt
-                if (JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(SettingsFilePath)) == null) return;
+                if (JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(SettingsFilePath)) == null) return null;
 
                 Directory.CreateDirectory(SettingsBackupDir);
-                string target = System.IO.Path.Combine(SettingsBackupDir, $"settings_{DateTime.Now:yyyyMMdd}.json");
-                if (!File.Exists(target)) File.Copy(SettingsFilePath, target);
+                string target = System.IO.Path.Combine(SettingsBackupDir, $"settings_{DateTime.Now:yyyyMMdd_HHmmss}_{reason}.json");
+                File.Copy(SettingsFilePath, target, true);
 
-                foreach (string old in Directory.GetFiles(SettingsBackupDir, "settings_*.json").OrderByDescending(f => f).Skip(7))
-                    File.Delete(old);
+                foreach (string old in SettingsBackupFiles().Skip(SettingsBackupKeep))
+                {
+                    try { File.Delete(old); } catch { }
+                }
+                return target;
             }
-            catch { }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>Beim Start: sichern, wenn die letzte Sicherung älter als 7 Tage ist (oder es noch keine gibt).</summary>
+        private static void BackupSettingsIfDue()
+        {
+            DateTime? latest = SettingsBackupFiles().Select(SettingsBackupDate).FirstOrDefault(d => d != null);
+            if (latest == null || DateTime.Now - latest.Value >= SettingsBackupInterval) CreateSettingsBackup("start");
+        }
+
+        private void UpdateLastBackupText()
+        {
+            if (TxtLastBackup == null) return;
+            DateTime? latest = SettingsBackupFiles().Select(SettingsBackupDate).FirstOrDefault(d => d != null);
+            TxtLastBackup.Text = latest == null
+                ? Loc.T("Noch keine Sicherung vorhanden.")
+                : Loc.T($"Letzte Sicherung: {latest.Value:dd.MM.yyyy HH:mm}");
+        }
+
+        private void BtnBackupSettingsNow_Click(object sender, RoutedEventArgs e)
+        {
+            SaveSettings();
+            if (CreateSettingsBackup("manuell") != null)
+                ShowToast("💾", "Gesichert", "Deine Einstellungen wurden gesichert.", 4);
+            else
+                Msg("Die Sicherung konnte nicht angelegt werden.", "Sicherung", MessageBoxButton.OK, MessageBoxImage.Warning);
+            UpdateLastBackupText();
         }
 
         private static AppSettings? TryRestoreSettingsBackup()
@@ -14070,7 +14436,7 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
 
                 if (!Directory.Exists(SettingsBackupDir)) return null;
 
-                foreach (string file in Directory.GetFiles(SettingsBackupDir, "settings_*.json").OrderByDescending(f => f))
+                foreach (string file in SettingsBackupFiles())
                 {
                     try
                     {
@@ -16130,6 +16496,8 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
 
                         status.Text = Loc.T("Starte die Installation. Der Launcher schließt sich kurz und öffnet sich danach von selbst wieder.");
                         fill.Width = bar.ActualWidth;
+                        SaveSettings();
+                        await Task.Run(() => CreateSettingsBackup("update"));   // vor jedem Update sichern
                         await Task.Delay(1200);
 
                         Process.Start(new ProcessStartInfo(installer, "/SILENT /NORESTART /CLOSEAPPLICATIONS /SUPPRESSMSGBOXES") { UseShellExecute = true });
@@ -16206,7 +16574,7 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
             try
             {
                 if (!Directory.Exists(SettingsBackupDir)) return;
-                string? latest = Directory.GetFiles(SettingsBackupDir, "settings_*.json").OrderByDescending(f => f).FirstOrDefault();
+                string? latest = SettingsBackupFiles().FirstOrDefault();
                 if (latest != null) MirrorToCloud(latest, "Einstellungen");
             }
             catch { }
@@ -18151,7 +18519,7 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
             return null;
         }
 
-        private async Task ActivatePowerPlanAsync(string guid)
+        private async Task ActivatePowerPlanAsync(string guid, bool quiet = false)
         {
             const string ultimate = "e9a42b02-d5df-448d-aa00-03f14749eb61";
             string target = guid;
@@ -18173,7 +18541,7 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
             }
 
             var result = await Task.Run(() => RunHidden("powercfg", $"/setactive {target}"));
-            if (result.ExitCode != 0)
+            if (result.ExitCode != 0 && !quiet)
                 Msg("Dieser Energiesparplan ist auf deinem PC nicht verfügbar.", "Energiesparplan",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
 
@@ -22170,6 +22538,36 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
                 bool ok = auth == "1Ct943GAT+6YQUUX47Ia/ncufilbe6+oD6lY+5kaCu4=";
                 Msg(ok ? "Die Passwort-Anmeldung rechnet richtig." : "Die Passwort-Anmeldung rechnet falsch: " + auth, "OBS");
             });
+
+            Group("Profile und Sicherungen");
+            Dev("💾 Sicherung jetzt anlegen", () => BtnBackupSettingsNow_Click(this, new RoutedEventArgs()));
+            Dev("🗓 Start-Sicherung prüfen (7 Tage)", () =>
+            {
+                BackupSettingsIfDue();
+                UpdateLastBackupText();
+                ShowToast("💾", "Entwickler", Loc.T(TxtLastBackup.Text), 5);
+            });
+            Dev("📥 Import-Vorschau (ohne Übernehmen)", () =>
+            {
+                string json;
+                lock (settings.SteamIds) json = JsonSerializer.Serialize(settings);
+                var copy = JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+                copy.AccentColor = "#22C55E";
+                bool ok = ShowImportPreview(new SettingsImport { Settings = copy, AppVersion = "99.0.0", Exported = DateTime.Now });
+                ShowToast("📥", "Entwickler", ok ? "Bestätigt (Test, nichts übernommen)" : "Abgebrochen", 4);
+            });
+            Dev("🎮 Spielstart simulieren (Profil-Automatik)", () =>
+            {
+                if (settings.ProfileOnGame.Length == 0) Msg("Wähle zuerst unter Einstellungen → Allgemein → Einstellungs-Profile ein Profil für den Spielstart.", "Entwickler");
+                else OnProfileGameStarted();
+            });
+            Dev("🏁 Spielende simulieren", OnProfileGameEnded);
+            Dev("📡 OBS-Start simulieren", () =>
+            {
+                if (settings.ProfileOnObs.Length == 0) Msg("Wähle zuerst unter Einstellungen → Allgemein → Einstellungs-Profile ein Profil für OBS.", "Entwickler");
+                else _ = AutoActivateProfileAsync(settings.ProfileOnObs, false);
+            });
+            Dev("⏹ OBS-Ende simulieren", () => AutoRestoreProfile(false));
 
             Group("Controller-Akku (Vorschau)");
             Dev("🔋 Voll", () => PreviewPadBattery(3, false));
@@ -26497,6 +26895,486 @@ OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Sc
 
             RenderObs();
             UpdateObsAutoStreamer();
+        }
+
+        // ═════════════════════════════ Einstellungs-Profile ═════════════════════════════
+
+        /// <summary>Bereiche, die ein Profil umschalten kann, mit den zugehörigen Einstellungen.</summary>
+        private static readonly (string Key, string Title, string[] Props)[] ProfileGroups =
+        {
+            ("design", "Farben und Design", new[] { "BackgroundColor", "AccentColor", "SidebarColor", "NavTextColor", "NavActiveColor", "GlassEffect",
+                "AnimatedBackground", "OledMode", "RgbAccent", "RgbSpeed", "UiScale", "CardWidth", "CardCorner", "CardSpacing", "CardAspect",
+                "CardLayout", "LibraryView", "HoverZoom", "HoverGlow" }),
+            ("background", "Hintergrund", new[] { "BackgroundImagePath", "BgDim", "BgBlur" }),
+            ("streamer", "Streamer-Modus", new[] { "StreamerMode", "StreamerAuto", "StreamHideName", "StreamHideLocation", "StreamHideStats",
+                "StreamHideRecent", "StreamHidePaths", "StreamHideShots", "StreamHidePc", "StreamHideMusic", "StreamMuteAlerts", "StreamCensorStyle", "ObsAutoStreamer" }),
+            ("power", "Energieplan", Array.Empty<string>()),
+            ("sidebar", "Seitenleisten-Bereiche", new[] { "HiddenSections", "SidebarCollapsed" }),
+            ("controller", "Controller-Optionen", new[] { "ControllerSupport", "ControllerLayout", "PadCombo", "PadComboMode", "PadComboInGame",
+                "PadVibrate", "PadRepeat", "PadAutoStart" })
+        };
+
+        private static readonly string[] ProfileIcons = { "🎮", "📡", "💼", "🌙", "🎧", "⭐", "🏆", "🛋" };
+        private static readonly string[] ObsProcessNames = { "obs64", "obs32", "obs" };
+
+        private sealed class ProfileRestorePoint
+        {
+            public Dictionary<string, JsonElement> Values = new();
+            public string PowerPlan = string.Empty;
+            public string ActiveId = string.Empty;
+        }
+
+        private ProfileRestorePoint? gameRestore, obsRestore;
+        private readonly DispatcherTimer profileObsTimer = new() { Interval = TimeSpan.FromSeconds(5) };
+        private bool obsProcessRunning;
+        private Forms.ToolStripMenuItem? trayProfilesItem;
+
+        private void InitExtras17()
+        {
+            SeedProfiles();
+            RenderProfiles();
+
+            profileObsTimer.Tick += async (s, e) => await CheckObsProcessForProfileAsync();
+            profileObsTimer.Start();
+        }
+
+        private void SeedProfiles()
+        {
+            if (settings.ProfilesSeeded) return;
+            settings.ProfilesSeeded = true;
+
+            // Drei Vorschläge: Sie schalten nur den Streamer-Modus und den Energieplan. Mit „Aktuellen Stand speichern“ kommt mehr dazu.
+            SettingsProfile Make(string name, string icon, bool streamer, string plan) => new()
+            {
+                Name = name,
+                Icon = icon,
+                Groups = new List<string> { "streamer", "power" },
+                Values = new Dictionary<string, JsonElement> { ["StreamerMode"] = JsonSerializer.SerializeToElement(streamer) },
+                PowerPlan = plan
+            };
+
+            if (settings.Profiles.Count == 0)
+            {
+                settings.Profiles.Add(Make("Zocken", "🎮", false, "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c"));
+                settings.Profiles.Add(Make("Streamen", "📡", true, "8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c"));
+                settings.Profiles.Add(Make("Büro", "💼", false, "381b4222-f694-41f0-9685-ff5bb260df2e"));
+            }
+            SaveSettings();
+        }
+
+        private SettingsProfile? FindProfile(string id)
+            => string.IsNullOrEmpty(id) ? null : settings.Profiles.FirstOrDefault(p => p.Id == id);
+
+        // ───────── Werte erfassen und anwenden ─────────
+
+        private Dictionary<string, JsonElement> CaptureProfileValues(IEnumerable<string> groups)
+        {
+            var values = new Dictionary<string, JsonElement>();
+            foreach (var group in ProfileGroups.Where(g => groups.Contains(g.Key)))
+            {
+                foreach (string name in group.Props)
+                {
+                    var property = typeof(AppSettings).GetProperty(name);
+                    if (property == null) continue;
+                    values[name] = JsonSerializer.SerializeToElement(property.GetValue(settings), property.PropertyType);
+                }
+            }
+            return values;
+        }
+
+        /// <summary>Setzt die gespeicherten Werte und frischt die Oberfläche auf. Unbekannte Einträge werden übersprungen.</summary>
+        private void ApplyProfileValues(Dictionary<string, JsonElement> values)
+        {
+            bool design = false;
+            var designProps = ProfileGroups.First(g => g.Key == "design").Props.Concat(ProfileGroups.First(g => g.Key == "background").Props).ToHashSet();
+
+            foreach (var (name, value) in values)
+            {
+                var property = typeof(AppSettings).GetProperty(name);
+                if (property == null || !property.CanWrite) continue;
+                try
+                {
+                    property.SetValue(settings, value.Deserialize(property.PropertyType));
+                    if (designProps.Contains(name)) design = true;
+                }
+                catch { }
+            }
+
+            // Absichern wie beim Laden
+            settings.HiddenSections ??= new List<string>();
+            settings.BackgroundImagePath ??= string.Empty;
+            if (!settings.RgbUnlocked) settings.RgbAccent = false;
+            SaveSettings();
+
+            isLoadingSettings = true;
+            try { PopulateControlsFromSettings(); }
+            finally { isLoadingSettings = false; }
+
+            if (design)
+            {
+                imageCache.Clear();
+                ApplyTheme();
+                ApplyBackgroundImage();
+                ApplyGlowBackground();
+                ApplyViewSettings();
+                ApplyFilter();
+                ApplyPixelShift();
+            }
+            ApplySidebar(false);
+            ApplyNavVisibility();
+            BuildNavSettings();
+            ApplyStreamerMode();
+            UpdateStreamerToggles();
+            RefreshDashboard();
+        }
+
+        private static async Task<string> ReadActivePowerPlanAsync()
+        {
+            var result = await Task.Run(() => RunHidden("powercfg", "/getactivescheme"));
+            var match = Regex.Match(result.Output, @"[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}");
+            return match.Success ? match.Value : string.Empty;
+        }
+
+        private void ApplyProfile(SettingsProfile profile, bool auto)
+        {
+            ApplyProfileValues(profile.Values);
+            if (profile.Groups.Contains("power") && profile.PowerPlan.Length > 0) _ = ActivatePowerPlanAsync(profile.PowerPlan, auto);
+
+            settings.ActiveProfileId = profile.Id;
+            SaveSettings();
+            RenderProfiles();
+            ShowToast(profile.Icon, auto ? "Profil automatisch gewechselt" : "Profil gewechselt", Loc.T($"Profil „{profile.Name}“ ist aktiv."), 4);
+        }
+
+        /// <summary>Umschalten von Hand (Einstellungen, Suche, Infobereich). Eine laufende Automatik kehrt danach nicht mehr zurück.</summary>
+        private void ActivateProfileManually(SettingsProfile profile)
+        {
+            gameRestore = null;
+            obsRestore = null;
+            ApplyProfile(profile, false);
+        }
+
+        // ───────── Automatik: Spielstart und OBS ─────────
+
+        private async Task AutoActivateProfileAsync(string profileId, bool forGame)
+        {
+            var profile = FindProfile(profileId);
+            if (profile == null || settings.ActiveProfileId == profile.Id) return;
+            if (forGame ? gameRestore != null : obsRestore != null) return;
+
+            // Den jetzigen Stand genau der Bereiche merken, die das Profil ändert
+            var point = new ProfileRestorePoint
+            {
+                Values = CaptureProfileValues(profile.Groups),
+                ActiveId = settings.ActiveProfileId
+            };
+            if (profile.Groups.Contains("power") && profile.PowerPlan.Length > 0) point.PowerPlan = await ReadActivePowerPlanAsync();
+
+            if (forGame) gameRestore = point;
+            else obsRestore = point;
+            ApplyProfile(profile, true);
+        }
+
+        private void AutoRestoreProfile(bool forGame)
+        {
+            var point = forGame ? gameRestore : obsRestore;
+            if (forGame) gameRestore = null;
+            else obsRestore = null;
+            if (point == null) return;
+
+            ApplyProfileValues(point.Values);
+            if (point.PowerPlan.Length > 0) _ = ActivatePowerPlanAsync(point.PowerPlan, true);
+            settings.ActiveProfileId = FindProfile(point.ActiveId)?.Id ?? string.Empty;
+            SaveSettings();
+            RenderProfiles();
+            ShowToast("↩", "Profil zurückgesetzt", forGame ? "Das Spiel ist beendet. Deine vorherigen Einstellungen gelten wieder." : "OBS wurde beendet. Deine vorherigen Einstellungen gelten wieder.", 4);
+        }
+
+        private void OnProfileGameStarted()
+        {
+            if (settings.ProfileOnGame.Length > 0) _ = AutoActivateProfileAsync(settings.ProfileOnGame, true);
+        }
+
+        private void OnProfileGameEnded()
+        {
+            if (gameRestore != null) AutoRestoreProfile(true);
+        }
+
+        private async Task CheckObsProcessForProfileAsync()
+        {
+            if (settings.ProfileOnObs.Length == 0 && obsRestore == null)
+            {
+                obsProcessRunning = false;
+                return;
+            }
+
+            bool running = await Task.Run(() => ObsProcessNames.Any(IsProcessRunning));
+            if (running == obsProcessRunning) return;
+            obsProcessRunning = running;
+
+            if (running && settings.ProfileOnObs.Length > 0) await AutoActivateProfileAsync(settings.ProfileOnObs, false);
+            else if (!running && obsRestore != null) AutoRestoreProfile(false);
+        }
+
+        // ───────── Anzeige in den Einstellungen ─────────
+
+        private string DescribeProfile(SettingsProfile profile)
+        {
+            var parts = new List<string>();
+            foreach (var group in ProfileGroups.Where(g => profile.Groups.Contains(g.Key)))
+            {
+                if (group.Key == "power")
+                {
+                    string plan = PowerPlanNames.TryGetValue(profile.PowerPlan, out var name) ? name : string.Empty;
+                    parts.Add(plan.Length > 0 ? Loc.T("Energieplan") + ": " + Loc.T(plan) : Loc.T("Energieplan"));
+                }
+                else if (group.Key == "streamer" && profile.Values.TryGetValue("StreamerMode", out var mode))
+                {
+                    parts.Add(Loc.T(mode.ValueKind == JsonValueKind.True ? "Streamer-Modus an" : "Streamer-Modus aus"));
+                }
+                else parts.Add(Loc.T(group.Title));
+            }
+            return parts.Count == 0 ? Loc.T("Schaltet noch nichts um") : string.Join(" · ", parts);
+        }
+
+        private void RenderProfiles()
+        {
+            if (ProfilesPanel == null) return;
+            ProfilesPanel.Children.Clear();
+
+            foreach (var item in settings.Profiles)
+            {
+                var profile = item;
+                bool active = profile.Id == settings.ActiveProfileId;
+
+                var row = new Grid { Margin = new Thickness(0, 0, 0, 10) };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+                row.Children.Add(new TextBlock { Text = profile.Icon, FontSize = 22, Margin = new Thickness(0, 0, 12, 0), VerticalAlignment = System.Windows.VerticalAlignment.Center });
+
+                var texts = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0) };
+                var title = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
+                title.Children.Add(new TextBlock { Text = profile.Name, Foreground = System.Windows.Media.Brushes.White, FontWeight = FontWeights.SemiBold });
+                if (active)
+                    title.Children.Add(new TextBlock { Text = Loc.T("aktiv"), Foreground = MakeBrush("#34D399"), FontSize = 11, FontWeight = FontWeights.SemiBold, Margin = new Thickness(8, 1, 0, 0) });
+                texts.Children.Add(title);
+                texts.Children.Add(new TextBlock { Text = DescribeProfile(profile), Foreground = BrushSubtle, FontSize = 12, TextWrapping = TextWrapping.Wrap });
+                Grid.SetColumn(texts, 1);
+                row.Children.Add(texts);
+
+                var buttons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                var use = new System.Windows.Controls.Button { Content = Loc.T("Aktivieren"), Margin = new Thickness(0, 0, 8, 0), Padding = new Thickness(14, 6, 14, 6) };
+                if (!active) use.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+                use.Click += (s, e) => ActivateProfileManually(profile);
+                var edit = new System.Windows.Controls.Button { Content = Loc.T("Bearbeiten"), Padding = new Thickness(14, 6, 14, 6) };
+                edit.Click += (s, e) => EditProfile(profile);
+                buttons.Children.Add(use);
+                buttons.Children.Add(edit);
+                Grid.SetColumn(buttons, 2);
+                row.Children.Add(buttons);
+
+                ProfilesPanel.Children.Add(row);
+            }
+
+            if (settings.Profiles.Count == 0)
+                ProfilesPanel.Children.Add(new TextBlock { Text = Loc.T("Noch keine Profile angelegt."), Foreground = BrushSubtle, FontSize = 12, Margin = new Thickness(0, 0, 0, 8) });
+
+            RenderProfileAutoChips(ProfileOnGamePanel, settings.ProfileOnGame, id => settings.ProfileOnGame = id);
+            RenderProfileAutoChips(ProfileOnObsPanel, settings.ProfileOnObs, id => settings.ProfileOnObs = id);
+        }
+
+        private void RenderProfileAutoChips(System.Windows.Controls.WrapPanel panel, string selected, Action<string> set)
+        {
+            panel.Children.Clear();
+            string group = "ProfileAuto" + panel.Name;
+            var style = TryFindResource("ChipStyle") as Style;
+
+            void Chip(string text, string id)
+            {
+                var chip = new System.Windows.Controls.RadioButton { Content = text, GroupName = group, IsChecked = id == selected };
+                if (style != null) chip.Style = style;
+                chip.Checked += (s, e) =>
+                {
+                    set(id);
+                    SaveSettings();
+                };
+                panel.Children.Add(chip);
+            }
+
+            Chip(Loc.T("Aus"), string.Empty);
+            foreach (var profile in settings.Profiles) Chip(profile.Icon + " " + profile.Name, profile.Id);
+        }
+
+        // ───────── Anlegen, bearbeiten, löschen ─────────
+
+        private void BtnNewProfile_Click(object sender, RoutedEventArgs e) => EditProfile(null);
+
+        private void EditProfile(SettingsProfile? existing)
+        {
+            bool isNew = existing == null;
+            var dialog = CreateDialog(isNew ? "Neues Profil" : "Profil bearbeiten", 560, out var panel);
+
+            panel.Children.Add(new TextBlock { Text = Loc.T("Name"), Foreground = BrushSubtle, FontSize = 12 });
+            var name = new System.Windows.Controls.TextBox { Text = existing?.Name ?? string.Empty, Height = 38, Margin = new Thickness(0, 4, 0, 14) };
+            panel.Children.Add(name);
+
+            panel.Children.Add(new TextBlock { Text = Loc.T("Symbol"), Foreground = BrushSubtle, FontSize = 12, Margin = new Thickness(0, 0, 0, 4) });
+            var icons = new WrapPanel { Margin = new Thickness(0, 0, 0, 14) };
+            string icon = existing?.Icon ?? "⭐";
+            var chipStyle = TryFindResource("ChipStyle") as Style;
+            foreach (string candidate in ProfileIcons)
+            {
+                string value = candidate;
+                var chip = new System.Windows.Controls.RadioButton { Content = value, GroupName = "ProfileIcon", IsChecked = value == icon, FontSize = 16 };
+                if (chipStyle != null) chip.Style = chipStyle;
+                chip.Checked += (s, e) => icon = value;
+                icons.Children.Add(chip);
+            }
+            panel.Children.Add(icons);
+
+            panel.Children.Add(new TextBlock { Text = Loc.T("Was das Profil umschaltet"), Foreground = System.Windows.Media.Brushes.White, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 8) });
+            var groupBoxes = new Dictionary<string, System.Windows.Controls.CheckBox>();
+            var planPanel = new WrapPanel { Margin = new Thickness(56, 0, 0, 10) };
+            foreach (var group in ProfileGroups)
+            {
+                var box = new System.Windows.Controls.CheckBox
+                {
+                    Content = Loc.T(group.Title),
+                    IsChecked = existing == null ? group.Key is "design" or "streamer" : existing.Groups.Contains(group.Key),
+                    Margin = new Thickness(0, 0, 0, 8)
+                };
+                groupBoxes[group.Key] = box;
+                panel.Children.Add(box);
+                if (group.Key == "power") panel.Children.Add(planPanel);
+            }
+
+            // Energieplan: einer der Windows-Standardpläne
+            string plan = existing?.PowerPlan ?? string.Empty;
+            if (!PowerPlanNames.ContainsKey(plan))
+                plan = PowerPlanNames.FirstOrDefault(p => p.Value == currentPowerPlanName).Key ?? "381b4222-f694-41f0-9685-ff5bb260df2e";
+            foreach (var (guid, title) in PowerPlanNames)
+            {
+                string value = guid;
+                var chip = new System.Windows.Controls.RadioButton { Content = Loc.T(title), GroupName = "ProfilePlan", IsChecked = value.Equals(plan, StringComparison.OrdinalIgnoreCase) };
+                if (chipStyle != null) chip.Style = chipStyle;
+                chip.Checked += (s, e) => plan = value;
+                planPanel.Children.Add(chip);
+            }
+            void UpdatePlanVisibility() => planPanel.Visibility = groupBoxes["power"].IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+            groupBoxes["power"].Checked += (s, e) => UpdatePlanVisibility();
+            groupBoxes["power"].Unchecked += (s, e) => UpdatePlanVisibility();
+            UpdatePlanVisibility();
+
+            System.Windows.Controls.CheckBox? capture = null;
+            if (!isNew)
+            {
+                capture = new System.Windows.Controls.CheckBox { Content = Loc.T("Meine aktuellen Einstellungen in das Profil übernehmen"), Margin = new Thickness(0, 6, 0, 0) };
+                panel.Children.Add(capture);
+            }
+            panel.Children.Add(new TextBlock
+            {
+                Text = Loc.T(isNew
+                    ? "Das Profil merkt sich deine jetzigen Einstellungen für die ausgewählten Bereiche."
+                    : "Neu ausgewählte Bereiche übernehmen immer deine jetzigen Einstellungen."),
+                Foreground = BrushSubtle,
+                FontSize = 12,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 6, 0, 18)
+            });
+
+            var buttons = new Grid();
+            var right = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
+            var cancel = new System.Windows.Controls.Button { Content = "Abbrechen", Margin = new Thickness(0, 0, 10, 0), IsCancel = true };
+            var save = new System.Windows.Controls.Button { Content = "Speichern", Padding = new Thickness(28, 8, 28, 8), IsDefault = true };
+            save.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            right.Children.Add(cancel);
+            right.Children.Add(save);
+            buttons.Children.Add(right);
+
+            if (existing != null)
+            {
+                var delete = new System.Windows.Controls.Button { Content = "Löschen", HorizontalAlignment = System.Windows.HorizontalAlignment.Left, Background = MakeBrush("#7F1D1D") };
+                delete.Click += (s, e) =>
+                {
+                    if (Msg($"Profil „{existing.Name}“ wirklich löschen?", "Profil löschen", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+                    settings.Profiles.Remove(existing);
+                    if (settings.ActiveProfileId == existing.Id) settings.ActiveProfileId = string.Empty;
+                    if (settings.ProfileOnGame == existing.Id) settings.ProfileOnGame = string.Empty;
+                    if (settings.ProfileOnObs == existing.Id) settings.ProfileOnObs = string.Empty;
+                    SaveSettings();
+                    dialog.DialogResult = false;
+                };
+                buttons.Children.Add(delete);
+            }
+            panel.Children.Add(buttons);
+
+            save.Click += (s, e) =>
+            {
+                string text = name.Text.Trim();
+                if (text.Length == 0)
+                {
+                    name.Focus();
+                    return;
+                }
+
+                var groups = ProfileGroups.Select(g => g.Key).Where(k => groupBoxes[k].IsChecked == true).ToList();
+                var profile = existing ?? new SettingsProfile();
+                var added = groups.Except(profile.Groups).ToList();
+                bool takeAll = isNew || capture?.IsChecked == true;
+
+                // Werte: bei „übernehmen“ alles neu erfassen, sonst nur neu hinzugekommene Bereiche; abgewählte Bereiche entfernen
+                var values = takeAll ? new Dictionary<string, JsonElement>() : new Dictionary<string, JsonElement>(profile.Values);
+                foreach (var (key, value) in CaptureProfileValues(takeAll ? groups : added)) values[key] = value;
+                var keep = ProfileGroups.Where(g => groups.Contains(g.Key)).SelectMany(g => g.Props).ToHashSet();
+                foreach (string key in values.Keys.Where(k => !keep.Contains(k)).ToList()) values.Remove(key);
+
+                profile.Name = text;
+                profile.Icon = icon;
+                profile.Groups = groups;
+                profile.Values = values;
+                profile.PowerPlan = groups.Contains("power") ? plan : string.Empty;
+                if (isNew) settings.Profiles.Add(profile);
+                SaveSettings();
+                dialog.DialogResult = true;
+            };
+
+            dialog.Loaded += (s, e) => name.Focus();
+            dialog.ShowDialog();
+            RenderProfiles();
+        }
+
+        // ───────── Infobereich ─────────
+
+        private void AddTrayProfilesMenu(Forms.ContextMenuStrip menu)
+        {
+            trayProfilesItem = new Forms.ToolStripMenuItem(Loc.T("Profil wechseln"));
+            if (trayProfilesItem.DropDown is Forms.ToolStripDropDownMenu dropDown)
+            {
+                dropDown.Renderer = menu.Renderer;
+                dropDown.BackColor = menu.BackColor;
+                dropDown.ForeColor = menu.ForeColor;
+                dropDown.ShowImageMargin = false;
+                dropDown.ShowCheckMargin = true;
+            }
+            menu.Items.Add(trayProfilesItem);
+            menu.Opening += (s, e) => RefreshTrayProfiles();
+        }
+
+        private void RefreshTrayProfiles()
+        {
+            if (trayProfilesItem == null) return;
+            trayProfilesItem.Text = Loc.T("Profil wechseln");
+            trayProfilesItem.DropDownItems.Clear();
+            foreach (var item in settings.Profiles)
+            {
+                var profile = item;
+                var entry = new Forms.ToolStripMenuItem(profile.Icon + "  " + profile.Name) { Checked = profile.Id == settings.ActiveProfileId };
+                entry.Click += (s, e) => ActivateProfileManually(profile);
+                trayProfilesItem.DropDownItems.Add(entry);
+            }
+            trayProfilesItem.Visible = settings.Profiles.Count > 0;
         }
 
         private void InitExtras15()
