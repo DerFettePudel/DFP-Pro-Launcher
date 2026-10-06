@@ -1867,6 +1867,9 @@ namespace Game_launcher
                 settings.MusicService = musicService;
                 SaveSettings();
             }
+
+            // Schwebende Leiste: Rahmen auf das Logo des laufenden Dienstes setzen
+            if (IsBottomNav) RenderDockExtras();
         }
 
         private async Task EnsureMusicViewAsync()
@@ -1895,6 +1898,8 @@ namespace Game_launcher
                 view.CoreWebView2.Settings.AreDevToolsEnabled = false;
                 view.CoreWebView2.Settings.IsStatusBarEnabled = false;
                 view.CoreWebView2.DocumentTitleChanged += (s, e) => UpdateNowPlaying(view.CoreWebView2.DocumentTitle);
+                // Läuft gerade Ton? Damit zeigt der Play/Pause-Knopf der schwebenden Leiste immer das Richtige
+                view.CoreWebView2.IsDocumentPlayingAudioChanged += (s, e) => OnMusicPlayingChanged(view.CoreWebView2.IsDocumentPlayingAudio);
 
                 RenderSidebarExtras();
             }
@@ -1989,6 +1994,7 @@ namespace Game_launcher
             MusicPanel.Visibility = Visibility.Collapsed;
             nowPlaying = string.Empty;
             musicLoadedService = string.Empty;
+            musicIsPlaying = false;
 
             try
             {

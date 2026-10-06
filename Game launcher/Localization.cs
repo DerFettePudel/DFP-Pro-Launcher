@@ -2164,6 +2164,7 @@ Rechts || Right || 右侧 || Derecha || Droite || Direita || Справа || 右
 Unten (schwebend) || Bottom (floating) || 底部（悬浮） || Abajo (flotante) || En bas (flottante) || Embaixo (flutuante) || Внизу (плавающая) || 下（フローティング）
 Streamer-Modus ist an. Klicken zum Ausschalten || Streamer mode is on. Click to turn it off || 主播模式已开启。点击关闭 || El modo streamer está activado. Haz clic para desactivarlo || Le mode streamer est activé. Clique pour le désactiver || O modo streamer está ligado. Clique para desligar || Режим стримера включён. Нажмите, чтобы выключить || 配信者モードがオンです。クリックでオフ
 Seitenleiste || Sidebar || 侧边栏 || Barra lateral || Barre latérale || Barra lateral || Боковая панель || サイドバー
+＋ Programm zum Schnellstart hinzufügen || ＋ Add program to quick launch || ＋ 添加程序到快速启动 || ＋ Añadir programa al inicio rápido || ＋ Ajouter un programme au lancement rapide || ＋ Adicionar programa ao início rápido || ＋ Добавить программу в быстрый запуск || ＋ クイック起動にプログラムを追加
 """;
     }
 }

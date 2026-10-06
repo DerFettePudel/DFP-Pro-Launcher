@@ -799,8 +799,8 @@ namespace Game_launcher
         private void InitExtras22()
         {
             // Rechtsklick auf die schwebende Leiste: dasselbe Menü wie auf der Seitenleiste
-            NavDock.ContextMenu = BuildNavMenu(null);
-            NavDock.ContextMenuOpening += (s, e) => NavDock.ContextMenu = BuildNavMenu(null);
+            NavDock.ContextMenu = BuildDockMenu();
+            NavDock.ContextMenuOpening += (s, e) => NavDock.ContextMenu = BuildDockMenu();
 
             // Breite der schwebenden Leiste an das Fenster anpassen (sie verkleinert sich bei schmalen Fenstern)
             RootGrid.SizeChanged += (s, e) => NavDock.MaxWidth = Math.Max(320, RootGrid.ActualWidth - 40);
@@ -810,43 +810,102 @@ namespace Game_launcher
             AttachDockHover(DockStreamBadge);
         }
 
-        /// <summary>Hinweis-Blase im Launcher-Design statt Windows-Tooltip (unten mit Pfeil, an der Seitenleiste daneben).</summary>
+        /// <summary>Hinweis-Blase im Launcher-Design statt Windows-Tooltip (unten mittig über dem Symbol mit Pfeil, an der Seitenleiste daneben).</summary>
         private System.Windows.Controls.ToolTip MakeNavToolTip(object content, bool dock)
         {
             var tip = new System.Windows.Controls.ToolTip { Content = content };
             if (TryFindResource(dock ? "DockToolTip" : "SideToolTip") is Style style) tip.Style = style;
-            if (!dock)
+            if (dock)
+            {
+                // Mittig über dem Symbol, mit etwas Luft für das beim Drüberfahren angehobene Symbol
+                tip.Placement = System.Windows.Controls.Primitives.PlacementMode.Custom;
+                tip.CustomPopupPlacementCallback = (popupSize, targetSize, offset) => new[]
+                {
+                    new System.Windows.Controls.Primitives.CustomPopupPlacement(
+                        new System.Windows.Point((targetSize.Width - popupSize.Width) / 2, -popupSize.Height - 6),
+                        System.Windows.Controls.Primitives.PopupPrimaryAxis.Horizontal)
+                };
+            }
+            else
+            {
                 tip.Placement = NavPosition == "right"
                     ? System.Windows.Controls.Primitives.PlacementMode.Left
                     : System.Windows.Controls.Primitives.PlacementMode.Right;
+            }
             return tip;
         }
 
-        /// <summary>Schnellstart-Knöpfe und Musik als Symbole in der schwebenden Leiste.</summary>
+        /// <summary>Rechtsklick auf die schwebende Leiste: Schnellstart-Programm hinzufügen, dazu das Bereiche-Menü.</summary>
+        private System.Windows.Controls.ContextMenu BuildDockMenu()
+        {
+            var menu = BuildNavMenu(null);
+            if (settings.QuickButtons.Count >= 12) return menu;
+
+            var add = new System.Windows.Controls.MenuItem { Header = Loc.T("＋  Programm zum Schnellstart hinzufügen") };
+            add.Click += (s, e) => AddQuickFromDock();
+            menu.Items.Insert(0, add);
+            menu.Items.Insert(1, new System.Windows.Controls.Separator());
+            return menu;
+        }
+
+        private void AddQuickFromDock()
+        {
+            if (!settings.QuickButtonsEnabled)
+            {
+                // Wer ein Programm hinzufügt, möchte den Schnellstart auch sehen
+                settings.QuickButtonsEnabled = true;
+                SaveSettings();
+            }
+            PickQuickTarget(null);
+            RenderSidebarExtras();
+        }
+
+        /// <summary>Schnellstart-Knöpfe und Musik (Logos der gewählten Dienste, Steuerung) in der schwebenden Leiste.</summary>
         private void RenderDockExtras()
         {
             if (NavDockExtras == null) return;
             NavDockExtras.Children.Clear();
+            dockPlayIcon = dockPauseIcon = null;
 
             if (IsBottomNav)
             {
                 if (settings.QuickButtonsEnabled)
                 {
                     foreach (var button in settings.QuickButtons.ToList())
-                        NavDockExtras.Children.Add(DockifyTile(CreateQuickTile(button), button.Name));
-                    if (settings.QuickButtons.Count < 12)
-                        NavDockExtras.Children.Add(DockifyTile(CreateQuickAddTile(), Loc.T("Programm hinzufügen")));
+                    {
+                        var tile = DockifyTile(CreateQuickTile(button), button.Name);
+                        if (tile.ContextMenu is System.Windows.Controls.ContextMenu menu && settings.QuickButtons.Count < 12)
+                        {
+                            menu.Items.Add(new System.Windows.Controls.Separator());
+                            var add = new System.Windows.Controls.MenuItem { Header = Loc.T("＋  Programm zum Schnellstart hinzufügen") };
+                            add.Click += (s, e) => AddQuickFromDock();
+                            menu.Items.Add(add);
+                        }
+                        NavDockExtras.Children.Add(tile);
+                    }
                 }
 
                 if (settings.MusicPlayer && !SHide(settings.StreamHideMusic))
                 {
-                    NavDockExtras.Children.Add(DockTile("🎵", Loc.T("Musik"), () => OpenMusic(null)));
+                    foreach (var service in ActiveMusicServices())
+                    {
+                        string key = service.Key;
+                        var tile = DockTile(MusicLogo(key, 26), service.Name, () => OpenMusic(key));
+                        if (musicView != null && musicLoadedService == key)
+                        {
+                            // Der gerade laufende Dienst bekommt einen Rahmen in der Akzentfarbe
+                            tile.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
+                            tile.BorderThickness = new Thickness(2);
+                        }
+                        NavDockExtras.Children.Add(tile);
+                    }
+
                     if (musicView != null)
                     {
-                        var controls = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, VerticalAlignment = System.Windows.VerticalAlignment.Center };
-                        controls.Children.Add(DockTile("⏮", Loc.T("Vorheriges Lied"), () => SendMediaKey(0xB1), 34));
-                        controls.Children.Add(DockTile("⏯", Loc.T("Wiedergabe oder Pause"), () => _ = MusicTogglePlayAsync(), 34));
-                        controls.Children.Add(DockTile("⏭", Loc.T("Nächstes Lied"), () => SendMediaKey(0xB0), 34));
+                        var controls = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(4, 0, 0, 0) };
+                        controls.Children.Add(DockTile(ControlIcon("prev"), Loc.T("Vorheriges Lied"), () => SendMediaKey(0xB1), 34));
+                        controls.Children.Add(BuildDockPlayPause());
+                        controls.Children.Add(DockTile(ControlIcon("next"), Loc.T("Nächstes Lied"), () => SendMediaKey(0xB0), 34));
                         musicControls = controls;
                         NavDockExtras.Children.Add(controls);
                     }
@@ -857,7 +916,59 @@ namespace Game_launcher
                 NavDockDivider.Visibility = NavDockExtras.Children.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        private Border DockTile(string icon, string tip, Action click, double size = 40)
+        /// <summary>Steuerungs-Symbole als Vektorgrafik, alle gleich groß (prev, play, pause, next).</summary>
+        private static FrameworkElement ControlIcon(string kind)
+        {
+            var canvas = new Canvas { Width = 16, Height = 16 };
+            var white = System.Windows.Media.Brushes.White;
+
+            System.Windows.Shapes.Rectangle Bar(double left, double top, double width, double height, double radius)
+            {
+                var bar = new System.Windows.Shapes.Rectangle { Width = width, Height = height, RadiusX = radius, RadiusY = radius, Fill = white };
+                Canvas.SetLeft(bar, left);
+                Canvas.SetTop(bar, top);
+                return bar;
+            }
+
+            System.Windows.Shapes.Path Triangle(string data, double stroke) => new()
+            {
+                Data = Geometry.Parse(data),
+                Fill = white,
+                Stroke = white,
+                StrokeThickness = stroke,
+                StrokeLineJoin = PenLineJoin.Round
+            };
+
+            switch (kind)
+            {
+                case "prev":
+                    canvas.Children.Add(Bar(2.5, 3, 2.2, 10, 0.9));
+                    canvas.Children.Add(Triangle("M13.5,3.2 L5.6,8 L13.5,12.8 Z", 1.2));
+                    break;
+                case "next":
+                    canvas.Children.Add(Triangle("M2.5,3.2 L10.4,8 L2.5,12.8 Z", 1.2));
+                    canvas.Children.Add(Bar(11.3, 3, 2.2, 10, 0.9));
+                    break;
+                case "pause":
+                    canvas.Children.Add(Bar(3.6, 2.6, 3.2, 10.8, 1.1));
+                    canvas.Children.Add(Bar(9.2, 2.6, 3.2, 10.8, 1.1));
+                    break;
+                default:   // play
+                    canvas.Children.Add(Triangle("M4.6,2.8 L13.2,8 L4.6,13.2 Z", 1.4));
+                    break;
+            }
+
+            return new Viewbox
+            {
+                Width = 15,
+                Height = 15,
+                Child = canvas,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center
+            };
+        }
+
+        private Border DockTile(FrameworkElement content, string tip, Action click, double size = 40)
         {
             var tile = new Border
             {
@@ -865,22 +976,141 @@ namespace Game_launcher
                 Height = size,
                 CornerRadius = new CornerRadius(12),
                 Background = MakeBrush("#1AFFFFFF"),
+                BorderBrush = System.Windows.Media.Brushes.Transparent,
                 Cursor = System.Windows.Input.Cursors.Hand,
                 VerticalAlignment = System.Windows.VerticalAlignment.Center,
-                Child = new TextBlock
-                {
-                    Text = icon,
-                    FontSize = size * 0.5,
-                    FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
-                    Foreground = System.Windows.Media.Brushes.White,
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
-                    VerticalAlignment = System.Windows.VerticalAlignment.Center
-                }
+                Child = content
             };
             tile.MouseEnter += (s, e) => tile.Background = MakeBrush("#33FFFFFF");
             tile.MouseLeave += (s, e) => tile.Background = MakeBrush("#1AFFFFFF");
             tile.MouseLeftButtonUp += (s, e) => click();
             return DockifyTile(tile, tip);
+        }
+
+        // ───────── Play/Pause: zeigt immer den passenden Knopf, mit Übergang ─────────
+
+        private FrameworkElement? dockPlayIcon, dockPauseIcon;
+        private bool musicIsPlaying;
+
+        private Border BuildDockPlayPause()
+        {
+            dockPlayIcon = ControlIcon("play");
+            dockPauseIcon = ControlIcon("pause");
+            foreach (var icon in new[] { dockPlayIcon, dockPauseIcon })
+            {
+                icon.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
+                icon.RenderTransform = new TransformGroup { Children = { new ScaleTransform(1, 1), new RotateTransform(0) } };
+            }
+            var stack = new Grid { Children = { dockPlayIcon, dockPauseIcon } };
+            try { musicIsPlaying = musicView?.CoreWebView2?.IsDocumentPlayingAudio ?? false; }
+            catch { musicIsPlaying = false; }
+            ShowPlayPause(musicIsPlaying, false);
+
+            var tile = DockTile(stack, Loc.T("Wiedergabe oder Pause"), () =>
+            {
+                // Sofort umschalten, die echte Meldung des Players bestätigt es kurz danach
+                ShowPlayPause(!musicIsPlaying, true);
+                musicIsPlaying = !musicIsPlaying;
+                _ = MusicTogglePlayAsync();
+            }, 34);
+            return tile;
+        }
+
+        /// <summary>Wird vom Musik-Player gemeldet, sobald Ton startet oder stoppt.</summary>
+        private void OnMusicPlayingChanged(bool playing)
+        {
+            if (playing == musicIsPlaying) return;   // passt schon (zum Beispiel nach dem eigenen Klick)
+            musicIsPlaying = playing;
+            ShowPlayPause(playing, true);
+        }
+
+        private void ShowPlayPause(bool playing, bool animate)
+        {
+            if (dockPlayIcon == null || dockPauseIcon == null) return;
+
+            // Läuft Musik, zeigt der Knopf „Pause“, sonst „Weiter“
+            var show = playing ? dockPauseIcon : dockPlayIcon;
+            var hide = playing ? dockPlayIcon : dockPauseIcon;
+
+            if (!animate || !settings.HoverAnimations || settings.PerformanceMode)
+            {
+                show.Opacity = 1;
+                hide.Opacity = 0;
+                return;
+            }
+
+            void Morph(FrameworkElement icon, bool appear)
+            {
+                var group = (TransformGroup)icon.RenderTransform;
+                var scale = (ScaleTransform)group.Children[0];
+                var rotate = (RotateTransform)group.Children[1];
+                var duration = TimeSpan.FromMilliseconds(appear ? 320 : 180);
+                var ease = appear
+                    ? (IEasingFunction)new BackEase { Amplitude = 0.6, EasingMode = EasingMode.EaseOut }
+                    : new CubicEase { EasingMode = EasingMode.EaseIn };
+
+                icon.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(appear ? 1 : 0, TimeSpan.FromMilliseconds(appear ? 200 : 150)));
+                var size = new DoubleAnimation(appear ? 0.4 : 1, appear ? 1 : 0.4, duration) { EasingFunction = ease };
+                scale.BeginAnimation(ScaleTransform.ScaleXProperty, size);
+                scale.BeginAnimation(ScaleTransform.ScaleYProperty, size);
+                rotate.BeginAnimation(RotateTransform.AngleProperty, new DoubleAnimation(appear ? -90 : 0, appear ? 0 : 90, duration) { EasingFunction = ease });
+            }
+
+            Morph(hide, false);
+            Morph(show, true);
+        }
+
+        // ───────── Logos der Musikdienste (als Vektorgrafik, ohne Bilddateien) ─────────
+
+        private static FrameworkElement MusicLogo(string key, double size)
+        {
+            var canvas = new Canvas { Width = 26, Height = 26 };
+            System.Windows.Media.Brush Fill(string hex) => MakeBrush(hex);
+
+            switch (key)
+            {
+                case "spotify":
+                    canvas.Children.Add(new System.Windows.Shapes.Ellipse { Width = 26, Height = 26, Fill = Fill("#1DB954") });
+                    foreach (var (data, thickness) in new[]
+                    {
+                        ("M6.2,9.6 C10.4,8.1 15.6,8.4 19.9,10.6", 2.4),
+                        ("M7.1,13.3 C10.6,12.2 14.9,12.5 18.5,14.2", 2.0),
+                        ("M8.0,16.8 C10.9,16.0 14.2,16.2 17.0,17.5", 1.7)
+                    })
+                    {
+                        canvas.Children.Add(new System.Windows.Shapes.Path
+                        {
+                            Data = Geometry.Parse(data),
+                            Stroke = Fill("#121212"),
+                            StrokeThickness = thickness,
+                            StrokeStartLineCap = PenLineCap.Round,
+                            StrokeEndLineCap = PenLineCap.Round
+                        });
+                    }
+                    break;
+
+                case "ytmusic":
+                    canvas.Children.Add(new System.Windows.Shapes.Ellipse { Width = 26, Height = 26, Fill = Fill("#FF0033") });
+                    var ring = new System.Windows.Shapes.Ellipse { Width = 15, Height = 15, Stroke = System.Windows.Media.Brushes.White, StrokeThickness = 1.6 };
+                    Canvas.SetLeft(ring, 5.5);
+                    Canvas.SetTop(ring, 5.5);
+                    canvas.Children.Add(ring);
+                    canvas.Children.Add(new System.Windows.Shapes.Path { Data = Geometry.Parse("M11.2,9.6 L17,13 L11.2,16.4 Z"), Fill = System.Windows.Media.Brushes.White });
+                    break;
+
+                default:   // Apple Music
+                    var gradient = new LinearGradientBrush(System.Windows.Media.Color.FromRgb(0xFA, 0x58, 0x6A), System.Windows.Media.Color.FromRgb(0xFB, 0x23, 0x3B), 90);
+                    gradient.Freeze();
+                    canvas.Children.Add(new System.Windows.Shapes.Rectangle { Width = 26, Height = 26, RadiusX = 6.5, RadiusY = 6.5, Fill = gradient });
+                    canvas.Children.Add(new System.Windows.Shapes.Path
+                    {
+                        Data = Geometry.Parse("M10.2,8.2 L17.4,6.6 L17.4,15.6 A2.3,1.9 0 1 1 16.0,13.9 L16.0,9.4 L11.6,10.4 L11.6,17.2 A2.3,1.9 0 1 1 10.2,15.5 Z"),
+                        Fill = System.Windows.Media.Brushes.White
+                    });
+                    break;
+            }
+
+            return new Viewbox { Width = size, Height = size, Child = canvas, HorizontalAlignment = System.Windows.HorizontalAlignment.Center, VerticalAlignment = System.Windows.VerticalAlignment.Center };
         }
 
         /// <summary>Macht eine Kachel passend für die schwebende Leiste: Abstand, Hinweis-Blase und Hover-Effekt.</summary>
