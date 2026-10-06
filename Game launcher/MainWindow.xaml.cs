@@ -395,6 +395,10 @@ namespace Game_launcher
         public Dictionary<string, YearStat> YearStats { get; set; } = new();        // Schlüssel: Jahr, zum Beispiel "2026"
         public DateTime? YearStatsSince { get; set; }
         public bool DownloadDoneNotify { get; set; } = true;
+
+        // Fehlerbericht und Beta-Kanal
+        public bool ErrorReports { get; set; } = true;
+        public bool BetaUpdates { get; set; }
     }
 
     /// <summary>Gespeicherter Filter aus kombinierbaren Regeln (alle aktiven Regeln müssen passen).</summary>
@@ -2815,6 +2819,23 @@ Download fertig || Download complete || 下载完成 || Descarga completada || T
 „{0}“ ist fertig. || “{0}” is ready. || “{0}”已完成。 || «{0}» está listo. || « {0} » est prêt. || “{0}” está pronto. || «{0}» готова. || 「{0}」の準備ができました。
 Meldung, wenn ein Download fertig ist || Notify when a download is complete || 下载完成时提醒 || Avisar cuando termine una descarga || Prévenir quand un téléchargement est terminé || Avisar quando um download terminar || Сообщать о завершении загрузки || ダウンロード完了時に通知
 Sagt Bescheid, sobald Steam oder Epic Games ein Spiel fertig geladen hat, auch wenn der Launcher im Hintergrund läuft. Im Streamer-Modus bleibt die Meldung stumm, wenn Meldungen dort stumm geschaltet sind. || Lets you know as soon as Steam or Epic Games has finished downloading a game, even when the launcher runs in the background. In streamer mode the notice stays silent if notices are muted there. || Steam 或 Epic Games 下载完游戏后会立即提醒你，即使启动器在后台运行。在主播模式下，如果提示已静音，此提醒也不会显示。 || Te avisa en cuanto Steam o Epic Games termina de descargar un juego, aunque el launcher esté en segundo plano. En el modo streamer no se muestra si los avisos están silenciados. || Te prévient dès que Steam ou Epic Games a fini de télécharger un jeu, même si le launcher tourne en arrière-plan. En mode streamer, le message reste muet si les notifications y sont coupées. || Avisa assim que o Steam ou a Epic Games terminar de baixar um jogo, mesmo com o launcher em segundo plano. No modo streamer o aviso fica mudo se os avisos estiverem silenciados. || Сообщает, как только Steam или Epic Games докачали игру, даже если лаунчер работает в фоне. В режиме стримера сообщение не показывается, если уведомления там отключены. || Steam や Epic Games のダウンロードが終わると、ランチャーがバックグラウンドでもお知らせします。配信者モードで通知をミュートしている場合は表示されません。
+
+# ───────── Fehlerbericht und Beta-Kanal ─────────
+Vorabversionen erhalten || Get pre-release versions || 接收预览版 || Recibir versiones preliminares || Recevoir les préversions || Receber versões prévias || Получать предварительные версии || プレリリース版を受け取る
+Bekommt neue Funktionen früher, dafür können noch Fehler drin sein. Schaltest du es wieder aus, bleibst du auf der Vorabversion, bis die nächste normale Version erscheint. || Get new features earlier, but they may still contain bugs. If you turn it off again, you stay on the pre-release until the next regular version comes out. || 更早获得新功能，但可能仍有错误。再次关闭后，你会停留在预览版上，直到下一个正式版本发布。 || Recibes las novedades antes, aunque aún pueden tener errores. Si lo desactivas, te quedas en la versión preliminar hasta que salga la siguiente versión normal. || Tu reçois les nouveautés plus tôt, mais elles peuvent encore contenir des erreurs. Si tu le désactives, tu restes sur la préversion jusqu'à la prochaine version normale. || Você recebe novidades antes, mas ainda podem ter erros. Se desligar de novo, fica na versão prévia até sair a próxima versão normal. || Новые функции приходят раньше, но в них ещё могут быть ошибки. Если выключить, вы останетесь на предварительной версии до выхода следующей обычной. || 新機能をいち早く使えますが、まだ不具合がある場合があります。オフに戻すと、次の正式版が出るまでプレリリース版のままです。
+Vorabversion {0} ist verfügbar. || Pre-release {0} is available. || 预览版 {0} 已可用。 || La versión preliminar {0} está disponible. || La préversion {0} est disponible. || A versão prévia {0} está disponível. || Доступна предварительная версия {0}. || プレリリース版 {0} が利用可能です。
+Du bekommst wieder nur normale Versionen. || You will only get regular versions again. || 你将重新只接收正式版本。 || Volverás a recibir solo versiones normales. || Tu ne recevras de nouveau que les versions normales. || Você volta a receber só versões normais. || Теперь снова только обычные версии. || 今後は正式版のみを受け取ります。
+Bei Fehlern einen Fehlerbericht anbieten || Offer an error report when something goes wrong || 出错时提供错误报告 || Ofrecer un informe de errores cuando algo falle || Proposer un rapport d'erreur en cas de problème || Oferecer um relatório de erro quando algo falhar || Предлагать отчёт об ошибке || エラー時にエラーレポートを提案
+Bei einem unerwarteten Fehler fragt der Launcher, ob er einen Bericht an diesen Webhook senden darf. Du siehst vorher genau, was gesendet wird. Pfade mit Benutzernamen, PC-Name und Namen werden entfernt. Ohne deine Zustimmung wird nie etwas gesendet. || After an unexpected error the launcher asks whether it may send a report to this webhook. You see exactly what will be sent beforehand. Paths with user names, the PC name and names are removed. Nothing is ever sent without your consent. || 发生意外错误时，启动器会询问是否可以向此 Webhook 发送报告。发送前你会看到具体内容。包含用户名的路径、电脑名和名字会被移除。未经你同意绝不会发送任何内容。 || Tras un error inesperado, el launcher pregunta si puede enviar un informe a este webhook. Antes ves exactamente qué se envía. Se eliminan las rutas con nombre de usuario, el nombre del PC y los nombres. Nunca se envía nada sin tu permiso. || Après une erreur inattendue, le launcher demande s'il peut envoyer un rapport à ce webhook. Tu vois avant exactement ce qui sera envoyé. Les chemins avec nom d'utilisateur, le nom du PC et les noms sont supprimés. Rien n'est jamais envoyé sans ton accord. || Após um erro inesperado, o launcher pergunta se pode enviar um relatório para este webhook. Antes você vê exatamente o que será enviado. Caminhos com nome de usuário, o nome do PC e nomes são removidos. Nada é enviado sem o seu consentimento. || После непредвиденной ошибки лаунчер спрашивает, можно ли отправить отчёт на этот вебхук. Заранее видно, что именно будет отправлено. Пути с именем пользователя, имя ПК и имена удаляются. Без вашего согласия ничего не отправляется. || 予期しないエラーが起きると、ランチャーはこの Webhook にレポートを送ってよいか確認します。送信内容は事前に確認できます。ユーザー名を含むパス、PC 名、名前は削除されます。同意なしに送信されることはありません。
+Fehlerbericht senden? || Send error report? || 发送错误报告？ || ¿Enviar informe de errores? || Envoyer le rapport d'erreur ? || Enviar relatório de erro? || Отправить отчёт об ошибке? || エラーレポートを送信しますか？
+Im Launcher ist ein unerwarteter Fehler aufgetreten. Möchtest du den Bericht an deinen Discord-Webhook senden? Private Angaben sind entfernt. Das wird gesendet: || An unexpected error occurred in the launcher. Do you want to send the report to your Discord webhook? Private details have been removed. This will be sent: || 启动器发生了意外错误。要将报告发送到你的 Discord Webhook 吗？私人信息已移除。将发送以下内容： || Se ha producido un error inesperado en el launcher. ¿Quieres enviar el informe a tu webhook de Discord? Los datos privados se han eliminado. Esto es lo que se enviará: || Une erreur inattendue s'est produite dans le launcher. Veux-tu envoyer le rapport à ton webhook Discord ? Les informations privées ont été supprimées. Voici ce qui sera envoyé : || Ocorreu um erro inesperado no launcher. Quer enviar o relatório para o seu webhook do Discord? Os dados privados foram removidos. Isto será enviado: || В лаунчере произошла непредвиденная ошибка. Отправить отчёт на ваш вебхук Discord? Личные данные удалены. Будет отправлено: || ランチャーで予期しないエラーが発生しました。レポートを Discord Webhook に送信しますか？個人情報は削除されています。送信される内容:
+Beim letzten Mal wurde der Launcher wegen eines Fehlers beendet. Möchtest du den Bericht an deinen Discord-Webhook senden? Private Angaben sind entfernt. Das wird gesendet: || Last time the launcher was closed because of an error. Do you want to send the report to your Discord webhook? Private details have been removed. This will be sent: || 上次启动器因错误而关闭。要将报告发送到你的 Discord Webhook 吗？私人信息已移除。将发送以下内容： || La última vez el launcher se cerró por un error. ¿Quieres enviar el informe a tu webhook de Discord? Los datos privados se han eliminado. Esto es lo que se enviará: || La dernière fois, le launcher s'est fermé à cause d'une erreur. Veux-tu envoyer le rapport à ton webhook Discord ? Les informations privées ont été supprimées. Voici ce qui sera envoyé : || Da última vez o launcher foi fechado por causa de um erro. Quer enviar o relatório para o seu webhook do Discord? Os dados privados foram removidos. Isto será enviado: || В прошлый раз лаунчер закрылся из-за ошибки. Отправить отчёт на ваш вебхук Discord? Личные данные удалены. Будет отправлено: || 前回、ランチャーはエラーで終了しました。レポートを Discord Webhook に送信しますか？個人情報は削除されています。送信される内容:
+Nicht mehr nachfragen || Don't ask again || 不再询问 || No volver a preguntar || Ne plus demander || Não perguntar de novo || Больше не спрашивать || 今後確認しない
+Nicht senden || Don't send || 不发送 || No enviar || Ne pas envoyer || Não enviar || Не отправлять || 送信しない
+Senden || Send || 发送 || Enviar || Envoyer || Enviar || Отправить || 送信
+Fehlerbericht || Error report || 错误报告 || Informe de errores || Rapport d'erreur || Relatório de erro || Отчёт об ошибке || エラーレポート
+Der Bericht wurde gesendet. Danke! || The report was sent. Thank you! || 报告已发送。谢谢！ || El informe se ha enviado. ¡Gracias! || Le rapport a été envoyé. Merci ! || O relatório foi enviado. Obrigado! || Отчёт отправлен. Спасибо! || レポートを送信しました。ありがとう！
+Der Bericht konnte nicht gesendet werden. || The report could not be sent. || 无法发送报告。 || No se pudo enviar el informe. || Impossible d'envoyer le rapport. || Não foi possível enviar o relatório. || Не удалось отправить отчёт. || レポートを送信できませんでした。
 """;
     }
 
@@ -3414,6 +3435,7 @@ Sagt Bescheid, sobald Steam oder Epic Games ein Spiel fertig geladen hat, auch w
             InitExtras18();
             InitExtras19();
             InitExtras20();
+            InitExtras21();
 
             isLoadingSettings = false;
             RefreshDashboard();
@@ -7276,7 +7298,7 @@ Sagt Bescheid, sobald Steam oder Epic Games ein Spiel fertig geladen hat, auch w
                 Line(Loc.T("Ältere Sicherungsdatei ohne Versionsangabe"), "#9CA3AF");
             }
 
-            bool newerVersion = Version.TryParse(import.AppVersion, out var fileVersion) && CurrentVersion() is Version mine && fileVersion > mine;
+            bool newerVersion = TryParseAppVersion(import.AppVersion, out var fileVersion) && CompareAppVersions(fileVersion, CurrentAppVersion()) > 0;
             if (newerVersion || import.NewerFormat)
                 Line(Loc.T($"Die Datei stammt aus einer neueren Version ({import.AppVersion}). Einstellungen, die diese Version noch nicht kennt, werden übersprungen."), "#F59E0B");
 
@@ -10041,6 +10063,7 @@ Sagt Bescheid, sobald Steam oder Epic Games ein Spiel fertig geladen hat, auch w
             PopulateStreamerExtras();
             PopulateControllerExtras();
             if (ChkDownloadDone != null) ChkDownloadDone.IsChecked = settings.DownloadDoneNotify;
+            PopulateReportAndBeta();
         }
 
         private void UpdateExtraSliderLabels()
@@ -16200,6 +16223,7 @@ Sagt Bescheid, sobald Steam oder Epic Games ein Spiel fertig geladen hat, auch w
         private sealed class UpdateInfo
         {
             public Version Version = new(0, 0);
+            public int Beta;                       // 0 = normale Version, 1 = -beta, 2 = -beta2 ...
             public string Tag = string.Empty;
             public string Notes = string.Empty;
             public string InstallerUrl = string.Empty;
@@ -16213,8 +16237,52 @@ Sagt Bescheid, sobald Steam oder Epic Games ein Spiel fertig geladen hat, auch w
 
         private static string VersionText()
         {
+            var (number, beta) = CurrentAppVersion();
+            return $"{number.Major}.{number.Minor}.{Math.Max(0, number.Build)}" + BetaSuffix(beta);
+        }
+
+        private static string BetaSuffix(int beta) => beta <= 0 ? string.Empty : beta == 1 ? "-beta" : $"-beta{beta}";
+
+        /// <summary>Liest „v1.2.3“, „1.2.3-beta“ oder „1.2.3-beta2+abc“ (Zusatz nach + wird ignoriert).</summary>
+        private static bool TryParseAppVersion(string? text, out (Version Number, int Beta) result)
+        {
+            result = (new Version(0, 0, 0), 0);
+            var match = Regex.Match((text ?? string.Empty).Trim().TrimStart('v', 'V'),
+                @"^(\d+)\.(\d+)(?:\.(\d+))?(?:\.\d+)?(?:-beta(\d*))?(?:\+.*)?$", RegexOptions.IgnoreCase);
+            if (!match.Success) return false;
+
+            int Part(int group) => match.Groups[group].Success && match.Groups[group].Value.Length > 0 ? int.Parse(match.Groups[group].Value, CultureInfo.InvariantCulture) : 0;
+            int beta = match.Value.Contains("-beta", StringComparison.OrdinalIgnoreCase) ? Math.Max(1, Part(4)) : 0;
+            result = (new Version(Part(1), Part(2), Part(3)), beta);
+            return true;
+        }
+
+        /// <summary>Vergleicht zwei Versionen: höhere Nummer gewinnt, bei gleicher Nummer ist die normale Version neuer als jede Vorabversion.</summary>
+        private static int CompareAppVersions((Version Number, int Beta) a, (Version Number, int Beta) b)
+        {
+            int compare = a.Number.CompareTo(b.Number);
+            if (compare != 0) return compare;
+            if (a.Beta == b.Beta) return 0;
+            if (a.Beta == 0) return 1;
+            if (b.Beta == 0) return -1;
+            return a.Beta.CompareTo(b.Beta);
+        }
+
+        /// <summary>Installierte Version samt Beta-Zusatz (aus der beim Bau gesetzten Versionsangabe).</summary>
+        private static (Version Number, int Beta) CurrentAppVersion()
+        {
+            try
+            {
+                string? informational = System.Reflection.Assembly.GetEntryAssembly()?
+                    .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+                    .OfType<System.Reflection.AssemblyInformationalVersionAttribute>()
+                    .FirstOrDefault()?.InformationalVersion;
+                if (TryParseAppVersion(informational, out var parsed)) return parsed;
+            }
+            catch { }
+
             var version = CurrentVersion();
-            return version == null ? "1.0.0" : $"{version.Major}.{version.Minor}.{Math.Max(0, version.Build)}";
+            return (version == null ? new Version(1, 0, 0) : new Version(version.Major, version.Minor, Math.Max(0, version.Build)), 0);
         }
 
         /// <summary>Versionsanzeige: Testversionen aus Visual Studio tragen den Zusatz „Testversion“.</summary>
@@ -16274,7 +16342,11 @@ Sagt Bescheid, sobald Steam oder Epic Games ein Spiel fertig geladen hat, auch w
 
         private async Task<UpdateInfo?> FetchLatestReleaseAsync(string repo)
         {
-            using var request = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Get, $"https://api.github.com/repos/{repo}/releases/latest");
+            // Beta-Kanal: alle Releases durchsehen (auch „Pre-release“), sonst nur die neueste normale Version
+            bool beta = settings.BetaUpdates;
+            string url = beta ? $"https://api.github.com/repos/{repo}/releases?per_page=30" : $"https://api.github.com/repos/{repo}/releases/latest";
+
+            using var request = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Get, url);
             request.Headers.UserAgent.ParseAdd("DFPProLauncher");
             request.Headers.Accept.ParseAdd("application/vnd.github+json");
             using var response = await Http.SendAsync(request);
@@ -16283,10 +16355,24 @@ Sagt Bescheid, sobald Steam oder Epic Games ein Spiel fertig geladen hat, auch w
             using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
             var root = doc.RootElement;
 
-            string tag = GetJsonString(root, "tag_name");
-            if (tag.Length == 0 || !Version.TryParse(tag.TrimStart('v', 'V'), out var version)) return null;
+            if (root.ValueKind != JsonValueKind.Array) return ParseRelease(root, repo);
 
-            var info = new UpdateInfo { Version = version, Tag = tag, Notes = GetJsonString(root, "body"), Repo = repo };
+            UpdateInfo? best = null;
+            foreach (var release in root.EnumerateArray())
+            {
+                if (release.TryGetProperty("draft", out var draft) && draft.ValueKind == JsonValueKind.True) continue;
+                var info = ParseRelease(release, repo);
+                if (info != null && (best == null || CompareAppVersions((info.Version, info.Beta), (best.Version, best.Beta)) > 0)) best = info;
+            }
+            return best;
+        }
+
+        private static UpdateInfo? ParseRelease(JsonElement root, string repo)
+        {
+            string tag = GetJsonString(root, "tag_name");
+            if (tag.Length == 0 || !TryParseAppVersion(tag, out var parsed)) return null;
+
+            var info = new UpdateInfo { Version = parsed.Number, Beta = parsed.Beta, Tag = tag, Notes = GetJsonString(root, "body"), Repo = repo };
 
             if (root.TryGetProperty("assets", out var assets) && assets.ValueKind == JsonValueKind.Array)
             {
@@ -16333,11 +16419,11 @@ Sagt Bescheid, sobald Steam oder Epic Games ein Spiel fertig geladen hat, auch w
                     return false;
                 }
 
-                var current = CurrentVersion();
-                if (current != null && latest.Version > current)
+                if (CompareAppVersions((latest.Version, latest.Beta), CurrentAppVersion()) > 0)
                 {
-                    ShowBanner("update", "⬆", $"Version {latest.Tag} ist verfügbar.", "Jetzt aktualisieren", () => ShowUpdateDialog(latest));
-                    if (manual) TxtUpdateStatus.Text = $"Version {latest.Tag} ist verfügbar.";
+                    string available = latest.Beta > 0 ? Loc.T($"Vorabversion {latest.Tag} ist verfügbar.") : $"Version {latest.Tag} ist verfügbar.";
+                    ShowBanner("update", "⬆", available, "Jetzt aktualisieren", () => ShowUpdateDialog(latest));
+                    if (manual) TxtUpdateStatus.Text = available;
 
                     bool alreadySkipped = settings.SkippedUpdate == latest.Tag;
                     bool alreadyAsked = updatePromptedVersion == latest.Tag;
@@ -16507,7 +16593,7 @@ Sagt Bescheid, sobald Steam oder Epic Games ein Spiel fertig geladen hat, auch w
 
                 var versions = new TextBlock
                 {
-                    Text = $"{VersionText()}   →   {info.Version.Major}.{info.Version.Minor}.{Math.Max(0, info.Version.Build)}",
+                    Text = $"{VersionText()}   →   {info.Version.Major}.{info.Version.Minor}.{Math.Max(0, info.Version.Build)}{BetaSuffix(info.Beta)}",
                     FontSize = 16,
                     FontWeight = FontWeights.SemiBold,
                     Margin = new Thickness(0, 6, 0, 4)
@@ -22762,6 +22848,31 @@ Sagt Bescheid, sobald Steam oder Epic Games ein Spiel fertig geladen hat, auch w
             {
                 StartGameSizeScan(true);
                 ShowToast("📏", "Entwickler", "Die Spielgrößen werden im Hintergrund gemessen.", 4);
+            });
+
+            Group("Fehlerbericht und Updates");
+            Dev("⚠ Fehlerbericht-Vorschau (mit privaten Testdaten)", () =>
+            {
+                var test = new InvalidOperationException(
+                    $"Testfehler: Datei {Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}\\Documents\\spiel.sav von {Environment.UserName} auf {Environment.MachineName}, " +
+                    $"Name {settings.UserName}, Mail test@example.com, OBS 192.168.1.23:4455, Link https://discord.com/api/webhooks/123/abc");
+                ShowErrorReportDialog(BuildErrorReport("Entwickler-Test", test), false);
+            });
+            Dev("💥 Unbehandelten Fehler auslösen", () =>
+            {
+                lastReportPrompt = DateTime.MinValue;
+                Dispatcher.BeginInvoke(new Action(() => throw new InvalidOperationException("Absichtlicher Testfehler aus dem Entwickler-Reiter")));
+            });
+            Dev("🔢 Versionsvergleich prüfen", () =>
+            {
+                bool Newer(string a, string b) => TryParseAppVersion(a, out var x) && TryParseAppVersion(b, out var y) && CompareAppVersions(x, y) > 0;
+                var checks = new (string A, string B, bool Expected)[]
+                {
+                    ("v1.2.4", "1.2.4-beta", true), ("1.2.4-beta2", "1.2.4-beta", true), ("1.2.4-beta", "1.2.3", true),
+                    ("1.2.3", "1.2.4-beta", false), ("1.2.4", "1.2.4", false), ("1.10.0", "1.9.9", true)
+                };
+                var failed = checks.Where(c => Newer(c.A, c.B) != c.Expected).Select(c => $"{c.A} > {c.B}").ToList();
+                Msg(failed.Count == 0 ? $"Alle {checks.Length} Vergleiche stimmen. Installiert: {VersionText()}" : "Falsch: " + string.Join(", ", failed), "Entwickler");
             });
 
             Group("Controller-Akku (Vorschau)");
@@ -29456,6 +29567,264 @@ Sagt Bescheid, sobald Steam oder Epic Games ein Spiel fertig geladen hat, auch w
             if (isLoadingSettings) return;
             settings.DownloadDoneNotify = ChkDownloadDone.IsChecked == true;
             SaveSettings();
+        }
+
+        // ═════════════════════════════ Fehlerbericht und Beta-Kanal ═════════════════════════════
+
+        private static readonly string PendingReportPath = System.IO.Path.Combine(LogDir, "fehlerbericht_offen.txt");
+        private DateTime lastReportPrompt = DateTime.MinValue;
+        private bool reportDialogOpen;
+
+        private void InitExtras21()
+        {
+            var app = System.Windows.Application.Current;
+            if (app != null)
+            {
+                // Zusätzlich zum vorhandenen Protokoll: nach dem Fehler (nicht mittendrin) einen Bericht anbieten
+                app.DispatcherUnhandledException += (s, e) =>
+                {
+                    var error = e.Exception;
+                    Dispatcher.BeginInvoke(new Action(() => OfferErrorReport("Oberfläche", error)), DispatcherPriority.ApplicationIdle);
+                };
+            }
+
+            // Absturz: Der Launcher kann nicht mehr fragen, darum den Bericht für den nächsten Start merken
+            AppDomain.CurrentDomain.UnhandledException += (s, e) => SavePendingReport(BuildErrorReport("Programm (Absturz)", e.ExceptionObject as Exception));
+
+            Loaded += async (s, e) =>
+            {
+                await Task.Delay(8000);
+                OfferPendingReport();
+            };
+        }
+
+        /// <summary>Entfernt private Angaben: Benutzer- und PC-Namen, Pfade im Benutzerordner, Links, E-Mail- und IP-Adressen.</summary>
+        private string SanitizeReport(string text)
+        {
+            try
+            {
+                string profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                if (profile.Length > 3) text = text.Replace(profile, "%USERPROFILE%", StringComparison.OrdinalIgnoreCase);
+                text = Regex.Replace(text, @"[A-Za-z]:\\Users\\[^\\\s""']+", @"C:\Users\<Benutzer>", RegexOptions.IgnoreCase);
+                text = Regex.Replace(text, @"https?://\S+", "<Link>");
+                text = Regex.Replace(text, @"[\w.+\-]+@[\w\-]+\.[\w.\-]+", "<E-Mail>");
+                text = Regex.Replace(text, @"(?<!Version=)(?<![\d.])\b(?:\d{1,3}\.){3}\d{1,3}\b", "<IP>");
+
+                var tokens = new List<string> { Environment.UserName, Environment.MachineName, Environment.UserDomainName, settings.UserName };
+                foreach (string token in tokens.Where(t => !string.IsNullOrWhiteSpace(t) && t.Trim().Length >= 3 && !t.Equals("Gamer", StringComparison.OrdinalIgnoreCase)).Distinct(StringComparer.OrdinalIgnoreCase))
+                    text = Regex.Replace(text, Regex.Escape(token.Trim()), "<privat>", RegexOptions.IgnoreCase);
+            }
+            catch { }
+            return text;
+        }
+
+        private string BuildErrorReport(string source, Exception? error)
+        {
+            var text = new System.Text.StringBuilder();
+            text.AppendLine("DFP Pro Launcher – Fehlerbericht");
+            text.AppendLine($"Version: {VersionText()} | Windows {Environment.OSVersion.Version.Major}.{Environment.OSVersion.Version.Minor} (Build {Environment.OSVersion.Version.Build}) | Sprache: {Loc.Language}");
+            text.AppendLine($"Zeit: {DateTime.Now:yyyy-MM-dd HH:mm:ss} | Bereich: {source}");
+            text.AppendLine();
+
+            int depth = 0;
+            for (var current = error; current != null && depth < 3; current = current.InnerException, depth++)
+            {
+                if (depth > 0) text.AppendLine("--- Ursache ---");
+                text.AppendLine($"{current.GetType().FullName}: {current.Message}");
+                if (!string.IsNullOrEmpty(current.StackTrace)) text.AppendLine(current.StackTrace);
+            }
+            if (error == null) text.AppendLine("(keine Angaben zum Fehler)");
+
+            return SanitizeReport(text.ToString().Trim());
+        }
+
+        private static void SavePendingReport(string report)
+        {
+            try
+            {
+                Directory.CreateDirectory(LogDir);
+                File.WriteAllText(PendingReportPath, report);
+            }
+            catch { }
+        }
+
+        private bool ErrorReportsPossible => settings.ErrorReports && settings.OnlineFeatures && IsDiscordWebhook(settings.DiscordWebhook);
+
+        private void OfferErrorReport(string source, Exception error)
+        {
+            if (!ErrorReportsPossible || reportDialogOpen) return;
+            if ((DateTime.Now - lastReportPrompt).TotalMinutes < 5) return;   // nicht bei jedem Folgefehler fragen
+
+            string report = BuildErrorReport(source, error);
+
+            // Im Controller-Modus oder während eines Spiels nicht stören: beim nächsten Start fragen
+            if (controllerMode || activeSessions.Count > 0)
+            {
+                SavePendingReport(report);
+                return;
+            }
+
+            lastReportPrompt = DateTime.Now;
+            ShowErrorReportDialog(report, false);
+        }
+
+        private void OfferPendingReport()
+        {
+            try
+            {
+                if (!File.Exists(PendingReportPath)) return;
+                string report = File.ReadAllText(PendingReportPath);
+                File.Delete(PendingReportPath);   // nur einmal fragen
+                if (!ErrorReportsPossible || report.Trim().Length == 0) return;
+
+                lastReportPrompt = DateTime.Now;
+                ShowErrorReportDialog(report, true);
+            }
+            catch { }
+        }
+
+        /// <summary>Vorschau mit genau dem Text, der gesendet würde. Gesendet wird nur nach Klick auf „Senden“.</summary>
+        private void ShowErrorReportDialog(string report, bool fromLastRun)
+        {
+            reportDialogOpen = true;
+            try
+            {
+                var dialog = CreateDialog("Fehlerbericht senden?", 660, out var panel);
+
+                panel.Children.Add(new TextBlock
+                {
+                    Text = Loc.T(fromLastRun
+                        ? "Beim letzten Mal wurde der Launcher wegen eines Fehlers beendet. Möchtest du den Bericht an deinen Discord-Webhook senden? Private Angaben sind entfernt. Das wird gesendet:"
+                        : "Im Launcher ist ein unerwarteter Fehler aufgetreten. Möchtest du den Bericht an deinen Discord-Webhook senden? Private Angaben sind entfernt. Das wird gesendet:"),
+                    Foreground = MakeBrush("#D1D5DB"),
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(0, 0, 0, 10)
+                });
+
+                var preview = new System.Windows.Controls.TextBox
+                {
+                    Text = report,
+                    IsReadOnly = true,
+                    AcceptsReturn = true,
+                    TextWrapping = TextWrapping.Wrap,
+                    Height = 260,
+                    FontFamily = new System.Windows.Media.FontFamily("Consolas"),
+                    FontSize = 12,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    VerticalContentAlignment = System.Windows.VerticalAlignment.Top,
+                    Padding = new Thickness(10, 8, 10, 8),
+                    Margin = new Thickness(0, 0, 0, 12)
+                };
+                panel.Children.Add(preview);
+
+                var stop = new System.Windows.Controls.CheckBox { Content = Loc.T("Nicht mehr nachfragen"), Margin = new Thickness(0, 0, 0, 16) };
+                panel.Children.Add(stop);
+
+                bool send = false;
+                var buttons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
+                var cancel = new System.Windows.Controls.Button { Content = Loc.T("Nicht senden"), Margin = new Thickness(0, 0, 10, 0), IsCancel = true, IsDefault = true };
+                var ok = new System.Windows.Controls.Button { Content = Loc.T("Senden"), Padding = new Thickness(26, 8, 26, 8) };
+                ok.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+                ok.Click += (s, e) =>
+                {
+                    send = true;
+                    dialog.DialogResult = true;
+                };
+                buttons.Children.Add(cancel);
+                buttons.Children.Add(ok);
+                panel.Children.Add(buttons);
+
+                dialog.ShowDialog();
+
+                if (stop.IsChecked == true)
+                {
+                    settings.ErrorReports = false;
+                    SaveSettings();
+                    if (ChkErrorReports != null)
+                    {
+                        bool before = isLoadingSettings;
+                        isLoadingSettings = true;
+                        try { ChkErrorReports.IsChecked = false; }
+                        finally { isLoadingSettings = before; }
+                    }
+                }
+                if (send) _ = SendErrorReportAsync(report);
+            }
+            finally
+            {
+                reportDialogOpen = false;
+            }
+        }
+
+        private async Task SendErrorReportAsync(string report)
+        {
+            string url = settings.DiscordWebhook.Trim();
+            if (!IsDiscordWebhook(url)) return;
+
+            // Nachricht auf dem Oberflächen-Thread zusammenbauen, senden im Hintergrund
+            string body = report.Length > 3800 ? report.Substring(0, 3800) + "\n…" : report;
+            var payload = new Dictionary<string, object>
+            {
+                ["username"] = "DFP Pro Launcher",
+                ["embeds"] = new[]
+                {
+                    new Dictionary<string, object>
+                    {
+                        ["title"] = "⚠ Fehlerbericht",
+                        ["description"] = "```\n" + body.Replace("```", "'''") + "\n```",
+                        ["color"] = 0xEF4444,
+                        ["timestamp"] = DateTime.UtcNow.ToString("o")
+                    }
+                }
+            };
+            string json = JsonSerializer.Serialize(payload);
+
+            bool ok = await Task.Run(async () =>
+            {
+                try
+                {
+                    using var content = new System.Net.Http.StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                    using var response = await Http.PostAsync(url, content);
+                    return response.IsSuccessStatusCode;
+                }
+                catch
+                {
+                    return false;
+                }
+            });
+
+            ShowToast(ok ? "✅" : "⚠", "Fehlerbericht", ok ? "Der Bericht wurde gesendet. Danke!" : "Der Bericht konnte nicht gesendet werden.", 5, null, true);
+        }
+
+        private void ChkErrorReports_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+            settings.ErrorReports = ChkErrorReports.IsChecked == true;
+            SaveSettings();
+        }
+
+        private void ChkBetaUpdates_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+            settings.BetaUpdates = ChkBetaUpdates.IsChecked == true;
+            SaveSettings();
+
+            if (settings.BetaUpdates && settings.OnlineFeatures)
+            {
+                TxtUpdateStatus.Text = Loc.T("Suche läuft ...");
+                _ = CheckForUpdateAsync(true);
+            }
+            else
+            {
+                TxtUpdateStatus.Text = settings.BetaUpdates ? string.Empty : Loc.T("Du bekommst wieder nur normale Versionen.");
+            }
+        }
+
+        private void PopulateReportAndBeta()
+        {
+            if (ChkErrorReports == null) return;
+            ChkErrorReports.IsChecked = settings.ErrorReports;
+            ChkBetaUpdates.IsChecked = settings.BetaUpdates;
         }
 
         private void InitExtras15()

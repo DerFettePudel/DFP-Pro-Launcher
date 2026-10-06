@@ -75,19 +75,60 @@ if ($project -and (Get-Command dotnet -ErrorAction SilentlyContinue)) {
 # 3) Version bestimmen
 Step 'Version bestimmen'
 git fetch --tags --quiet 2>$null
-$latest = git tag --list 'v*' --sort=-v:refname | Select-Object -First 1
-if ($latest -match '^v(\d+)\.(\d+)\.(\d+)$') {
-    $next = 'v{0}.{1}.{2}' -f $Matches[1], $Matches[2], ([int]$Matches[3] + 1)
-} else {
+
+# Vorabversion? Sie bekommt den Zusatz -beta und erscheint nur bei Nutzern mit "Vorabversionen erhalten"
+$betaAnswer = Read-Host 'Vorabversion (J/N)? [N]'
+$isBeta = $betaAnswer -match '^[JjYy]'
+
+# Alle Versionen lesen: v1.2.3, v1.2.4-beta, v1.2.4-beta2 ...
+$versions = @(git tag --list 'v*' | ForEach-Object {
+    $found = [regex]::Match($_, '^v(\d+)\.(\d+)\.(\d+)(-beta(\d*))?$')
+    if ($found.Success) {
+        $betaNumber = 0
+        if ($found.Groups[4].Success) { $betaNumber = 1; if ($found.Groups[5].Value) { $betaNumber = [int]$found.Groups[5].Value } }
+        $number = [version]('{0}.{1}.{2}' -f $found.Groups[1].Value, $found.Groups[2].Value, $found.Groups[3].Value)
+        [pscustomobject]@{ Tag = $_; Number = $number; Beta = $betaNumber }
+    }
+})
+
+if ($versions.Count -eq 0) {
+    $latest = '(noch keine)'
     $next = 'v1.0.1'
+    if ($isBeta) { $next = 'v1.0.1-beta' }
+} else {
+    $highest = ($versions | Sort-Object Number -Descending | Select-Object -First 1).Number
+    $latest = ($versions | Sort-Object Number, @{ Expression = { if ($_.Beta -eq 0) { [int]::MaxValue } else { $_.Beta } } } -Descending | Select-Object -First 1).Tag
+    $stableExists = @($versions | Where-Object { $_.Number -eq $highest -and $_.Beta -eq 0 }).Count -gt 0
+    $bumped = 'v{0}.{1}.{2}' -f $highest.Major, $highest.Minor, ($highest.Build + 1)
+    $same = 'v{0}.{1}.{2}' -f $highest.Major, $highest.Minor, $highest.Build
+
+    if ($isBeta) {
+        if ($stableExists) {
+            $next = "$bumped-beta"
+        } else {
+            # Es gibt schon Vorabversionen dieser Nummer: die naechste Vorabversion (-beta2, -beta3 ...)
+            $maxBeta = ($versions | Where-Object { $_.Number -eq $highest } | Measure-Object -Property Beta -Maximum).Maximum
+            $next = "$same-beta$([int]$maxBeta + 1)"
+        }
+    } else {
+        # Normale Version: nach Vorabversionen dieselbe Nummer fertig machen, sonst hochzaehlen
+        if ($stableExists) { $next = $bumped } else { $next = $same }
+    }
 }
+
 Write-Host "Letzte Version auf GitHub: $latest"
 $answer = Read-Host "Neue Version [$next] (Enter = uebernehmen)"
 if ($answer) {
     $next = $answer.Trim()
     if ($next -notmatch '^v') { $next = "v$next" }
 }
+if ($next -notmatch '^v\d+\.\d+\.\d+(-beta\d*)?$') {
+    Fail "Die Version $next hat nicht das richtige Format. Erlaubt sind zum Beispiel v1.2.3 oder v1.2.3-beta."
+}
+if ($isBeta -and $next -notmatch '-beta') { Fail "Du hast Vorabversion gewaehlt, aber $next hat keinen Zusatz -beta." }
+if (-not $isBeta -and $next -match '-beta') { Fail "Du hast keine Vorabversion gewaehlt, aber $next hat den Zusatz -beta." }
 if (git tag --list $next) { Fail "Die Version $next gibt es schon. Waehle eine andere Nummer." }
+if ($isBeta) { Write-Host "Vorabversion: GitHub markiert $next als Pre-release." -ForegroundColor Yellow }
 
 # 4) Text fuer das Update-Fenster
 Step 'Update-Text'

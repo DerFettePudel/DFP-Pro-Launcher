@@ -2207,6 +2207,17 @@
                                         </StackPanel>
                                         <CheckBox x:Name="ChkUpdates" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
                                     </Grid>
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Vorabversionen erhalten" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Bekommt neue Funktionen früher, dafür können noch Fehler drin sein. Schaltest du es wieder aus, bleibst du auf der Vorabversion, bis die nächste normale Version erscheint." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkBetaUpdates" Grid.Column="1" VerticalAlignment="Center" Checked="ChkBetaUpdates_Changed" Unchecked="ChkBetaUpdates_Changed"/>
+                                    </Grid>
                                     <StackPanel Margin="0,0,0,10">
                                         <TextBlock x:Name="TxtVersion" Foreground="White" FontWeight="SemiBold"/>
                                         <TextBlock Text="Updates werden direkt im Launcher heruntergeladen und installiert. Dabei öffnet sich kein Browser." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
@@ -3160,6 +3171,18 @@
                                         </WrapPanel>
                                         <TextBlock x:Name="TxtDiscordStatus" Foreground="#34D399" FontSize="12" TextWrapping="Wrap"/>
                                     </StackPanel>
+
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Bei Fehlern einen Fehlerbericht anbieten" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Bei einem unerwarteten Fehler fragt der Launcher, ob er einen Bericht an diesen Webhook senden darf. Du siehst vorher genau, was gesendet wird. Pfade mit Benutzernamen, PC-Name und Namen werden entfernt. Ohne deine Zustimmung wird nie etwas gesendet." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkErrorReports" Grid.Column="1" VerticalAlignment="Center" Checked="ChkErrorReports_Changed" Unchecked="ChkErrorReports_Changed"/>
+                                    </Grid>
 
                                     <Grid Margin="0,0,0,18">
                                         <Grid.ColumnDefinitions>

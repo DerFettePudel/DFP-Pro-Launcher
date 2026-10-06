@@ -73,6 +73,7 @@ jobs:
         with:
           name: DFP Pro Launcher ${{ github.ref_name }}
           body_path: release_notes.md
+          prerelease: ${{ contains(github.ref_name, '-beta') }}
           files: |
             installer/Output/DFP_Pro_Launcher_Setup.exe
             installer/Output/DFP_Pro_Launcher_Setup.exe.sha256
