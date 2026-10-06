@@ -583,24 +583,47 @@
         </Style>
 
         <!-- ========== Dunkle Kontextmenüs ========== -->
+        <!-- Rechtsklick-Menüs im Launcher-Design: abgerundet, Schatten, Markierung in der Akzentfarbe, sanftes Einblenden -->
         <Style x:Key="DarkContextMenu" TargetType="ContextMenu">
             <Setter Property="Foreground" Value="#E5E7EB"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="HasDropShadow" Value="False"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ContextMenu">
-                        <Border Background="#161B28" BorderBrush="#2A3142" BorderThickness="1" Padding="4">
+                        <Border x:Name="menuRoot" Margin="10,6,14,16" Opacity="0" Background="#F2131722" BorderBrush="#33FFFFFF" BorderThickness="1" CornerRadius="12" Padding="5">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="18" ShadowDepth="4" Direction="270" Opacity="0.55" Color="Black"/>
+                            </Border.Effect>
+                            <Border.RenderTransform>
+                                <TranslateTransform x:Name="menuSlide" Y="-4"/>
+                            </Border.RenderTransform>
                             <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <EventTrigger RoutedEvent="ContextMenu.Opened">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="menuRoot" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.14"/>
+                                        <DoubleAnimation Storyboard.TargetName="menuSlide" Storyboard.TargetProperty="Y" From="-4" To="0" Duration="0:0:0.18">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
             <Style.Resources>
                 <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="Separator">
-                    <Setter Property="Margin" Value="8,4"/>
+                    <Setter Property="Margin" Value="10,5"/>
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="Separator">
-                                <Rectangle Height="1" Fill="#2A3142"/>
+                                <Rectangle Height="1" Fill="#22FFFFFF"/>
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>
@@ -608,31 +631,42 @@
                 <Style TargetType="MenuItem">
                     <Setter Property="Foreground" Value="#E5E7EB"/>
                     <Setter Property="Padding" Value="10,8"/>
+                    <Setter Property="Cursor" Value="Hand"/>
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="MenuItem">
                                 <Grid>
-                                    <Border x:Name="Bd" Background="Transparent" CornerRadius="6" Margin="1" Padding="{TemplateBinding Padding}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="22"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock x:Name="Check" Text="✓" Visibility="Hidden" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
-                                            <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center"/>
-                                            <TextBlock x:Name="Arrow" Grid.Column="2" Text="›" Visibility="Collapsed" Margin="18,0,0,0" FontSize="16" VerticalAlignment="Center"/>
-                                        </Grid>
-                                    </Border>
-                                    <Popup x:Name="PART_Popup" Placement="Right" HorizontalOffset="-2" IsOpen="{TemplateBinding IsSubmenuOpen}" Focusable="False">
-                                        <Border Background="#161B28" BorderBrush="#2A3142" BorderThickness="1" Padding="4">
+                                    <Grid Margin="1">
+                                        <!-- Markierung: Akzentfarbe, halb durchsichtig, mit Strich links -->
+                                        <Border x:Name="Hl" CornerRadius="8" Background="{DynamicResource AccentBrush}" Opacity="0"/>
+                                        <Border x:Name="HlBar" Width="3" CornerRadius="1.5" HorizontalAlignment="Left" Margin="0,7" Background="{DynamicResource AccentBrush}" Opacity="0"/>
+                                        <Border Padding="{TemplateBinding Padding}" Background="Transparent">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="22"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock x:Name="Check" Text="✓" Visibility="Hidden" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+                                                <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center"/>
+                                                <TextBlock x:Name="Arrow" Grid.Column="2" Text="›" Visibility="Collapsed" Margin="18,0,0,0" FontSize="16" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                    <Popup x:Name="PART_Popup" Placement="Right" HorizontalOffset="-6" VerticalOffset="-11" IsOpen="{TemplateBinding IsSubmenuOpen}" Focusable="False" AllowsTransparency="True" PopupAnimation="Fade">
+                                        <Border Margin="6,6,14,16" Background="#F2131722" BorderBrush="#33FFFFFF" BorderThickness="1" CornerRadius="12" Padding="5">
+                                            <Border.Effect>
+                                                <DropShadowEffect BlurRadius="18" ShadowDepth="4" Direction="270" Opacity="0.55" Color="Black"/>
+                                            </Border.Effect>
                                             <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/>
                                         </Border>
                                     </Popup>
                                 </Grid>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsHighlighted" Value="True">
-                                        <Setter TargetName="Bd" Property="Background" Value="#2A3142"/>
+                                        <Setter TargetName="Hl" Property="Opacity" Value="0.22"/>
+                                        <Setter TargetName="HlBar" Property="Opacity" Value="1"/>
+                                        <Setter Property="Foreground" Value="White"/>
                                     </Trigger>
                                     <Trigger Property="IsChecked" Value="True">
                                         <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
@@ -1588,6 +1622,7 @@
                             <StackPanel>
                                 <TextBlock Text="🌡  Temperaturen und Lüfter" Style="{StaticResource SectionTitle}"/>
                                 <TextBlock x:Name="TxtSensorStatus" Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap"/>
+                                <StackPanel x:Name="SensorHelp" Margin="0,10,0,0" Visibility="Collapsed"/>
                                 <StackPanel x:Name="SensorPanel"/>
                             </StackPanel>
                         </Border>
@@ -2240,6 +2275,17 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Taskleiste im Vollbild ausblenden" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Ist der Launcher maximiert, nutzt er den ganzen Bildschirm. Die Windows-Taskleiste erscheint, sobald die Maus an den Rand fährt, an dem sie sonst steht." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkHideTaskbar" Grid.Column="1" VerticalAlignment="Center" Checked="ChkHideTaskbar_Changed" Unchecked="ChkHideTaskbar_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
                                             <TextBlock Text="Fensterposition und -größe merken" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
                                             <TextBlock Text="Beim nächsten Start öffnet sich das Fenster an derselben Stelle." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                         </StackPanel>
@@ -2410,9 +2456,10 @@
                                     <TextBlock Text="Hintergrund und Glas-Effekt" Style="{StaticResource SectionTitle}"/>
                                     <StackPanel Margin="0,0,0,10">
                                         <TextBlock Text="Hintergrundbild" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                        <TextBlock Text="Ein eigenes Bild hinter der ganzen Oberfläche. Unterstützt PNG, JPG und BMP." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        <TextBlock Text="Ein eigenes Bild hinter der ganzen Oberfläche. Unterstützt PNG, JPG und BMP. Nach dem Auswählen legst du den Ausschnitt fest: verschieben und zoomen." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                         <WrapPanel Margin="0,10,0,0">
                                             <Button Content="Hintergrundbild wählen" Margin="0,0,10,10" Click="BtnPickBgImage_Click"/>
+                                            <Button Content="Ausschnitt anpassen" Margin="0,0,10,10" Click="BtnEditBgImage_Click"/>
                                             <Button Content="Bild entfernen" Margin="0,0,10,10" Click="BtnClearBgImage_Click"/>
                                         </WrapPanel>
                                     </StackPanel>
@@ -2725,6 +2772,19 @@
                                         <TextBlock Text="Schriftgröße des Namens neben dem Logo." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                         <Slider x:Name="SliderBrandName" Minimum="12" Maximum="30" TickFrequency="1" IsSnapToTickEnabled="True"
                                         Margin="0,10,0,0" MaxWidth="520" HorizontalAlignment="Left" Width="520" ValueChanged="Slider_Changed"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,0,18">
+                                        <TextBlock Text="Eigenes Logo-Bild" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        <TextBlock Text="Ersetzt das Pudel-Logo oben links durch ein eigenes Bild (PNG, JPG, BMP oder GIF). Danach wählst du den Ausschnitt." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        <WrapPanel Margin="0,10,0,0">
+                                            <Button Content="Bild wählen" Margin="0,0,10,10" Background="{DynamicResource AccentBrush}" Click="BtnBrandImage_Click"/>
+                                            <Button x:Name="BtnBrandImageReset" Content="Original-Logo verwenden" Margin="0,0,10,10" Click="BtnBrandImageReset_Click"/>
+                                        </WrapPanel>
+                                        <WrapPanel x:Name="BrandShapePanel">
+                                            <RadioButton x:Name="ChipLogoCircle" Content="Rund" Tag="circle" GroupName="LogoShape" Style="{StaticResource ChipStyle}" Checked="LogoShape_Checked"/>
+                                            <RadioButton x:Name="ChipLogoRounded" Content="Abgerundet" Tag="rounded" GroupName="LogoShape" Style="{StaticResource ChipStyle}" Checked="LogoShape_Checked"/>
+                                            <RadioButton x:Name="ChipLogoSquare" Content="Eckig" Tag="square" GroupName="LogoShape" Style="{StaticResource ChipStyle}" Checked="LogoShape_Checked"/>
+                                        </WrapPanel>
                                     </StackPanel>
                                     <StackPanel Margin="0,0,0,18">
                                         <TextBlock Text="Logo-Design" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>

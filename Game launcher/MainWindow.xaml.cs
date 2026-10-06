@@ -215,6 +215,7 @@ namespace Game_launcher
             InitExtras20();
             InitExtras21();
             InitExtras22();
+            InitExtras23();
 
             isLoadingSettings = false;
             RefreshDashboard();
@@ -288,18 +289,6 @@ namespace Game_launcher
             if (span.TotalDays < 2) return "gestern";
             if (span.TotalDays < 30) return $"vor {(int)span.TotalDays} Tagen";
             return time.ToString("dd.MM.yyyy");
-        }
-
-        private static string GetGreeting()
-        {
-            int hour = DateTime.Now.Hour;
-            return hour switch
-            {
-                >= 5 and < 11 => "Guten Morgen",
-                >= 11 and < 18 => "Guten Tag",
-                >= 18 and < 23 => "Guten Abend",
-                _ => "Gute Nacht"
-            };
         }
 
         private void OpenShell(string target, string? arguments = null)
@@ -697,10 +686,11 @@ namespace Game_launcher
 
         private Forms.ContextMenuStrip CreateTrayMenu()
         {
+            var accent = GetAccentColor();
             return new Forms.ContextMenuStrip
             {
-                Renderer = new DarkMenuRenderer(),
-                BackColor = System.Drawing.Color.FromArgb(22, 27, 40),
+                Renderer = new DarkMenuRenderer(System.Drawing.Color.FromArgb(accent.R, accent.G, accent.B)),
+                BackColor = System.Drawing.Color.FromArgb(19, 23, 34),
                 ForeColor = System.Drawing.Color.FromArgb(229, 231, 235),
                 ShowImageMargin = false
             };

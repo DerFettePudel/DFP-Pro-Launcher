@@ -184,6 +184,12 @@ namespace Game_launcher
             if (Has(5)) pad |= PadButton.NextTab;
             if (Has(start)) pad |= PadButton.Start;
             if (Has(ResolveLayout() == "xbox" ? 6 : 8)) pad |= PadButton.Select;
+            if (ResolveLayout() != "xbox")
+            {
+                // PlayStation und Nintendo melden L2/R2 (ZL/ZR) als eigene Tasten 6 und 7
+                if (Has(6)) pad |= PadButton.TriggerLeft;
+                if (Has(7)) pad |= PadButton.TriggerRight;
+            }
 
             // Steuerkreuz (Hat-Schalter, Angabe in Hundertstel Grad)
             if (info.dwPOV < 36000)
@@ -1853,7 +1859,7 @@ namespace Game_launcher
             padKeyCol = 0;
             padKeyboardHost.Visibility = Visibility.Visible;
             if (padKeyboardHint != null)
-                padKeyboardHint.Text = $"{PadGlyph("confirm")} {Loc.T("Taste")}   ·   {PadGlyph("back")} {Loc.T("Löschen")}   ·   {PadGlyph("details")} {Loc.T("Leerzeichen")}   ·   {PadGlyph("menu")} {Loc.T("Fertig")}";
+                padKeyboardHint.Text = $"{PadGlyph("confirm")} {Loc.T("Taste")}   ·   {PadGlyph("details")} {Loc.T("Löschen")}   ·   {PadGlyph("favorite")} {Loc.T("Leerzeichen")}   ·   {PadGlyph("back")} {Loc.T("Schließen")}   ·   {PadGlyph("jumpright")} {Loc.T("Fertig")}";
             UpdatePadKeyboard();
         }
 
@@ -1921,13 +1927,11 @@ namespace Game_launcher
                 else if (padKeyCol == 1) DeletePadKey();
                 else ClosePadKeyboard();
             }
-            if ((pressed & PadButton.Details) != 0) TypePadKey(" ");
-            if ((pressed & PadButton.Back) != 0)
-            {
-                if (padSearch.Length == 0) ClosePadKeyboard();
-                else DeletePadKey();
-            }
-            if ((pressed & PadButton.Start) != 0) ClosePadKeyboard();
+            // wie auf der PlayStation: □ löscht, △ Leerzeichen, R2 bestätigt (Fertig), ○ schließt
+            if ((pressed & PadButton.Details) != 0) DeletePadKey();
+            if ((pressed & PadButton.Favorite) != 0) TypePadKey(" ");
+            if ((pressed & PadButton.Back) != 0) ClosePadKeyboard();
+            if ((pressed & (PadButton.Start | PadButton.TriggerRight)) != 0) ClosePadKeyboard();
         }
 
         private void TypePadKey(string text)

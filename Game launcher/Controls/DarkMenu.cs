@@ -19,12 +19,23 @@ using Interop = System.Runtime.InteropServices;
 
 namespace Game_launcher
 {
-    /// <summary>Farben für das dunkle Menü des Infobereich-Symbols.</summary>
+    /// <summary>Farben für das dunkle Menü des Infobereich-Symbols (Markierung und Rahmen in der Akzentfarbe).</summary>
     internal sealed class DarkMenuColors : Forms.ProfessionalColorTable
     {
-        private static readonly System.Drawing.Color Surface = System.Drawing.Color.FromArgb(22, 27, 40);
-        private static readonly System.Drawing.Color Border = System.Drawing.Color.FromArgb(42, 49, 66);
-        private static readonly System.Drawing.Color Highlight = System.Drawing.Color.FromArgb(52, 60, 82);
+        private static readonly System.Drawing.Color Surface = System.Drawing.Color.FromArgb(19, 23, 34);
+        private readonly System.Drawing.Color Border;
+        private readonly System.Drawing.Color Highlight;
+
+        public DarkMenuColors(System.Drawing.Color accent)
+        {
+            // Akzentfarbe mit dem Untergrund mischen: 35 % für die Markierung, 45 % für den Rahmen
+            System.Drawing.Color Mix(double amount) => System.Drawing.Color.FromArgb(
+                (int)(Surface.R + (accent.R - Surface.R) * amount),
+                (int)(Surface.G + (accent.G - Surface.G) * amount),
+                (int)(Surface.B + (accent.B - Surface.B) * amount));
+            Highlight = Mix(0.35);
+            Border = Mix(0.45);
+        }
 
         public override System.Drawing.Color ToolStripDropDownBackground => Surface;
         public override System.Drawing.Color ImageMarginGradientBegin => Surface;
@@ -35,12 +46,20 @@ namespace Game_launcher
         public override System.Drawing.Color MenuItemSelected => Highlight;
         public override System.Drawing.Color MenuItemSelectedGradientBegin => Highlight;
         public override System.Drawing.Color MenuItemSelectedGradientEnd => Highlight;
-        public override System.Drawing.Color SeparatorDark => Border;
-        public override System.Drawing.Color SeparatorLight => Border;
+        public override System.Drawing.Color SeparatorDark => System.Drawing.Color.FromArgb(42, 49, 66);
+        public override System.Drawing.Color SeparatorLight => System.Drawing.Color.FromArgb(42, 49, 66);
+        public override System.Drawing.Color CheckBackground => Highlight;
+        public override System.Drawing.Color CheckSelectedBackground => Highlight;
+        public override System.Drawing.Color CheckPressedBackground => Highlight;
     }
 
     internal sealed class DarkMenuRenderer : Forms.ToolStripProfessionalRenderer
     {
-        public DarkMenuRenderer() : base(new DarkMenuColors()) { }
+        public DarkMenuRenderer() : this(System.Drawing.Color.FromArgb(139, 92, 246)) { }
+
+        public DarkMenuRenderer(System.Drawing.Color accent) : base(new DarkMenuColors(accent))
+        {
+            RoundedEdges = false;
+        }
     }
 }

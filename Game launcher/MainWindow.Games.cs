@@ -3091,23 +3091,7 @@ namespace Game_launcher
                     Msg($"Kopieren fehlgeschlagen:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             });
-            AddMenuItem(menu, "🎨  Als Hintergrundbild verwenden", () =>
-            {
-                try
-                {
-                    Directory.CreateDirectory(SettingsDir);
-                    string target = System.IO.Path.Combine(SettingsDir, "background" + System.IO.Path.GetExtension(shot.FilePath).ToLowerInvariant());
-                    File.Copy(shot.FilePath, target, true);
-                    settings.BackgroundImagePath = target;
-                    loadedBackgroundPath = string.Empty;
-                    SaveSettings();
-                    ApplyViewSettings();
-                }
-                catch (Exception ex)
-                {
-                    Msg($"Hintergrund konnte nicht gesetzt werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            });
+            AddMenuItem(menu, "🎨  Als Hintergrundbild verwenden", () => SetBackgroundFromFile(shot.FilePath));
 
             var tile = new Border
             {
@@ -4261,7 +4245,9 @@ namespace Game_launcher
             }
         }
 
-        private void ChooseCustomCover(GameItem game)
+        private void ChooseCustomCover(GameItem game) => ShowCoverPicker(game);
+
+        private void ChooseCoverFromFile(GameItem game)
         {
             var dialog = new Microsoft.Win32.OpenFileDialog
             {
@@ -4572,6 +4558,428 @@ namespace Game_launcher
             {
                 return null;
             }
+        }
+
+        // ───────── Cover-Auswahl direkt aus SteamGridDB ─────────
+
+        private sealed class SgdbGrid
+        {
+            public string Url { get; init; } = string.Empty;
+            public string Thumb { get; init; } = string.Empty;
+            public int Width { get; init; }
+            public int Height { get; init; }
+            public bool Animated { get; init; }
+        }
+
+        private static List<SgdbGrid> ParseSgdbGrids(string? json)
+        {
+            var list = new List<SgdbGrid>();
+            if (string.IsNullOrEmpty(json)) return list;
+
+            try
+            {
+                using var doc = JsonDocument.Parse(json);
+                if (!doc.RootElement.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Array) return list;
+
+                foreach (var item in data.EnumerateArray())
+                {
+                    string url = GetJsonString(item, "url");
+                    if (url.Length == 0) continue;
+                    string thumb = GetJsonString(item, "thumb");
+                    string mime = GetJsonString(item, "mime");
+                    string ext = GridExtension(url);
+                    list.Add(new SgdbGrid
+                    {
+                        Url = url,
+                        Thumb = thumb.Length > 0 ? thumb : url,
+                        Width = (int)JsonLong(item, "width"),
+                        Height = (int)JsonLong(item, "height"),
+                        Animated = ext is ".gif" or ".webp" or ".apng" || mime.Contains("gif") || mime.Contains("webp")
+                    });
+                }
+            }
+            catch { }
+
+            return list;
+        }
+
+        private static List<(long Id, string Name)> ParseSgdbGames(string? json)
+        {
+            var list = new List<(long, string)>();
+            if (string.IsNullOrEmpty(json)) return list;
+
+            try
+            {
+                using var doc = JsonDocument.Parse(json);
+                if (!doc.RootElement.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Array) return list;
+                foreach (var item in data.EnumerateArray())
+                {
+                    long id = JsonLong(item, "id");
+                    if (id > 0) list.Add((id, GetJsonString(item, "name")));
+                }
+            }
+            catch { }
+
+            return list;
+        }
+
+        /// <summary>Cover-Auswahl: Suche bei SteamGridDB mit Vorschaubildern, ein Klick setzt das Cover. Eigene Datei geht weiterhin.</summary>
+        private void ShowCoverPicker(GameItem game)
+        {
+            var dialog = CreateDialog("Cover auswählen", 940, out var panel);
+            bool closed = false;
+            int searchVersion = 0;
+            dialog.Closed += (s, e) => closed = true;
+
+            panel.Children.Add(new TextBlock { Text = game.Name, Foreground = System.Windows.Media.Brushes.White, FontSize = 20, FontWeight = FontWeights.Bold, TextTrimming = TextTrimming.CharacterEllipsis });
+            panel.Children.Add(new TextBlock
+            {
+                Text = Loc.T("Klicke auf ein Cover, um es zu übernehmen. Die Bilder kommen direkt von SteamGridDB."),
+                Foreground = BrushSubtle,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 4, 0, 14)
+            });
+
+            // Schlüssel fehlt: direkt hier eingeben
+            var keyBox = new Border
+            {
+                Background = MakeBrush("#14FFFFFF"),
+                CornerRadius = new CornerRadius(10),
+                Padding = new Thickness(14),
+                Margin = new Thickness(0, 0, 0, 14)
+            };
+            var keyStack = new StackPanel();
+            keyStack.Children.Add(new TextBlock
+            {
+                Text = Loc.T("Für die Suche brauchst du einen kostenlosen SteamGridDB-Schlüssel. Du findest ihn nach dem Anmelden unter Profil → Einstellungen → API."),
+                Foreground = System.Windows.Media.Brushes.White,
+                TextWrapping = TextWrapping.Wrap
+            });
+            var keyRow = new Grid { Margin = new Thickness(0, 10, 0, 0) };
+            keyRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            keyRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            keyRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            var keyInput = new PasswordBox { Height = 38, VerticalContentAlignment = System.Windows.VerticalAlignment.Center };
+            var keySave = new System.Windows.Controls.Button { Content = Loc.T("Speichern"), Margin = new Thickness(10, 0, 0, 0) };
+            keySave.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            var keyGet = new System.Windows.Controls.Button { Content = Loc.T("Schlüssel holen"), Margin = new Thickness(10, 0, 0, 0) };
+            keyGet.Click += (s, e) =>
+            {
+                try { Process.Start(new ProcessStartInfo("https://www.steamgriddb.com/profile/preferences/api") { UseShellExecute = true }); }
+                catch { }
+            };
+            Grid.SetColumn(keySave, 1);
+            Grid.SetColumn(keyGet, 2);
+            keyRow.Children.Add(keyInput);
+            keyRow.Children.Add(keySave);
+            keyRow.Children.Add(keyGet);
+            keyStack.Children.Add(keyRow);
+            keyBox.Child = keyStack;
+            panel.Children.Add(keyBox);
+
+            // Suche
+            var searchRow = new Grid { Margin = new Thickness(0, 0, 0, 10) };
+            searchRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            searchRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            searchRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            var searchInput = new System.Windows.Controls.TextBox { Text = game.Name, Height = 38, VerticalContentAlignment = System.Windows.VerticalAlignment.Center };
+            var searchButton = new System.Windows.Controls.Button { Content = "🔎  " + Loc.T("Suchen"), Margin = new Thickness(10, 0, 0, 0) };
+            var animatedCheck = new System.Windows.Controls.CheckBox { Content = Loc.T("Auch animierte"), IsChecked = settings.SgdbAnimated, Margin = new Thickness(14, 0, 0, 0), VerticalAlignment = System.Windows.VerticalAlignment.Center };
+            Grid.SetColumn(searchButton, 1);
+            Grid.SetColumn(animatedCheck, 2);
+            searchRow.Children.Add(searchInput);
+            searchRow.Children.Add(searchButton);
+            searchRow.Children.Add(animatedCheck);
+            panel.Children.Add(searchRow);
+
+            var gameChips = new WrapPanel { Margin = new Thickness(0, 0, 0, 6) };
+            panel.Children.Add(gameChips);
+
+            var status = new TextBlock { Foreground = BrushSubtle, Margin = new Thickness(0, 4, 0, 8), TextWrapping = TextWrapping.Wrap };
+            panel.Children.Add(status);
+
+            var grid = new WrapPanel();
+            var scroller = new ScrollViewer
+            {
+                Content = grid,
+                Height = 470,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled
+            };
+            panel.Children.Add(scroller);
+
+            // Knöpfe unten
+            var bottom = new Grid { Margin = new Thickness(0, 16, 0, 0) };
+            var fromFile = new System.Windows.Controls.Button { Content = "📁  " + Loc.T("Aus Datei wählen …"), HorizontalAlignment = System.Windows.HorizontalAlignment.Left };
+            fromFile.Click += (s, e) =>
+            {
+                dialog.Close();
+                ChooseCoverFromFile(game);
+            };
+            var close = new System.Windows.Controls.Button { Content = Loc.T("Abbrechen"), HorizontalAlignment = System.Windows.HorizontalAlignment.Right, IsCancel = true };
+            bottom.Children.Add(fromFile);
+            bottom.Children.Add(close);
+            panel.Children.Add(bottom);
+
+            bool HasKey() => !string.IsNullOrWhiteSpace(settings.SteamGridDbKey);
+            System.Windows.Controls.Primitives.ToggleButton? activeChip = null;
+
+            void ShowGrids(List<SgdbGrid> grids, int version)
+            {
+                if (closed || version != searchVersion) return;
+                grid.Children.Clear();
+                if (grids.Count == 0)
+                {
+                    status.Text = Loc.T("Keine Cover gefunden. Versuche einen anderen Suchbegriff.");
+                    return;
+                }
+
+                status.Text = Loc.T($"{grids.Count} Cover gefunden.");
+                foreach (var item in grids.Take(60))
+                    grid.Children.Add(BuildGridTile(item));
+            }
+
+            FrameworkElement BuildGridTile(SgdbGrid item)
+            {
+                var tile = new Border
+                {
+                    Width = 136,
+                    Height = 204,
+                    CornerRadius = new CornerRadius(10),
+                    Margin = new Thickness(0, 0, 12, 12),
+                    Background = MakeBrush("#1AFFFFFF"),
+                    BorderThickness = new Thickness(2),
+                    BorderBrush = System.Windows.Media.Brushes.Transparent,
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    ToolTip = item.Width > 0 ? $"{item.Width} × {item.Height}" : null
+                };
+                var inner = new Grid();
+                inner.Children.Add(new TextBlock { Text = "…", Foreground = BrushSubtle, HorizontalAlignment = System.Windows.HorizontalAlignment.Center, VerticalAlignment = System.Windows.VerticalAlignment.Center });
+                if (item.Animated)
+                {
+                    var badge = new Border
+                    {
+                        Background = MakeBrush("#CC000000"),
+                        CornerRadius = new CornerRadius(6),
+                        Padding = new Thickness(6, 2, 6, 2),
+                        Margin = new Thickness(6),
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                        VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                        Child = new TextBlock { Text = "▶ " + Loc.T("animiert"), Foreground = System.Windows.Media.Brushes.White, FontSize = 11 }
+                    };
+                    inner.Children.Add(badge);
+                }
+                tile.Child = inner;
+
+                tile.MouseEnter += (s, e) => tile.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
+                tile.MouseLeave += (s, e) => tile.BorderBrush = System.Windows.Media.Brushes.Transparent;
+                tile.MouseLeftButtonUp += async (s, e) =>
+                {
+                    status.Text = Loc.T("Cover wird geladen …");
+                    grid.IsEnabled = false;
+                    string? file = await Task.Run(async () =>
+                    {
+                        try
+                        {
+                            byte[] bytes = await Http.GetByteArrayAsync(item.Url);
+                            string ext = GridExtension(item.Url);
+                            if (ext.Length == 0) ext = ".png";
+                            string temp = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "dfp_cover_" + Guid.NewGuid().ToString("N") + ext);
+                            await File.WriteAllBytesAsync(temp, bytes);
+                            return temp;
+                        }
+                        catch
+                        {
+                            return null;
+                        }
+                    });
+
+                    if (closed) return;
+                    if (file == null)
+                    {
+                        grid.IsEnabled = true;
+                        status.Text = Loc.T("Das Cover konnte nicht geladen werden. Bitte versuche es noch einmal.");
+                        return;
+                    }
+
+                    SetCustomCover(game, file);
+                    try { File.Delete(file); } catch { }
+                    dialog.Close();
+                };
+
+                // Vorschau im Hintergrund laden
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        byte[] bytes = await Http.GetByteArrayAsync(item.Thumb);
+                        Dispatcher.Invoke(() =>
+                        {
+                            if (closed) return;
+                            try
+                            {
+                                var bitmap = new BitmapImage();
+                                bitmap.BeginInit();
+                                bitmap.StreamSource = new MemoryStream(bytes);
+                                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                bitmap.DecodePixelWidth = 280;
+                                bitmap.EndInit();
+                                bitmap.Freeze();
+                                inner.Children.RemoveAt(0);
+                                inner.Children.Insert(0, new Border
+                                {
+                                    CornerRadius = new CornerRadius(8),
+                                    Background = new ImageBrush(bitmap) { Stretch = Stretch.UniformToFill }
+                                });
+                            }
+                            catch
+                            {
+                                if (inner.Children[0] is TextBlock text) text.Text = item.Animated ? "▶" : "?";
+                            }
+                        });
+                    }
+                    catch { }
+                });
+
+                return tile;
+            }
+
+            string GridQuery()
+            {
+                const string common = "dimensions=600x900,342x482,660x930&nsfw=false&humor=false";
+                return animatedCheck.IsChecked == true
+                    ? common + "&types=static,animated"
+                    : common + "&types=static&mimes=image/png,image/jpeg";
+            }
+
+            async Task LoadGrids(string basePath)
+            {
+                int version = ++searchVersion;
+                status.Text = Loc.T("Suche Cover …");
+                grid.Children.Clear();
+                grid.IsEnabled = true;
+                string query = GridQuery();
+                var grids = await Task.Run(async () =>
+                {
+                    try { return ParseSgdbGrids(await SgdbGetAsync($"{basePath}?{query}")); }
+                    catch { return new List<SgdbGrid>(); }
+                });
+                ShowGrids(grids, version);
+            }
+
+            async Task Search()
+            {
+                if (!HasKey()) return;
+                if (!settings.OnlineFeatures)
+                {
+                    status.Text = Loc.T("Die Online-Funktionen sind ausgeschaltet. Du kannst sie in den Einstellungen wieder einschalten.");
+                    return;
+                }
+
+                string term = searchInput.Text.Trim();
+                if (term.Length == 0) return;
+
+                int version = ++searchVersion;
+                status.Text = Loc.T("Suche Cover …");
+                gameChips.Children.Clear();
+                grid.Children.Clear();
+
+                var games = await Task.Run(async () =>
+                {
+                    try { return ParseSgdbGames(await SgdbGetAsync("/search/autocomplete/" + Uri.EscapeDataString(term))); }
+                    catch { return new List<(long Id, string Name)>(); }
+                });
+                if (closed || version != searchVersion) return;
+
+                // Steam-Spiele: erst die Cover zur genauen Steam-Nummer
+                bool steamFirst = game.Source == "Steam" && game.AppId.Length > 0 && string.Equals(term, game.Name, StringComparison.OrdinalIgnoreCase);
+
+                if (games.Count == 0 && !steamFirst)
+                {
+                    status.Text = Loc.T("Kein Spiel mit diesem Namen gefunden. Versuche einen anderen Suchbegriff.");
+                    return;
+                }
+
+                string wanted = NormalizeTitle(term);
+                int preferred = Math.Max(0, games.FindIndex(g => NormalizeTitle(g.Name) == wanted));
+
+                for (int i = 0; i < games.Count && i < 8; i++)
+                {
+                    var entry = games[i];
+                    var chip = new System.Windows.Controls.RadioButton
+                    {
+                        Content = entry.Name,
+                        GroupName = "SgdbGame" + game.GetHashCode(),
+                        Margin = new Thickness(0, 0, 8, 8)
+                    };
+                    if (TryFindResource("ChipStyle") is Style chipStyle) chip.Style = chipStyle;
+                    chip.Checked += async (s, e) =>
+                    {
+                        if (activeChip == chip) return;
+                        activeChip = chip;
+                        await LoadGrids($"/grids/game/{entry.Id}");
+                    };
+                    gameChips.Children.Add(chip);
+                }
+
+                if (steamFirst)
+                {
+                    activeChip = null;
+                    await LoadGrids($"/grids/steam/{game.AppId}");
+                }
+                else if (gameChips.Children.Count > preferred && gameChips.Children[preferred] is System.Windows.Controls.RadioButton first)
+                {
+                    first.IsChecked = true;
+                }
+            }
+
+            void UpdateKeyState()
+            {
+                keyBox.Visibility = HasKey() ? Visibility.Collapsed : Visibility.Visible;
+                searchRow.IsEnabled = HasKey();
+                if (!HasKey()) status.Text = Loc.T("Ohne Schlüssel kannst du ein Cover aus einer Datei wählen.");
+            }
+
+            keySave.Click += async (s, e) =>
+            {
+                string key = keyInput.Password.Trim();
+                if (key.Length == 0) return;
+                settings.SteamGridDbKey = key;
+                SaveSettings();
+                if (TxtSgdbKey != null) TxtSgdbKey.Text = key;
+                UpdateKeyState();
+                await Search();
+            };
+            searchButton.Click += async (s, e) => await Search();
+            searchInput.KeyDown += async (s, e) =>
+            {
+                if (e.Key == System.Windows.Input.Key.Enter)
+                {
+                    e.Handled = true;
+                    await Search();
+                }
+            };
+            animatedCheck.Click += async (s, e) =>
+            {
+                if (activeChip != null)
+                {
+                    var current = activeChip;
+                    activeChip = null;
+                    current.IsChecked = false;
+                    current.IsChecked = true;
+                }
+                else
+                {
+                    await Search();
+                }
+            };
+
+            dialog.Loaded += async (s, e) =>
+            {
+                UpdateKeyState();
+                await Search();
+            };
+            dialog.ShowDialog();
         }
 
         private async void BtnTestSgdb_Click(object sender, RoutedEventArgs e)

@@ -1719,8 +1719,22 @@ namespace Game_launcher
         private sealed class SensorRow
         {
             public string Group { get; set; } = string.Empty;
+            public string Icon { get; set; } = string.Empty;
+            public int Order { get; set; }
+            public string Kind { get; set; } = string.Empty;   // temp | fan | control | power
             public string Name { get; set; } = string.Empty;
             public string Value { get; set; } = string.Empty;
+            public string Max { get; set; } = string.Empty;
+            public double Level { get; set; } = -1;              // 0..1 für den Balken, -1 = kein Balken
+            public bool Hot { get; set; }
+            public bool Warm { get; set; }
+        }
+
+        /// <summary>Was beim Lesen gefunden wurde, für die Hilfe-Hinweise.</summary>
+        private sealed class SensorReport
+        {
+            public List<SensorRow> Rows { get; } = new();
+            public bool CpuFound, CpuTemp, BoardFound, BoardFans;
         }
 
         private void InitSensors()
@@ -1735,22 +1749,43 @@ namespace Game_launcher
             sensorTimer.Start();
         }
 
-        private static string SensorGroupName(LibreHardwareMonitor.Hardware.HardwareType type)
+        private static (string Icon, int Order) SensorGroupStyle(LibreHardwareMonitor.Hardware.HardwareType type)
         {
             switch (type)
             {
                 case LibreHardwareMonitor.Hardware.HardwareType.Cpu:
-                    return "Prozessor";
+                    return ("🧠", 0);
                 case LibreHardwareMonitor.Hardware.HardwareType.GpuNvidia:
                 case LibreHardwareMonitor.Hardware.HardwareType.GpuAmd:
                 case LibreHardwareMonitor.Hardware.HardwareType.GpuIntel:
-                    return "Grafikkarte";
+                    return ("🎮", 1);
+                case LibreHardwareMonitor.Hardware.HardwareType.Motherboard:
+                case LibreHardwareMonitor.Hardware.HardwareType.SuperIO:
+                    return ("🧩", 2);
+                case LibreHardwareMonitor.Hardware.HardwareType.Storage:
+                    return ("💾", 4);
+                case LibreHardwareMonitor.Hardware.HardwareType.Cooler:
+                case LibreHardwareMonitor.Hardware.HardwareType.EmbeddedController:
+                    return ("🌀", 3);
                 default:
-                    return "Mainboard";
+                    return ("🔧", 5);
             }
         }
 
-        private List<SensorRow> ReadSensors()
+        private static bool IsPawnIoInstalled()
+        {
+            try
+            {
+                using var key = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\PawnIO");
+                return key != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private SensorReport ReadSensors()
         {
             if (hardwareMonitor == null)
             {
@@ -1758,48 +1793,88 @@ namespace Game_launcher
                 {
                     IsCpuEnabled = true,
                     IsGpuEnabled = true,
-                    IsMotherboardEnabled = true
+                    IsMotherboardEnabled = true,
+                    IsControllerEnabled = true,
+                    IsStorageEnabled = true
                 };
                 computer.Open();
                 hardwareMonitor = computer;
             }
 
-            var rows = new List<SensorRow>();
+            var report = new SensorReport();
             var snap = new SensorSnapshot();
 
-            void Collect(LibreHardwareMonitor.Hardware.IHardware hardware, string group)
+            void Collect(LibreHardwareMonitor.Hardware.IHardware hardware, string group, string icon, int order, bool board)
             {
-                hardware.Update();
+                try { hardware.Update(); }
+                catch { return; }   // ein einzelnes Gerät darf die ganze Anzeige nicht stören
                 CaptureSnapshot(snap, hardware);
+                bool cpu = hardware.HardwareType == LibreHardwareMonitor.Hardware.HardwareType.Cpu;
+                bool storage = hardware.HardwareType == LibreHardwareMonitor.Hardware.HardwareType.Storage;
                 int taken = 0;
 
                 foreach (var sensor in hardware.Sensors)
                 {
-                    if (!sensor.Value.HasValue) continue;
+                    if (!sensor.Value.HasValue || taken >= 32) continue;
+                    float value = sensor.Value.Value;
+                    if (float.IsNaN(value) || float.IsInfinity(value)) continue;
 
-                    bool temperature = sensor.SensorType == LibreHardwareMonitor.Hardware.SensorType.Temperature;
-                    bool fan = sensor.SensorType == LibreHardwareMonitor.Hardware.SensorType.Fan;
-                    if (!temperature && !fan) continue;
-                    if (fan && sensor.Value.Value < 1) continue;
-                    if (taken >= 8) break;
-
-                    rows.Add(new SensorRow
+                    var row = new SensorRow { Group = group, Icon = icon, Order = order, Name = sensor.Name };
+                    switch (sensor.SensorType)
                     {
-                        Group = group,
-                        Name = sensor.Name,
-                        Value = temperature ? $"{sensor.Value.Value:F0} °C" : $"{sensor.Value.Value:F0} U/min"
-                    });
+                        case LibreHardwareMonitor.Hardware.SensorType.Temperature:
+                            if (value <= 0 || value > 150) continue;   // ungültige Werte (nicht angeschlossene Fühler)
+                            row.Kind = "temp";
+                            row.Value = $"{value:F0} °C";
+                            if (sensor.Max is float tmax && tmax > 0 && tmax <= 150) row.Max = Loc.T($"max. {tmax:F0} °C");
+                            row.Level = Math.Clamp(value / 100.0, 0, 1);
+                            row.Hot = value >= (storage ? 60 : 85);
+                            row.Warm = !row.Hot && value >= (storage ? 50 : 70);
+                            if (cpu) report.CpuTemp = true;
+                            break;
+                        case LibreHardwareMonitor.Hardware.SensorType.Fan:
+                            if (value < 1) continue;   // nicht angeschlossen oder steht still
+                            row.Kind = "fan";
+                            row.Value = $"{value:F0} U/min";
+                            if (sensor.Max is float fmax && fmax >= 1) row.Max = Loc.T($"max. {fmax:F0}");
+                            row.Level = Math.Clamp(value / 3000.0, 0, 1);
+                            if (board) report.BoardFans = true;
+                            break;
+                        case LibreHardwareMonitor.Hardware.SensorType.Control:
+                            row.Kind = "control";
+                            row.Name = sensor.Name + " " + Loc.T("(Steuerung)");
+                            row.Value = $"{value:F0} %";
+                            row.Level = Math.Clamp(value / 100.0, 0, 1);
+                            break;
+                        case LibreHardwareMonitor.Hardware.SensorType.Power:
+                            if (storage || value <= 0) continue;
+                            if (!Regex.IsMatch(sensor.Name, "Package|Total|Power|Board|Core", RegexOptions.IgnoreCase)) continue;
+                            row.Kind = "power";
+                            row.Value = $"{value:F0} W";
+                            break;
+                        default:
+                            continue;
+                    }
+
+                    report.Rows.Add(row);
                     taken++;
                 }
 
-                foreach (var sub in hardware.SubHardware) Collect(sub, group);
+                foreach (var sub in hardware.SubHardware) Collect(sub, group, icon, order, board);
             }
 
             foreach (var hardware in hardwareMonitor.Hardware)
-                Collect(hardware, SensorGroupName(hardware.HardwareType));
+            {
+                var (icon, order) = SensorGroupStyle(hardware.HardwareType);
+                bool board = hardware.HardwareType == LibreHardwareMonitor.Hardware.HardwareType.Motherboard;
+                if (hardware.HardwareType == LibreHardwareMonitor.Hardware.HardwareType.Cpu) report.CpuFound = true;
+                if (board) report.BoardFound = true;
+                string name = string.IsNullOrWhiteSpace(hardware.Name) ? hardware.HardwareType.ToString() : hardware.Name.Trim();
+                Collect(hardware, name, icon, order, board);
+            }
 
             sensorSnap = snap;
-            return rows;
+            return report;
         }
 
         private async Task RefreshSensorsAsync()
@@ -1807,8 +1882,8 @@ namespace Game_launcher
             sensorsBusy = true;
             try
             {
-                var rows = await Task.Run(ReadSensors);
-                RenderSensors(rows);
+                var report = await Task.Run(ReadSensors);
+                RenderSensors(report);
                 UpdateMetricDetails();
             }
             catch (Exception ex)
@@ -1828,9 +1903,13 @@ namespace Game_launcher
             }
         }
 
-        private void RenderSensors(List<SensorRow> rows)
+        private static readonly string[] SensorKindOrder = { "temp", "fan", "control", "power" };
+
+        private void RenderSensors(SensorReport report)
         {
+            var rows = report.Rows;
             SensorPanel.Children.Clear();
+            RenderSensorHelp(report);
 
             if (rows.Count == 0)
             {
@@ -1838,39 +1917,137 @@ namespace Game_launcher
                 return;
             }
 
-            TxtSensorStatus.Text = Loc.T("Aktualisiert alle 2 Sekunden.");
+            int temps = rows.Count(r => r.Kind == "temp"), fans = rows.Count(r => r.Kind == "fan");
+            TxtSensorStatus.Text = Loc.T($"{temps} Temperaturen und {fans} Lüfter · Aktualisiert alle 2 Sekunden.");
 
-            foreach (var group in rows.GroupBy(r => r.Group))
+            foreach (var group in rows.GroupBy(r => r.Group).OrderBy(g => g.First().Order).ThenBy(g => g.Key))
             {
                 SensorPanel.Children.Add(new TextBlock
                 {
-                    Text = Loc.T(group.Key),
-                    Foreground = BrushSubtle,
-                    FontSize = 12,
+                    Text = group.First().Icon + "  " + group.Key,
+                    Foreground = System.Windows.Media.Brushes.White,
+                    FontSize = 13,
                     FontWeight = FontWeights.SemiBold,
-                    Margin = new Thickness(0, 10, 0, 6)
+                    TextTrimming = TextTrimming.CharacterEllipsis,
+                    Margin = new Thickness(0, 14, 0, 6)
                 });
 
-                foreach (var row in group)
-                {
-                    var line = new Grid { Margin = new Thickness(0, 0, 0, 4) };
-                    line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-                    line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-
-                    line.Children.Add(new TextBlock
-                    {
-                        Text = row.Name,
-                        Foreground = System.Windows.Media.Brushes.White,
-                        TextTrimming = TextTrimming.CharacterEllipsis
-                    });
-                    var value = new TextBlock { Text = row.Value, FontWeight = FontWeights.SemiBold, Margin = new Thickness(16, 0, 0, 0) };
-                    value.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
-                    Grid.SetColumn(value, 1);
-                    line.Children.Add(value);
-
-                    SensorPanel.Children.Add(line);
-                }
+                foreach (var row in group.OrderBy(r => Array.IndexOf(SensorKindOrder, r.Kind)))
+                    SensorPanel.Children.Add(BuildSensorLine(row));
             }
+        }
+
+        private FrameworkElement BuildSensorLine(SensorRow row)
+        {
+            string glyph = row.Kind switch { "temp" => "🌡", "fan" => "🌀", "control" => "⚙", _ => "⚡" };
+
+            var line = new Grid { Margin = new Thickness(0, 0, 0, 6) };
+            line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(24) });
+            line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) });
+            line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            line.Children.Add(new TextBlock { Text = glyph, Foreground = BrushSubtle, FontSize = 12, VerticalAlignment = System.Windows.VerticalAlignment.Center });
+
+            var name = new TextBlock
+            {
+                Text = row.Name,
+                Foreground = MakeBrush("#D1D5DB"),
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                ToolTip = row.Name
+            };
+            Grid.SetColumn(name, 1);
+            line.Children.Add(name);
+
+            // kleiner Balken: zeigt auf einen Blick, wie warm oder schnell
+            if (row.Level >= 0)
+            {
+                var track = new Border { Height = 5, CornerRadius = new CornerRadius(3), Background = MakeBrush("#22FFFFFF"), Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                var fill = new Border { Height = 5, CornerRadius = new CornerRadius(3), HorizontalAlignment = System.Windows.HorizontalAlignment.Left, Width = Math.Max(3, 60 * row.Level) };
+                if (row.Hot) fill.Background = MakeBrush("#EF4444");
+                else if (row.Warm) fill.Background = MakeBrush("#F59E0B");
+                else fill.SetResourceReference(Border.BackgroundProperty, "AccentBrush");
+                track.Child = fill;
+                Grid.SetColumn(track, 2);
+                line.Children.Add(track);
+            }
+
+            var value = new TextBlock { Text = row.Value, FontWeight = FontWeights.SemiBold, Margin = new Thickness(12, 0, 0, 0), MinWidth = 70, TextAlignment = TextAlignment.Right, VerticalAlignment = System.Windows.VerticalAlignment.Center };
+            if (row.Hot) value.Foreground = MakeBrush("#EF4444");
+            else if (row.Warm) value.Foreground = MakeBrush("#F59E0B");
+            else value.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
+            Grid.SetColumn(value, 3);
+            line.Children.Add(value);
+
+            var max = new TextBlock { Text = row.Max, Foreground = BrushSubtle, FontSize = 11, Margin = new Thickness(10, 0, 0, 0), MinWidth = 76, TextAlignment = TextAlignment.Right, VerticalAlignment = System.Windows.VerticalAlignment.Center };
+            Grid.SetColumn(max, 4);
+            line.Children.Add(max);
+
+            return line;
+        }
+
+        /// <summary>Erklärt, warum Werte fehlen, und bietet direkt die Lösung an (Adminrechte oder Treiber PawnIO).</summary>
+        private void RenderSensorHelp(SensorReport report)
+        {
+            if (SensorHelp == null) return;
+            SensorHelp.Children.Clear();
+
+            bool admin = IsRunningAsAdmin();
+            bool missing = (report.CpuFound && !report.CpuTemp) || (report.BoardFound && !report.BoardFans) || report.Rows.Count == 0;
+            if (!missing)
+            {
+                SensorHelp.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            string text;
+            System.Windows.Controls.Button? action = null;
+            if (!admin)
+            {
+                text = "Für Prozessor-Temperaturen und die Lüfter am Mainboard braucht der Launcher Administratorrechte.";
+                action = new System.Windows.Controls.Button { Content = Loc.T("Als Administrator neu starten") };
+                action.Click += BtnRestartAdmin_Click;
+            }
+            else if (!IsPawnIoInstalled())
+            {
+                text = "Für Prozessor-Temperaturen und Lüfter braucht Windows den kostenlosen Treiber „PawnIO“. Installiere ihn einmal und starte den Launcher danach neu.";
+                action = new System.Windows.Controls.Button { Content = Loc.T("PawnIO herunterladen") };
+                action.Click += (s, e) =>
+                {
+                    try { Process.Start(new ProcessStartInfo("https://pawnio.eu") { UseShellExecute = true }); }
+                    catch { }
+                };
+            }
+            else if (report.BoardFound && !report.BoardFans)
+            {
+                text = "Dein Mainboard meldet keine Lüfter-Drehzahlen. Manche Mainboards geben sie nur an ihre eigene Software weiter.";
+            }
+            else
+            {
+                text = "Dein Prozessor meldet keine Temperatur. Ein Neustart des PCs hilft oft, nachdem der Treiber installiert wurde.";
+            }
+
+            var box = new Border
+            {
+                Background = MakeBrush("#1AF59E0B"),
+                BorderBrush = MakeBrush("#55F59E0B"),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(10),
+                Padding = new Thickness(12, 10, 12, 10)
+            };
+            var stack = new StackPanel();
+            stack.Children.Add(new TextBlock { Text = "💡 " + Loc.T(text), Foreground = MakeBrush("#FCD34D"), TextWrapping = TextWrapping.Wrap, FontSize = 12 });
+            if (action != null)
+            {
+                action.Margin = new Thickness(0, 10, 0, 0);
+                action.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+                stack.Children.Add(action);
+            }
+            box.Child = stack;
+            SensorHelp.Children.Add(box);
+            SensorHelp.Visibility = Visibility.Visible;
         }
 
         private void ApplySensorSettings()

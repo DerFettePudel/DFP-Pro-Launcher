@@ -486,6 +486,8 @@ namespace Game_launcher
             if (ChkDownloadDone != null) ChkDownloadDone.IsChecked = settings.DownloadDoneNotify;
             PopulateReportAndBeta();
             PopulateNavPosition();
+            if (ChkHideTaskbar != null) ChkHideTaskbar.IsChecked = settings.TaskbarHideMaximized;
+            PopulateBrandImage();
         }
 
         private void UpdateExtraSliderLabels()

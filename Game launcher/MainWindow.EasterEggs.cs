@@ -105,11 +105,106 @@ namespace Game_launcher
             PadButton.Back, PadButton.Confirm
         };
 
+        // Seltene Begrüßungen: ganze Sätze ohne Namen
         private static readonly string[] RareGreetings =
         {
-            "Na, wer da?", "Schön, dass du da bist", "Der Pudel hat dich vermisst", "Level up, Legende",
-            "Neues Spiel, neues Glück", "Zeit zu zocken", "Willkommen im Hauptquartier", "Bereit für ein Abenteuer"
+            "Du schon wieder?", "Ach, du bist's.", "Na endlich!", "Wir haben dich schon erwartet.",
+            "Oh nein, nicht schon wieder du.", "Die Spiele haben schon gewartet.", "Der Pudel hat dich vermisst.",
+            "Ein wilder Gamer erscheint!", "Die Couch ist schon vorgewärmt.", "Was für eine Überraschung … nicht.",
+            "Hast du nichts Besseres zu tun? Gut so.", "Level up, Legende!", "Neues Spiel, neues Glück.",
+            "Zeit zu zocken!", "Willkommen im Hauptquartier.", "Na, wer da?"
         };
+
+        // Begrüßungen spät in der Nacht (23 bis 5 Uhr), {0} = Name
+        private static readonly string[] NightGreetings =
+        {
+            "Noch wach, {0}?", "Nachtschicht, {0}?", "Späte Runde, {0}?", "Psst, {0}, die anderen schlafen schon."
+        };
+
+        private int greetingChoice = -2;          // -2 = noch nicht gewählt, -1 = normale Begrüßung, sonst Index in RareGreetings
+        private int nightGreetingChoice = -1;
+#if DEBUG
+        private bool greetingForceNight;          // nur für den Entwickler-Test
+#else
+        private const bool greetingForceNight = false;
+#endif
+
+        /// <summary>Wählt einmal pro Start, ob es eine seltene Begrüßung gibt (etwa jedes zehnte Mal).</summary>
+        private bool EnsureGreetingChoice()
+        {
+            if (greetingChoice != -2) return false;
+            greetingChoice = EggsOn && random.Next(10) == 0 ? random.Next(RareGreetings.Length) : -1;
+            nightGreetingChoice = random.Next(NightGreetings.Length);
+            return greetingChoice >= 0;
+        }
+
+        /// <summary>
+        /// Begrüßung in zwei Teilen für die Willkommensanimation: kleine Zeile oben und große Zeile.
+        /// Seltene und nächtliche Begrüßungen sind ganze Sätze, darum steht der Name dann nicht extra dahinter.
+        /// </summary>
+        private (string Top, string Big, bool Rare) BuildGreeting()
+        {
+            bool fresh = EnsureGreetingChoice();
+            string name = DisplayUserName();
+
+            if (greetingChoice >= 0)
+            {
+                if (fresh) Dispatcher.BeginInvoke(new Action(() => UnlockSecret("secret_lucky")), DispatcherPriority.ApplicationIdle);
+                return ("🍀", Loc.T(RareGreetings[greetingChoice]), fresh);
+            }
+
+            int hour = DateTime.Now.Hour;
+            if (greetingForceNight || hour >= 23 || hour < 5)
+            {
+                string text = string.Format(NightGreetings[Math.Max(0, nightGreetingChoice)], name);
+                return ("🌙", Loc.T(text), false);
+            }
+
+            string lead = hour switch
+            {
+                >= 5 and < 11 => "Guten Morgen",
+                >= 11 and < 18 => "Guten Tag",
+                _ => "Guten Abend"
+            };
+            return (Loc.T(lead) + ",", name, false);
+        }
+
+        /// <summary>Begrüßung als ein Satz (Startseite).</summary>
+        private string GreetingLine()
+        {
+            var (top, big, _) = BuildGreeting();
+            return top.EndsWith(',') ? $"{top} {big}" : big;
+        }
+
+#if DEBUG
+        private int devGreetingIndex;
+
+        /// <summary>Entwickler-Test: die nächste seltene Begrüßung anzeigen (nacheinander alle).</summary>
+        private void DevNextRareGreeting()
+        {
+            greetingForceNight = false;
+            greetingChoice = devGreetingIndex % RareGreetings.Length;
+            devGreetingIndex++;
+            RefreshDashboard();
+            EggToast("🍀", "Begrüßung", $"{greetingChoice + 1}/{RareGreetings.Length}: " + Loc.T(RareGreetings[greetingChoice]), 5);
+        }
+
+        private void DevNightGreeting()
+        {
+            greetingChoice = -1;
+            greetingForceNight = true;
+            nightGreetingChoice = (nightGreetingChoice + 1) % NightGreetings.Length;
+            RefreshDashboard();
+            EggToast("🌙", "Begrüßung", GreetingLine(), 5);
+        }
+
+        private void DevResetGreeting()
+        {
+            greetingChoice = -1;
+            greetingForceNight = false;
+            RefreshDashboard();
+        }
+#endif
 
         private static readonly (int Hours, string Icon, string Title)[] PlaytimeMilestones =
         {
@@ -659,19 +754,6 @@ namespace Game_launcher
             if (SeenEgg($"owl-{now:yyyyMMdd}")) return;
 
             PlayNightOwl();
-        }
-
-        private string? PickGreeting(out bool rare)
-        {
-            rare = false;
-            if (!EggsOn) return null;
-
-            if (random.Next(50) == 0)
-            {
-                rare = true;
-                return Loc.T(RareGreetings[random.Next(RareGreetings.Length)]);
-            }
-            return null;
         }
 
         private void CheckMilestones()

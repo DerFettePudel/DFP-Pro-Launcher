@@ -181,7 +181,7 @@ namespace Game_launcher
 
             bool play = animate && settings.PageAnimations;
 
-            TxtGreeting.Text = $"{GetGreeting()}, {DisplayUserName()}";
+            TxtGreeting.Text = GreetingLine();
             TxtDate.Text = DateTime.Now.ToString("D", GermanCulture);
 
             int favoriteCount = VisibleGames.Count(g => g.IsFavorite);
@@ -1459,10 +1459,13 @@ namespace Game_launcher
 
             bool reduced = settings.PerformanceMode || !settings.PageAnimations;
 
-            string? specialGreeting = PickGreeting(out bool rareGreeting);
-            WelcomeGreeting.Text = (specialGreeting ?? Loc.T(GetGreeting())) + ",";
-            if (rareGreeting) Dispatcher.BeginInvoke(new Action(() => UnlockSecret("secret_lucky")), DispatcherPriority.ApplicationIdle);
-            WelcomeName.Text = DisplayUserName();
+            var (greetingTop, greetingBig, _) = BuildGreeting();
+            WelcomeGreeting.Text = greetingTop;
+            WelcomeName.Text = greetingBig;
+            WelcomeName.FontSize = greetingBig.Length > 22 ? 36 : 44;   // ganze Sätze etwas kleiner
+            WelcomeName.TextWrapping = TextWrapping.Wrap;
+            WelcomeName.TextAlignment = TextAlignment.Center;
+            WelcomeName.MaxWidth = 960;
             WelcomeLayer.Opacity = 1;
             WelcomeLayer.Visibility = Visibility.Visible;
 

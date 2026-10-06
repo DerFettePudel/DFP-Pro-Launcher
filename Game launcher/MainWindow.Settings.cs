@@ -88,6 +88,9 @@ namespace Game_launcher
             settings.CardAspect = Math.Clamp(settings.CardAspect, 100, 170);
             settings.SidebarWidth = Math.Clamp(settings.SidebarWidth, 200, 340);
             if (settings.SidebarPosition is not ("left" or "right" or "bottom")) settings.SidebarPosition = "left";
+            settings.BrandLogoImage ??= string.Empty;
+            if (settings.BrandLogoShape is not ("circle" or "rounded" or "square")) settings.BrandLogoShape = "circle";
+            settings.BackgroundSourcePath ??= string.Empty;
             settings.NavFontSize = Math.Clamp(settings.NavFontSize, 11, 20);
             settings.NavItemPadding = Math.Clamp(settings.NavItemPadding, 4, 16);
             settings.BrandLogoSize = Math.Clamp(settings.BrandLogoSize, 32, 96);
@@ -629,6 +632,8 @@ namespace Game_launcher
                 ? MakeAlphaBrush(EffectiveBackground(), 0xC8)
                 : MakeBrush(EffectiveBackground(), "#0F111A");
             Resources["AccentBrush"] = MakeBrush(settings.AccentColor, "#8B5CF6");
+            if (System.Windows.Application.Current != null)   // für Rechtsklick-Menüs außerhalb des Fensters (zum Beispiel in Textfeldern)
+                System.Windows.Application.Current.Resources["AccentBrush"] = Resources["AccentBrush"];
             Resources["SidebarBrush"] = MakeAlphaBrush(SidebarBaseColor(), translucent ? (byte)0xD2 : (byte)0xFF);
             ApplyNavBrushes();
 
@@ -871,21 +876,7 @@ namespace Game_launcher
             };
             if (dialog.ShowDialog() != true) return;
 
-            try
-            {
-                Directory.CreateDirectory(SettingsDir);
-                string target = System.IO.Path.Combine(SettingsDir, "background" + System.IO.Path.GetExtension(dialog.FileName).ToLowerInvariant());
-                File.Copy(dialog.FileName, target, true);
-
-                settings.BackgroundImagePath = target;
-                loadedBackgroundPath = string.Empty;
-                SaveSettings();
-                ApplyViewSettings();
-            }
-            catch (Exception ex)
-            {
-                Msg($"Das Bild konnte nicht geladen werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            SetBackgroundFromFile(dialog.FileName);   // danach Ausschnitt wählen
         }
 
         private void BtnClearBgImage_Click(object sender, RoutedEventArgs e)
@@ -1676,6 +1667,7 @@ namespace Game_launcher
         private void ApplyBrand()
         {
             if (BrandLogo == null) return;
+            ApplyBrandImage();
 
             string design = BrandDesigns.ContainsKey(settings.BrandDesign) ? settings.BrandDesign : "original";
             var (ring, chain) = BrandDesigns[design];
@@ -3035,7 +3027,8 @@ namespace Game_launcher
                     var handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
                     if (handle == IntPtr.Zero || !NativeExtras.GetWindowRect(handle, out var rect)) return;
 
-                    var work = Forms.Screen.FromHandle(handle).WorkingArea;
+                    var screen = Forms.Screen.FromHandle(handle);
+                    var work = controllerMode || settings.TaskbarHideMaximized ? screen.Bounds : screen.WorkingArea;   // Vollbild: ganzer Bildschirm
                     var dpi = VisualTreeHelper.GetDpi(this);
 
                     WindowRoot.Margin = new Thickness(
@@ -3724,6 +3717,390 @@ namespace Game_launcher
                 trayProfilesItem.DropDownItems.Add(entry);
             }
             trayProfilesItem.Visible = settings.Profiles.Count > 0;
+        }
+
+        // ───────────────────────────── Bild zuschneiden (Hintergrund und Logo) ─────────────────────────────
+
+        private static BitmapImage LoadFullBitmap(string path)
+        {
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.UriSource = new Uri(path);
+            image.CacheOption = BitmapCacheOption.OnLoad;            // Datei danach nicht gesperrt
+            image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+            image.EndInit();
+            image.Freeze();
+            return image;
+        }
+
+        /// <summary>
+        /// Zeigt das Bild in einem Rahmen mit dem gewünschten Seitenverhältnis: verschieben mit der Maus, zoomen mit Regler oder Mausrad.
+        /// Liefert den Ausschnitt oder null (abgebrochen). useWhole = „Ganzes Bild verwenden“ gewählt.
+        /// </summary>
+        private BitmapSource? ShowImageCropper(string path, double aspect, string title, bool allowWhole, int maxWidth, out bool useWhole)
+        {
+            useWhole = false;
+            BitmapImage source;
+            try
+            {
+                source = LoadFullBitmap(path);
+            }
+            catch (Exception ex)
+            {
+                Msg($"Das Bild konnte nicht geladen werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
+
+            int pixelWidth = source.PixelWidth, pixelHeight = source.PixelHeight;
+            if (pixelWidth < 2 || pixelHeight < 2) return null;
+
+            var dialog = CreateDialog(title, 880, out var panel);
+            panel.Children.Add(new TextBlock
+            {
+                Text = Loc.T("Ziehe das Bild mit der Maus an die gewünschte Stelle. Mit dem Regler oder dem Mausrad zoomst du hinein."),
+                Foreground = BrushSubtle,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 12)
+            });
+
+            // Sichtfenster im gewünschten Seitenverhältnis
+            double viewWidth = 820, viewHeight = viewWidth / aspect;
+            if (viewHeight > 470)
+            {
+                viewHeight = 470;
+                viewWidth = viewHeight * aspect;
+            }
+
+            var image = new System.Windows.Controls.Image { Source = source, Stretch = Stretch.Fill };
+            RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+            var canvas = new Canvas
+            {
+                Width = viewWidth,
+                Height = viewHeight,
+                ClipToBounds = true,
+                Background = MakeBrush("#0B0E16"),
+                Cursor = System.Windows.Input.Cursors.SizeAll
+            };
+            canvas.Children.Add(image);
+            var frame = new Border { BorderThickness = new Thickness(2), Child = canvas, HorizontalAlignment = System.Windows.HorizontalAlignment.Center, Margin = new Thickness(0, 0, 0, 14) };
+            frame.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
+            panel.Children.Add(frame);
+
+            double baseScale = Math.Max(viewWidth / pixelWidth, viewHeight / pixelHeight);
+            double zoom = 1, offsetX, offsetY;
+            {
+                double s0 = baseScale;
+                offsetX = (viewWidth - pixelWidth * s0) / 2;
+                offsetY = (viewHeight - pixelHeight * s0) / 2;
+            }
+
+            void Layout()
+            {
+                double scale = baseScale * zoom;
+                image.Width = pixelWidth * scale;
+                image.Height = pixelHeight * scale;
+                offsetX = Math.Clamp(offsetX, viewWidth - pixelWidth * scale, 0);
+                offsetY = Math.Clamp(offsetY, viewHeight - pixelHeight * scale, 0);
+                Canvas.SetLeft(image, offsetX);
+                Canvas.SetTop(image, offsetY);
+            }
+            Layout();
+
+            // Ziehen
+            System.Windows.Point? dragStart = null;
+            double startX = 0, startY = 0;
+            canvas.MouseLeftButtonDown += (s, e) =>
+            {
+                dragStart = e.GetPosition(canvas);
+                startX = offsetX;
+                startY = offsetY;
+                canvas.CaptureMouse();
+            };
+            canvas.MouseMove += (s, e) =>
+            {
+                if (dragStart is not System.Windows.Point start) return;
+                var now = e.GetPosition(canvas);
+                offsetX = startX + (now.X - start.X);
+                offsetY = startY + (now.Y - start.Y);
+                Layout();
+            };
+            canvas.MouseLeftButtonUp += (s, e) =>
+            {
+                dragStart = null;
+                canvas.ReleaseMouseCapture();
+            };
+
+            // Zoom (bleibt um die Mitte des Sichtfensters)
+            var zoomRow = new Grid { Margin = new Thickness(0, 0, 0, 16) };
+            zoomRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            zoomRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            zoomRow.Children.Add(new TextBlock { Text = "🔍  " + Loc.T("Zoom"), Foreground = System.Windows.Media.Brushes.White, VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0) });
+            var slider = new Slider { Minimum = 1, Maximum = 4, Value = 1, SmallChange = 0.05, LargeChange = 0.25 };
+            Grid.SetColumn(slider, 1);
+            zoomRow.Children.Add(slider);
+            panel.Children.Add(zoomRow);
+
+            slider.ValueChanged += (s, e) =>
+            {
+                double before = baseScale * zoom;
+                double centerX = (viewWidth / 2 - offsetX) / before;
+                double centerY = (viewHeight / 2 - offsetY) / before;
+                zoom = slider.Value;
+                double after = baseScale * zoom;
+                offsetX = viewWidth / 2 - centerX * after;
+                offsetY = viewHeight / 2 - centerY * after;
+                Layout();
+            };
+            canvas.MouseWheel += (s, e) => slider.Value = Math.Clamp(slider.Value + (e.Delta > 0 ? 0.15 : -0.15), slider.Minimum, slider.Maximum);
+
+            // Knöpfe
+            bool confirmed = false, whole = false;
+            var buttons = new Grid();
+            var right = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
+            var cancel = new System.Windows.Controls.Button { Content = Loc.T("Abbrechen"), Margin = new Thickness(0, 0, 10, 0), IsCancel = true };
+            var ok = new System.Windows.Controls.Button { Content = Loc.T("Übernehmen"), Padding = new Thickness(28, 8, 28, 8), IsDefault = true };
+            ok.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            ok.Click += (s, e) =>
+            {
+                confirmed = true;
+                dialog.DialogResult = true;
+            };
+            right.Children.Add(cancel);
+            right.Children.Add(ok);
+            buttons.Children.Add(right);
+            if (allowWhole)
+            {
+                var all = new System.Windows.Controls.Button { Content = Loc.T("Ganzes Bild verwenden"), HorizontalAlignment = System.Windows.HorizontalAlignment.Left };
+                all.Click += (s, e) =>
+                {
+                    whole = true;
+                    dialog.DialogResult = true;
+                };
+                buttons.Children.Add(all);
+            }
+            panel.Children.Add(buttons);
+
+            dialog.ShowDialog();
+            useWhole = whole;
+            if (!confirmed) return null;
+
+            // Ausschnitt in Bildpunkten des Originals
+            double finalScale = baseScale * zoom;
+            int x = (int)Math.Round(-offsetX / finalScale);
+            int y = (int)Math.Round(-offsetY / finalScale);
+            int width = (int)Math.Round(viewWidth / finalScale);
+            int height = (int)Math.Round(viewHeight / finalScale);
+            x = Math.Clamp(x, 0, pixelWidth - 1);
+            y = Math.Clamp(y, 0, pixelHeight - 1);
+            width = Math.Clamp(width, 1, pixelWidth - x);
+            height = Math.Clamp(height, 1, pixelHeight - y);
+
+            BitmapSource result = new CroppedBitmap(source, new Int32Rect(x, y, width, height));
+            if (width > maxWidth)
+            {
+                double factor = (double)maxWidth / width;
+                result = new TransformedBitmap(result, new ScaleTransform(factor, factor));
+            }
+            result.Freeze();
+            return result;
+        }
+
+        private static void SaveBitmap(BitmapSource bitmap, string path, bool jpeg)
+        {
+            BitmapEncoder encoder = jpeg ? new JpegBitmapEncoder { QualityLevel = 92 } : new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(bitmap));
+            using var stream = File.Create(path);
+            encoder.Save(stream);
+        }
+
+        /// <summary>Löscht ältere, vom Launcher erzeugte Dateien eines Musters (zum Beispiel alte Ausschnitte), außer der aktuellen.</summary>
+        private static void DeleteOldGenerated(string pattern, string keep)
+        {
+            try
+            {
+                foreach (string file in Directory.GetFiles(SettingsDir, pattern))
+                {
+                    if (!string.Equals(file, keep, StringComparison.OrdinalIgnoreCase))
+                    {
+                        try { File.Delete(file); } catch { }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        // ───────── Hintergrundbild: Ausschnitt wählen ─────────
+
+        /// <summary>Neues Hintergrundbild: Original sichern, dann Ausschnitt wählen lassen.</summary>
+        private void SetBackgroundFromFile(string file)
+        {
+            try
+            {
+                Directory.CreateDirectory(SettingsDir);
+                string original = System.IO.Path.Combine(SettingsDir, $"background_original_{DateTime.Now:yyyyMMddHHmmss}" + System.IO.Path.GetExtension(file).ToLowerInvariant());
+                File.Copy(file, original, true);
+                if (!EditBackground(original))
+                {
+                    try { File.Delete(original); } catch { }   // abgebrochen: nichts ändern
+                    return;
+                }
+                DeleteOldGenerated("background_original_*", original);
+            }
+            catch (Exception ex)
+            {
+                Msg($"Das Bild konnte nicht geladen werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>Ausschnitt für den Hintergrund wählen. Gibt false zurück, wenn abgebrochen wurde.</summary>
+        private bool EditBackground(string source)
+        {
+            double width = RootGrid.ActualWidth > 0 ? RootGrid.ActualWidth : ActualWidth;
+            double height = RootGrid.ActualHeight > 0 ? RootGrid.ActualHeight : ActualHeight;
+            double aspect = Math.Clamp(width / Math.Max(1, height), 0.5, 4);
+
+            var cropped = ShowImageCropper(source, aspect, "Ausschnitt für den Hintergrund", true, 3840, out bool whole);
+            string target;
+            if (whole)
+            {
+                target = source;
+            }
+            else if (cropped != null)
+            {
+                target = System.IO.Path.Combine(SettingsDir, $"background_crop_{DateTime.Now:yyyyMMddHHmmss}.jpg");
+                SaveBitmap(cropped, target, true);
+            }
+            else
+            {
+                return false;
+            }
+
+            DeleteOldGenerated("background_crop_*", target);
+            settings.BackgroundImagePath = target;
+            settings.BackgroundSourcePath = source;
+            loadedBackgroundPath = string.Empty;
+            SaveSettings();
+            ApplyViewSettings();
+            return true;
+        }
+
+        private void BtnEditBgImage_Click(object sender, RoutedEventArgs e)
+        {
+            string source = File.Exists(settings.BackgroundSourcePath) ? settings.BackgroundSourcePath
+                          : HasBackgroundImage() ? settings.BackgroundImagePath
+                          : string.Empty;
+            if (source.Length == 0)
+            {
+                Msg("Es ist noch kein Hintergrundbild gesetzt. Wähle zuerst eines aus.", "Hintergrundbild");
+                return;
+            }
+
+            try { EditBackground(source); }
+            catch (Exception ex) { Msg($"Das Bild konnte nicht geladen werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error); }
+        }
+
+        // ───────── Eigenes Logo-Bild ─────────
+
+        private bool HasBrandImage => !string.IsNullOrEmpty(settings.BrandLogoImage) && File.Exists(settings.BrandLogoImage);
+
+        /// <summary>Logo oben links: eigenes Bild (rund, abgerundet oder eckig) oder das Pudel-Logo.</summary>
+        private void ApplyBrandImage()
+        {
+            if (BrandLogo == null) return;
+
+            if (!HasBrandImage)
+            {
+                if (BrandLogo.Content is not Viewbox) BrandLogo.Content = FindResource("DfpLogo");
+                return;
+            }
+
+            try
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(settings.BrandLogoImage);
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                bitmap.DecodePixelWidth = 256;
+                bitmap.EndInit();
+                bitmap.Freeze();
+
+                double radius = settings.BrandLogoShape switch { "circle" => 999, "rounded" => 14, _ => 2 };
+                BrandLogo.Content = new Border
+                {
+                    CornerRadius = new CornerRadius(radius),
+                    Background = new ImageBrush(bitmap) { Stretch = Stretch.UniformToFill }
+                };
+            }
+            catch
+            {
+                BrandLogo.Content = FindResource("DfpLogo");
+            }
+        }
+
+        private void BtnBrandImage_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = Loc.T("Logo-Bild wählen"),
+                Filter = Loc.T("Bilder") + " (*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.png;*.jpg;*.jpeg;*.bmp;*.gif"
+            };
+            if (dialog.ShowDialog() != true) return;
+
+            var cropped = ShowImageCropper(dialog.FileName, 1.0, "Ausschnitt für das Logo", false, 512, out _);
+            if (cropped == null) return;
+
+            try
+            {
+                Directory.CreateDirectory(SettingsDir);
+                string target = System.IO.Path.Combine(SettingsDir, $"brand_logo_{DateTime.Now:yyyyMMddHHmmss}.png");
+                SaveBitmap(cropped, target, false);
+                DeleteOldGenerated("brand_logo_*", target);
+
+                settings.BrandLogoImage = target;
+                SaveSettings();
+                ApplyBrand();
+                PopulateBrandImage();
+            }
+            catch (Exception ex)
+            {
+                Msg($"Das Logo konnte nicht gespeichert werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnBrandImageReset_Click(object sender, RoutedEventArgs e)
+        {
+            settings.BrandLogoImage = string.Empty;
+            SaveSettings();
+            ApplyBrand();
+            PopulateBrandImage();
+        }
+
+        private void LogoShape_Checked(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings || sender is not FrameworkElement { Tag: string shape }) return;
+            settings.BrandLogoShape = shape;
+            SaveSettings();
+            ApplyBrand();
+        }
+
+        private void PopulateBrandImage()
+        {
+            if (ChipLogoCircle == null) return;
+            bool before = isLoadingSettings;
+            isLoadingSettings = true;
+            try
+            {
+                ChipLogoCircle.IsChecked = settings.BrandLogoShape == "circle";
+                ChipLogoRounded.IsChecked = settings.BrandLogoShape == "rounded";
+                ChipLogoSquare.IsChecked = settings.BrandLogoShape == "square";
+                BtnBrandImageReset.IsEnabled = HasBrandImage;
+                BrandShapePanel.Visibility = HasBrandImage ? Visibility.Visible : Visibility.Collapsed;
+            }
+            finally
+            {
+                isLoadingSettings = before;
+            }
         }
     }
 }

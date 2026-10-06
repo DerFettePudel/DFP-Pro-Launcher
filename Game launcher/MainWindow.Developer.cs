@@ -130,12 +130,73 @@ namespace Game_launcher
             Dev("👑 Creator-Ei", PlayCreatorEgg);
             Dev("🏆 Meilenstein 100 h", () => PlayMilestone(100));
             Dev("🏆 Meilenstein 1000 h", () => PlayMilestone(1000));
-            Dev("🍀 Seltene Begrüßung", () =>
-            {
-                EggToast("🍀", "Begrüßung", Loc.T(RareGreetings[random.Next(RareGreetings.Length)]), 6);
-                UnlockSecret("secret_lucky");
-            });
             Dev("✨ Willkommensanimation", StartWelcomeAnimation);
+
+            Group("Begrüßungen");
+            Dev("🍀 Seltene Begrüßungen testen (nächste)", DevNextRareGreeting);
+            Dev("🌙 Nacht-Begrüßung testen", DevNightGreeting);
+            Dev("✨ Begrüßung als Animation", () =>
+            {
+                bool before = settings.WelcomeAnimation;
+                settings.WelcomeAnimation = true;
+                StartWelcomeAnimation();
+                settings.WelcomeAnimation = before;
+            });
+            Dev("↺ Normale Begrüßung", DevResetGreeting);
+
+            Group("Aussehen und Fenster");
+            Dev("🖼 Cover-Auswahl (SteamGridDB)", () =>
+            {
+                var game = allGames.FirstOrDefault();
+                if (game == null) Msg("Es gibt noch keine Spiele in der Bibliothek.", "Entwickler");
+                else ShowCoverPicker(game);
+            });
+            Dev("✂ Hintergrund-Zuschnitt testen", () => BtnEditBgImage_Click(this, new RoutedEventArgs()));
+            Dev("🐩 Logo-Bild wählen", () => BtnBrandImage_Click(this, new RoutedEventArgs()));
+            Dev("🖥 Taskleiste im Vollbild an/aus", () =>
+            {
+                settings.TaskbarHideMaximized = !settings.TaskbarHideMaximized;
+                SaveSettings();
+                if (ChkHideTaskbar != null)
+                {
+                    isLoadingSettings = true;
+                    try { ChkHideTaskbar.IsChecked = settings.TaskbarHideMaximized; }
+                    finally { isLoadingSettings = false; }
+                }
+                if (WindowState != WindowState.Maximized) WindowState = WindowState.Maximized;
+                else ReapplyMaximize();
+                ShowToast("🖥", "Entwickler", settings.TaskbarHideMaximized ? "Taskleiste im Vollbild: an" : "Taskleiste im Vollbild: aus", 4);
+            });
+            Dev("📋 Rechtsklick-Menü testen", () =>
+            {
+                var menu = new ContextMenu();
+                if (TryFindResource("DarkContextMenu") is Style style) menu.Style = style;
+                menu.Items.Add(new MenuItem { Header = "▶  Eintrag" });
+                menu.Items.Add(new MenuItem { Header = "⭐  Mit Haken", IsCheckable = true, IsChecked = true });
+                menu.Items.Add(new Separator());
+                var sub = new MenuItem { Header = "📂  Untermenü" };
+                sub.Items.Add(new MenuItem { Header = "Eins" });
+                sub.Items.Add(new MenuItem { Header = "Zwei" });
+                menu.Items.Add(sub);
+                menu.Items.Add(new MenuItem { Header = "🚫  Ausgegraut", IsEnabled = false });
+                menu.Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint;
+                menu.IsOpen = true;
+            });
+            Dev("🌡 Sensor-Diagnose", () =>
+            {
+                string text = Loc.T("Administrator") + ": " + (IsRunningAsAdmin() ? "✔" : "✘") + "\n"
+                            + "PawnIO: " + (IsPawnIoInstalled() ? "✔" : "✘") + "\n"
+                            + Loc.T("Sensoren") + ": " + (settings.SensorsEnabled ? "✔" : "✘");
+                Msg(text, "Sensor-Diagnose");
+            });
+            Dev("⌨ PS-Tastatur-Tasten zeigen", () =>
+            {
+                string layout = settings.ControllerLayout;
+                settings.ControllerLayout = "ps";
+                string hint = $"{PadGlyph("confirm")} {Loc.T("Taste")}   ·   {PadGlyph("details")} {Loc.T("Löschen")}   ·   {PadGlyph("favorite")} {Loc.T("Leerzeichen")}   ·   {PadGlyph("back")} {Loc.T("Schließen")}   ·   {PadGlyph("jumpright")} {Loc.T("Fertig")}";
+                settings.ControllerLayout = layout;
+                Msg(hint, "PlayStation-Tastatur");
+            });
             Dev("🎊 Konfetti", Confetti);
 
             Group("Freischaltungen");
