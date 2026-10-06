@@ -2479,6 +2479,78 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
 ★  Favorit || ★  Favorite || ★  已收藏 || ★  Favorito || ★  Favori || ★  Favorito || ★  В избранном || ★  お気に入り済み
 📝  Details || 📝  Details || 📝  详情 || 📝  Detalles || 📝  Détails || 📝  Detalhes || 📝  Подробности || 📝  詳細
 {#0} Schritte || {0} steps || {0} 个步骤 || {0} pasos || {0} étapes || {0} passos || Шагов: {0} || {0}ステップ
+
+# ───────── OBS-Steuerung ─────────
+Nicht verbunden || Not connected || 未连接 || No conectado || Non connecté || Não conectado || Не подключено || 未接続
+Jetzt verbinden || Connect now || 立即连接 || Conectar ahora || Se connecter maintenant || Conectar agora || Подключиться || 今すぐ接続
+OBS-Einstellungen || OBS settings || OBS 设置 || Ajustes de OBS || Paramètres OBS || Configurações do OBS || Настройки OBS || OBS の設定
+Stream starten || Start stream || 开始直播 || Iniciar transmisión || Démarrer le stream || Iniciar transmissão || Начать трансляцию || 配信を開始
+Stream beenden || Stop stream || 停止直播 || Detener transmisión || Arrêter le stream || Encerrar transmissão || Остановить трансляцию || 配信を終了
+Aufnahme starten || Start recording || 开始录制 || Iniciar grabación || Démarrer l'enregistrement || Iniciar gravação || Начать запись || 録画を開始
+Aufnahme beenden || Stop recording || 停止录制 || Detener grabación || Arrêter l'enregistrement || Encerrar gravação || Остановить запись || 録画を終了
+🎙 Mikrofon an || 🎙 Mic on || 🎙 麦克风开启 || 🎙 Micrófono activado || 🎙 Micro activé || 🎙 Microfone ligado || 🎙 Микрофон вкл. || 🎙 マイク オン
+🔇 Mikrofon stumm || 🔇 Mic muted || 🔇 麦克风已静音 || 🔇 Micrófono silenciado || 🔇 Micro coupé || 🔇 Microfone mudo || 🔇 Микрофон выкл. || 🔇 マイク ミュート
+🎙 Kein Mikrofon || 🎙 No microphone || 🎙 无麦克风 || 🎙 Sin micrófono || 🎙 Aucun micro || 🎙 Sem microfone || 🎙 Нет микрофона || 🎙 マイクなし
+Stream || Stream || 直播 || Transmisión || Stream || Transmissão || Трансляция || 配信
+Offline || Offline || 离线 || Desconectado || Hors ligne || Offline || Не в эфире || オフライン
+Aufnahme || Recording || 录制 || Grabación || Enregistrement || Gravação || Запись || 録画
+Verlorene Bilder || Dropped frames || 丢帧 || Fotogramas perdidos || Images perdues || Quadros perdidos || Пропущенные кадры || ドロップフレーム
+Szenen || Scenes || 场景 || Escenas || Scènes || Cenas || Сцены || シーン
+OBS-Steuerung || OBS control || OBS 控制 || Control de OBS || Contrôle d'OBS || Controle do OBS || Управление OBS || OBS コントロール
+OBS aus dem Launcher steuern || Control OBS from the launcher || 从启动器控制 OBS || Controlar OBS desde el launcher || Contrôler OBS depuis le launcher || Controlar o OBS pelo launcher || Управлять OBS из лаунчера || ランチャーから OBS を操作
+Verbindet sich über den WebSocket-Server von OBS (ab OBS 28). In OBS einschalten unter Werkzeuge → WebSocket-Servereinstellungen. Dort stehen auch Port und Passwort. || Connects via the OBS WebSocket server (OBS 28 or newer). Turn it on in OBS under Tools → WebSocket Server Settings. You will also find the port and password there. || 通过 OBS 的 WebSocket 服务器连接（OBS 28 及以上）。在 OBS 中通过 工具 → WebSocket 服务器设置 开启，端口和密码也在那里。 || Se conecta mediante el servidor WebSocket de OBS (OBS 28 o posterior). Actívalo en OBS en Herramientas → Ajustes del servidor WebSocket. Ahí también están el puerto y la contraseña. || Se connecte via le serveur WebSocket d'OBS (OBS 28 ou plus récent). Active-le dans OBS sous Outils → Paramètres du serveur WebSocket. Tu y trouveras aussi le port et le mot de passe. || Conecta pelo servidor WebSocket do OBS (OBS 28 ou mais recente). Ative no OBS em Ferramentas → Configurações do servidor WebSocket. Lá também estão a porta e a senha. || Подключается через WebSocket-сервер OBS (OBS 28 и новее). Включите его в OBS: Инструменты → Настройки сервера WebSocket. Там же указаны порт и пароль. || OBS の WebSocket サーバー経由で接続します（OBS 28 以降）。OBS の ツール → WebSocket サーバー設定 で有効にしてください。ポートとパスワードもそこにあります。
+Adresse || Address || 地址 || Dirección || Adresse || Endereço || Адрес || アドレス
+Port || Port || 端口 || Puerto || Port || Porta || Порт || ポート
+Passwort (leer lassen, wenn OBS keins verlangt) || Password (leave empty if OBS does not require one) || 密码（如果 OBS 不需要则留空） || Contraseña (déjala vacía si OBS no la pide) || Mot de passe (laisse vide si OBS n'en demande pas) || Senha (deixe em branco se o OBS não exigir) || Пароль (оставьте пустым, если OBS его не требует) || パスワード（OBS で不要なら空欄）
+Das Passwort wird verschlüsselt gespeichert und nur von deinem Windows-Konto gelesen. || The password is stored encrypted and can only be read by your Windows account. || 密码会加密保存，只有你的 Windows 账户可以读取。 || La contraseña se guarda cifrada y solo tu cuenta de Windows puede leerla. || Le mot de passe est enregistré chiffré et seul ton compte Windows peut le lire. || A senha é salva criptografada e só pode ser lida pela sua conta do Windows. || Пароль хранится в зашифрованном виде и доступен только вашей учётной записи Windows. || パスワードは暗号化して保存され、あなたの Windows アカウントだけが読み取れます。
+Verbindung testen || Test connection || 测试连接 || Probar conexión || Tester la connexion || Testar conexão || Проверить подключение || 接続をテスト
+Teste die Verbindung … || Testing the connection … || 正在测试连接 … || Probando la conexión … || Test de la connexion … || Testando a conexão … || Проверка подключения … || 接続をテスト中 …
+✓ Verbindung klappt: OBS {0} || ✓ Connection works: OBS {0} || ✓ 连接成功：OBS {0} || ✓ La conexión funciona: OBS {0} || ✓ La connexion fonctionne : OBS {0} || ✓ Conexão funcionando: OBS {0} || ✓ Подключение работает: OBS {0} || ✓ 接続できました: OBS {0}
+Schalte oben „OBS aus dem Launcher steuern“ ein, um OBS von der Streamer-Seite zu bedienen. || Turn on “Control OBS from the launcher” above to operate OBS from the Streamer page. || 打开上方的“从启动器控制 OBS”，即可在主播页面操作 OBS。 || Activa arriba «Controlar OBS desde el launcher» para manejar OBS desde la página Streamer. || Active « Contrôler OBS depuis le launcher » ci-dessus pour piloter OBS depuis la page Streamer. || Ative acima “Controlar o OBS pelo launcher” para usar o OBS na página Streamer. || Включите выше «Управлять OBS из лаунчера», чтобы управлять OBS со страницы «Стример». || 上の「ランチャーから OBS を操作」をオンにすると、配信者ページから OBS を操作できます。
+Streamer-Modus automatisch mit dem Stream || Streamer mode automatically with the stream || 随直播自动开启主播模式 || Modo streamer automático con la transmisión || Mode streamer automatique avec le stream || Modo streamer automático com a transmissão || Режим стримера вместе с трансляцией || 配信に合わせて配信者モードを自動切替
+Schaltet den Streamer-Modus ein, sobald der Stream in OBS startet, und wieder aus, wenn er endet. || Turns streamer mode on as soon as the stream starts in OBS and off again when it ends. || OBS 开始直播时自动开启主播模式，直播结束后再关闭。 || Activa el modo streamer en cuanto empieza la transmisión en OBS y lo desactiva cuando termina. || Active le mode streamer dès que le stream démarre dans OBS et le désactive quand il se termine. || Liga o modo streamer assim que a transmissão começa no OBS e desliga quando ela termina. || Включает режим стримера, как только в OBS начинается трансляция, и выключает его, когда она заканчивается. || OBS で配信が始まると配信者モードをオンにし、終わるとオフに戻します。
+Szenen, in denen der Streamer-Modus aktiv ist || Scenes in which streamer mode is active || 开启主播模式的场景 || Escenas en las que el modo streamer está activo || Scènes où le mode streamer est actif || Cenas em que o modo streamer fica ativo || Сцены, в которых включён режим стримера || 配信者モードを有効にするシーン
+Zusätzlich zum Stream: Ist eine dieser Szenen in OBS aktiv, wird der Streamer-Modus eingeschaltet, auch bei Aufnahmen ohne Stream. || In addition to the stream: if one of these scenes is active in OBS, streamer mode turns on, even when recording without streaming. || 除直播外：只要 OBS 中正在使用其中一个场景，就会开启主播模式，即使只录制不直播。 || Además de la transmisión: si una de estas escenas está activa en OBS, se activa el modo streamer, también al grabar sin transmitir. || En plus du stream : si l'une de ces scènes est active dans OBS, le mode streamer s'active, même pour un enregistrement sans stream. || Além da transmissão: se uma dessas cenas estiver ativa no OBS, o modo streamer é ligado, mesmo em gravações sem transmissão. || Помимо трансляции: если в OBS активна одна из этих сцен, режим стримера включается, даже при записи без трансляции. || 配信に加えて、OBS でこれらのシーンが有効なときは、配信していない録画中でも配信者モードがオンになります。
+Sobald OBS verbunden ist, erscheinen hier deine Szenen zum Auswählen. || As soon as OBS is connected, your scenes will appear here to choose from. || OBS 连接后，你的场景会显示在这里供选择。 || En cuanto OBS esté conectado, tus escenas aparecerán aquí para elegirlas. || Dès qu'OBS est connecté, tes scènes apparaissent ici pour les choisir. || Assim que o OBS estiver conectado, suas cenas aparecerão aqui para escolher. || Как только OBS подключится, здесь появятся ваши сцены для выбора. || OBS に接続すると、ここにシーンが表示され選択できます。
+Simulation || Simulation || 模拟 || Simulación || Simulation || Simulação || Симуляция || シミュレーション
+Testmodus ohne OBS. Alle Knöpfe wirken nur im Launcher. || Test mode without OBS. All buttons only affect the launcher. || 无 OBS 的测试模式。所有按钮只在启动器内生效。 || Modo de prueba sin OBS. Todos los botones solo actúan en el launcher. || Mode test sans OBS. Tous les boutons n'agissent que dans le launcher. || Modo de teste sem OBS. Todos os botões só funcionam no launcher. || Тестовый режим без OBS. Все кнопки действуют только в лаунчере. || OBS なしのテストモードです。ボタンはランチャー内でのみ動作します。
+Verbinde … || Connecting … || 正在连接 … || Conectando … || Connexion … || Conectando … || Подключение … || 接続中 …
+Der Launcher verbindet sich mit OBS. || The launcher is connecting to OBS. || 启动器正在连接 OBS。 || El launcher se está conectando a OBS. || Le launcher se connecte à OBS. || O launcher está se conectando ao OBS. || Лаунчер подключается к OBS. || ランチャーが OBS に接続しています。
+Verbindung unterbrochen || Connection lost || 连接中断 || Conexión interrumpida || Connexion interrompue || Conexão interrompida || Соединение прервано || 接続が切れました
+Die Verbindung zu OBS ist abgerissen. Der Launcher verbindet sich automatisch neu. || The connection to OBS was lost. The launcher will reconnect automatically. || 与 OBS 的连接已断开。启动器会自动重新连接。 || Se perdió la conexión con OBS. El launcher se reconectará automáticamente. || La connexion à OBS a été perdue. Le launcher se reconnecte automatiquement. || A conexão com o OBS caiu. O launcher vai se reconectar automaticamente. || Соединение с OBS потеряно. Лаунчер переподключится автоматически. || OBS との接続が切れました。ランチャーが自動で再接続します。
+Der Launcher versucht es automatisch weiter. || The launcher will keep trying automatically. || 启动器会自动继续尝试。 || El launcher seguirá intentándolo automáticamente. || Le launcher continue d'essayer automatiquement. || O launcher continuará tentando automaticamente. || Лаунчер будет пытаться автоматически. || ランチャーは自動で再試行を続けます。
+Steuere Szenen, Stream und Aufnahme direkt von hier. Richte die Verbindung unter Einstellungen → Streamer → OBS-Steuerung ein. || Control scenes, stream and recording right from here. Set up the connection under Settings → Streamer → OBS control. || 在这里直接控制场景、直播和录制。请在 设置 → 主播 → OBS 控制 中设置连接。 || Controla escenas, transmisión y grabación desde aquí. Configura la conexión en Ajustes → Streamer → Control de OBS. || Contrôle les scènes, le stream et l'enregistrement directement ici. Configure la connexion dans Paramètres → Streamer → Contrôle d'OBS. || Controle cenas, transmissão e gravação daqui mesmo. Configure a conexão em Configurações → Streamer → Controle do OBS. || Управляйте сценами, трансляцией и записью прямо отсюда. Настройте подключение в Настройки → Стример → Управление OBS. || シーン、配信、録画をここから直接操作できます。接続は 設定 → 配信者 → OBS コントロール で設定してください。
+OBS antwortet nicht. Läuft OBS, und ist der WebSocket-Server eingeschaltet (Werkzeuge → WebSocket-Servereinstellungen)? Stimmen Adresse und Port? || OBS is not responding. Is OBS running and is the WebSocket server turned on (Tools → WebSocket Server Settings)? Are the address and port correct? || OBS 没有响应。OBS 是否正在运行，WebSocket 服务器是否已开启（工具 → WebSocket 服务器设置）？地址和端口是否正确？ || OBS no responde. ¿Está OBS abierto y el servidor WebSocket activado (Herramientas → Ajustes del servidor WebSocket)? ¿Son correctos la dirección y el puerto? || OBS ne répond pas. OBS est-il lancé et le serveur WebSocket activé (Outils → Paramètres du serveur WebSocket) ? L'adresse et le port sont-ils corrects ? || O OBS não responde. O OBS está aberto e o servidor WebSocket ligado (Ferramentas → Configurações do servidor WebSocket)? O endereço e a porta estão corretos? || OBS не отвечает. Запущен ли OBS и включён ли WebSocket-сервер (Инструменты → Настройки сервера WebSocket)? Верны ли адрес и порт? || OBS が応答しません。OBS は起動していて、WebSocket サーバーは有効ですか（ツール → WebSocket サーバー設定）？アドレスとポートは正しいですか？
+OBS verlangt ein Passwort. Trage es in den Einstellungen ein. || OBS requires a password. Enter it in the settings. || OBS 需要密码。请在设置中填写。 || OBS pide una contraseña. Introdúcela en los ajustes. || OBS demande un mot de passe. Saisis-le dans les paramètres. || O OBS exige uma senha. Informe-a nas configurações. || OBS требует пароль. Введите его в настройках. || OBS がパスワードを要求しています。設定で入力してください。
+Das Passwort für OBS ist falsch. || The OBS password is incorrect. || OBS 密码错误。 || La contraseña de OBS es incorrecta. || Le mot de passe OBS est incorrect. || A senha do OBS está incorreta. || Неверный пароль OBS. || OBS のパスワードが正しくありません。
+Die Verbindung zu OBS ist fehlgeschlagen. || The connection to OBS failed. || 连接 OBS 失败。 || No se pudo conectar con OBS. || La connexion à OBS a échoué. || A conexão com o OBS falhou. || Не удалось подключиться к OBS. || OBS への接続に失敗しました。
+In OBS ist unter Einstellungen → Audio kein Mikrofon eingerichtet. || No microphone is set up in OBS under Settings → Audio. || OBS 的 设置 → 音频 中没有设置麦克风。 || No hay ningún micrófono configurado en OBS en Ajustes → Audio. || Aucun micro n'est configuré dans OBS sous Paramètres → Audio. || Nenhum microfone está configurado no OBS em Configurações → Áudio. || В OBS не настроен микрофон (Настройки → Аудио). || OBS の 設定 → 音声 でマイクが設定されていません。
+Schaltet das Mikrofon in OBS stumm oder wieder an. || Mutes or unmutes the microphone in OBS. || 在 OBS 中静音或取消静音麦克风。 || Silencia o reactiva el micrófono en OBS. || Coupe ou réactive le micro dans OBS. || Silencia ou reativa o microfone no OBS. || Выключает или включает микрофон в OBS. || OBS のマイクをミュートまたは解除します。
+Live seit {#0} ({#1}) || Live since {0} ({1}) || 自 {0} 起直播（{1}） || En directo desde las {0} ({1}) || En direct depuis {0} ({1}) || Ao vivo desde {0} ({1}) || В эфире с {0} ({1}) || {0} から配信中（{1}）
+{#0} (pausiert) || {0} (paused) || {0}（已暂停） || {0} (en pausa) || {0} (en pause) || {0} (pausada) || {0} (пауза) || {0}（一時停止中）
+{#0} von {#1} ({#2} %) || {0} of {1} ({2} %) || {1} 中的 {0}（{2} %） || {0} de {1} ({2} %) || {0} sur {1} ({2} %) || {0} de {1} ({2} %) || {0} из {1} ({2} %) || {1} 中 {0}（{2} %）
+Keine Szenen gefunden. || No scenes found. || 未找到场景。 || No se encontraron escenas. || Aucune scène trouvée. || Nenhuma cena encontrada. || Сцены не найдены. || シーンが見つかりません。
+Aktuelle Szene || Current scene || 当前场景 || Escena actual || Scène actuelle || Cena atual || Текущая сцена || 現在のシーン
+Zu dieser Szene wechseln || Switch to this scene || 切换到此场景 || Cambiar a esta escena || Passer à cette scène || Mudar para esta cena || Переключиться на эту сцену || このシーンに切り替え
+OBS hat den Befehl nicht ausgeführt. || OBS did not carry out the command. || OBS 未执行该命令。 || OBS no ejecutó la orden. || OBS n'a pas exécuté la commande. || O OBS não executou o comando. || OBS не выполнил команду. || OBS はコマンドを実行しませんでした。
+Stream wirklich beenden? || Really stop the stream? || 确定要停止直播吗？ || ¿Seguro que quieres detener la transmisión? || Vraiment arrêter le stream ? || Encerrar mesmo a transmissão? || Точно остановить трансляцию? || 本当に配信を終了しますか？
+Aufnahme wirklich beenden? || Really stop the recording? || 确定要停止录制吗？ || ¿Seguro que quieres detener la grabación? || Vraiment arrêter l'enregistrement ? || Encerrar mesmo a gravação? || Точно остановить запись? || 本当に録画を終了しますか？
+OBS sendet nicht mehr. Alle Angaben sind wieder sichtbar. || OBS is no longer live. All details are visible again. || OBS 已停止直播。所有信息重新可见。 || OBS ya no está emitiendo. Todos los datos vuelven a ser visibles. || OBS n'est plus en direct. Toutes les informations sont à nouveau visibles. || O OBS não está mais transmitindo. Todas as informações estão visíveis de novo. || OBS больше не в эфире. Все данные снова видны. || OBS の配信が終了しました。すべての情報が再び表示されます。
+Dein Stream läuft. Private Angaben sind verborgen. || Your stream is live. Private details are hidden. || 你的直播正在进行。私人信息已隐藏。 || Tu transmisión está en directo. Los datos privados están ocultos. || Ton stream est en direct. Les informations privées sont masquées. || Sua transmissão está ao vivo. As informações privadas estão ocultas. || Ваша трансляция идёт. Личные данные скрыты. || 配信中です。個人情報は非表示になっています。
+Diese OBS-Szene ist für den Streamer-Modus markiert. Private Angaben sind verborgen. || This OBS scene is marked for streamer mode. Private details are hidden. || 此 OBS 场景已标记为主播模式。私人信息已隐藏。 || Esta escena de OBS está marcada para el modo streamer. Los datos privados están ocultos. || Cette scène OBS est marquée pour le mode streamer. Les informations privées sont masquées. || Esta cena do OBS está marcada para o modo streamer. As informações privadas estão ocultas. || Эта сцена OBS отмечена для режима стримера. Личные данные скрыты. || この OBS シーンは配信者モード用に設定されています。個人情報は非表示になっています。
+OBS-Simulation gestartet. || OBS simulation started. || OBS 模拟已启动。 || Simulación de OBS iniciada. || Simulation OBS démarrée. || Simulação do OBS iniciada. || Симуляция OBS запущена. || OBS シミュレーションを開始しました。
+Aktiv (automatisch durch OBS) || Active (automatically via OBS) || 已开启（由 OBS 自动开启） || Activo (automático por OBS) || Actif (automatiquement via OBS) || Ativo (automático pelo OBS) || Включён (автоматически через OBS) || 有効（OBS により自動）
+Der Launcher ist mit OBS verbunden || The launcher is connected to OBS || 启动器已连接 OBS || El launcher está conectado a OBS || Le launcher est connecté à OBS || O launcher está conectado ao OBS || Лаунчер подключён к OBS || ランチャーが OBS に接続されています
+Verbinden || Connect || 连接 || Conectar || Connecter || Conectar || Подключить || 接続
+OBS verbinden || Connect OBS || 连接 OBS || Conectar OBS || Connecter OBS || Conectar o OBS || Подключить OBS || OBS に接続
+Verbindung zu OBS einrichten || Set up the connection to OBS || 设置与 OBS 的连接 || Configurar la conexión con OBS || Configurer la connexion à OBS || Configurar a conexão com o OBS || Настроить подключение к OBS || OBS への接続を設定
+OBS: Stream starten || OBS: Start stream || OBS：开始直播 || OBS: Iniciar transmisión || OBS : Démarrer le stream || OBS: Iniciar transmissão || OBS: начать трансляцию || OBS: 配信を開始
+OBS: Stream beenden || OBS: Stop stream || OBS：停止直播 || OBS: Detener transmisión || OBS : Arrêter le stream || OBS: Encerrar transmissão || OBS: остановить трансляцию || OBS: 配信を終了
+OBS: Aufnahme starten || OBS: Start recording || OBS：开始录制 || OBS: Iniciar grabación || OBS : Démarrer l'enregistrement || OBS: Iniciar gravação || OBS: начать запись || OBS: 録画を開始
+OBS: Aufnahme beenden || OBS: Stop recording || OBS：停止录制 || OBS: Detener grabación || OBS : Arrêter l'enregistrement || OBS: Encerrar gravação || OBS: остановить запись || OBS: 録画を終了
+OBS: Mikrofon stumm schalten || OBS: Mute microphone || OBS：麦克风静音 || OBS: Silenciar micrófono || OBS : Couper le micro || OBS: Silenciar microfone || OBS: выключить микрофон || OBS: マイクをミュート
+OBS: Mikrofon einschalten || OBS: Unmute microphone || OBS：开启麦克风 || OBS: Activar micrófono || OBS : Réactiver le micro || OBS: Ligar microfone || OBS: включить микрофон || OBS: マイクのミュートを解除
+OBS-Szene: {0} || OBS scene: {0} || OBS 场景：{0} || Escena de OBS: {0} || Scène OBS : {0} || Cena do OBS: {0} || Сцена OBS: {0} || OBS シーン: {0}
 """;
     }
 
@@ -8682,6 +8754,23 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
                 Add("🎲", "Zufälliges Spiel", "Lass den Launcher entscheiden", () => BtnRandomGame_Click(this, new RoutedEventArgs()), 5);
                 Add("🎮", "Controller-Modus", "Vollbild mit Gamepad-Steuerung", ToggleControllerMode, 5);
                 Add("📡", "Streamer-Modus umschalten", "Verbirgt private Angaben", ToggleStreamerMode, 5);
+                if (ObsActive)
+                {
+                    Add("🔴", obsStreaming ? "OBS: Stream beenden" : "OBS: Stream starten", "OBS-Steuerung", () => _ = ObsToggleStreamAsync(), 9);
+                    Add("⏺", obsRecording ? "OBS: Aufnahme beenden" : "OBS: Aufnahme starten", "OBS-Steuerung", () => _ = ObsToggleRecordAsync(), 9);
+                    if (obsMicInput.Length > 0)
+                        Add("🎙", obsMicMuted ? "OBS: Mikrofon einschalten" : "OBS: Mikrofon stumm schalten", "OBS-Steuerung", () => _ = ObsToggleMicAsync(), 9);
+                    foreach (string scene in obsScenes)
+                    {
+                        string target = scene;
+                        Add("🎬", "OBS-Szene: " + target, "Zu dieser Szene wechseln", () => _ = ObsSetSceneAsync(target), 8);
+                    }
+                }
+                else if (settings.ObsEnabled)
+                {
+                    Add("🎥", "OBS verbinden", "OBS-Steuerung", RestartObs, 6);
+                }
+                Add("🎥", "OBS-Einstellungen", "Verbindung zu OBS einrichten", OpenObsSettings, 4);
                 foreach (var routineEntry in settings.Routines.Where(r => r.Enabled))
                 {
                     var routine = routineEntry;
@@ -22044,6 +22133,44 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
             Dev("⬆ Schnellstart-Auswahl testen", () => ShowAppPicker("Test"));
             Dev("🚀 Auf GitHub hochladen", RunUploadScript);
 
+            Group("OBS (Simulation ohne OBS)");
+            Dev("🎥 OBS-Simulation starten", () =>
+            {
+                StartObsSimulation();
+                NavigateTo("streamer");
+            });
+            Dev("🔴 Simulierter Stream an/aus", () =>
+            {
+                if (!obsSimulated) StartObsSimulation();
+                SimulateObsCommand(obsStreaming ? "StopStream" : "StartStream", null);
+            });
+            Dev("⏸ Simulierte Aufnahme pausieren", () =>
+            {
+                if (!obsSimulated) StartObsSimulation();
+                if (!obsRecording) SimulateObsCommand("StartRecord", null);
+                HandleObsPauseSimulation();
+            });
+            Dev("🎬 Nächste simulierte Szene", () =>
+            {
+                if (!obsSimulated) StartObsSimulation();
+                int index = obsScenes.IndexOf(obsCurrentScene);
+                SimulateObsCommand("SetCurrentProgramScene", new { sceneName = obsScenes[(index + 1) % obsScenes.Count] });
+            });
+            Dev("🔌 Verbindungsabbruch simulieren", () =>
+            {
+                if (!obsSimulated) StartObsSimulation();
+                obsSimulated = false;
+                SetObsState(ObsState.Lost);
+            });
+            Dev("⏹ OBS-Simulation beenden", StopObsSimulation);
+            Dev("🔑 Anmeldung prüfen (Beispiel aus dem Protokoll)", () =>
+            {
+                // Beispielwerte aus der offiziellen OBS-WebSocket-Dokumentation
+                string auth = ObsClient.BuildAuth("supersecretpassword", "lM1GncleQOaCu9lT1yeUZhFYnqhsLLP1G5lAGo3ixaI=", "+IxH4CnCiqpX1rM9scsNynZzbOe4KhDeYcTNS3PDaeY=");
+                bool ok = auth == "1Ct943GAT+6YQUUX47Ia/ncufilbe6+oD6lY+5kaCu4=";
+                Msg(ok ? "Die Passwort-Anmeldung rechnet richtig." : "Die Passwort-Anmeldung rechnet falsch: " + auth, "OBS");
+            });
+
             Group("Controller-Akku (Vorschau)");
             Dev("🔋 Voll", () => PreviewPadBattery(3, false));
             Dev("🔋 Mittel", () => PreviewPadBattery(2, false));
@@ -24563,7 +24690,7 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
             Censor(settings.StreamHideLocation, WeatherCard, TxtWeatherCity);
             Censor(settings.StreamHideStats, StatsGrid, goalWidget);
             Censor(settings.StreamHideRecent, HeroHost, RecentSection, FavSection);
-            Censor(settings.StreamHidePaths, GridDownloads, AppsContainer, DrivesControl, GameSizesControl, TxtSgdbKey, TxtCloudFolder, TxtUpdateRepo, TxtDiscordWebhook, quickWidget);
+            Censor(settings.StreamHidePaths, GridDownloads, AppsContainer, DrivesControl, GameSizesControl, TxtSgdbKey, TxtCloudFolder, TxtUpdateRepo, TxtDiscordWebhook, quickWidget, TxtObsHost);
             Censor(settings.StreamHideShots, GalleryContainer, WishContainer, wishWidget);
 
             foreach (var adorner in censorAdorners.Values) adorner.InvalidateVisual();
@@ -25916,7 +26043,7 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
                     if (obsState == ObsState.Lost && !obsSimulated)
                     {
                         obsLastResult = ObsConnectResult.NotReachable;
-                        SetObsState(ObsState.Failed);
+                        SetObsState(settings.ObsEnabled ? ObsState.Failed : ObsState.Off);
                     }
                 };
                 obsGraceTimer.Start();
@@ -26342,6 +26469,18 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
             RestartObs();
         }
 
+        private void HandleObsPauseSimulation()
+        {
+            if (!obsSimulated || !obsRecording || obsRecordStart is not DateTime start) return;
+
+            if (!obsRecordPaused)
+                obsRecordFrozenMs = (long)(DateTime.Now - start).TotalMilliseconds;
+            else
+                obsRecordStart = DateTime.Now - TimeSpan.FromMilliseconds(obsRecordFrozenMs);
+            obsRecordPaused = !obsRecordPaused;
+            RenderObs();
+        }
+
         private void SimulateObsCommand(string requestType, object? data)
         {
             string Prop(string name) => data?.GetType().GetProperty(name)?.GetValue(data)?.ToString() ?? string.Empty;
@@ -26350,8 +26489,8 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
             {
                 case "StartStream": obsStreaming = true; obsStreamStart = DateTime.Now; obsSkipped = 0; obsTotal = 1; break;
                 case "StopStream": obsStreaming = false; obsStreamStart = null; obsSkipped = obsTotal = 0; break;
-                case "StartRecord": obsRecording = true; obsRecordStart = DateTime.Now; break;
-                case "StopRecord": obsRecording = false; obsRecordStart = null; break;
+                case "StartRecord": obsRecording = true; obsRecordPaused = false; obsRecordStart = DateTime.Now; break;
+                case "StopRecord": obsRecording = false; obsRecordPaused = false; obsRecordStart = null; break;
                 case "SetInputMute": obsMicMuted = Prop("inputMuted") == bool.TrueString; break;
                 case "SetCurrentProgramScene": obsCurrentScene = Prop("sceneName"); break;
             }
