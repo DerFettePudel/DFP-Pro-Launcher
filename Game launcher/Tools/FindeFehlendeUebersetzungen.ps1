@@ -1,7 +1,7 @@
 ﻿# DFP Pro Launcher - sucht sichtbare Texte ohne Eintrag in der Uebersetzungstabelle (LocData.Text)
 # Prueft:
 #   - MainWindow.xaml: Text=, Content=, ToolTip=, Header=, Title=
-#   - MainWindow*.cs: deutsche Texte in Anfuehrungszeichen (ohne Kommentare); die Tabelle steht in Localization.cs
+#   - MainWindow*.cs und Controls\*.cs: deutsche Texte in Anfuehrungszeichen (ohne Kommentare); die Tabelle steht in Localization.cs
 # Die Suche ist eine Schaetzung: Sie kann Texte melden, die nie sichtbar sind (zum Beispiel Werte in Vergleichen).
 # Sie aendert nichts und gibt immer 0 zurueck.
 #
@@ -19,6 +19,8 @@ try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { }
 $tabDatei = Join-Path $Projekt 'Localization.cs'
 if (-not (Test-Path -LiteralPath $tabDatei)) { $tabDatei = Join-Path $Projekt 'MainWindow.xaml.cs' }
 $codeDateien = @(Get-ChildItem -Path $Projekt -Filter 'MainWindow*.cs' | Sort-Object Name)
+$controls = Join-Path $Projekt 'Controls'
+if (Test-Path $controls) { $codeDateien += @(Get-ChildItem -Path $controls -Filter '*.cs' | Sort-Object Name) }
 $xamlDatei = Join-Path $Projekt 'MainWindow.xaml'
 $cs = [System.IO.File]::ReadAllLines($tabDatei, [System.Text.Encoding]::UTF8)
 $xaml = [System.IO.File]::ReadAllLines($xamlDatei, [System.Text.Encoding]::UTF8)
