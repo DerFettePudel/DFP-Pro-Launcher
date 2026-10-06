@@ -378,6 +378,12 @@ namespace Game_launcher
         public string ActiveProfileId { get; set; } = string.Empty;
         public string ProfileOnGame { get; set; } = string.Empty;   // Profil-Id oder leer = aus
         public string ProfileOnObs { get; set; } = string.Empty;
+
+        // Streamer-Extras
+        public bool CaptureExclude { get; set; }
+        public int GoLiveMinutes { get; set; } = 5;
+        public string GoLiveRoutine { get; set; } = string.Empty;   // Name des Ablaufs, leer = keiner
+        public bool GoLiveStartObs { get; set; }
     }
 
     /// <summary>Ein Profil speichert eine Auswahl von Einstellungen (nach Bereichen) und optional einen Energieplan.</summary>
@@ -2642,6 +2648,34 @@ Profil wechseln || Switch profile || 切换配置文件 || Cambiar perfil || Cha
 Profil: {0} || Profile: {0} || 配置文件：{0} || Perfil: {0} || Profil : {0} || Perfil: {0} || Профиль: {0} || プロファイル: {0}
 Aktives Profil || Active profile || 当前配置文件 || Perfil activo || Profil actif || Perfil ativo || Активный профиль || 有効なプロファイル
 Profil aktivieren || Activate profile || 启用配置文件 || Activar perfil || Activer le profil || Ativar perfil || Включить профиль || プロファイルを有効にする
+
+# ───────── Streamer-Extras: Aufnahme-Schutz und Countdown ─────────
+⏱ Countdown „Gleich live“ || ⏱ “Going live” countdown || ⏱ “即将开播”倒计时 || ⏱ Cuenta atrás «En directo pronto» || ⏱ Compte à rebours « Bientôt en direct » || ⏱ Contagem regressiva “Quase ao vivo” || ⏱ Отсчёт «Скоро в эфире» || ⏱ 「まもなく配信」カウントダウン
+Zählt bis zum Livegang herunter. Die Checkliste unten aktualisiert sich dabei laufend, am Ende erscheint eine Meldung. || Counts down to going live. The checklist below keeps updating, and a message appears at the end. || 倒计时到开播。下方的检查清单会持续更新，结束时会显示提示。 || Cuenta atrás hasta salir en directo. La lista de comprobación de abajo se actualiza continuamente y al final aparece un aviso. || Compte à rebours jusqu'au direct. La liste de contrôle ci-dessous se met à jour en continu et un message apparaît à la fin. || Faz a contagem até entrar ao vivo. A checklist abaixo é atualizada o tempo todo, e no fim aparece um aviso. || Обратный отсчёт до выхода в эфир. Чек-лист ниже постоянно обновляется, в конце появится сообщение. || 配信開始までカウントダウンします。下のチェックリストは随時更新され、最後にメッセージが表示されます。
+Dauer || Duration || 时长 || Duración || Durée || Duração || Длительность || 時間
+Danach diesen Ablauf starten || Then start this routine || 之后启动此流程 || Después iniciar esta rutina || Ensuite lancer cette routine || Depois iniciar esta rotina || Затем запустить этот сценарий || その後このルーチンを開始
+Keiner || None || 无 || Ninguna || Aucune || Nenhuma || Нет || なし
+Danach in OBS den Stream starten || Then start the stream in OBS || 之后在 OBS 中开始直播 || Después iniciar la transmisión en OBS || Ensuite démarrer le stream dans OBS || Depois iniciar a transmissão no OBS || Затем начать трансляцию в OBS || その後 OBS で配信を開始
+Countdown starten || Start countdown || 开始倒计时 || Iniciar cuenta atrás || Lancer le compte à rebours || Iniciar contagem || Запустить отсчёт || カウントダウンを開始
+Countdown abbrechen || Cancel countdown || 取消倒计时 || Cancelar cuenta atrás || Annuler le compte à rebours || Cancelar contagem || Отменить отсчёт || カウントダウンを中止
+Ablauf „Stream-Start“ anlegen || Create “Stream-Start” routine || 创建“Stream-Start”流程 || Crear la rutina «Stream-Start» || Créer la routine « Stream-Start » || Criar a rotina “Stream-Start” || Создать сценарий «Stream-Start» || 「Stream-Start」ルーチンを作成
+🔴 Live! || 🔴 Live! || 🔴 直播中！ || 🔴 ¡En directo! || 🔴 En direct ! || 🔴 Ao vivo! || 🔴 В эфире! || 🔴 配信中！
+Countdown abgebrochen || Countdown cancelled || 倒计时已取消 || Cuenta atrás cancelada || Compte à rebours annulé || Contagem cancelada || Отсчёт отменён || カウントダウンを中止しました
+Der Countdown „Gleich live“ wurde gestoppt. || The “going live” countdown was stopped. || “即将开播”倒计时已停止。 || La cuenta atrás «En directo pronto» se ha detenido. || Le compte à rebours « Bientôt en direct » a été arrêté. || A contagem “Quase ao vivo” foi interrompida. || Отсчёт «Скоро в эфире» остановлен. || 「まもなく配信」カウントダウンを停止しました。
+Gleich live! || Going live! || 即将开播！ || ¡En directo ya! || C'est parti ! || Hora de entrar ao vivo! || Пора в эфир! || まもなく配信！
+Der Countdown ist abgelaufen. Viel Spaß beim Stream! || The countdown is over. Have fun streaming! || 倒计时结束。祝直播愉快！ || La cuenta atrás ha terminado. ¡Disfruta del directo! || Le compte à rebours est terminé. Bon stream ! || A contagem terminou. Divirta-se na transmissão! || Отсчёт закончился. Удачного стрима! || カウントダウンが終了しました。配信を楽しんで！
+Ablauf angelegt || Routine created || 流程已创建 || Rutina creada || Routine créée || Rotina criada || Сценарий создан || ルーチンを作成しました
+„Stream-Start“ schaltet den Streamer-Modus ein. Weitere Schritte fügst du bei den Abläufen hinzu. || “Stream-Start” turns on streamer mode. You can add more steps under Routines. || “Stream-Start”会开启主播模式。可在流程中添加更多步骤。 || «Stream-Start» activa el modo streamer. Puedes añadir más pasos en Rutinas. || « Stream-Start » active le mode streamer. Tu peux ajouter d'autres étapes dans les routines. || “Stream-Start” liga o modo streamer. Adicione mais etapas em Rotinas. || «Stream-Start» включает режим стримера. Другие шаги можно добавить в сценариях. || 「Stream-Start」は配信者モードをオンにします。ほかの手順はルーチンで追加できます。
+Du bist live. Viel Spaß beim Stream! || You're live. Have fun streaming! || 你已开播。祝直播愉快！ || Estás en directo. ¡Disfruta! || Tu es en direct. Bon stream ! || Você está ao vivo. Divirta-se! || Вы в эфире. Удачного стрима! || 配信中です。楽しんで！
+Launcher in Aufnahmen und Streams unsichtbar machen || Hide the launcher from recordings and streams || 在录制和直播中隐藏启动器 || Ocultar el launcher en grabaciones y transmisiones || Masquer le launcher dans les enregistrements et les streams || Ocultar o launcher em gravações e transmissões || Скрыть лаунчер в записях и трансляциях || 録画や配信でランチャーを非表示にする
+OBS, Discord und Bildschirmfotos zeigen das Launcher-Fenster und alle seine Dialoge nicht mehr. Du selbst siehst es ganz normal. Gilt immer, auch ohne Streamer-Modus. || OBS, Discord and screenshots no longer show the launcher window or any of its dialogs. You still see it normally. Always applies, even without streamer mode. || OBS、Discord 和截图将不再显示启动器窗口及其所有对话框。你自己仍可正常看到。始终生效，即使未开启主播模式。 || OBS, Discord y las capturas de pantalla ya no muestran la ventana del launcher ni sus diálogos. Tú la sigues viendo con normalidad. Se aplica siempre, también sin el modo streamer. || OBS, Discord et les captures d'écran n'affichent plus la fenêtre du launcher ni ses boîtes de dialogue. Toi, tu la vois normalement. S'applique toujours, même sans mode streamer. || OBS, Discord e capturas de tela não mostram mais a janela do launcher nem seus diálogos. Você continua vendo normalmente. Vale sempre, mesmo sem o modo streamer. || OBS, Discord и снимки экрана больше не показывают окно лаунчера и его диалоги. Вы сами видите его как обычно. Действует всегда, даже без режима стримера. || OBS、Discord、スクリーンショットにランチャーのウィンドウとダイアログが映らなくなります。あなたには通常どおり表示されます。配信者モードがオフでも常に有効です。
+Dafür braucht es Windows 10 Version 2004 oder neuer. Auf diesem PC ist das nicht verfügbar. || This requires Windows 10 version 2004 or newer. It is not available on this PC. || 此功能需要 Windows 10 2004 版或更高版本。此电脑无法使用。 || Requiere Windows 10 versión 2004 o posterior. No está disponible en este PC. || Cela nécessite Windows 10 version 2004 ou plus récent. Ce n'est pas disponible sur ce PC. || Requer o Windows 10 versão 2004 ou mais recente. Não está disponível neste PC. || Нужна Windows 10 версии 2004 или новее. На этом ПК недоступно. || Windows 10 バージョン 2004 以降が必要です。この PC では使用できません。
+Der Launcher ist in Aufnahmen unsichtbar || The launcher is hidden from recordings || 启动器在录制中不可见 || El launcher es invisible en las grabaciones || Le launcher est invisible dans les enregistrements || O launcher está invisível nas gravações || Лаунчер скрыт в записях || ランチャーは録画に映りません
+Unsichtbar machen || Hide || 隐藏 || Ocultar || Masquer || Ocultar || Скрыть || 非表示にする
+In Aufnahmen unsichtbar || Hidden from recordings || 录制中不可见 || Invisible en grabaciones || Invisible dans les enregistrements || Invisível em gravações || Скрыт в записях || 録画で非表示
+In Aufnahmen sichtbar || Visible in recordings || 录制中可见 || Visible en grabaciones || Visible dans les enregistrements || Visível em gravações || Виден в записях || 録画で表示
+OBS, Discord und Bildschirmfotos zeigen den Launcher nicht mehr. || OBS, Discord and screenshots no longer show the launcher. || OBS、Discord 和截图将不再显示启动器。 || OBS, Discord y las capturas ya no muestran el launcher. || OBS, Discord et les captures d'écran n'affichent plus le launcher. || OBS, Discord e capturas de tela não mostram mais o launcher. || OBS, Discord и снимки экрана больше не показывают лаунчер. || OBS、Discord、スクリーンショットにランチャーが映らなくなりました。
+Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recordings again. || 启动器会重新出现在录制中。 || El launcher vuelve a aparecer en las grabaciones. || Le launcher apparaît de nouveau dans les enregistrements. || O launcher volta a aparecer nas gravações. || Лаунчер снова виден в записях. || ランチャーが再び録画に映ります。
 """;
     }
 
@@ -3238,6 +3272,7 @@ Profil aktivieren || Activate profile || 启用配置文件 || Activar perfil ||
             InitExtras15();
             InitExtras16();
             InitExtras17();
+            InitExtras18();
 
             isLoadingSettings = false;
             RefreshDashboard();
@@ -3561,6 +3596,8 @@ Profil aktivieren || Activate profile || 启用配置文件 || Activar perfil ||
             settings.ActiveProfileId ??= string.Empty;
             settings.ProfileOnGame ??= string.Empty;
             settings.ProfileOnObs ??= string.Empty;
+            if (!GoLiveMinuteOptions.Contains(settings.GoLiveMinutes)) settings.GoLiveMinutes = 5;
+            settings.GoLiveRoutine ??= string.Empty;
 
             ApplyTheme();
             UpdateUserNameDisplay();
@@ -8351,6 +8388,11 @@ Profil aktivieren || Activate profile || 启用配置文件 || Activar perfil ||
                 int dark = 1;
                 NativeFeatures.DwmSetWindowAttribute(handle, 20, ref dark, sizeof(int));
             };
+            // Streamer-Modus: private Angaben schon vor dem ersten Bild verdecken
+            dialog.Loaded += (s, e) =>
+            {
+                if (StreamerOn) ScrubSensitiveText();
+            };
 
             return dialog;
         }
@@ -9813,6 +9855,7 @@ Profil aktivieren || Activate profile || 启用配置文件 || Activar perfil ||
             PopulateExtra12Settings();
             PopulateExtra14Settings();
             PopulateObsSettings();
+            PopulateStreamerExtras();
         }
 
         private void UpdateExtraSliderLabels()
@@ -22569,6 +22612,16 @@ Profil aktivieren || Activate profile || 启用配置文件 || Activar perfil ||
             });
             Dev("⏹ OBS-Ende simulieren", () => AutoRestoreProfile(false));
 
+            Group("Streamer-Extras");
+            Dev("⏱ Countdown 10 Sekunden", () =>
+            {
+                NavigateTo("streamer");
+                StartGoLive(TimeSpan.FromSeconds(10));
+            });
+            Dev("🙈 Aufnahme-Schutz an/aus", () => SetCaptureExclude(!settings.CaptureExclude));
+            Dev("💬 Dialog mit Benutzername (Zensur-Test)", () =>
+                Msg($"Zensur-Test: Windows-Benutzer {Environment.UserName} auf {Environment.MachineName}, Ordner {Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}.\n\nIm Streamer-Modus muss diese Zeile verdeckt sein.", "Entwickler"));
+
             Group("Controller-Akku (Vorschau)");
             Dev("🔋 Voll", () => PreviewPadBattery(3, false));
             Dev("🔋 Mittel", () => PreviewPadBattery(2, false));
@@ -23196,7 +23249,13 @@ Profil aktivieren || Activate profile || 启用配置文件 || Activar perfil ||
             // Schnellzugriffe (frei bearbeitbar)
             RenderStreamerLinks();
 
-            // Checkliste
+            // Countdown und Checkliste
+            RenderGoLive();
+            RenderStreamerChecklist(StreamProcesses.Any(IsProcessRunning));
+        }
+
+        private void RenderStreamerChecklist(bool softwareRunning)
+        {
             StreamerChecklist.Children.Clear();
             void Check(bool ok, string text, string? fixText = null, Action? fix = null)
             {
@@ -23232,7 +23291,7 @@ Profil aktivieren || Activate profile || 启用配置文件 || Activar perfil ||
                 StreamerChecklist.Children.Add(line);
             }
 
-            Check(StreamProcesses.Any(IsProcessRunning), "Eine Streaming-Software läuft");
+            Check(softwareRunning, "Eine Streaming-Software läuft");
             if (settings.ObsEnabled || obsSimulated)
                 Check(ObsActive, "Der Launcher ist mit OBS verbunden", "Verbinden", RestartObs);
             Check(StreamerOn, "Der Streamer-Modus ist an", "Einschalten", () =>
@@ -23256,6 +23315,8 @@ Profil aktivieren || Activate profile || 启用配置文件 || Activar perfil ||
                 SaveSettings();
                 ApplyStreamerMode();
             });
+            if (CaptureExclusionSupported)
+                Check(settings.CaptureExclude, "Der Launcher ist in Aufnahmen unsichtbar", "Unsichtbar machen", () => SetCaptureExclude(true));
         }
 
         private void UpdateStreamerToggles()
@@ -25146,7 +25207,16 @@ Profil aktivieren || Activate profile || 启用配置文件 || Activar perfil ||
             if (StreamerOn)
             {
                 var tokens = SensitiveTokens();
-                if (tokens.Count > 0) CollectSensitive(WindowRoot, tokens, found);
+                if (tokens.Count > 0)
+                {
+                    CollectSensitive(WindowRoot, tokens, found);
+
+                    // Auch Dialogfenster (CreateDialog, Meldungen) erfassen
+                    foreach (var window in CensorableDialogs())
+                    {
+                        if (window.Content is DependencyObject root) CollectSensitive(root, tokens, found);
+                    }
+                }
             }
 
             foreach (var element in censorScrubbed.Where(e => !found.Contains(e)).ToList())
@@ -27375,6 +27445,284 @@ Profil aktivieren || Activate profile || 启用配置文件 || Activar perfil ||
                 trayProfilesItem.DropDownItems.Add(entry);
             }
             trayProfilesItem.Visible = settings.Profiles.Count > 0;
+        }
+
+        // ═════════════════════════════ Streamer-Extras: Aufnahme-Schutz, Dialog-Zensur, Countdown ═════════════════════════════
+
+        [Interop.DllImport("user32.dll", SetLastError = true)]
+        [return: Interop.MarshalAs(Interop.UnmanagedType.Bool)]
+        private static extern bool SetWindowDisplayAffinity(IntPtr hwnd, uint affinity);
+
+        private const uint WdaNone = 0x00;
+        private const uint WdaExcludeFromCapture = 0x11;   // ab Windows 10 Version 2004 (Build 19041)
+
+        private static readonly int[] GoLiveMinuteOptions = { 1, 2, 3, 5, 10, 15 };
+        private const string StreamStartRoutineName = "Stream-Start";
+
+        private readonly DispatcherTimer goLiveTimer = new() { Interval = TimeSpan.FromMilliseconds(250) };
+        private DateTime goLiveEnd;
+        private TimeSpan goLiveTotal;
+        private DateTime goLiveLastCheck;
+        private bool goLiveDone;
+
+        private static bool CaptureExclusionSupported
+            => Environment.OSVersion.Version.Major > 10
+               || (Environment.OSVersion.Version.Major == 10 && Environment.OSVersion.Version.Build >= 19041);
+
+        private void InitExtras18()
+        {
+            // Jedes Fenster des Launchers (Hauptfenster, Dialoge, Menüs) beim Laden aus Aufnahmen ausschließen
+            EventManager.RegisterClassHandler(typeof(Window), FrameworkElement.LoadedEvent,
+                new RoutedEventHandler((s, e) =>
+                {
+                    if (s is Window window && settings.CaptureExclude) ApplyCaptureExclusion(window, true);
+                }));
+
+            goLiveTimer.Tick += (s, e) => GoLiveTick();
+        }
+
+        /// <summary>Offene Dialogfenster des Launchers (ohne Hauptfenster und Spiel-Overlay).</summary>
+        private IEnumerable<Window> CensorableDialogs()
+        {
+            var app = System.Windows.Application.Current;
+            if (app == null) yield break;
+            foreach (Window window in app.Windows)
+            {
+                if (ReferenceEquals(window, this) || ReferenceEquals(window, overlayWindow) || !window.IsVisible) continue;
+                yield return window;
+            }
+        }
+
+        // ───────── Fenster in Aufnahmen unsichtbar ─────────
+
+        private void ApplyCaptureExclusion(Window window, bool on)
+        {
+            // Das Spiel-Overlay soll im Stream sichtbar bleiben dürfen
+            if (!CaptureExclusionSupported || ReferenceEquals(window, overlayWindow)) return;
+
+            IntPtr handle = new System.Windows.Interop.WindowInteropHelper(window).Handle;
+            if (handle == IntPtr.Zero) return;
+
+            try
+            {
+                if (!SetWindowDisplayAffinity(handle, on ? WdaExcludeFromCapture : WdaNone) && on)
+                    LogError("Aufnahme-Schutz", new System.ComponentModel.Win32Exception(Interop.Marshal.GetLastWin32Error()));
+            }
+            catch (Exception ex)
+            {
+                LogError("Aufnahme-Schutz", ex);
+            }
+        }
+
+        private void ApplyCaptureExclusionToAll()
+        {
+            var app = System.Windows.Application.Current;
+            if (app == null) return;
+            foreach (Window window in app.Windows) ApplyCaptureExclusion(window, settings.CaptureExclude);
+        }
+
+        private void SetCaptureExclude(bool on)
+        {
+            settings.CaptureExclude = on && CaptureExclusionSupported;
+            SaveSettings();
+            ApplyCaptureExclusionToAll();
+            PopulateStreamerExtras();
+            ShowToast("🙈", settings.CaptureExclude ? "In Aufnahmen unsichtbar" : "In Aufnahmen sichtbar",
+                settings.CaptureExclude ? "OBS, Discord und Bildschirmfotos zeigen den Launcher nicht mehr." : "Der Launcher erscheint wieder in Aufnahmen.", 4);
+        }
+
+        private void ChkCaptureExclude_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+            SetCaptureExclude(ChkCaptureExclude.IsChecked == true);
+        }
+
+        private void PopulateStreamerExtras()
+        {
+            if (ChkCaptureExclude == null) return;
+
+            bool before = isLoadingSettings;
+            isLoadingSettings = true;
+            try
+            {
+                ChkCaptureExclude.IsChecked = settings.CaptureExclude;
+                ChkCaptureExclude.IsEnabled = CaptureExclusionSupported;
+                TxtCaptureExcludeHint.Text = CaptureExclusionSupported ? string.Empty
+                    : Loc.T("Dafür braucht es Windows 10 Version 2004 oder neuer. Auf diesem PC ist das nicht verfügbar.");
+                TxtCaptureExcludeHint.Visibility = CaptureExclusionSupported ? Visibility.Collapsed : Visibility.Visible;
+                ChkGoLiveObs.IsChecked = settings.GoLiveStartObs;
+            }
+            finally
+            {
+                isLoadingSettings = before;
+            }
+        }
+
+        // ───────── Countdown „Gleich live“ ─────────
+
+        private bool GoLiveRunning => goLiveTimer.IsEnabled;
+
+        private void RenderGoLive()
+        {
+            if (GoLiveCard == null) return;
+            var chipStyle = TryFindResource("ChipStyle") as Style;
+
+            GoLiveMinutesPanel.Children.Clear();
+            foreach (int minutes in GoLiveMinuteOptions)
+            {
+                int value = minutes;
+                var chip = new System.Windows.Controls.RadioButton { Content = Loc.T($"{value} Min."), GroupName = "GoLiveMinutes", IsChecked = value == settings.GoLiveMinutes };
+                if (chipStyle != null) chip.Style = chipStyle;
+                chip.Checked += (s, e) =>
+                {
+                    settings.GoLiveMinutes = value;
+                    SaveSettings();
+                };
+                GoLiveMinutesPanel.Children.Add(chip);
+            }
+
+            GoLiveRoutinePanel.Children.Clear();
+            void RoutineChip(string text, string name)
+            {
+                var chip = new System.Windows.Controls.RadioButton { Content = text, GroupName = "GoLiveRoutine", IsChecked = name == settings.GoLiveRoutine };
+                if (chipStyle != null) chip.Style = chipStyle;
+                chip.Checked += (s, e) =>
+                {
+                    settings.GoLiveRoutine = name;
+                    SaveSettings();
+                };
+                GoLiveRoutinePanel.Children.Add(chip);
+            }
+            if (settings.GoLiveRoutine.Length > 0 && !settings.Routines.Any(r => r.Name == settings.GoLiveRoutine))
+                settings.GoLiveRoutine = string.Empty;   // Ablauf wurde gelöscht oder umbenannt
+            RoutineChip(Loc.T("Keiner"), string.Empty);
+            foreach (var routine in settings.Routines) RoutineChip("⚙ " + routine.Name, routine.Name);
+
+            BtnGoLiveRoutine.Visibility = settings.Routines.Any(r => r.Name == StreamStartRoutineName) ? Visibility.Collapsed : Visibility.Visible;
+            UpdateGoLiveUi();
+        }
+
+        private void UpdateGoLiveUi()
+        {
+            if (GoLiveCard == null) return;
+
+            bool running = GoLiveRunning;
+            GoLiveOptions.IsEnabled = !running;
+            BtnGoLive.Content = Loc.T(running ? "Countdown abbrechen" : "Countdown starten");
+            if (running) BtnGoLive.Background = MakeBrush("#374151");
+            else BtnGoLive.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            GoLiveBar.Visibility = running ? Visibility.Visible : Visibility.Collapsed;
+
+            if (running)
+            {
+                var left = goLiveEnd - DateTime.Now;
+                if (left < TimeSpan.Zero) left = TimeSpan.Zero;
+                TxtGoLiveTime.Text = $"{(int)left.TotalMinutes:00}:{left.Seconds:00}";
+                TxtGoLiveTime.Visibility = Visibility.Visible;
+                double fraction = goLiveTotal.TotalSeconds > 0 ? 1 - left.TotalSeconds / goLiveTotal.TotalSeconds : 1;
+                GoLiveFill.Width = Math.Max(0, GoLiveBar.ActualWidth * Math.Clamp(fraction, 0, 1));
+            }
+            else if (goLiveDone)
+            {
+                TxtGoLiveTime.Text = Loc.T("🔴 Live!");
+                TxtGoLiveTime.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                TxtGoLiveTime.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void BtnGoLive_Click(object sender, RoutedEventArgs e)
+        {
+            if (GoLiveRunning)
+            {
+                goLiveTimer.Stop();
+                goLiveDone = false;
+                UpdateGoLiveUi();
+                ShowToast("⏱", "Countdown abgebrochen", "Der Countdown „Gleich live“ wurde gestoppt.", 3);
+                return;
+            }
+
+            StartGoLive(TimeSpan.FromMinutes(settings.GoLiveMinutes));
+        }
+
+        private void StartGoLive(TimeSpan duration)
+        {
+            goLiveTotal = duration;
+            goLiveEnd = DateTime.Now + duration;
+            goLiveLastCheck = DateTime.MinValue;
+            goLiveDone = false;
+            goLiveTimer.Start();
+            UpdateGoLiveUi();
+        }
+
+        private void GoLiveTick()
+        {
+            if (DateTime.Now >= goLiveEnd)
+            {
+                FinishGoLive();
+                return;
+            }
+
+            UpdateGoLiveUi();
+
+            // Checkliste alle 5 Sekunden auffrischen (Prozesse im Hintergrund prüfen)
+            if ((DateTime.Now - goLiveLastCheck).TotalSeconds >= 5)
+            {
+                goLiveLastCheck = DateTime.Now;
+                _ = RefreshGoLiveChecklistAsync();
+            }
+        }
+
+        private async Task RefreshGoLiveChecklistAsync()
+        {
+            bool running = await Task.Run(() => StreamProcesses.Any(IsProcessRunning));
+            if (ViewStreamer.Visibility == Visibility.Visible) RenderStreamerChecklist(running);
+        }
+
+        private void FinishGoLive()
+        {
+            goLiveTimer.Stop();
+            goLiveDone = true;
+            UpdateGoLiveUi();
+            _ = RefreshGoLiveChecklistAsync();
+
+            PlayUiSound("launch");
+            ShowToast("🔴", "Gleich live!", "Der Countdown ist abgelaufen. Viel Spaß beim Stream!", 10, () => NavigateTo("streamer"), true);
+
+            if (settings.GoLiveStartObs && ObsActive && !obsStreaming) _ = ObsCommandAsync("StartStream");
+
+            var routine = settings.Routines.FirstOrDefault(r => r.Name == settings.GoLiveRoutine);
+            if (routine != null) _ = RunRoutineAsync(routine, true);
+        }
+
+        private void ChkGoLiveObs_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+            settings.GoLiveStartObs = ChkGoLiveObs.IsChecked == true;
+            SaveSettings();
+        }
+
+        private void BtnGoLiveRoutine_Click(object sender, RoutedEventArgs e)
+        {
+            if (!settings.Routines.Any(r => r.Name == StreamStartRoutineName))
+            {
+                settings.Routines.Add(new AutomationRoutine
+                {
+                    Name = StreamStartRoutineName,
+                    Trigger = "manual",
+                    Steps = new List<AutomationStep>
+                    {
+                        new() { Type = "streamer", Mode = "on" },
+                        new() { Type = "toast", Target = "Du bist live. Viel Spaß beim Stream!" }
+                    }
+                });
+            }
+            settings.GoLiveRoutine = StreamStartRoutineName;
+            SaveSettings();
+            RenderGoLive();
+            ShowToast("⚙", "Ablauf angelegt", "„Stream-Start“ schaltet den Streamer-Modus ein. Weitere Schritte fügst du bei den Abläufen hinzu.", 7, null, true);
         }
 
         private void InitExtras15()

@@ -1842,6 +1842,30 @@
                             </StackPanel>
                         </Border>
 
+                        <Border x:Name="GoLiveCard" Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,4">
+                                    <TextBlock Text="⏱  Countdown „Gleich live“" Style="{StaticResource SectionTitle}" Margin="0"/>
+                                    <TextBlock x:Name="TxtGoLiveTime" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="30" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Visibility="Collapsed"/>
+                                </Grid>
+                                <TextBlock Text="Zählt bis zum Livegang herunter. Die Checkliste unten aktualisiert sich dabei laufend, am Ende erscheint eine Meldung." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                <StackPanel x:Name="GoLiveOptions">
+                                    <TextBlock Text="Dauer" Style="{StaticResource SubtleText}" FontSize="12" Margin="0,0,0,6"/>
+                                    <WrapPanel x:Name="GoLiveMinutesPanel" Margin="0,0,0,10"/>
+                                    <TextBlock Text="Danach diesen Ablauf starten" Style="{StaticResource SubtleText}" FontSize="12" Margin="0,0,0,6"/>
+                                    <WrapPanel x:Name="GoLiveRoutinePanel" Margin="0,0,0,10"/>
+                                    <CheckBox x:Name="ChkGoLiveObs" Content="Danach in OBS den Stream starten" Margin="0,0,0,14" Checked="ChkGoLiveObs_Changed" Unchecked="ChkGoLiveObs_Changed"/>
+                                </StackPanel>
+                                <Border x:Name="GoLiveBar" Height="4" CornerRadius="2" Background="#26FFFFFF" Margin="0,0,0,14" Visibility="Collapsed">
+                                    <Border x:Name="GoLiveFill" CornerRadius="2" Background="{DynamicResource AccentBrush}" HorizontalAlignment="Left" Width="0"/>
+                                </Border>
+                                <WrapPanel>
+                                    <Button x:Name="BtnGoLive" Content="Countdown starten" Margin="0,0,10,0" Padding="18,9" Background="{DynamicResource AccentBrush}" Click="BtnGoLive_Click"/>
+                                    <Button x:Name="BtnGoLiveRoutine" Content="Ablauf „Stream-Start“ anlegen" Margin="0,0,10,0" Click="BtnGoLiveRoutine_Click"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+
                         <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
                             <StackPanel>
                                 <TextBlock Text="🎬  Streaming-Programme" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
@@ -3605,6 +3629,19 @@
                                             <TextBlock Text="Erkennt OBS, Streamlabs, Twitch Studio, XSplit, vMix und Prism. Der Modus geht wieder aus, sobald das Programm beendet wird." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                         </StackPanel>
                                         <CheckBox x:Name="ChkStreamAuto" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
+
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Launcher in Aufnahmen und Streams unsichtbar machen" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="OBS, Discord und Bildschirmfotos zeigen das Launcher-Fenster und alle seine Dialoge nicht mehr. Du selbst siehst es ganz normal. Gilt immer, auch ohne Streamer-Modus." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                            <TextBlock x:Name="TxtCaptureExcludeHint" Foreground="#F59E0B" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0" Visibility="Collapsed"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkCaptureExclude" Grid.Column="1" VerticalAlignment="Center" Checked="ChkCaptureExclude_Changed" Unchecked="ChkCaptureExclude_Changed"/>
                                     </Grid>
                                 </StackPanel>
                             </Border>
