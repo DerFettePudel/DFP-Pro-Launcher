@@ -249,6 +249,83 @@
             </Setter>
         </Style>
 
+        <!-- Hinweis-Blase für die schwebende Leiste (statt Windows-Tooltip): oberhalb, mit Pfeil nach unten -->
+        <Style x:Key="DockToolTip" TargetType="ToolTip">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="HasDropShadow" Value="False"/>
+            <Setter Property="Placement" Value="Top"/>
+            <Setter Property="VerticalOffset" Value="-4"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToolTip">
+                        <Grid x:Name="root" Margin="12" Opacity="0" RenderTransformOrigin="0.5,1">
+                            <Grid.RenderTransform>
+                                <TranslateTransform x:Name="slide" Y="6"/>
+                            </Grid.RenderTransform>
+                            <StackPanel>
+                                <Border Background="#F2161B28" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="10" Padding="12,6">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="16" ShadowDepth="3" Direction="270" Opacity="0.5" Color="Black"/>
+                                    </Border.Effect>
+                                    <ContentPresenter/>
+                                </Border>
+                                <Path Data="M0,0 L7,7 L14,0" Fill="#F2161B28" Stroke="{DynamicResource AccentBrush}" StrokeThickness="1"
+                                      HorizontalAlignment="Center" Margin="0,-1,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <EventTrigger RoutedEvent="ToolTip.Opened">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.15"/>
+                                        <DoubleAnimation Storyboard.TargetName="slide" Storyboard.TargetProperty="Y" To="0" Duration="0:0:0.2">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Hinweis-Blase für die eingeklappte Seitenleiste: daneben, ohne Pfeil -->
+        <Style x:Key="SideToolTip" TargetType="ToolTip">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="HasDropShadow" Value="False"/>
+            <Setter Property="Placement" Value="Right"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToolTip">
+                        <Border x:Name="root" Margin="12" Opacity="0" Background="#F2161B28" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="10" Padding="12,6">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="16" ShadowDepth="3" Direction="270" Opacity="0.5" Color="Black"/>
+                            </Border.Effect>
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <EventTrigger RoutedEvent="ToolTip.Opened">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.15"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Filter-Chips -->
         <Style x:Key="ChipStyle" TargetType="RadioButton">
             <Setter Property="Foreground" Value="#9CA3AF"/>
@@ -4061,6 +4138,8 @@
                 CornerRadius="26" Background="{DynamicResource SidebarBrush}" BorderBrush="#33FFFFFF" BorderThickness="1">
                 <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
                     <StackPanel x:Name="NavDockPanel" Orientation="Horizontal">
+                        <Border x:Name="NavDockDivider" Width="1" Height="34" Margin="8,0" Background="#33FFFFFF" VerticalAlignment="Center" Visibility="Collapsed"/>
+                        <StackPanel x:Name="NavDockExtras" Orientation="Horizontal" VerticalAlignment="Center"/>
                         <Border x:Name="DockStreamBadge" Visibility="Collapsed" Margin="8,0,4,0" Padding="10,6" CornerRadius="14" Background="#33DC2626"
                             VerticalAlignment="Center" Cursor="Hand" ToolTip="Streamer-Modus ist an. Klicken zum Ausschalten" MouseLeftButtonUp="StreamBadge_Click">
                             <TextBlock Text="📡" FontFamily="Segoe UI Emoji" FontSize="16"/>

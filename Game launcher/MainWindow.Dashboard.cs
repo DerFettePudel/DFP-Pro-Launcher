@@ -1548,6 +1548,14 @@ namespace Game_launcher
             nowPlayingText = null;
             musicControls = null;
 
+            // Schwebende Leiste unten: Schnellstart und Musik stehen dort als Symbole
+            RenderDockExtras();
+            if (IsBottomNav)
+            {
+                SidebarExtras.Visibility = Visibility.Collapsed;
+                return;
+            }
+
             if (settings.QuickButtonsEnabled) SidebarExtras.Children.Add(BuildQuickButtons(compact));
             if (settings.MusicPlayer && !SHide(settings.StreamHideMusic)) SidebarExtras.Children.Add(BuildMusicCard(compact));
 

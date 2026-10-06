@@ -789,7 +789,16 @@ namespace Game_launcher
                 if (item.Content is StackPanel panel && panel.Children.Count > 1)
                 {
                     panel.Children[1].Visibility = iconsOnly ? Visibility.Collapsed : Visibility.Visible;
-                    item.ToolTip = iconsOnly && panel.Children[1] is TextBlock label ? label.Text : null;
+                    // Name als Hinweis-Blase im Launcher-Design (folgt der übersetzten Beschriftung)
+                    if (iconsOnly && panel.Children[1] is TextBlock label)
+                    {
+                        var text = new TextBlock();
+                        text.SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding(nameof(TextBlock.Text)) { Source = label });
+                        item.ToolTip = MakeNavToolTip(text, bottomNav);
+                        System.Windows.Controls.ToolTipService.SetInitialShowDelay(item, bottomNav ? 120 : 300);
+                        System.Windows.Controls.ToolTipService.SetBetweenShowDelay(item, 0);
+                    }
+                    else item.ToolTip = null;
                 }
             }
 

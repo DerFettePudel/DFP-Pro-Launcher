@@ -804,6 +804,124 @@ namespace Game_launcher
 
             // Breite der schwebenden Leiste an das Fenster anpassen (sie verkleinert sich bei schmalen Fenstern)
             RootGrid.SizeChanged += (s, e) => NavDock.MaxWidth = Math.Max(320, RootGrid.ActualWidth - 40);
+
+            DockStreamBadge.ToolTip = MakeNavToolTip(Loc.T("Streamer-Modus ist an. Klicken zum Ausschalten"), true);
+            System.Windows.Controls.ToolTipService.SetInitialShowDelay(DockStreamBadge, 120);
+            AttachDockHover(DockStreamBadge);
+        }
+
+        /// <summary>Hinweis-Blase im Launcher-Design statt Windows-Tooltip (unten mit Pfeil, an der Seitenleiste daneben).</summary>
+        private System.Windows.Controls.ToolTip MakeNavToolTip(object content, bool dock)
+        {
+            var tip = new System.Windows.Controls.ToolTip { Content = content };
+            if (TryFindResource(dock ? "DockToolTip" : "SideToolTip") is Style style) tip.Style = style;
+            if (!dock)
+                tip.Placement = NavPosition == "right"
+                    ? System.Windows.Controls.Primitives.PlacementMode.Left
+                    : System.Windows.Controls.Primitives.PlacementMode.Right;
+            return tip;
+        }
+
+        /// <summary>Schnellstart-Knöpfe und Musik als Symbole in der schwebenden Leiste.</summary>
+        private void RenderDockExtras()
+        {
+            if (NavDockExtras == null) return;
+            NavDockExtras.Children.Clear();
+
+            if (IsBottomNav)
+            {
+                if (settings.QuickButtonsEnabled)
+                {
+                    foreach (var button in settings.QuickButtons.ToList())
+                        NavDockExtras.Children.Add(DockifyTile(CreateQuickTile(button), button.Name));
+                    if (settings.QuickButtons.Count < 12)
+                        NavDockExtras.Children.Add(DockifyTile(CreateQuickAddTile(), Loc.T("Programm hinzufügen")));
+                }
+
+                if (settings.MusicPlayer && !SHide(settings.StreamHideMusic))
+                {
+                    NavDockExtras.Children.Add(DockTile("🎵", Loc.T("Musik"), () => OpenMusic(null)));
+                    if (musicView != null)
+                    {
+                        var controls = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                        controls.Children.Add(DockTile("⏮", Loc.T("Vorheriges Lied"), () => SendMediaKey(0xB1), 34));
+                        controls.Children.Add(DockTile("⏯", Loc.T("Wiedergabe oder Pause"), () => _ = MusicTogglePlayAsync(), 34));
+                        controls.Children.Add(DockTile("⏭", Loc.T("Nächstes Lied"), () => SendMediaKey(0xB0), 34));
+                        musicControls = controls;
+                        NavDockExtras.Children.Add(controls);
+                    }
+                }
+            }
+
+            if (NavDockDivider != null)
+                NavDockDivider.Visibility = NavDockExtras.Children.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private Border DockTile(string icon, string tip, Action click, double size = 40)
+        {
+            var tile = new Border
+            {
+                Width = size,
+                Height = size,
+                CornerRadius = new CornerRadius(12),
+                Background = MakeBrush("#1AFFFFFF"),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                Child = new TextBlock
+                {
+                    Text = icon,
+                    FontSize = size * 0.5,
+                    FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                    Foreground = System.Windows.Media.Brushes.White,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center
+                }
+            };
+            tile.MouseEnter += (s, e) => tile.Background = MakeBrush("#33FFFFFF");
+            tile.MouseLeave += (s, e) => tile.Background = MakeBrush("#1AFFFFFF");
+            tile.MouseLeftButtonUp += (s, e) => click();
+            return DockifyTile(tile, tip);
+        }
+
+        /// <summary>Macht eine Kachel passend für die schwebende Leiste: Abstand, Hinweis-Blase und Hover-Effekt.</summary>
+        private Border DockifyTile(Border tile, string tip)
+        {
+            tile.Margin = new Thickness(3, 0, 3, 0);
+            tile.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+            tile.ToolTip = MakeNavToolTip(tip, true);
+            System.Windows.Controls.ToolTipService.SetInitialShowDelay(tile, 120);
+            System.Windows.Controls.ToolTipService.SetBetweenShowDelay(tile, 0);
+            AttachDockHover(tile);
+            return tile;
+        }
+
+        /// <summary>Kachel wächst beim Drüberfahren federnd und hebt sich leicht an (wie die Symbole der Bereiche).</summary>
+        private void AttachDockHover(FrameworkElement element)
+        {
+            var scale = new ScaleTransform(1, 1);
+            var lift = new TranslateTransform(0, 0);
+            element.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
+            element.RenderTransform = new TransformGroup { Children = { scale, lift } };
+
+            void Animate(bool hover)
+            {
+                if (!settings.HoverAnimations) return;
+                var grow = new DoubleAnimation(hover ? 1.22 : 1.0, TimeSpan.FromMilliseconds(hover ? 420 : 200))
+                {
+                    EasingFunction = hover
+                        ? new ElasticEase { Oscillations = 1, Springiness = 5, EasingMode = EasingMode.EaseOut }
+                        : new CubicEase { EasingMode = EasingMode.EaseOut }
+                };
+                scale.BeginAnimation(ScaleTransform.ScaleXProperty, grow);
+                scale.BeginAnimation(ScaleTransform.ScaleYProperty, grow);
+                lift.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(hover ? -6 : 0, TimeSpan.FromMilliseconds(220))
+                {
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                });
+            }
+
+            element.MouseEnter += (s, e) => Animate(true);
+            element.MouseLeave += (s, e) => Animate(false);
         }
 
         /// <summary>Ordnet Seitenleiste, Inhalt und schwebende Leiste nach der gewählten Position an.</summary>
@@ -898,7 +1016,11 @@ namespace Game_launcher
                 });
                 NavDock.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(260)));
             }
+
+            // Schnellstart und Musik wechseln zwischen Seitenleiste und schwebender Leiste
+            bool changed = appliedNavPosition != position;
             appliedNavPosition = position;
+            if (changed && SidebarExtras != null) RenderSidebarExtras();
         }
 
         private static TextBlock? NavIcon(System.Windows.Controls.RadioButton item)
