@@ -25,6 +25,8 @@ namespace Game_launcher
     {
         public string Name { get; set; } = string.Empty;
         public string Path { get; set; } = string.Empty;
+        public string AppId { get; set; } = string.Empty;
+        public string ExePath { get; set; } = string.Empty;
     }
 
     public class AutomationStep
@@ -282,6 +284,18 @@ namespace Game_launcher
         public string SkippedUpdate { get; set; } = string.Empty;
         public List<string> AppFavorites { get; set; } = new();
         public bool EasterEggs { get; set; } = true;
+        public string LibraryView { get; set; } = "cards";
+        public bool PadCombo { get; set; } = true;
+        public string PadComboMode { get; set; } = "backstart";
+        public bool PadComboInGame { get; set; }
+        public bool PadVibrate { get; set; }
+        public int PadRepeat { get; set; } = 2;
+        public bool PadAutoStart { get; set; }
+        public List<string> PadSeenLayouts { get; set; } = new();
+        public bool StreamerPageSeeded { get; set; }
+        public bool StreamHideMusic { get; set; } = true;
+        public bool QuickRealIcons { get; set; } = true;
+        public List<QuickButton> StreamerApps { get; set; } = new();
         public string SidebarColor { get; set; } = string.Empty;
         public string NavTextColor { get; set; } = string.Empty;
         public string NavActiveColor { get; set; } = string.Empty;
@@ -489,6 +503,16 @@ namespace Game_launcher
 
         [Interop.DllImport("xinput1_4.dll")]
         internal static extern uint XInputGetBatteryInformation(uint index, byte devType, out XInputBatteryInformation info);
+
+        [Interop.StructLayout(Interop.LayoutKind.Sequential)]
+        internal struct XInputVibration
+        {
+            public ushort LeftMotor;
+            public ushort RightMotor;
+        }
+
+        [Interop.DllImport("xinput1_4.dll")]
+        internal static extern uint XInputSetState(uint index, ref XInputVibration vibration);
 
         [Interop.DllImport("kernel32.dll", SetLastError = true)]
         internal static extern IntPtr OpenProcess(uint access, bool inherit, int pid);
@@ -2271,6 +2295,156 @@ Niedrig || Low || 低 || Baja || Faible || Baixa || Низкий || 低
 Leer || Empty || 空 || Vacía || Vide || Vazia || Пусто || 空
 Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
 
+# ───────── Runde 21: Streamer-Seite, Systembefehle, Controller-Modus, Cover-Flow, Messwerte ─────────
+Aktiv (manuell) || Active (manual) || 已启用(手动) || Activo (manual) || Actif (manuel) || Ativo (manual) || Включён (вручную) || オン(手動)
+Aktiv (automatisch, weil eine Streaming-Software läuft) || Active (automatic, because streaming software is running) || 已启用(自动,因为直播软件正在运行) || Activo (automático, porque hay software de streaming en ejecución) || Actif (automatique, car un logiciel de streaming est lancé) || Ativo (automático, porque um software de streaming está aberto) || Включён (автоматически: запущена программа для стримов) || オン(配信ソフトが動作中のため自動)
+Einschalten || Turn on || 开启 || Activar || Activer || Ativar || Включить || オンにする
+Ausschalten || Turn off || 关闭 || Desactivar || Désactiver || Desativar || Выключить || オフにする
+Alles für deinen Stream: Programme, Schnellzugriffe und eine Checkliste vor dem Livegang. || Everything for your stream: programs, shortcuts and a checklist before going live. || 直播所需的一切:程序、快捷入口和开播前检查清单。 || Todo para tu stream: programas, accesos rápidos y una lista de comprobación antes de salir en directo. || Tout pour ton stream : programmes, raccourcis et une liste de contrôle avant le direct. || Tudo para a sua transmissão: programas, atalhos e uma lista de verificação antes de entrar ao vivo. || Всё для стрима: программы, быстрые ссылки и чек-лист перед эфиром. || 配信に必要なもの:プログラム、ショートカット、配信前チェックリスト。
+Verbirgt Name, Standort, Statistiken, Pfade und den Musik-Player. Was genau verborgen wird, stellst du unter Einstellungen → Streamer ein. || Hides name, location, statistics, paths and the music player. You choose exactly what is hidden under Settings → Streamer. || 隐藏名称、位置、统计、路径和音乐播放器。具体隐藏内容请在“设置 → 主播”中设置。 || Oculta nombre, ubicación, estadísticas, rutas y el reproductor de música. Lo que se oculta se elige en Ajustes → Streamer. || Masque le nom, la position, les statistiques, les chemins et le lecteur de musique. Tu choisis ce qui est masqué dans Paramètres → Streamer. || Oculta nome, local, estatísticas, caminhos e o player de música. O que é ocultado você escolhe em Configurações → Streamer. || Скрывает имя, местоположение, статистику, пути и музыкальный плеер. Что именно скрывать, выбирается в «Настройки → Стример». || 名前、場所、統計、パス、音楽プレーヤーを隠します。隠す内容は「設定 → 配信者」で選べます。
+🎬  Streaming-Programme || 🎬  Streaming programs || 🎬  直播程序 || 🎬  Programas de streaming || 🎬  Programmes de streaming || 🎬  Programas de streaming || 🎬  Программы для стримов || 🎬  配信プログラム
+Es wurde noch keine Streaming-Software erkannt. Füge deine Programme mit dem Plus hinzu. || No streaming software was detected yet. Add your programs with the plus. || 尚未检测到直播软件。请用加号添加你的程序。 || Aún no se detectó software de streaming. Añade tus programas con el signo más. || Aucun logiciel de streaming détecté pour l'instant. Ajoute tes programmes avec le plus. || Nenhum software de streaming foi detectado ainda. Adicione seus programas com o sinal de mais. || Программы для стримов пока не найдены. Добавьте их кнопкой «плюс». || 配信ソフトはまだ見つかっていません。プラスで追加してください。
+{#0} Programme automatisch erkannt. || {0} programs detected automatically. || 已自动检测到 {0} 个程序。 || {0} programas detectados automáticamente. || {0} programmes détectés automatiquement. || {0} programas detectados automaticamente. || Автоматически найдено программ: {0}. || {0}個のプログラムを自動検出しました。
+Streaming-Programm || Streaming program || 直播程序 || Programa de streaming || Programme de streaming || Programa de streaming || Программа для стримов || 配信プログラム
+🔗  Schnellzugriffe || 🔗  Shortcuts || 🔗  快捷入口 || 🔗  Accesos rápidos || 🔗  Raccourcis || 🔗  Atalhos || 🔗  Быстрые ссылки || 🔗  ショートカット
+✅  Checkliste vor dem Livegang || ✅  Checklist before going live || ✅  开播前检查清单 || ✅  Lista de comprobación antes de emitir || ✅  Liste de contrôle avant le direct || ✅  Lista de verificação antes de ir ao vivo || ✅  Чек-лист перед эфиром || ✅  配信前チェックリスト
+Eine Streaming-Software läuft || Streaming software is running || 直播软件正在运行 || El software de streaming está en ejecución || Un logiciel de streaming est lancé || O software de streaming está em execução || Программа для стримов запущена || 配信ソフトが動作中
+Der Streamer-Modus ist an || Streamer mode is on || 主播模式已开启 || El modo streamer está activado || Le mode streamer est activé || O modo streamer está ativado || Режим стримера включён || 配信者モードがオン
+Hinweis-Meldungen sind stumm || Notifications are muted || 提示消息已静音 || Los avisos están silenciados || Les notifications sont muettes || Os avisos estão silenciados || Уведомления отключены || 通知はミュート中
+Stumm schalten || Mute || 静音 || Silenciar || Couper le son || Silenciar || Отключить звук || ミュートにする
+Dein Name wird verborgen || Your name is hidden || 你的名字已隐藏 || Tu nombre está oculto || Ton nom est masqué || Seu nome está oculto || Ваше имя скрыто || 名前は非表示です
+Verbergen || Hide || 隐藏 || Ocultar || Masquer || Ocultar || Скрыть || 隠す
+Der Musik-Player bleibt verborgen || The music player stays hidden || 音乐播放器保持隐藏 || El reproductor de música permanece oculto || Le lecteur de musique reste masqué || O player de música permanece oculto || Музыкальный плеер остаётся скрытым || 音楽プレーヤーは非表示のまま
+Streamer-Seite in der Seitenleiste anzeigen || Show the Streamer page in the sidebar || 在侧边栏显示“主播”页面 || Mostrar la página Streamer en la barra lateral || Afficher la page Streamer dans la barre latérale || Mostrar a página Streamer na barra lateral || Показывать страницу «Стример» в боковой панели || サイドバーに「配信者」ページを表示
+Zeigt den Bereich „Streamer“ mit OBS und Co. in der Seitenleiste. || Shows the "Streamer" section with OBS and others in the sidebar. || 在侧边栏显示包含 OBS 等程序的“主播”区域。 || Muestra la sección «Streamer» con OBS y otros en la barra lateral. || Affiche la section « Streamer » avec OBS et d'autres dans la barre latérale. || Mostra a seção "Streamer" com OBS e outros na barra lateral. || Показывает раздел «Стример» с OBS и другими программами в боковой панели. || OBSなどを含む「配信者」セクションをサイドバーに表示します。
+Musik-Player verbergen || Hide the music player || 隐藏音乐播放器 || Ocultar el reproductor de música || Masquer le lecteur de musique || Ocultar o player de música || Скрывать музыкальный плеер || 音楽プレーヤーを隠す
+Der Musik-Player zeigt dein Konto und deine Listen. Im Streamer-Modus bleibt er deshalb geschlossen. || The music player shows your account and playlists. It therefore stays closed in streamer mode. || 音乐播放器会显示你的账号和歌单,因此在主播模式下保持关闭。 || El reproductor de música muestra tu cuenta y tus listas. Por eso permanece cerrado en el modo streamer. || Le lecteur de musique affiche ton compte et tes listes. Il reste donc fermé en mode streamer. || O player de música mostra sua conta e suas listas. Por isso fica fechado no modo streamer. || Музыкальный плеер показывает ваш аккаунт и списки. Поэтому в режиме стримера он остаётся закрытым. || 音楽プレーヤーにはアカウントやリストが表示されるため、配信者モードでは閉じたままです。
+Im Streamer-Modus ist der Musik-Player verborgen. || The music player is hidden in streamer mode. || 主播模式下音乐播放器已隐藏。 || El reproductor de música está oculto en el modo streamer. || Le lecteur de musique est masqué en mode streamer. || O player de música está oculto no modo streamer. || В режиме стримера музыкальный плеер скрыт. || 配信者モードでは音楽プレーヤーは非表示です。
+Schnellzugriff mit echten Symbolen || Shortcuts with real icons || 使用真实图标的快捷入口 || Accesos rápidos con iconos reales || Raccourcis avec de vraies icônes || Atalhos com ícones reais || Быстрые ссылки с настоящими значками || 本物のアイコンでショートカット表示
+Zeigt für Programme und Webseiten das echte Symbol statt eines Emojis. || Shows the real icon for programs and websites instead of an emoji. || 为程序和网站显示真实图标,而不是表情符号。 || Muestra el icono real de programas y webs en lugar de un emoji. || Affiche la vraie icône des programmes et sites web au lieu d'un emoji. || Mostra o ícone real de programas e sites em vez de um emoji. || Для программ и сайтов показывается настоящий значок вместо эмодзи. || プログラムやWebサイトに絵文字ではなく本物のアイコンを表示します。
+Programm suchen ... || Search programs ... || 搜索程序 ... || Buscar programa ... || Rechercher un programme ... || Procurar programa ... || Поиск программы ... || プログラムを検索 ...
+Nichts gefunden. Wähle unten eine Datei aus. || Nothing found. Pick a file below. || 未找到。请在下方选择文件。 || No se encontró nada. Elige un archivo abajo. || Rien trouvé. Choisis un fichier ci-dessous. || Nada encontrado. Escolha um arquivo abaixo. || Ничего не найдено. Выберите файл ниже. || 見つかりません。下でファイルを選んでください。
+Screenshot löschen || Delete screenshot || 删除截图 || Eliminar captura || Supprimer la capture || Excluir captura de tela || Удалить скриншот || スクリーンショットを削除
+Diesen Screenshot in den Papierkorb verschieben? || Move this screenshot to the recycle bin? || 将此截图移到回收站? || ¿Mover esta captura a la papelera? || Déplacer cette capture dans la corbeille ? || Mover esta captura de tela para a lixeira? || Переместить этот скриншот в корзину? || このスクリーンショットをごみ箱に移動しますか?
+Screenshot gelöscht || Screenshot deleted || 截图已删除 || Captura eliminada || Capture supprimée || Captura excluída || Скриншот удалён || スクリーンショットを削除しました
+Der Screenshot konnte nicht gelöscht werden:\n{0} || The screenshot could not be deleted:\n{0} || 无法删除截图:\n{0} || No se pudo eliminar la captura:\n{0} || La capture n'a pas pu être supprimée :\n{0} || Não foi possível excluir a captura:\n{0} || Не удалось удалить скриншот:\n{0} || スクリーンショットを削除できませんでした:\n{0}
+Dateipfad öffnen || Open file location || 打开文件位置 || Abrir ubicación del archivo || Ouvrir l'emplacement du fichier || Abrir local do arquivo || Открыть расположение файла || ファイルの場所を開く
+🗑  Löschen ... || 🗑  Delete ... || 🗑  删除 ... || 🗑  Eliminar ... || 🗑  Supprimer ... || 🗑  Excluir ... || 🗑  Удалить ... || 🗑  削除 ...
+Kopiert || Copied || 已复制 || Copiado || Copié || Copiado || Скопировано || コピーしました
+Der Befehl liegt in der Zwischenablage. || The command is on the clipboard. || 命令已复制到剪贴板。 || El comando está en el portapapeles. || La commande est dans le presse-papiers. || O comando está na área de transferência. || Команда скопирована в буфер обмена. || コマンドをクリップボードにコピーしました。
+Systembefehle || System commands || 系统命令 || Comandos del sistema || Commandes système || Comandos do sistema || Системные команды || システムコマンド
+Systembefehl || System command || 系统命令 || Comando del sistema || Commande système || Comando do sistema || Системная команда || システムコマンド
+Ein Klick öffnet ein PowerShell-Fenster mit dem Befehl. Mit 🛡 gekennzeichnete Befehle brauchen Administratorrechte, Windows fragt dann nach. Rechtsklick kopiert den Befehl. || One click opens a PowerShell window with the command. Commands marked with 🛡 need administrator rights; Windows will ask. Right-click copies the command. || 点击后会打开带有该命令的 PowerShell 窗口。标有 🛡 的命令需要管理员权限,Windows 会弹出提示。右键可复制命令。 || Un clic abre una ventana de PowerShell con el comando. Los comandos marcados con 🛡 necesitan derechos de administrador y Windows lo preguntará. Clic derecho copia el comando. || Un clic ouvre une fenêtre PowerShell avec la commande. Les commandes marquées 🛡 demandent les droits d'administrateur, Windows te le demandera. Clic droit copie la commande. || Um clique abre uma janela do PowerShell com o comando. Comandos marcados com 🛡 precisam de direitos de administrador e o Windows pergunta. Clique direito copia o comando. || Щелчок открывает окно PowerShell с командой. Команды с 🛡 требуют прав администратора, Windows спросит об этом. Правый щелчок копирует команду. || クリックするとコマンド入りのPowerShellが開きます。🛡付きは管理者権限が必要で、Windowsが確認します。右クリックでコマンドをコピーできます。
+Reinigung || Cleaning || 清理 || Limpieza || Nettoyage || Limpeza || Очистка || クリーンアップ
+Reparatur || Repair || 修复 || Reparación || Réparation || Reparo || Восстановление || 修復
+Auslesen || Read out || 读取信息 || Consultar || Consulter || Consultar || Просмотр данных || 情報の取得
+Temp-Dateien leeren || Empty temp files || 清空临时文件 || Vaciar archivos temporales || Vider les fichiers temporaires || Esvaziar arquivos temporários || Очистить временные файлы || 一時ファイルを削除
+Löscht temporäre Dateien deines Benutzers || Deletes temporary files of your user account || 删除你的用户的临时文件 || Elimina los archivos temporales de tu usuario || Supprime les fichiers temporaires de ton utilisateur || Exclui os arquivos temporários do seu usuário || Удаляет временные файлы вашего пользователя || あなたのユーザーの一時ファイルを削除します
+Alle Dateien im Temp-Ordner löschen? Dateien, die gerade benutzt werden, bleiben liegen. || Delete all files in the temp folder? Files currently in use are left alone. || 删除临时文件夹中的所有文件?正在使用的文件会保留。 || ¿Eliminar todos los archivos de la carpeta temporal? Los archivos en uso se conservan. || Supprimer tous les fichiers du dossier temporaire ? Les fichiers en cours d'utilisation sont conservés. || Excluir todos os arquivos da pasta temporária? Arquivos em uso são mantidos. || Удалить все файлы во временной папке? Используемые файлы останутся. || 一時フォルダー内のすべてのファイルを削除しますか?使用中のファイルは残ります。
+Leert den Papierkorb endgültig || Empties the recycle bin permanently || 彻底清空回收站 || Vacía la papelera definitivamente || Vide définitivement la corbeille || Esvazia a lixeira permanentemente || Окончательно очищает корзину || ごみ箱を完全に空にします
+Den Papierkorb endgültig leeren? || Empty the recycle bin permanently? || 彻底清空回收站? || ¿Vaciar la papelera definitivamente? || Vider définitivement la corbeille ? || Esvaziar a lixeira permanentemente? || Окончательно очистить корзину? || ごみ箱を完全に空にしますか?
+DNS-Cache leeren || Flush DNS cache || 清空 DNS 缓存 || Vaciar caché DNS || Vider le cache DNS || Limpar cache DNS || Очистить кэш DNS || DNSキャッシュを消去
+Hilft bei Verbindungsproblemen || Helps with connection problems || 有助于解决连接问题 || Ayuda con problemas de conexión || Aide en cas de problèmes de connexion || Ajuda com problemas de conexão || Помогает при проблемах с подключением || 接続の問題に役立ちます
+Windows-Update-Cache leeren || Empty Windows Update cache || 清空 Windows 更新缓存 || Vaciar caché de Windows Update || Vider le cache Windows Update || Esvaziar cache do Windows Update || Очистить кэш Windows Update || Windows Updateキャッシュを消去
+🛡 Räumt heruntergeladene Update-Reste auf || 🛡 Cleans up downloaded update leftovers || 🛡 清理已下载的更新残留 || 🛡 Limpia restos de actualizaciones descargadas || 🛡 Nettoie les restes de mises à jour téléchargées || 🛡 Limpa restos de atualizações baixadas || 🛡 Убирает остатки загруженных обновлений || 🛡 ダウンロード済み更新の残りを整理します
+Den Windows-Update-Cache leeren? Windows lädt Updates danach bei Bedarf neu. || Empty the Windows Update cache? Windows will download updates again when needed. || 清空 Windows 更新缓存?之后 Windows 会在需要时重新下载更新。 || ¿Vaciar la caché de Windows Update? Windows volverá a descargar las actualizaciones si hace falta. || Vider le cache Windows Update ? Windows retéléchargera les mises à jour si nécessaire. || Esvaziar o cache do Windows Update? O Windows baixa as atualizações novamente quando precisar. || Очистить кэш Windows Update? При необходимости Windows загрузит обновления снова. || Windows Updateキャッシュを消去しますか?必要に応じてWindowsが更新を再取得します。
+Systemdateien prüfen (SFC) || Check system files (SFC) || 检查系统文件 (SFC) || Comprobar archivos del sistema (SFC) || Vérifier les fichiers système (SFC) || Verificar arquivos do sistema (SFC) || Проверить системные файлы (SFC) || システムファイルをチェック(SFC)
+🛡 Sucht und repariert beschädigte Windows-Dateien || 🛡 Finds and repairs damaged Windows files || 🛡 查找并修复损坏的 Windows 文件 || 🛡 Busca y repara archivos de Windows dañados || 🛡 Détecte et répare les fichiers Windows endommagés || 🛡 Procura e repara arquivos do Windows danificados || 🛡 Находит и исправляет повреждённые файлы Windows || 🛡 破損したWindowsファイルを検出して修復します
+Windows-Abbild prüfen (DISM) || Check Windows image (DISM) || 检查 Windows 映像 (DISM) || Comprobar imagen de Windows (DISM) || Vérifier l'image Windows (DISM) || Verificar imagem do Windows (DISM) || Проверить образ Windows (DISM) || Windowsイメージをチェック(DISM)
+🛡 Prüft den Zustand der Windows-Installation || 🛡 Checks the health of the Windows installation || 🛡 检查 Windows 安装的状态 || 🛡 Comprueba el estado de la instalación de Windows || 🛡 Vérifie l'état de l'installation de Windows || 🛡 Verifica o estado da instalação do Windows || 🛡 Проверяет состояние установки Windows || 🛡 Windowsインストールの状態を確認します
+Laufwerk C: prüfen || Check drive C: || 检查 C: 盘 || Comprobar la unidad C: || Vérifier le lecteur C: || Verificar a unidade C: || Проверить диск C: || ドライブC:をチェック
+🛡 Nur lesen, es wird nichts geändert || 🛡 Read-only, nothing is changed || 🛡 仅读取,不会更改任何内容 || 🛡 Solo lectura, no se cambia nada || 🛡 Lecture seule, rien n'est modifié || 🛡 Somente leitura, nada é alterado || 🛡 Только чтение, ничего не меняется || 🛡 読み取りのみで、何も変更されません
+Netzwerk zurücksetzen || Reset network || 重置网络 || Restablecer la red || Réinitialiser le réseau || Redefinir a rede || Сбросить сеть || ネットワークをリセット
+🛡 Setzt Winsock und IP-Einstellungen zurück || 🛡 Resets Winsock and IP settings || 🛡 重置 Winsock 和 IP 设置 || 🛡 Restablece Winsock y la configuración IP || 🛡 Réinitialise Winsock et les paramètres IP || 🛡 Redefine Winsock e as configurações de IP || 🛡 Сбрасывает Winsock и настройки IP || 🛡 WinsockとIP設定をリセットします
+Das Netzwerk wird kurz unterbrochen und danach ist ein Neustart nötig. Fortfahren? || The network will be interrupted briefly and a restart is needed afterwards. Continue? || 网络将短暂中断,之后需要重启。是否继续? || La red se interrumpirá brevemente y después hará falta reiniciar. ¿Continuar? || Le réseau sera brièvement interrompu et un redémarrage sera nécessaire ensuite. Continuer ? || A rede será interrompida por um instante e depois é preciso reiniciar. Continuar? || Сеть ненадолго отключится, после этого потребуется перезагрузка. Продолжить? || ネットワークが一時的に切断され、その後再起動が必要です。続行しますか?
+Systeminformationen || System information || 系统信息 || Información del sistema || Informations système || Informações do sistema || Сведения о системе || システム情報
+Hardware, Windows und Updates im Überblick || Hardware, Windows and updates at a glance || 硬件、Windows 和更新概览 || Hardware, Windows y actualizaciones de un vistazo || Matériel, Windows et mises à jour en un coup d'œil || Hardware, Windows e atualizações em resumo || Оборудование, Windows и обновления одним взглядом || ハードウェア、Windows、更新プログラムの概要
+Netzwerk-Informationen || Network information || 网络信息 || Información de red || Informations réseau || Informações de rede || Сведения о сети || ネットワーク情報
+IP-Adressen, DNS und Adapter || IP addresses, DNS and adapters || IP 地址、DNS 和适配器 || Direcciones IP, DNS y adaptadores || Adresses IP, DNS et adaptateurs || Endereços IP, DNS e adaptadores || IP-адреса, DNS и адаптеры || IPアドレス、DNS、アダプター
+Verbindungstest || Connection test || 连接测试 || Prueba de conexión || Test de connexion || Teste de conexão || Проверка соединения || 接続テスト
+Ping an Cloudflare und Google || Ping to Cloudflare and Google || 对 Cloudflare 和 Google 执行 Ping || Ping a Cloudflare y Google || Ping vers Cloudflare et Google || Ping para Cloudflare e Google || Пинг до Cloudflare и Google || CloudflareとGoogleへのPing
+Laufwerke und Gesundheit || Drives and health || 磁盘与健康状态 || Unidades y estado || Lecteurs et état de santé || Unidades e integridade || Диски и их состояние || ドライブと状態
+Zustand und freier Platz aller Laufwerke || Health and free space of all drives || 所有磁盘的状态和可用空间 || Estado y espacio libre de todas las unidades || État et espace libre de tous les lecteurs || Estado e espaço livre de todas as unidades || Состояние и свободное место всех дисков || すべてのドライブの状態と空き容量
+RAM-Fresser || Memory hogs || 内存大户 || Mayores consumidores de RAM || Gros consommateurs de RAM || Maiores consumidores de RAM || Пожиратели ОЗУ || メモリを多く使うプログラム
+Die 15 Programme mit dem größten Speicherbedarf || The 15 programs using the most memory || 占用内存最多的 15 个程序 || Los 15 programas que más memoria usan || Les 15 programmes qui utilisent le plus de mémoire || Os 15 programas que mais usam memória || 15 программ с наибольшим расходом памяти || メモリ使用量が多い上位15プログラム
+Akku-Bericht || Battery report || 电池报告 || Informe de batería || Rapport de batterie || Relatório da bateria || Отчёт о батарее || バッテリーレポート
+Erstellt einen Bericht auf dem Desktop || Creates a report on the desktop || 在桌面上创建报告 || Crea un informe en el escritorio || Crée un rapport sur le bureau || Cria um relatório na área de trabalho || Создаёт отчёт на рабочем столе || デスクトップにレポートを作成します
+Grafiktreiber-Info || Graphics driver info || 显卡驱动信息 || Información del controlador gráfico || Infos sur le pilote graphique || Informações do driver de vídeo || Сведения о драйвере видеокарты || グラフィックドライバー情報
+Name, Version und Datum des Treibers || Name, version and date of the driver || 驱动的名称、版本和日期 || Nombre, versión y fecha del controlador || Nom, version et date du pilote || Nome, versão e data do driver || Название, версия и дата драйвера || ドライバーの名前、バージョン、日付
+Letzte Programmabstürze || Recent program crashes || 最近的程序崩溃 || Últimos bloqueos de programas || Derniers plantages de programmes || Últimas falhas de programas || Последние сбои программ || 最近のプログラムのクラッシュ
+Die letzten 10 Fehler aus der Ereignisanzeige || The last 10 errors from the event log || 事件查看器中的最近 10 个错误 || Los últimos 10 errores del visor de eventos || Les 10 dernières erreurs de l'observateur d'événements || Os últimos 10 erros do visualizador de eventos || Последние 10 ошибок из журнала событий || イベントビューアーの直近10件のエラー
+▶  Ausführen || ▶  Run || ▶  运行 || ▶  Ejecutar || ▶  Exécuter || ▶  Executar || ▶  Выполнить || ▶  実行
+📋  Befehl kopieren || 📋  Copy command || 📋  复制命令 || 📋  Copiar comando || 📋  Copier la commande || 📋  Copiar comando || 📋  Копировать команду || 📋  コマンドをコピー
+Der Befehl konnte nicht gestartet werden:\n{0} || The command could not be started:\n{0} || 无法启动该命令:\n{0} || No se pudo iniciar el comando:\n{0} || La commande n'a pas pu être lancée :\n{0} || Não foi possível iniciar o comando:\n{0} || Не удалось запустить команду:\n{0} || コマンドを開始できませんでした:\n{0}
+Auslastung: {#0} % || Load: {0} % || 使用率:{0} % || Uso: {0} % || Charge : {0} % || Uso: {0} % || Загрузка: {0} % || 使用率:{0} %
+Takt: {#0} GHz || Clock: {0} GHz || 频率:{0} GHz || Frecuencia: {0} GHz || Fréquence : {0} GHz || Frequência: {0} GHz || Частота: {0} ГГц || クロック:{0} GHz
+Takt: {#0} MHz || Clock: {0} MHz || 频率:{0} MHz || Frecuencia: {0} MHz || Fréquence : {0} MHz || Frequência: {0} MHz || Частота: {0} МГц || クロック:{0} MHz
+Threads: {#0} || Threads: {0} || 线程:{0} || Hilos: {0} || Threads : {0} || Threads: {0} || Потоков: {0} || スレッド:{0}
+Temperatur: {#0} °C || Temperature: {0} °C || 温度:{0} °C || Temperatura: {0} °C || Température : {0} °C || Temperatura: {0} °C || Температура: {0} °C || 温度:{0} °C
+Leistung: {#0} W || Power: {0} W || 功耗:{0} W || Consumo: {0} W || Puissance : {0} W || Consumo: {0} W || Мощность: {0} Вт || 消費電力:{0} W
+{#0} GB von {#1} GB belegt || {0} GB of {1} GB used || 已用 {0} GB / 共 {1} GB || {0} GB de {1} GB en uso || {0} Go sur {1} Go utilisés || {0} GB de {1} GB em uso || Занято {0} ГБ из {1} ГБ || {1} GB中{0} GBを使用
+{#0} GB von {#1} GB belegt ({#2} %) || {0} GB of {1} GB used ({2} %) || 已用 {0} GB / 共 {1} GB({2} %) || {0} GB de {1} GB en uso ({2} %) || {0} Go sur {1} Go utilisés ({2} %) || {0} GB de {1} GB em uso ({2} %) || Занято {0} ГБ из {1} ГБ ({2} %) || {1} GB中{0} GBを使用({2} %)
+Frei: {#0} GB || Free: {0} GB || 可用:{0} GB || Libre: {0} GB || Libre : {0} Go || Livre: {0} GB || Свободно: {0} ГБ || 空き:{0} GB
+VRAM: {#0} GB von {#1} GB belegt || VRAM: {0} GB of {1} GB used || 显存:已用 {0} GB / 共 {1} GB || VRAM: {0} GB de {1} GB en uso || VRAM : {0} Go sur {1} Go utilisés || VRAM: {0} GB de {1} GB em uso || ВИДЕОПАМЯТЬ: {0} ГБ из {1} ГБ || VRAM:{1} GB中{0} GBを使用
+VRAM: {#0} GB || VRAM: {0} GB || 显存:{0} GB || VRAM: {0} GB || VRAM : {0} Go || VRAM: {0} GB || ВИДЕОПАМЯТЬ: {0} ГБ || VRAM:{0} GB
+Keine Messwerte für die Grafikkarte verfügbar. || No readings available for the graphics card. || 没有可用的显卡读数。 || No hay lecturas disponibles para la tarjeta gráfica. || Aucune mesure disponible pour la carte graphique. || Não há leituras disponíveis para a placa de vídeo. || Нет данных по видеокарте. || グラフィックカードの測定値はありません。
+Kein Netzwerk || No network || 无网络 || Sin red || Pas de réseau || Sem rede || Нет сети || ネットワークなし
+Gemerkt: Zwei Launcher, eine Idee || Noted: two launchers, one idea || 记下了:两个启动器,一个理念 || Anotado: dos launchers, una idea || Noté : deux launchers, une idée || Anotado: dois launchers, uma ideia || Принято: два лаунчера, одна идея || メモ:ふたつのランチャー、ひとつのアイデア
+Eine Hommage: zwei Launcher, zeitgleich entstanden. || A tribute: two launchers, created at the same time. || 致敬:两款同时诞生的启动器。 || Un homenaje: dos launchers creados al mismo tiempo. || Un hommage : deux launchers créés en même temps. || Uma homenagem: dois launchers criados ao mesmo tempo. || Дань уважения: два лаунчера, созданные одновременно. || オマージュ:同時期に生まれた2つのランチャー。
+Zwei Launcher, eine Idee || Two launchers, one idea || 两款启动器,一个理念 || Dos launchers, una idea || Deux launchers, une idée || Dois launchers, uma ideia || Два лаунчера, одна идея || ふたつのランチャー、ひとつのアイデア
+Der Himmel gehört dir. Die clouds folgen dir. || The sky is yours. The clouds follow you. || 天空属于你,云朵会跟着你。 || El cielo es tuyo. Las clouds te siguen. || Le ciel est à toi. Les clouds te suivent. || O céu é seu. As clouds seguem você. || Небо принадлежит вам. Облака следуют за вами. || 空はあなたのもの。cloudsがついてきます。
+Willkommen zurück, Chef! || Welcome back, boss! || 欢迎回来,老板! || ¡Bienvenido de nuevo, jefe! || Bon retour, chef ! || Bem-vindo de volta, chefe! || С возвращением, шеф! || おかえりなさい、ボス!
+Trauben-Freundschaft || Grape friendship || 葡萄的友谊 || Amistad de uvas || Amitié de raisin || Amizade de uvas || Виноградная дружба || ブドウの友情
+Du hast die Hommage an TraubeMinze gefunden. || You found the tribute to TraubeMinze. || 你发现了对 TraubeMinze 的致敬。 || Has encontrado el homenaje a TraubeMinze. || Tu as trouvé l'hommage à TraubeMinze. || Você encontrou a homenagem ao TraubeMinze. || Вы нашли дань уважения TraubeMinze. || TraubeMinzeへのオマージュを見つけました。
+Wolkenhirte || Cloud herder || 牧云人 || Pastor de nubes || Berger de nuages || Pastor de nuvens || Пастух облаков || 雲の羊飼い
+Du hast die clouds von StardiSkyTTV gefunden. || You found the clouds of StardiSkyTTV. || 你发现了 StardiSkyTTV 的 clouds。 || Has encontrado las clouds de StardiSkyTTV. || Tu as trouvé les clouds de StardiSkyTTV. || Você encontrou as clouds do StardiSkyTTV. || Вы нашли clouds StardiSkyTTV. || StardiSkyTTVのcloudsを見つけました。
+Der Creator || The creator || 创作者 || El creador || Le créateur || O criador || Создатель || クリエイター
+Du hast den Creator-Namen eingetragen. || You entered the creator's name. || 你输入了创作者的名字。 || Has introducido el nombre del creador. || Tu as saisi le nom du créateur. || Você digitou o nome do criador. || Вы ввели имя создателя. || クリエイターの名前を入力しました。
+Zu Favoriten hinzugefügt || Added to favorites || 已添加到收藏 || Añadido a favoritos || Ajouté aux favoris || Adicionado aos favoritos || Добавлено в избранное || お気に入りに追加しました
+Aus Favoriten entfernt || Removed from favorites || 已从收藏移除 || Quitado de favoritos || Retiré des favoris || Removido dos favoritos || Удалено из избранного || お気に入りから削除しました
+Hier ist noch nichts. || Nothing here yet. || 这里还没有内容。 || Aún no hay nada aquí. || Rien ici pour l'instant. || Ainda não há nada aqui. || Здесь пока ничего нет. || まだ何もありません。
+Neu || New || 新增 || Nuevo || Nouveau || Novo || Новые || 新着
+Menü || Menu || 菜单 || Menú || Menu || Menu || Меню || メニュー
+Zurück zum Launcher || Back to the launcher || 返回启动器 || Volver al launcher || Retour au launcher || Voltar ao launcher || Назад в лаунчер || ランチャーに戻る
+Empfohlene Tastenbelegung || Recommended button layout || 推荐的按键布局 || Asignación de botones recomendada || Disposition des boutons recommandée || Layout de botões recomendado || Рекомендуемая раскладка кнопок || おすすめのボタン割り当て
+Empfohlene Tastenbelegung anzeigen || Show recommended button layout || 显示推荐的按键布局 || Mostrar la asignación de botones recomendada || Afficher la disposition des boutons recommandée || Mostrar o layout de botões recomendado || Показать рекомендуемую раскладку кнопок || おすすめのボタン割り当てを表示
+Controller-Einstellungen || Controller settings || 手柄设置 || Ajustes del mando || Paramètres de la manette || Configurações do controle || Настройки геймпада || コントローラー設定
+Optionen || Options || 选项 || Opciones || Options || Opções || Параметры || オプション
+Bereich || Section || 分区 || Sección || Section || Seção || Раздел || セクション
+Springen || Jump || 跳转 || Saltar || Sauter || Pular || Перейти || ジャンプ
+Controller erkannt || Controller detected || 检测到手柄 || Mando detectado || Manette détectée || Controle detectado || Геймпад обнаружен || コントローラーを検出
+Klicke hier für die empfohlene Tastenbelegung. || Click here for the recommended button layout. || 点击此处查看推荐的按键布局。 || Haz clic aquí para ver la asignación de botones recomendada. || Clique ici pour voir la disposition des boutons recommandée. || Clique aqui para ver o layout de botões recomendado. || Нажмите здесь, чтобы увидеть рекомендуемую раскладку кнопок. || ここをクリックすると、おすすめのボタン割り当てを表示します。
+Starten und bestätigen || Start and confirm || 启动并确认 || Iniciar y confirmar || Lancer et confirmer || Iniciar e confirmar || Запуск и подтверждение || 起動と決定
+Optionen zum Spiel || Options for the game || 游戏选项 || Opciones del juego || Options du jeu || Opções do jogo || Параметры игры || ゲームのオプション
+Bereich wechseln || Switch section || 切换分区 || Cambiar de sección || Changer de section || Trocar de seção || Сменить раздел || セクションを切り替え
+Zehn Spiele springen || Jump ten games || 一次跳十款游戏 || Saltar diez juegos || Sauter dix jeux || Pular dez jogos || Прыжок на десять игр || 10本ずつジャンプ
+Controller-Modus an und aus || Controller mode on and off || 开启和关闭手柄模式 || Activar y desactivar el modo mando || Activer et désactiver le mode manette || Ligar e desligar o modo controle || Включение и выключение режима геймпада || コントローラーモードのオン/オフ
+Stimmt die Belegung nicht mit deinem Controller überein, wähle sie unter Einstellungen → Steuerung selbst aus. || If the layout does not match your controller, choose it yourself under Settings → Controls. || 如果布局与你的手柄不符,请在“设置 → 控制”中自行选择。 || Si la asignación no coincide con tu mando, elígela tú mismo en Ajustes → Control. || Si la disposition ne correspond pas à ta manette, choisis-la toi-même dans Paramètres → Commandes. || Se o layout não corresponder ao seu controle, escolha-o em Configurações → Controles. || Если раскладка не подходит вашему геймпаду, выберите её сами в «Настройки → Управление». || 割り当てがコントローラーと合わない場合は、「設定 → 操作」で自分で選んでください。
+Einstellungen öffnen || Open settings || 打开设置 || Abrir ajustes || Ouvrir les paramètres || Abrir configurações || Открыть настройки || 設定を開く
+Gamepad-Steuerung (Controller-Modus per Tastenkombination oder mit F11) || Gamepad control (controller mode via button combination or F11) || 手柄控制(通过组合键或 F11 进入手柄模式) || Control con mando (modo mando con combinación de botones o F11) || Contrôle à la manette (mode manette par combinaison de boutons ou F11) || Controle por gamepad (modo controle por combinação de botões ou F11) || Управление геймпадом (режим геймпада по комбинации кнопок или F11) || ゲームパッド操作(ボタンの組み合わせまたはF11でコントローラーモード)
+Eine eigene Vollbild-Oberfläche für das Sofa, ähnlich dem Big-Picture-Modus von Steam: große Cover, flüssiges Blättern und alles mit dem Controller bedienbar. || A dedicated full-screen interface for the couch, similar to Steam's Big Picture mode: large covers, smooth browsing and everything controllable with the controller. || 为沙发场景设计的独立全屏界面,类似 Steam 的 Big Picture 模式:大封面、流畅翻阅,全部可用手柄操作。 || Una interfaz propia a pantalla completa para el sofá, similar al modo Big Picture de Steam: portadas grandes, desplazamiento fluido y todo manejable con el mando. || Une interface plein écran dédiée au canapé, comme le mode Big Picture de Steam : grandes jaquettes, défilement fluide et tout se commande à la manette. || Uma interface própria em tela cheia para o sofá, semelhante ao modo Big Picture da Steam: capas grandes, navegação fluida e tudo controlável pelo controle. || Отдельный полноэкранный интерфейс для дивана, как режим Big Picture в Steam: крупные обложки, плавная прокрутка и полное управление геймпадом. || ソファ向けの専用フルスクリーン画面。SteamのBig Pictureモードのように、大きなカバー、なめらかな切り替え、すべてコントローラーで操作できます。
+Mit einer Tastenkombination starten || Start with a button combination || 通过组合键启动 || Iniciar con una combinación de botones || Démarrer avec une combinaison de boutons || Iniciar com uma combinação de botões || Запускать по комбинации кнопок || ボタンの組み合わせで起動
+Startet und beendet den Controller-Modus direkt am Controller, auch wenn der Launcher im Hintergrund liegt. || Starts and ends controller mode right on the controller, even when the launcher is in the background. || 直接在手柄上启动和退出手柄模式,即使启动器在后台。 || Inicia y cierra el modo mando directamente con el mando, aunque el launcher esté en segundo plano. || Démarre et quitte le mode manette directement à la manette, même si le launcher est en arrière-plan. || Inicia e encerra o modo controle direto no controle, mesmo com o launcher em segundo plano. || Включает и выключает режим геймпада прямо с геймпада, даже если лаунчер в фоне. || ランチャーがバックグラウンドでも、コントローラーだけでコントローラーモードを開始・終了できます。
+Tastenkombination || Button combination || 组合键 || Combinación de botones || Combinaison de boutons || Combinação de botões || Комбинация кнопок || ボタンの組み合わせ
+Welche Tasten den Controller-Modus ein- und ausschalten. || Which buttons turn controller mode on and off. || 用哪些按键开启和关闭手柄模式。 || Qué botones activan y desactivan el modo mando. || Quels boutons activent et désactivent le mode manette. || Quais botões ligam e desligam o modo controle. || Какие кнопки включают и выключают режим геймпада. || どのボタンでコントローラーモードをオン/オフするか。
+Ansicht + Menü || View + Menu || 视图 + 菜单 || Vista + Menú || Vue + Menu || Visualizar + Menu || Вид + Меню || ビュー + メニュー
+LB + RB + Menü || LB + RB + Menu || LB + RB + 菜单 || LB + RB + Menú || LB + RB + Menu || LB + RB + Menu || LB + RB + Меню || LB + RB + メニュー
+Menü lange halten || Hold Menu || 长按菜单键 || Mantener Menú || Maintenir Menu || Manter Menu pressionado || Удерживать Меню || メニューを長押し
+Auch während eines Spiels erlauben || Also allow during a game || 游戏运行时也允许 || Permitir también durante un juego || Autoriser aussi pendant un jeu || Permitir também durante um jogo || Разрешить и во время игры || ゲーム中も許可
+Aus: Die Kombination wird ignoriert, solange ein Spiel läuft. So störst du dein Spiel nicht aus Versehen. || Off: the combination is ignored while a game is running. That way you don't disturb your game by accident. || 关闭:游戏运行期间会忽略该组合键,避免误触打扰游戏。 || Desactivado: la combinación se ignora mientras hay un juego en marcha, para no molestar tu partida por error. || Désactivé : la combinaison est ignorée tant qu'un jeu est lancé, pour ne pas gêner ta partie par erreur. || Desligado: a combinação é ignorada enquanto um jogo estiver aberto, para não atrapalhar sua partida sem querer. || Выкл.: пока идёт игра, комбинация игнорируется. Так вы случайно не помешаете игре. || オフ:ゲーム中は組み合わせを無視します。誤ってゲームを邪魔しません。
+Beim Verbinden automatisch starten || Start automatically when connected || 连接时自动启动 || Iniciar automáticamente al conectar || Démarrer automatiquement à la connexion || Iniciar automaticamente ao conectar || Запускать автоматически при подключении || 接続時に自動で起動
+Öffnet den Controller-Modus, sobald ein Controller erkannt wird und der Launcher offen ist. || Opens controller mode as soon as a controller is detected and the launcher is open. || 检测到手柄且启动器已打开时,自动进入手柄模式。 || Abre el modo mando en cuanto se detecta un mando y el launcher está abierto. || Ouvre le mode manette dès qu'une manette est détectée et que le launcher est ouvert. || Abre o modo controle assim que um controle for detectado e o launcher estiver aberto. || Открывает режим геймпада, как только геймпад обнаружен и лаунчер открыт. || コントローラーが検出され、ランチャーが開いているときに自動でコントローラーモードを開きます。
+Vibration beim Blättern || Vibration when browsing || 翻阅时震动 || Vibración al desplazarse || Vibration lors du défilement || Vibração ao navegar || Вибрация при прокрутке || 切り替え時に振動
+Ein kurzes Brummen beim Wechseln und Starten (nur Xbox-Controller). || A short buzz when switching and launching (Xbox controllers only). || 切换和启动时短暂震动(仅限 Xbox 手柄)。 || Un breve zumbido al cambiar y al iniciar (solo mandos Xbox). || Un court bourdonnement lors du changement et du lancement (manettes Xbox uniquement). || Um zumbido curto ao trocar e iniciar (somente controles Xbox). || Короткая вибрация при переключении и запуске (только геймпады Xbox). || 切り替えや起動時に短く振動します(Xboxコントローラーのみ)。
+Tempo beim Gedrückthalten || Speed when holding || 按住时的速度 || Velocidad al mantener pulsado || Vitesse en maintenant appuyé || Velocidade ao manter pressionado || Скорость при удержании || 長押し時の速度
+Wie schnell weitergeblättert wird, wenn du das Steuerkreuz gedrückt hältst. || How fast it keeps scrolling when you hold the D-pad. || 按住十字键时的连续翻阅速度。 || Qué tan rápido se sigue desplazando al mantener pulsada la cruceta. || À quelle vitesse le défilement continue quand tu maintiens la croix directionnelle. || Quão rápido continua rolando quando você mantém o direcional pressionado. || Как быстро продолжается прокрутка при удержании крестовины. || 十字キーを押し続けたときの送り速度。
+Normal || Normal || 正常 || Normal || Normal || Normal || Обычная || 標準
+Controller-Modus jetzt starten || Start controller mode now || 立即启动手柄模式 || Iniciar el modo mando ahora || Démarrer le mode manette maintenant || Iniciar o modo controle agora || Запустить режим геймпада сейчас || コントローラーモードを今すぐ開始
+„Original“ zeigt alle Spiele als Karten. „Cover-Flow“ blättert die Cover wie in einem Buch flüssig von links nach rechts durch. || "Original" shows all games as cards. "Cover Flow" flips through the covers smoothly from left to right like a book. || “原版”以卡片形式显示所有游戏。“Cover Flow”像翻书一样从左到右流畅翻阅封面。 || «Original» muestra todos los juegos como tarjetas. «Cover Flow» pasa las portadas con fluidez de izquierda a derecha, como un libro. || « Original » affiche tous les jeux sous forme de cartes. « Cover Flow » fait défiler les jaquettes de gauche à droite comme un livre. || "Original" mostra todos os jogos como cartões. "Cover Flow" folheia as capas de forma fluida da esquerda para a direita, como um livro. || «Оригинал» показывает все игры карточками. «Cover Flow» плавно листает обложки слева направо, как книгу. || 「オリジナル」はすべてのゲームをカードで表示します。「カバーフロー」は本のようにカバーを左から右へなめらかにめくります。
+Cover-Flow || Cover Flow || Cover Flow || Cover Flow || Cover Flow || Cover Flow || Cover Flow || カバーフロー
+← → blättern · Mausrad · Enter startet das Spiel || ← → browse · mouse wheel · Enter starts the game || ← → 翻阅 · 鼠标滚轮 · 回车启动游戏 || ← → desplazar · rueda del ratón · Intro inicia el juego || ← → parcourir · molette · Entrée lance le jeu || ← → navegar · roda do mouse · Enter inicia o jogo || ← → листать · колесо мыши · Enter запускает игру || ← → 切り替え · マウスホイール · Enterで起動
+Entwickler-Einstellungen || Developer settings || 开发者设置 || Ajustes de desarrollador || Paramètres développeur || Configurações de desenvolvedor || Настройки разработчика || 開発者向け設定
+Entwickler || Developer || 开发者 || Desarrollador || Développeur || Desenvolvedor || Разработчик || 開発者
 """;
     }
 
@@ -2862,6 +3036,8 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             InitExtras10();
             InitExtras11();
             InitExtras12();
+            InitExtras13();
+            InitExtras14();
 
             isLoadingSettings = false;
             RefreshDashboard();
@@ -3139,6 +3315,11 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             settings.EggSeen ??= new List<string>();
             settings.MilestonesReached ??= new List<int>();
             settings.FirstRunDate ??= string.Empty;
+            settings.StreamerApps ??= new List<QuickButton>();
+            settings.PadSeenLayouts ??= new List<string>();
+            settings.PadRepeat = Math.Clamp(settings.PadRepeat, 1, 3);
+            if (settings.LibraryView != "flow") settings.LibraryView = "cards";
+            if (settings.PadComboMode is not ("backstart" or "bumpers" or "hold")) settings.PadComboMode = "backstart";
             settings.SidebarColor ??= string.Empty;
             settings.NavTextColor ??= string.Empty;
             settings.NavActiveColor ??= string.Empty;
@@ -3404,7 +3585,8 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             SaveSettings();
             UpdateUserNameDisplay();
             RefreshDashboard();
-            Msg("Name erfolgreich gespeichert!");
+            if (CheckNameEgg(settings.UserName)) ShowToast("✅", "Name gespeichert", settings.UserName, 3);
+            else Msg("Name erfolgreich gespeichert!");
         }
 
         private void BtnPickBgColor_Click(object sender, RoutedEventArgs e)
@@ -4803,6 +4985,8 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
                 }
                 ToolsContainer.Children.Add(row);
             }
+
+            BuildSystemCommandTiles();
         }
 
         // ───────────────────────────── Anwendungen ─────────────────────────────
@@ -5973,6 +6157,7 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             ("💾", "Speicher", "storage"),
             ("⚡", "Optimierung", "optimization"),
             ("🛠", "Tools", "tools"),
+            ("📡", "Streamer", "streamer"),
             ("⚙", "Einstellungen", "settings")
         };
 
@@ -6179,7 +6364,7 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             var views = new FrameworkElement[]
             {
                 ViewDashboard, ViewGames, ViewStats, ViewApps, ViewLinks, ViewWishlist, ViewDownloads, ViewSystem,
-                ViewStorage, ViewOptimization, ViewTools, ViewSettings, ViewDeals, ViewBacklog, ViewGallery
+                ViewStorage, ViewOptimization, ViewTools, ViewSettings, ViewDeals, ViewBacklog, ViewGallery, ViewStreamer
             };
 
             foreach (var view in views)
@@ -6243,6 +6428,7 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
                 case "deals": NavDealsBtn.IsChecked = true; NavDeals_Click(this, args); break;
                 case "backlog": NavBacklogBtn.IsChecked = true; NavBacklog_Click(this, args); break;
                 case "gallery": NavGalleryBtn.IsChecked = true; NavGallery_Click(this, args); break;
+                case "streamer": NavStreamerBtn.IsChecked = true; NavStreamer_Click(this, args); break;
                 case "settings": NavSettingsBtn.IsChecked = true; NavSettings_Click(this, args); break;
             }
         }
@@ -7062,6 +7248,8 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             TxtCpuSub.Text = m.Mhz > 0 ? $"{m.Mhz:F0} MHz" : "Auslastung";
             TxtRamSub.Text = totalRamMB > 0 ? $"{m.UsedMb / 1024.0:F1} / {totalRamMB / 1024.0:F0} GB" : "Auslastung";
             TxtGpuSub.Text = m.HasGpu ? "3D-Last" : "nicht verfügbar";
+            UpdateMetricDetails();
+            UpdateDriveAndNetwork();
 
             AddHistory(cpuHistory, m.Cpu);
             AddHistory(ramHistory, m.Ram);
@@ -7244,6 +7432,14 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             string layout = controllerMode ? "cards" : settings.CardLayout;
             visibleGames = games;
             UpdateAlphaBar();
+
+            if (settings.LibraryView == "flow" && !controllerMode)
+            {
+                GamesContainer.Children.Clear();
+                GamesListContainer.Children.Clear();
+                RenderFlow();
+                return;
+            }
 
             GamesContainer.Children.Clear();
             GamesListContainer.Children.Clear();
@@ -8108,6 +8304,7 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
                         sessionBreakCount.Remove(game);
                         ShowSessionReport(game);
                         CheckMilestones();
+                        ResumePadAfterGame();
                         DiscordSessionEnded(game);
                         RunRoutinesFor("gameend", game);
                         if (settings.AutoBackupSaves && !string.IsNullOrEmpty(game.SavePath)) _ = BackupSavesAsync(game, true);
@@ -8614,14 +8811,13 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
 
         private void MainWindow_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if (DvdLayer != null && DvdLayer.Visibility == Visibility.Visible)
+            TrackKonami(e.Key);
+
+            if (PadKeyDown(e) || FlowKeyDown(e))
             {
-                StopDvd();
                 e.Handled = true;
                 return;
             }
-
-            TrackKonami(e.Key);
 
             bool ctrl = (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) != 0;
 
@@ -8655,40 +8851,6 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             }
         }
 
-        private void ToggleControllerMode()
-        {
-            controllerMode = !controllerMode;
-            if (TitleBar != null) TitleBar.Visibility = controllerMode ? Visibility.Collapsed : Visibility.Visible;
-
-            if (controllerMode)
-            {
-                savedWindowState = WindowState;
-                savedWindowStyle = WindowStyle;
-
-                ShowView(ViewGames);
-                NavGamesBtn.IsChecked = true;
-
-                WindowStyle = WindowStyle.None;
-                WindowState = WindowState.Maximized;
-                Topmost = true;
-
-                controllerIndex = 0;
-                playCardEntrance = true;
-            }
-            else
-            {
-                WindowState = WindowState.Normal;
-                WindowStyle = savedWindowStyle;
-                WindowState = savedWindowState;
-                Topmost = settings.AlwaysOnTop;
-            }
-
-            ApplySidebar(true);
-            ApplyFilter();
-            UpdatePadHint();
-            FixMaximizedOverhang();
-            PlayUiSound("select");
-        }
 
         private void HighlightControllerSelection()
         {
@@ -9246,6 +9408,7 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             ReadExtra10Settings();
             ReadExtra11Settings();
             ReadExtra12Settings();
+            ReadExtra14Settings();
 
         }
 
@@ -9266,6 +9429,7 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             PopulateExtra10Settings();
             PopulateExtra11Settings();
             PopulateExtra12Settings();
+            PopulateExtra14Settings();
         }
 
         private void UpdateExtraSliderLabels()
@@ -10010,6 +10174,8 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
                 ContextMenu = menu,
                 Child = grid
             };
+            grid.Children.Add(CreateShotActions(tile, shot.FilePath));
+            AddMenuItem(menu, "🗑  Löschen ...", () => DeleteShot(tile, shot.FilePath));
             tile.MouseLeftButtonUp += (s, e) => OpenShell(shot.FilePath);
             return tile;
         }
@@ -11891,7 +12057,8 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
         private enum PadButton
         {
             None = 0, Up = 1, Down = 2, Left = 4, Right = 8, Confirm = 16, Back = 32,
-            Details = 64, Favorite = 128, PrevTab = 256, NextTab = 512, Start = 1024
+            Details = 64, Favorite = 128, PrevTab = 256, NextTab = 512, Start = 1024,
+            TriggerLeft = 2048, TriggerRight = 4096, Select = 8192
         }
 
         private IEnumerable<GameItem> VisibleGames => allGames.Where(g => !g.Hidden);
@@ -12075,6 +12242,7 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             ["storage"] = NavStorageBtn,
             ["optimization"] = NavOptimizationBtn,
             ["tools"] = NavToolsBtn,
+            ["streamer"] = NavStreamerBtn,
             ["settings"] = NavSettingsBtn
         };
 
@@ -12082,7 +12250,10 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
         {
             var all = PageEntries.Select(p => p.Key).ToList();
             var order = settings.NavOrder.Where(k => all.Contains(k)).Distinct().ToList();
-            order.AddRange(all.Where(k => !order.Contains(k)));
+            var missing = all.Where(k => !order.Contains(k)).ToList();
+            int settingsAt = order.IndexOf("settings");
+            if (settingsAt >= 0) order.InsertRange(settingsAt, missing);
+            else order.AddRange(missing);
             return order;
         }
 
@@ -12110,6 +12281,7 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
         private void SetSectionVisible(string key, bool visible)
         {
             if (key == "settings") return;
+            if (key == "streamer") UpdateStreamerToggles();
 
             if (visible) settings.HiddenSections.Remove(key);
             else if (!settings.HiddenSections.Contains(key)) settings.HiddenSections.Add(key);
@@ -12686,6 +12858,59 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
 
         // ───────────────────────────── Controller: Xbox, PlayStation, Switch und generische Gamepads ─────────────────────────────
 
+        private void ControllerTick()
+        {
+            if (!settings.ControllerSupport) return;
+
+            if (controllerSkip > 0)
+            {
+                controllerSkip--;
+                return;
+            }
+
+            PadButton pad;
+            if (!ReadXInput(out pad) && !ReadJoystick(out pad))
+            {
+                controllerSkip = 30;   // kein Controller: nur ab und zu nachsehen
+                lastPad = PadButton.None;
+                TrackPadConnection(false);
+                if (padDescription.Length > 0)
+                {
+                    padDescription = string.Empty;
+                    UpdatePadStatus();
+                }
+                return;
+            }
+
+            UpdatePadStatus();
+            TickPadBattery();
+            TrackPadConnection(true);
+
+            PadButton pressed = pad & ~lastPad;
+            lastPad = pad;
+
+            // Die Tastenkombination wirkt auch, wenn der Launcher im Hintergrund liegt
+            if (CheckPadCombo(pad, pressed)) return;
+
+            if (controllerMode) pressed = ApplyPadRepeat(pad, pressed);
+            if (pressed == PadButton.None || !IsActive || SpotlightLayer.Visibility == Visibility.Visible) return;
+
+            TrackKonamiPad(pressed);
+            if (!controllerMode) return;
+
+            HandlePadInput(pressed);
+        }
+
+        private void UpdatePadHint()
+        {
+            if (PadHintBar == null) return;
+
+            // Die alte Leiste unten dient nur noch der Akku-Vorschau, die eigentlichen Hinweise stehen im Controller-Modus selbst
+            PadHintBar.Visibility = padBatteryPreview ? Visibility.Visible : Visibility.Collapsed;
+            if (controllerMode && padLayer != null) RefreshPadHints();
+            UpdatePadBatteryUi();
+        }
+
         private bool ReadXInput(out PadButton pad)
         {
             pad = PadButton.None;
@@ -12719,6 +12944,9 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
                 if ((b & 0x0100) != 0) pad |= PadButton.PrevTab;
                 if ((b & 0x0200) != 0) pad |= PadButton.NextTab;
                 if ((b & 0x0010) != 0) pad |= PadButton.Start;
+                if ((b & 0x0020) != 0) pad |= PadButton.Select;
+                if (state.Gamepad.LeftTrigger > 120) pad |= PadButton.TriggerLeft;
+                if (state.Gamepad.RightTrigger > 120) pad |= PadButton.TriggerRight;
 
                 padSlot = (int)slot;
                 padDescription = $"Xbox-Controller (Slot {slot + 1})";
@@ -12785,6 +13013,7 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             if (Has(4)) pad |= PadButton.PrevTab;
             if (Has(5)) pad |= PadButton.NextTab;
             if (Has(start)) pad |= PadButton.Start;
+            if (Has(ResolveLayout() == "xbox" ? 6 : 8)) pad |= PadButton.Select;
 
             // Steuerkreuz (Hat-Schalter, Angabe in Hundertstel Grad)
             if (info.dwPOV < 36000)
@@ -12853,57 +13082,6 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             if (TxtPadStatus.Text != text) TxtPadStatus.Text = text;
         }
 
-        private void ControllerTick()
-        {
-            if (!settings.ControllerSupport) return;
-
-            if (controllerSkip > 0)
-            {
-                controllerSkip--;
-                return;
-            }
-
-            PadButton pad;
-            if (!ReadXInput(out pad) && !ReadJoystick(out pad))
-            {
-                controllerSkip = 30;   // kein Controller: nur alle ~2 Sekunden nachsehen
-                lastPad = PadButton.None;
-                if (padDescription.Length > 0)
-                {
-                    padDescription = string.Empty;
-                    UpdatePadStatus();
-                }
-                return;
-            }
-
-            UpdatePadStatus();
-            TickPadBattery();
-
-            PadButton pressed = pad & ~lastPad;
-            lastPad = pad;
-            if (pressed == PadButton.None || !IsActive || SpotlightLayer.Visibility == Visibility.Visible) return;
-
-            if ((pressed & PadButton.Start) != 0)
-            {
-                ToggleControllerMode();
-                return;
-            }
-
-            TrackKonamiPad(pressed);
-
-            if (!controllerMode) return;
-
-            if ((pressed & PadButton.Left) != 0) MoveControllerSelection(-1, 0);
-            if ((pressed & PadButton.Right) != 0) MoveControllerSelection(1, 0);
-            if ((pressed & PadButton.Up) != 0) MoveControllerSelection(0, -1);
-            if ((pressed & PadButton.Down) != 0) MoveControllerSelection(0, 1);
-            if ((pressed & PadButton.PrevTab) != 0) CycleFilter(-1);
-            if ((pressed & PadButton.NextTab) != 0) CycleFilter(1);
-            if ((pressed & PadButton.Confirm) != 0) LaunchControllerSelection();
-            if ((pressed & PadButton.Back) != 0) ToggleControllerMode();
-            if ((pressed & PadButton.Favorite) != 0 && controllerIndex < visibleGames.Count) ToggleFavorite(visibleGames[controllerIndex]);
-            if ((pressed & PadButton.Details) != 0 && controllerIndex < visibleGames.Count) ShowGameDetails(visibleGames[controllerIndex]);
-        }
 
         // ───────────────────────────── Autostart-Programme verwalten ─────────────────────────────
 
@@ -13262,34 +13440,6 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
         private static bool LooksLikePath(string text)
             => text.Contains('\\') || text.Contains('/') || text.Contains(':') || text.Contains('.');
 
-        private static ImageSource? ResolveQuickIcon(QuickLink link)
-        {
-            try
-            {
-                string icon = link.Icon.Trim();
-
-                if (icon.Length > 0 && LooksLikePath(icon) && File.Exists(icon))
-                {
-                    if (IsImageFile(icon))
-                    {
-                        var image = new BitmapImage();
-                        image.BeginInit();
-                        image.UriSource = new Uri(icon);
-                        image.CacheOption = BitmapCacheOption.OnLoad;
-                        image.DecodePixelWidth = 128;
-                        image.EndInit();
-                        image.Freeze();
-                        return image;
-                    }
-                    return ExtractIcon(icon);
-                }
-
-                if (icon.Length == 0 && File.Exists(link.Target)) return ExtractIcon(link.Target);
-            }
-            catch { }
-
-            return null;
-        }
 
         private static string QuickEmoji(QuickLink link)
         {
@@ -14443,10 +14593,12 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             }
 
             var rows = new List<SensorRow>();
+            var snap = new SensorSnapshot();
 
             void Collect(LibreHardwareMonitor.Hardware.IHardware hardware, string group)
             {
                 hardware.Update();
+                CaptureSnapshot(snap, hardware);
                 int taken = 0;
 
                 foreach (var sensor in hardware.Sensors)
@@ -14474,6 +14626,7 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             foreach (var hardware in hardwareMonitor.Hardware)
                 Collect(hardware, SensorGroupName(hardware.HardwareType));
 
+            sensorSnap = snap;
             return rows;
         }
 
@@ -14484,6 +14637,7 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             {
                 var rows = await Task.Run(ReadSensors);
                 RenderSensors(rows);
+                UpdateMetricDetails();
             }
             catch (Exception ex)
             {
@@ -15479,23 +15633,6 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
 
         // ───────────────────────────── Tasten-Hinweise im Controller-Modus ─────────────────────────────
 
-        private void UpdatePadHint()
-        {
-            if (PadHintBar == null) return;
-
-            PadHintBar.Visibility = controllerMode ? Visibility.Visible : Visibility.Collapsed;
-            if (!controllerMode) return;
-
-            (string Glyph, string Word)[] keys = ResolveLayout() switch
-            {
-                "ps" => new[] { ("✕", "Starten"), ("○", "Zurück"), ("□", "Details"), ("△", "Favorit"), ("L1 / R1", "Filter"), ("OPTIONS", "Beenden") },
-                "nintendo" => new[] { ("B", "Starten"), ("A", "Zurück"), ("Y", "Details"), ("X", "Favorit"), ("L / R", "Filter"), ("+", "Beenden") },
-                _ => new[] { ("A", "Starten"), ("B", "Zurück"), ("X", "Details"), ("Y", "Favorit"), ("LB / RB", "Filter"), ("☰", "Beenden") }
-            };
-
-            TxtPadHint.Text = string.Join("      ", keys.Select(k => k.Glyph + "  " + Loc.T(k.Word)));
-            UpdatePadBatteryUi();
-        }
 
         // ───────────────────────────── Design teilen ─────────────────────────────
 
@@ -16399,7 +16536,8 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
         private readonly Dictionary<GameItem, SessionStats> sessionStats = new();
 
         private static readonly string[] StreamProcesses =
-            { "obs64", "obs32", "obs", "streamlabs obs", "slobs", "Streamlabs Desktop", "TwitchStudio", "XSplit.Core", "vMix64", "prismlive" };
+            { "obs64", "obs32", "obs", "streamlabs obs", "slobs", "Streamlabs Desktop", "Streamlabs", "TwitchStudio", "Twitch Studio", "XSplit.Core", "XSplit.Gamecaster",
+              "vMix64", "vMix", "prismlive", "PRISMLiveStudio", "Wirecast", "TikTok LIVE Studio", "Medal", "Meld", "StreamElements" };
 
         private sealed class SessionStats
         {
@@ -16418,7 +16556,7 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
 
         private void InitExtras7()
         {
-            streamTimer.Interval = TimeSpan.FromSeconds(15);
+            streamTimer.Interval = TimeSpan.FromSeconds(5);
             streamTimer.Tick += async (s, e) => await CheckStreamingSoftwareAsync();
             streamTimer.Start();
 
@@ -16542,6 +16680,7 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             Blur(settings.StreamHideRecent, HeroHost, RecentSection, FavSection);
             Blur(settings.StreamHidePaths, GridDownloads, AppsContainer, DrivesControl, GameSizesControl, TxtSgdbKey, TxtCloudFolder, TxtUpdateRepo, TxtDiscordWebhook, quickWidget);
             Blur(settings.StreamHideShots, GalleryContainer, WishContainer, wishWidget);
+            if (on && settings.StreamHideMusic && MusicPanel.Visibility == Visibility.Visible) MusicPanel.Visibility = Visibility.Collapsed;
 
             StreamBadge.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
             TxtStreamBadge.Text = settings.StreamerMode ? Loc.T("📡 Streamer-Modus") : Loc.T("📡 Streamer-Modus (automatisch)");
@@ -16560,6 +16699,7 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
                     TxtUserName.Text = DisplayUserName();
                     ApplyFilter();
                     RefreshDashboard();
+                    RenderSidebarExtras();
                 }
                 finally
                 {
@@ -18358,6 +18498,8 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             }
 
             RenderApps();
+            MigrateQuickButtons();
+            RenderSidebarExtras();
         }
 
         private void BtnRefreshApps_Click(object sender, RoutedEventArgs e)
@@ -19242,11 +19384,6 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
         private DispatcherTimer? rainbowTimer;
         private DateTime rainbowEnd;
         private double rainbowHue;
-        private DispatcherTimer? idleTimer;
-        private DispatcherTimer? dvdTimer;
-        private double dvdX, dvdY, dvdVx, dvdVy;
-        private int dvdFrame, dvdBounceX = -100, dvdBounceY = -100;
-        private bool dvdCorner;
 
         private bool EggsOn => settings.EasterEggs;
 
@@ -19261,10 +19398,6 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             BrandLogo.Background = System.Windows.Media.Brushes.Transparent;
             BrandLogo.MouseLeftButtonUp += BrandLogo_Click;
             TxtAboutVersion.MouseLeftButtonUp += VersionText_Click;
-
-            idleTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(10) };
-            idleTimer.Tick += (s, e) => CheckIdleForDvd();
-            idleTimer.Start();
 
             Loaded += async (s, e) =>
             {
@@ -19787,8 +19920,6 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             rare = false;
             if (!EggsOn) return null;
 
-            if (IsCreatorName(DisplayUserName())) return Loc.T("Der Creator persönlich");
-
             if (random.Next(50) == 0)
             {
                 rare = true;
@@ -19818,103 +19949,11 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             SaveSettings();
         }
 
-        // ───────────────────────────── DVD-Logo bei Leerlauf ─────────────────────────────
 
-        private static uint IdleMilliseconds()
-        {
-            var info = new NativeExtras.LastInputInfo { cbSize = (uint)Interop.Marshal.SizeOf<NativeExtras.LastInputInfo>() };
-            return NativeExtras.GetLastInputInfo(ref info) ? unchecked((uint)Environment.TickCount - info.dwTime) : 0;
-        }
 
-        private void CheckIdleForDvd()
-        {
-            if (!EggsOn || DvdLayer == null || DvdLayer.Visibility == Visibility.Visible) return;
-            if (!IsVisible || WindowState == WindowState.Minimized || settings.PerformanceMode) return;
-            if (activeSessions.Count > 0 || controllerMode || OwnedWindows.Count > 0) return;
-            if (SpotlightLayer.Visibility == Visibility.Visible || WelcomeLayer.Visibility == Visibility.Visible) return;
-            if (IdleMilliseconds() < 5 * 60 * 1000) return;
 
-            StartDvd();
-        }
 
-        private void StartDvd()
-        {
-            double width = DvdLayer.ActualWidth, height = DvdLayer.ActualHeight;
-            if (width < 300 || height < 300) return;
 
-            double rangeX = width - DvdLogo.Width, rangeY = height - DvdLogo.Height;
-            bool lucky = random.Next(3) == 0;
-
-            // Glücksfall: Die Geschwindigkeiten passen so zusammen, dass das Logo nach etwa 15 Sekunden eine Ecke trifft
-            int framesX = lucky ? 300 : random.Next(260, 341);
-            int framesY = lucky ? 200 : random.Next(170, 231);
-            dvdVx = rangeX / framesX;
-            dvdVy = rangeY / framesY;
-            dvdX = lucky ? 0 : random.NextDouble() * rangeX;
-            dvdY = lucky ? 0 : random.NextDouble() * rangeY;
-            dvdFrame = 0;
-            dvdBounceX = dvdBounceY = -100;
-            dvdCorner = false;
-
-            Canvas.SetLeft(DvdLogo, dvdX);
-            Canvas.SetTop(DvdLogo, dvdY);
-            DvdLayer.Opacity = 0;
-            DvdLayer.Visibility = Visibility.Visible;
-            DvdLayer.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(700)));
-
-            dvdTimer?.Stop();
-            dvdTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(40) };
-            dvdTimer.Tick += (s, e) => DvdStep();
-            dvdTimer.Start();
-        }
-
-        private void DvdStep()
-        {
-            if (IdleMilliseconds() < 1200)
-            {
-                StopDvd();
-                return;
-            }
-
-            dvdFrame++;
-            double rangeX = Math.Max(1, DvdLayer.ActualWidth - DvdLogo.Width);
-            double rangeY = Math.Max(1, DvdLayer.ActualHeight - DvdLogo.Height);
-
-            dvdX += dvdVx;
-            dvdY += dvdVy;
-
-            if (dvdX <= 0 || dvdX >= rangeX)
-            {
-                dvdX = Math.Clamp(dvdX, 0, rangeX);
-                dvdVx = -dvdVx;
-                dvdBounceX = dvdFrame;
-            }
-            if (dvdY <= 0 || dvdY >= rangeY)
-            {
-                dvdY = Math.Clamp(dvdY, 0, rangeY);
-                dvdVy = -dvdVy;
-                dvdBounceY = dvdFrame;
-            }
-
-            if (!dvdCorner && Math.Abs(dvdBounceX - dvdBounceY) <= 1 && dvdFrame > 20 && dvdBounceX > 0)
-            {
-                dvdCorner = true;
-                Confetti();
-                Dispatcher.BeginInvoke(new Action(Confetti), DispatcherPriority.Background);
-                EggToast("🎯", "Volltreffer", "Das Logo hat genau eine Ecke getroffen.", 8);
-                UnlockSecret("secret_corner");
-            }
-
-            Canvas.SetLeft(DvdLogo, dvdX);
-            Canvas.SetTop(DvdLogo, dvdY);
-        }
-
-        private void StopDvd()
-        {
-            dvdTimer?.Stop();
-            DvdLayer.BeginAnimation(UIElement.OpacityProperty, null);
-            DvdLayer.Visibility = Visibility.Collapsed;
-        }
 
         // ───────────────────────────── Einstellungen ─────────────────────────────
 
@@ -19940,7 +19979,9 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             yield return Secret("secret_pudel", "🐶", "Pudel-Freund", "Du hast dem Pudel Hallo gesagt.");
             yield return Secret("secret_dice", "🎲", "Würfelglück", "Drei Sechsen in Folge gewürfelt.");
             yield return Secret("secret_disco", "🪩", "Disco-Fieber", "Die Party gestartet.");
-            yield return Secret("secret_corner", "🎯", "Volltreffer", "Das Logo hat eine Ecke getroffen.");
+            yield return Secret("secret_grape", "🍇", "Trauben-Freundschaft", "Du hast die Hommage an TraubeMinze gefunden.");
+            yield return Secret("secret_sky", "☁", "Wolkenhirte", "Du hast die clouds von StardiSkyTTV gefunden.");
+            yield return Secret("secret_creator", "👑", "Der Creator", "Du hast den Creator-Namen eingetragen.");
             yield return Secret("secret_owl", "🦉", "Nachteule", "Nach drei Uhr nachts gespielt.");
             yield return Secret("secret_birthday", "🎂", "Geburtstagskind", "Am Jahrestag der Installation gestartet.");
             yield return Secret("secret_stats", "📊", "Zahlenmensch", "Die Geheimstatistik gefunden.");
@@ -20080,23 +20121,11 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             musicControls = null;
 
             if (settings.QuickButtonsEnabled) SidebarExtras.Children.Add(BuildQuickButtons(compact));
-            if (settings.MusicPlayer) SidebarExtras.Children.Add(BuildMusicCard(compact));
+            if (settings.MusicPlayer && !SHide(settings.StreamHideMusic)) SidebarExtras.Children.Add(BuildMusicCard(compact));
 
             SidebarExtras.Visibility = SidebarExtras.Children.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        private ImageSource? QuickIcon(QuickButton button)
-        {
-            if (button.Path.StartsWith("app:", StringComparison.Ordinal))
-                return cachedApps.FirstOrDefault(a => a.Name == button.Path.Substring(4))?.Icon;
-
-            if (!quickIcons.TryGetValue(button.Path, out var icon))
-            {
-                icon = ShellImage(button.Path, 64) ?? ExtractIcon(button.Path);
-                quickIcons[button.Path] = icon;
-            }
-            return icon;
-        }
 
         private FrameworkElement BuildQuickButtons(bool compact)
         {
@@ -20202,50 +20231,6 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             return tile;
         }
 
-        private void PickQuickTarget(QuickButton? existing)
-        {
-            int source = ChooseOne(Loc.T("Schnellstart-Button"), Loc.T("Woher soll das Programm kommen?"),
-                new List<string> { Loc.T("Aus meinen Anwendungen wählen"), Loc.T("Datei auswählen ...") });
-            if (source < 0) return;
-
-            string path;
-            string name;
-
-            if (source == 0)
-            {
-                var names = cachedApps.Select(a => a.Name).OrderBy(n => n, StringComparer.CurrentCultureIgnoreCase).ToList();
-                if (names.Count == 0)
-                {
-                    Msg("Es wurden noch keine Anwendungen gefunden. Wähle stattdessen eine Datei aus.");
-                    return;
-                }
-
-                int chosen = ChooseOne(Loc.T("Programm wählen"), string.Empty, names);
-                if (chosen < 0) return;
-                path = "app:" + names[chosen];
-                name = names[chosen];
-            }
-            else
-            {
-                var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "Programme und Verknüpfungen|*.exe;*.lnk;*.bat;*.cmd;*.url|Alle Dateien|*.*" };
-                if (dialog.ShowDialog() != true) return;
-                path = dialog.FileName;
-                name = System.IO.Path.GetFileNameWithoutExtension(path);
-            }
-
-            if (existing != null)
-            {
-                existing.Path = path;
-                if (string.IsNullOrWhiteSpace(existing.Name)) existing.Name = name;
-            }
-            else
-            {
-                settings.QuickButtons.Add(new QuickButton { Name = name, Path = path });
-            }
-
-            SaveSettings();
-            RenderSidebarExtras();
-        }
 
         private void LaunchQuickButton(QuickButton button)
         {
@@ -20254,8 +20239,22 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
                 if (button.Path.StartsWith("app:", StringComparison.Ordinal))
                 {
                     var app = cachedApps.FirstOrDefault(a => a.Name == button.Path.Substring(4));
-                    if (app != null) LaunchApp(app);
-                    else ShowToast("⚠", "Programm nicht gefunden", button.Name, 6, null, true);
+                    if (app != null)
+                    {
+                        LaunchApp(app);
+                    }
+                    else if (button.AppId.Length > 0)
+                    {
+                        Process.Start(new ProcessStartInfo("explorer.exe", "shell:AppsFolder\\" + button.AppId) { UseShellExecute = true });
+                    }
+                    else if (button.ExePath.Length > 0 && File.Exists(button.ExePath))
+                    {
+                        Process.Start(new ProcessStartInfo(button.ExePath) { UseShellExecute = true, WorkingDirectory = System.IO.Path.GetDirectoryName(button.ExePath) ?? string.Empty });
+                    }
+                    else
+                    {
+                        ShowToast("⚠", "Programm nicht gefunden", button.Name, 6, null, true);
+                    }
                     return;
                 }
 
@@ -20395,6 +20394,12 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
         private async void OpenMusic(string? key)
         {
             if (!settings.MusicPlayer) return;
+            if (SHide(settings.StreamHideMusic))
+            {
+                ShowToast("🎵", "Musik", "Im Streamer-Modus ist der Musik-Player verborgen.", 5);
+                return;
+            }
+
             if (key != null && settings.MusicServicesOn.Contains(key)) musicService = key;
             if (!settings.MusicServicesOn.Contains(musicService)) musicService = settings.MusicServicesOn[0];
 
@@ -21941,6 +21946,7 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
 
         private void UpdatePadBatteryUi()
         {
+            UpdatePadPill();
             if (PadBatteryBadge == null) return;
 
             bool show = padBatteryLevel >= 0 && (controllerMode || padBatteryPreview);
@@ -22087,7 +22093,9 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             Dev("🐶 Pudel (Wuff)", PudelGreeting);
             Dev("📊 Geheimstatistik", ShowSecretStats);
             Dev("🦉 Nachteule", PlayNightOwl);
-            Dev("🎯 DVD-Logo starten", StartDvd);
+            Dev("🍇 TraubeMinze-Animation", PlayTraubeMinze);
+            Dev("☁ StardiSkyTTV-Animation", PlayStardiSky);
+            Dev("👑 Creator-Ei", PlayCreatorEgg);
             Dev("🏆 Meilenstein 100 h", () => PlayMilestone(100));
             Dev("🏆 Meilenstein 1000 h", () => PlayMilestone(1000));
             Dev("🍀 Seltene Begrüßung", () =>
@@ -22137,6 +22145,23 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
                 ShowToast("🧹", "Entwickler", "Die gemerkten Easter Eggs und Meilensteine wurden gelöscht.", 5);
             });
 
+            Group("Controller und Ansicht");
+            Dev("🎮 Controller-Modus an/aus", ToggleControllerMode);
+            Dev("🎮 Tastenbelegung zeigen", ShowPadMappingDialog);
+            Dev("🎮 Controller-Erkennung simulieren", () => ShowToast("🎮", "Controller erkannt", "Xbox-Controller (Test)\n" + Loc.T("Klicke hier für die empfohlene Tastenbelegung."), 12, ShowPadMappingDialog, true));
+            Dev("🎠 Cover-Flow an/aus", () =>
+            {
+                settings.LibraryView = settings.LibraryView == "flow" ? "cards" : "flow";
+                SaveSettings();
+                ChipViewCards.IsChecked = settings.LibraryView != "flow";
+                ChipViewFlow.IsChecked = settings.LibraryView == "flow";
+                ApplyLibraryView();
+                ApplyFilter();
+            });
+            Dev("📡 Streamer-Seite öffnen", () => NavigateTo("streamer"));
+            Dev("⬆ Schnellstart-Auswahl testen", () => ShowAppPicker("Test"));
+            Dev("🚀 Auf GitHub hochladen", RunUploadScript);
+
             Group("Controller-Akku (Vorschau)");
             Dev("🔋 Voll", () => PreviewPadBattery(3, false));
             Dev("🔋 Mittel", () => PreviewPadBattery(2, false));
@@ -22156,5 +22181,2476 @@ Kabel || Wired || 有线 || Cable || Filaire || Cabo || Кабель || 有線
             Dev("🔄 Update jetzt prüfen", () => _ = CheckForUpdateAsync(true));
         }
 #endif
+
+        // ═════════════════════════════ Runde 21, Teil 1 ═════════════════════════════
+
+        private void InitExtras13()
+        {
+            // Musik-Fenster: groß, mittig und mit abgedunkeltem Hintergrund statt halb im Bild
+            MusicPanel.IsVisibleChanged += (s, e) =>
+            {
+                MusicBackdrop.Visibility = MusicPanel.IsVisible ? Visibility.Visible : Visibility.Collapsed;
+                if (MusicPanel.IsVisible) SizeMusicPanel();
+            };
+            SizeChanged += (s, e) =>
+            {
+                if (MusicPanel.IsVisible) SizeMusicPanel();
+            };
+
+            // Die Streamer-Seite ist beim ersten Start ausgeblendet und lässt sich unter „Bereiche anzeigen“ einschalten
+            if (!settings.StreamerPageSeeded)
+            {
+                settings.StreamerPageSeeded = true;
+                if (!settings.HiddenSections.Contains("streamer")) settings.HiddenSections.Add("streamer");
+                SaveSettings();
+                ApplyNavVisibility();
+            }
+
+            UpdateStreamerToggles();
+        }
+
+        private void SizeMusicPanel()
+        {
+            double areaWidth = Math.Max(600, RootGrid.ActualWidth - SidebarBorder.ActualWidth);
+            double areaHeight = Math.Max(480, RootGrid.ActualHeight - 60);
+
+            MusicPanel.Width = Math.Clamp(areaWidth * 0.78, 560, 1200);
+            MusicPanel.Height = Math.Clamp(areaHeight * 0.88, 420, 860);
+        }
+
+        private void MusicBackdrop_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+            => MusicPanel.Visibility = Visibility.Collapsed;
+
+        // ───────────────────────────── Namens-Easter-Eggs ─────────────────────────────
+
+        /// <summary>Wird nur ausgelöst, wenn der Name im Namensfeld ausdrücklich gespeichert wird.</summary>
+        private bool CheckNameEgg(string name)
+        {
+            if (!EggsOn) return false;
+
+            switch (Regex.Replace(name.ToLowerInvariant(), "[^a-z]", string.Empty))
+            {
+                case "traubeminze":
+                    PlayTraubeMinze();
+                    return true;
+                case "stardiskyttv":
+                    PlayStardiSky();
+                    return true;
+                case "derfettepudel":
+                    PlayCreatorEgg();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private void PlayCreatorEgg()
+        {
+            EmojiRain(new[] { "👑", "🐩", "✨" }, 38, 6500);
+            Confetti();
+            EggToast("👑", "Der Creator persönlich", "Willkommen zurück, Chef!", 8);
+            UnlockSecret("secret_creator");
+        }
+
+        private void EndNameEgg(int milliseconds)
+        {
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(milliseconds) };
+            timer.Tick += (s, e) =>
+            {
+                timer.Stop();
+                var fade = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(700));
+                fade.Completed += (_, _) =>
+                {
+                    NameEggLayer.Visibility = Visibility.Collapsed;
+                    NameEggLayer.Children.Clear();
+                    NameEggLayer.Opacity = 1;
+                    nameEggTimer?.Stop();
+                };
+                NameEggLayer.BeginAnimation(UIElement.OpacityProperty, fade);
+            };
+            timer.Start();
+        }
+
+        private DispatcherTimer? nameEggTimer;
+
+        private void PlayTraubeMinze()
+        {
+            EggToast("🍇", "TraubeMinze", "Eine Hommage: zwei Launcher, zeitgleich entstanden.", 8);
+            UnlockSecret("secret_grape");
+            if (!settings.PageAnimations) return;
+
+            double width = Math.Max(600, NameEggLayer.ActualWidth > 0 ? NameEggLayer.ActualWidth : ActualWidth);
+            double height = Math.Max(400, NameEggLayer.ActualHeight > 0 ? NameEggLayer.ActualHeight : ActualHeight);
+            NameEggLayer.Children.Clear();
+            NameEggLayer.Opacity = 1;
+            NameEggLayer.Visibility = Visibility.Visible;
+
+            double top = height / 2 - 120;
+            double centerX = width / 2;
+
+            var poodle = (FrameworkElement)FindResource("DfpLogo");
+            poodle.Width = 170;
+            poodle.Height = 170;
+            Canvas.SetTop(poodle, top);
+            Canvas.SetLeft(poodle, -240);
+            NameEggLayer.Children.Add(poodle);
+
+            var grape = new TextBlock
+            {
+                Text = "🍇",
+                FontSize = 130,
+                FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                Foreground = System.Windows.Media.Brushes.White
+            };
+            Canvas.SetTop(grape, top - 6);
+            Canvas.SetLeft(grape, width + 240);
+            NameEggLayer.Children.Add(grape);
+
+            var title = new TextBlock
+            {
+                Text = "TraubeMinze  ×  DFP Pro",
+                FontSize = 34,
+                FontWeight = FontWeights.Bold,
+                Foreground = System.Windows.Media.Brushes.White,
+                Opacity = 0,
+                Effect = (System.Windows.Media.Effects.Effect)FindResource("TextShadow")
+            };
+            title.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+            Canvas.SetLeft(title, centerX - title.DesiredSize.Width / 2);
+            Canvas.SetTop(title, top + 200);
+            NameEggLayer.Children.Add(title);
+
+            var subtitle = new TextBlock
+            {
+                Text = Loc.T("Zwei Launcher, eine Idee"),
+                FontSize = 18,
+                Foreground = MakeBrush("#E5E7EB"),
+                Opacity = 0,
+                Effect = (System.Windows.Media.Effects.Effect)FindResource("TextShadow")
+            };
+            subtitle.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+            Canvas.SetLeft(subtitle, centerX - subtitle.DesiredSize.Width / 2);
+            Canvas.SetTop(subtitle, top + 250);
+            NameEggLayer.Children.Add(subtitle);
+
+            var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+            var slow = TimeSpan.FromMilliseconds(1300);
+
+            poodle.BeginAnimation(Canvas.LeftProperty, new DoubleAnimation(-240, centerX - 190, slow) { EasingFunction = ease });
+            grape.BeginAnimation(Canvas.LeftProperty, new DoubleAnimation(width + 240, centerX + 20, slow) { EasingFunction = ease });
+
+            // Nach dem Treffen hüpfen beide und es regnen Herzen
+            var hopTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1350) };
+            hopTimer.Tick += (s, e) =>
+            {
+                hopTimer.Stop();
+
+                var hop = new DoubleAnimation(top, top - 36, TimeSpan.FromMilliseconds(260))
+                {
+                    AutoReverse = true,
+                    RepeatBehavior = new RepeatBehavior(3),
+                    EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+                };
+                poodle.BeginAnimation(Canvas.TopProperty, hop);
+                grape.BeginAnimation(Canvas.TopProperty, new DoubleAnimation(top - 6, top - 42, TimeSpan.FromMilliseconds(260))
+                {
+                    AutoReverse = true,
+                    RepeatBehavior = new RepeatBehavior(3),
+                    BeginTime = TimeSpan.FromMilliseconds(120),
+                    EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+                });
+
+                title.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(500)));
+                subtitle.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(500)) { BeginTime = TimeSpan.FromMilliseconds(250) });
+
+                EmojiRain(new[] { "💜", "🍇", "🐩", "✨" }, 34, 4500);
+                Confetti();
+            };
+            hopTimer.Start();
+
+            EndNameEgg(7200);
+        }
+
+        private void PlayStardiSky()
+        {
+            EggToast("☁", "StardiSkyTTV", "Der Himmel gehört dir. Die clouds folgen dir.", 8);
+            UnlockSecret("secret_sky");
+            if (!settings.PageAnimations) return;
+
+            double width = Math.Max(600, NameEggLayer.ActualWidth > 0 ? NameEggLayer.ActualWidth : ActualWidth);
+            double height = Math.Max(400, NameEggLayer.ActualHeight > 0 ? NameEggLayer.ActualHeight : ActualHeight);
+            NameEggLayer.Children.Clear();
+            NameEggLayer.Opacity = 1;
+            NameEggLayer.Visibility = Visibility.Visible;
+
+            // Himmel
+            var sky = new System.Windows.Shapes.Rectangle
+            {
+                Width = width,
+                Height = height,
+                Opacity = 0,
+                Fill = new LinearGradientBrush(
+                    System.Windows.Media.Color.FromRgb(0x4F, 0xA8, 0xF5),
+                    System.Windows.Media.Color.FromRgb(0xCF, 0xEC, 0xFF),
+                    90)
+            };
+            NameEggLayer.Children.Add(sky);
+            sky.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 0.9, TimeSpan.FromMilliseconds(1100)));
+
+            var sun = new TextBlock { Text = "☀", FontSize = 110, Foreground = MakeBrush("#FDE047"), Opacity = 0 };
+            Canvas.SetLeft(sun, width - 190);
+            Canvas.SetTop(sun, 50);
+            NameEggLayer.Children.Add(sun);
+            sun.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(1400)));
+
+            // Kleine Wolken, die der Maus folgen
+            var clouds = new List<TextBlock>();
+            var positions = new List<System.Windows.Point>();
+            for (int i = 0; i < 6; i++)
+            {
+                var cloud = new TextBlock
+                {
+                    Text = "☁",
+                    FontSize = 64 - i * 7,
+                    Foreground = System.Windows.Media.Brushes.White,
+                    Opacity = 0.96
+                };
+                var start = new System.Windows.Point(-120 - i * 90, 120 + i * 40);
+                Canvas.SetLeft(cloud, start.X);
+                Canvas.SetTop(cloud, start.Y);
+                NameEggLayer.Children.Add(cloud);
+                clouds.Add(cloud);
+                positions.Add(start);
+            }
+
+            var label = new TextBlock
+            {
+                Text = "clouds",
+                FontSize = 15,
+                FontStyle = FontStyles.Italic,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = MakeBrush("#1E3A8A")
+            };
+            NameEggLayer.Children.Add(label);
+
+            DateTime started = DateTime.Now;
+            nameEggTimer?.Stop();
+            nameEggTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
+            nameEggTimer.Tick += (s, e) =>
+            {
+                var mouse = System.Windows.Input.Mouse.GetPosition(NameEggLayer);
+                if (mouse.X < 0 || mouse.Y < 0 || double.IsNaN(mouse.X)) mouse = new System.Windows.Point(width / 2, height / 2);
+
+                // in den ersten zwei Sekunden ziehen die Wolken von links herein
+                double intro = Math.Clamp((DateTime.Now - started).TotalSeconds / 2.0, 0, 1);
+                var target = new System.Windows.Point(mouse.X * intro + width * 0.2 * (1 - intro), mouse.Y * intro + height * 0.3 * (1 - intro));
+
+                for (int i = 0; i < clouds.Count; i++)
+                {
+                    double follow = 0.085 - i * 0.011;
+                    double wobble = Math.Sin((DateTime.Now - started).TotalSeconds * 2 + i) * 6;
+                    var p = positions[i];
+                    p.X += (target.X - 40 - i * 34 - p.X) * follow;
+                    p.Y += (target.Y + 16 + i * 14 + wobble - p.Y) * follow;
+                    positions[i] = p;
+                    Canvas.SetLeft(clouds[i], p.X);
+                    Canvas.SetTop(clouds[i], p.Y);
+                }
+
+                Canvas.SetLeft(label, positions[0].X + 14);
+                Canvas.SetTop(label, positions[0].Y + 62);
+            };
+            nameEggTimer.Start();
+
+            EndNameEgg(13000);
+        }
+
+        // ───────────────────────────── Schnellstart: Symbole zuverlässig und Auswahl mit Suche ─────────────────────────────
+
+        private static string IconCacheDir => System.IO.Path.Combine(SettingsDir, "icons");
+
+        private static string IconCacheFile(string key)
+        {
+            byte[] hash = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(key));
+            return System.IO.Path.Combine(IconCacheDir, Convert.ToHexString(hash, 0, 8) + ".png");
+        }
+
+        private static ImageSource? LoadIconFromDisk(string key)
+        {
+            try
+            {
+                string file = IconCacheFile(key);
+                if (!File.Exists(file)) return null;
+
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.UriSource = new Uri(file);
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.EndInit();
+                image.Freeze();
+                return image;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static void SaveIconToDisk(string key, ImageSource icon)
+        {
+            try
+            {
+                if (icon is not BitmapSource bitmap) return;
+
+                Directory.CreateDirectory(IconCacheDir);
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                using var stream = File.Create(IconCacheFile(key));
+                encoder.Save(stream);
+            }
+            catch { }
+        }
+
+        private ImageSource? QuickIcon(QuickButton button)
+        {
+            string key = "quick|" + (button.AppId.Length > 0 ? button.AppId : button.Path);
+            if (quickIcons.TryGetValue(key, out var cached) && cached != null) return cached;
+
+            ImageSource? icon = LoadIconFromDisk(key);
+
+            if (icon == null && button.AppId.Length > 0)
+                icon = ShellImage("shell:AppsFolder\\" + button.AppId, 96);
+
+            if (icon == null && button.ExePath.Length > 0 && File.Exists(button.ExePath))
+                icon = ShellImage(button.ExePath, 96) ?? ExtractIcon(button.ExePath);
+
+            if (icon == null && button.Path.StartsWith("app:", StringComparison.Ordinal))
+                icon = cachedApps.FirstOrDefault(a => a.Name == button.Path.Substring(4))?.Icon;
+
+            if (icon == null && !button.Path.StartsWith("app:", StringComparison.Ordinal)
+                && (File.Exists(button.Path) || Directory.Exists(button.Path)))
+                icon = ShellImage(button.Path, 96) ?? ExtractIcon(button.Path);
+
+            if (icon != null)
+            {
+                SaveIconToDisk(key, icon);
+                quickIcons[key] = icon;
+            }
+            return icon;
+        }
+
+        /// <summary>Älteren Schnellstart-Knöpfen (nur mit App-Namen gespeichert) die feste Kennung nachtragen.</summary>
+        private void MigrateQuickButtons()
+        {
+            bool changed = false;
+            foreach (var button in settings.QuickButtons)
+            {
+                if (!button.Path.StartsWith("app:", StringComparison.Ordinal) || button.AppId.Length > 0) continue;
+
+                var app = cachedApps.FirstOrDefault(a => a.Name == button.Path.Substring(4));
+                if (app == null) continue;
+
+                button.AppId = app.AppId;
+                button.ExePath = app.ExePath;
+                changed = true;
+            }
+
+            if (changed) SaveSettings();
+        }
+
+        private (string Path, string Name, string AppId, string ExePath)? ShowAppPicker(string title)
+        {
+            var dialog = CreateDialog(title, 540, out var panel);
+            (string Path, string Name, string AppId, string ExePath)? result = null;
+
+            var searchHost = new Grid { Margin = new Thickness(0, 0, 0, 12) };
+            var search = new System.Windows.Controls.TextBox { Height = 40, Padding = new Thickness(40, 0, 10, 0), VerticalContentAlignment = System.Windows.VerticalAlignment.Center };
+            searchHost.Children.Add(search);
+            searchHost.Children.Add(new TextBlock
+            {
+                Text = "🔍",
+                Margin = new Thickness(14, 0, 0, 0),
+                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                IsHitTestVisible = false
+            });
+            var hint = new TextBlock
+            {
+                Text = Loc.T("Programm suchen ..."),
+                Margin = new Thickness(40, 0, 0, 0),
+                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                Foreground = MakeBrush("#6B7280"),
+                IsHitTestVisible = false
+            };
+            searchHost.Children.Add(hint);
+            panel.Children.Add(searchHost);
+
+            var list = new StackPanel();
+            panel.Children.Add(new ScrollViewer { Height = 380, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Content = list });
+
+            void Fill(string filter)
+            {
+                list.Children.Clear();
+                var matches = cachedApps
+                    .Where(a => filter.Length == 0 || a.Name.Contains(filter, StringComparison.CurrentCultureIgnoreCase))
+                    .OrderBy(a => a.Name, StringComparer.CurrentCultureIgnoreCase)
+                    .Take(80)
+                    .ToList();
+
+                if (matches.Count == 0)
+                {
+                    list.Children.Add(new TextBlock { Text = Loc.T("Nichts gefunden. Wähle unten eine Datei aus."), Foreground = BrushSubtle, Margin = new Thickness(4, 8, 0, 0) });
+                    return;
+                }
+
+                foreach (var app in matches)
+                {
+                    var item = app;
+                    var row = new Grid();
+                    row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                    row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                    FrameworkElement icon = item.Icon != null
+                        ? new System.Windows.Controls.Image { Source = item.Icon, Width = 28, Height = 28, Stretch = Stretch.Uniform }
+                        : new TextBlock { Text = "🧩", FontSize = 20, FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"), HorizontalAlignment = System.Windows.HorizontalAlignment.Center };
+                    icon.Margin = new Thickness(0, 0, 12, 0);
+                    row.Children.Add(icon);
+
+                    var texts = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                    texts.Children.Add(new TextBlock { Text = item.Name, Foreground = System.Windows.Media.Brushes.White, TextTrimming = TextTrimming.CharacterEllipsis });
+                    texts.Children.Add(new TextBlock { Text = Loc.T(item.Category), Foreground = BrushSubtle, FontSize = 11 });
+                    Grid.SetColumn(texts, 1);
+                    row.Children.Add(texts);
+
+                    var card = new Border { Padding = new Thickness(10, 7, 10, 7), CornerRadius = new CornerRadius(10), Background = System.Windows.Media.Brushes.Transparent, Cursor = System.Windows.Input.Cursors.Hand, Child = row };
+                    card.MouseEnter += (s, e) => card.Background = BrushTileHover;
+                    card.MouseLeave += (s, e) => card.Background = System.Windows.Media.Brushes.Transparent;
+                    card.MouseLeftButtonUp += (s, e) =>
+                    {
+                        result = ("app:" + item.Name, item.Name, item.AppId, item.ExePath);
+                        dialog.DialogResult = true;
+                    };
+                    list.Children.Add(card);
+                }
+            }
+
+            search.TextChanged += (s, e) =>
+            {
+                hint.Visibility = search.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+                Fill(search.Text.Trim());
+            };
+            Fill(string.Empty);
+
+            var buttons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Right, Margin = new Thickness(0, 14, 0, 0) };
+            var file = new System.Windows.Controls.Button { Content = Loc.T("Datei auswählen ..."), Margin = new Thickness(0, 0, 10, 0) };
+            var cancel = new System.Windows.Controls.Button { Content = Loc.T("Abbrechen"), IsCancel = true };
+            buttons.Children.Add(file);
+            buttons.Children.Add(cancel);
+            panel.Children.Add(buttons);
+
+            file.Click += (s, e) =>
+            {
+                var open = new Microsoft.Win32.OpenFileDialog { Filter = "Programme und Verknüpfungen|*.exe;*.lnk;*.bat;*.cmd;*.url|Alle Dateien|*.*" };
+                if (open.ShowDialog() != true) return;
+
+                result = (open.FileName, System.IO.Path.GetFileNameWithoutExtension(open.FileName), string.Empty, open.FileName);
+                dialog.DialogResult = true;
+            };
+
+            dialog.Loaded += (s, e) => search.Focus();
+            dialog.ShowDialog();
+            return result;
+        }
+
+        private void PickQuickTarget(QuickButton? existing)
+        {
+            var picked = ShowAppPicker(Loc.T("Schnellstart-Button"));
+            if (picked == null) return;
+
+            var (path, name, appId, exePath) = picked.Value;
+
+            if (existing != null)
+            {
+                existing.Path = path;
+                existing.AppId = appId;
+                existing.ExePath = exePath;
+                if (string.IsNullOrWhiteSpace(existing.Name)) existing.Name = name;
+            }
+            else
+            {
+                settings.QuickButtons.Add(new QuickButton { Name = name, Path = path, AppId = appId, ExePath = exePath });
+            }
+
+            SaveSettings();
+            RenderSidebarExtras();
+        }
+
+        // ───────────────────────────── Galerie: löschen und Pfad öffnen ─────────────────────────────
+
+        private FrameworkElement CreateShotActions(Border tile, string filePath)
+        {
+            Border MakeButton(string glyph, string tip, Action action)
+            {
+                var button = new Border
+                {
+                    Width = 32,
+                    Height = 32,
+                    CornerRadius = new CornerRadius(16),
+                    Margin = new Thickness(0, 0, 6, 0),
+                    Background = MakeBrush("#CC0B0E16"),
+                    BorderBrush = BrushCardBorder,
+                    BorderThickness = new Thickness(1),
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    ToolTip = Loc.T(tip),
+                    Child = new TextBlock
+                    {
+                        Text = glyph,
+                        FontSize = 15,
+                        FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                        HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                        VerticalAlignment = System.Windows.VerticalAlignment.Center
+                    }
+                };
+                button.MouseEnter += (s, e) => button.BorderBrush = System.Windows.Media.Brushes.White;
+                button.MouseLeave += (s, e) => button.BorderBrush = BrushCardBorder;
+                button.MouseLeftButtonDown += (s, e) => e.Handled = true;
+                button.MouseLeftButtonUp += (s, e) =>
+                {
+                    e.Handled = true;
+                    action();
+                };
+                return button;
+            }
+
+            var bar = new StackPanel
+            {
+                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+                VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                Margin = new Thickness(0, 8, 2, 0),
+                Opacity = 0
+            };
+            bar.Children.Add(MakeButton("📂", "Dateipfad öffnen", () => OpenShell("explorer.exe", $"/select,\"{filePath}\"")));
+            bar.Children.Add(MakeButton("🗑", "Screenshot löschen", () => DeleteShot(tile, filePath)));
+
+            tile.MouseEnter += (s, e) => bar.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(1, TimeSpan.FromMilliseconds(120)));
+            tile.MouseLeave += (s, e) => bar.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(120)));
+            return bar;
+        }
+
+        private void DeleteShot(Border tile, string path)
+        {
+            var answer = Msg("Diesen Screenshot in den Papierkorb verschieben?", "Screenshot löschen", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (answer != MessageBoxResult.Yes) return;
+
+            try
+            {
+                Microsoft.VisualBasic.FileIO.FileSystem.DeleteFile(path,
+                    Microsoft.VisualBasic.FileIO.UIOption.OnlyErrorDialogs,
+                    Microsoft.VisualBasic.FileIO.RecycleOption.SendToRecycleBin);
+                GalleryContainer.Children.Remove(tile);
+                ShowToast("🗑", "Screenshot gelöscht", System.IO.Path.GetFileName(path), 4);
+            }
+            catch (Exception ex)
+            {
+                LogError("Galerie", ex);
+                Msg($"Der Screenshot konnte nicht gelöscht werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        // ───────────────────────────── Dashboard-Schnellzugriff: echte Symbole ─────────────────────────────
+
+        private readonly Dictionary<string, ImageSource?> linkIconCache = new(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> faviconTried = new(StringComparer.OrdinalIgnoreCase);
+
+        private ImageSource? ResolveQuickIcon(QuickLink link)
+        {
+            try
+            {
+                string icon = link.Icon.Trim();
+
+                // 1) Der Nutzer hat selbst eine Bilddatei oder Symbol-Datei gewählt
+                if (icon.Length > 0 && LooksLikePath(icon) && File.Exists(icon))
+                {
+                    if (IsImageFile(icon))
+                    {
+                        var image = new BitmapImage();
+                        image.BeginInit();
+                        image.UriSource = new Uri(icon);
+                        image.CacheOption = BitmapCacheOption.OnLoad;
+                        image.DecodePixelWidth = 128;
+                        image.EndInit();
+                        image.Freeze();
+                        return image;
+                    }
+                    return ExtractIcon(icon);
+                }
+
+                string target = link.Target.Trim();
+
+                if (!settings.QuickRealIcons)
+                    return icon.Length == 0 && File.Exists(target) ? ExtractIcon(target) : null;
+
+                // 2) Programme und Ordner: das echte Symbol der Datei
+                if (File.Exists(target) || Directory.Exists(target))
+                {
+                    string key = "file|" + target;
+                    if (!linkIconCache.TryGetValue(key, out var fileIcon))
+                    {
+                        fileIcon = ShellImage(target, 96) ?? ExtractIcon(target);
+                        linkIconCache[key] = fileIcon;
+                    }
+                    return fileIcon;
+                }
+
+                // 3) Webseiten: das Symbol der Seite (wird einmal geladen und gespeichert)
+                if (Uri.TryCreate(target, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+                {
+                    string host = uri.Host.Replace("www.", string.Empty);
+                    string file = System.IO.Path.Combine(IconCacheDir, "fav_" + host + ".png");
+
+                    if (File.Exists(file))
+                    {
+                        string key = "fav|" + host;
+                        if (!linkIconCache.TryGetValue(key, out var favicon))
+                        {
+                            var image = new BitmapImage();
+                            image.BeginInit();
+                            image.UriSource = new Uri(file);
+                            image.CacheOption = BitmapCacheOption.OnLoad;
+                            image.DecodePixelWidth = 128;
+                            image.EndInit();
+                            image.Freeze();
+                            favicon = image;
+                            linkIconCache[key] = favicon;
+                        }
+                        return favicon;
+                    }
+
+                    if (settings.OnlineFeatures && faviconTried.Add(host)) _ = DownloadFaviconAsync(host);
+                }
+            }
+            catch { }
+
+            return null;
+        }
+
+        private async Task DownloadFaviconAsync(string host)
+        {
+            try
+            {
+                byte[] bytes = await Http.GetByteArrayAsync($"https://www.google.com/s2/favicons?domain={Uri.EscapeDataString(host)}&sz=128");
+                if (bytes.Length < 200) return;
+
+                Directory.CreateDirectory(IconCacheDir);
+                await File.WriteAllBytesAsync(System.IO.Path.Combine(IconCacheDir, "fav_" + host + ".png"), bytes);
+
+                BuildLinkTiles();
+                FillQuickWidget();
+            }
+            catch { }
+        }
+
+        // ───────────────────────────── Systembefehle (PowerShell) unter Tools ─────────────────────────────
+
+        private sealed record SysCmd(string Icon, string Color, string Title, string Text, string Script, bool Admin, string Confirm);
+
+        private static readonly (string Group, SysCmd[] Items)[] SystemCommandGroups =
+        {
+            ("Reinigung", new[]
+            {
+                new SysCmd("🗑", "#F59E0B", "Temp-Dateien leeren", "Löscht temporäre Dateien deines Benutzers",
+                    "Write-Host 'Temporäre Dateien werden gelöscht ...'; Get-ChildItem -Path $env:TEMP -Recurse -Force -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue; Write-Host 'Fertig.' -ForegroundColor Green",
+                    false, "Alle Dateien im Temp-Ordner löschen? Dateien, die gerade benutzt werden, bleiben liegen."),
+                new SysCmd("🧹", "#F59E0B", "Papierkorb leeren", "Leert den Papierkorb endgültig",
+                    "Clear-RecycleBin -Force -ErrorAction SilentlyContinue; Write-Host 'Papierkorb geleert.' -ForegroundColor Green",
+                    false, "Den Papierkorb endgültig leeren?"),
+                new SysCmd("🌐", "#F59E0B", "DNS-Cache leeren", "Hilft bei Verbindungsproblemen", "ipconfig /flushdns", false, string.Empty),
+                new SysCmd("📦", "#F59E0B", "Windows-Update-Cache leeren", "🛡 Räumt heruntergeladene Update-Reste auf",
+                    "Write-Host 'Dienste werden angehalten ...'; Stop-Service wuauserv,bits -Force -ErrorAction SilentlyContinue; Remove-Item 'C:\\Windows\\SoftwareDistribution\\Download\\*' -Recurse -Force -ErrorAction SilentlyContinue; Start-Service wuauserv,bits; Write-Host 'Fertig.' -ForegroundColor Green",
+                    true, "Den Windows-Update-Cache leeren? Windows lädt Updates danach bei Bedarf neu.")
+            }),
+            ("Reparatur", new[]
+            {
+                new SysCmd("🛡", "#8B5CF6", "Systemdateien prüfen (SFC)", "🛡 Sucht und repariert beschädigte Windows-Dateien", "sfc /scannow", true, string.Empty),
+                new SysCmd("🩹", "#8B5CF6", "Windows-Abbild prüfen (DISM)", "🛡 Prüft den Zustand der Windows-Installation",
+                    "DISM /Online /Cleanup-Image /CheckHealth; DISM /Online /Cleanup-Image /ScanHealth", true, string.Empty),
+                new SysCmd("💽", "#8B5CF6", "Laufwerk C: prüfen", "🛡 Nur lesen, es wird nichts geändert", "chkdsk C:", true, string.Empty),
+                new SysCmd("📶", "#8B5CF6", "Netzwerk zurücksetzen", "🛡 Setzt Winsock und IP-Einstellungen zurück",
+                    "netsh winsock reset; netsh int ip reset; ipconfig /release; ipconfig /renew; ipconfig /flushdns; Write-Host 'Bitte starte den PC neu.' -ForegroundColor Yellow",
+                    true, "Das Netzwerk wird kurz unterbrochen und danach ist ein Neustart nötig. Fortfahren?")
+            }),
+            ("Auslesen", new[]
+            {
+                new SysCmd("ℹ", "#3B82F6", "Systeminformationen", "Hardware, Windows und Updates im Überblick", "systeminfo", false, string.Empty),
+                new SysCmd("🌍", "#3B82F6", "Netzwerk-Informationen", "IP-Adressen, DNS und Adapter", "ipconfig /all", false, string.Empty),
+                new SysCmd("📡", "#3B82F6", "Verbindungstest", "Ping an Cloudflare und Google", "ping 1.1.1.1 -n 6; ping 8.8.8.8 -n 6", false, string.Empty),
+                new SysCmd("💾", "#3B82F6", "Laufwerke und Gesundheit", "Zustand und freier Platz aller Laufwerke",
+                    "Get-PhysicalDisk | Format-Table FriendlyName,MediaType,HealthStatus,@{n='GB';e={[math]::Round($_.Size/1GB)}} -AutoSize; Get-Volume | Where-Object DriveLetter | Format-Table DriveLetter,FileSystemLabel,@{n='Frei GB';e={[math]::Round($_.SizeRemaining/1GB,1)}},@{n='Gesamt GB';e={[math]::Round($_.Size/1GB,1)}} -AutoSize",
+                    false, string.Empty),
+                new SysCmd("🧠", "#3B82F6", "RAM-Fresser", "Die 15 Programme mit dem größten Speicherbedarf",
+                    "Get-Process | Sort-Object WorkingSet -Descending | Select-Object -First 15 Name,@{n='RAM MB';e={[math]::Round($_.WorkingSet/1MB)}} | Format-Table -AutoSize", false, string.Empty),
+                new SysCmd("🔋", "#3B82F6", "Akku-Bericht", "Erstellt einen Bericht auf dem Desktop",
+                    "powercfg /batteryreport /output \"$env:USERPROFILE\\Desktop\\Akku-Bericht.html\"; Start-Process \"$env:USERPROFILE\\Desktop\\Akku-Bericht.html\"", false, string.Empty),
+                new SysCmd("🎮", "#3B82F6", "Grafiktreiber-Info", "Name, Version und Datum des Treibers",
+                    "Get-CimInstance Win32_VideoController | Format-List Name,DriverVersion,DriverDate,VideoModeDescription", false, string.Empty),
+                new SysCmd("💥", "#3B82F6", "Letzte Programmabstürze", "Die letzten 10 Fehler aus der Ereignisanzeige",
+                    "Get-WinEvent -FilterHashtable @{LogName='Application';Id=1000} -MaxEvents 10 -ErrorAction SilentlyContinue | Format-List TimeCreated,Message", false, string.Empty)
+            })
+        };
+
+        private void RunSystemCommand(SysCmd command)
+        {
+            if (command.Confirm.Length > 0)
+            {
+                var answer = Msg(Loc.T(command.Confirm), Loc.T(command.Title), MessageBoxButton.YesNo, MessageBoxImage.Question);
+                if (answer != MessageBoxResult.Yes) return;
+            }
+
+            string title = command.Title.Replace("'", string.Empty);
+            string script = $"$Host.UI.RawUI.WindowTitle = 'DFP Pro Launcher - {title}'; {command.Script}; Write-Host ''; Write-Host 'Fertig. Du kannst dieses Fenster schließen.' -ForegroundColor Green";
+            string encoded = Convert.ToBase64String(System.Text.Encoding.Unicode.GetBytes(script));
+
+            try
+            {
+                Process.Start(new ProcessStartInfo("powershell.exe", $"-NoProfile -ExecutionPolicy Bypass -NoExit -EncodedCommand {encoded}")
+                {
+                    UseShellExecute = true,
+                    Verb = command.Admin ? "runas" : "open"
+                });
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                // Die Rückfrage von Windows (Administratorrechte) wurde abgebrochen
+            }
+            catch (Exception ex)
+            {
+                LogError("Systembefehl", ex);
+                Msg($"Der Befehl konnte nicht gestartet werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void BuildSystemCommandTiles()
+        {
+            ToolsContainer.Children.Add(new TextBlock
+            {
+                Text = Loc.T("Systembefehle"),
+                Foreground = System.Windows.Media.Brushes.White,
+                FontSize = 20,
+                FontWeight = FontWeights.Bold,
+                Margin = new Thickness(0, 34, 0, 4)
+            });
+            ToolsContainer.Children.Add(new TextBlock
+            {
+                Text = Loc.T("Ein Klick öffnet ein PowerShell-Fenster mit dem Befehl. Mit 🛡 gekennzeichnete Befehle brauchen Administratorrechte, Windows fragt dann nach. Rechtsklick kopiert den Befehl."),
+                Foreground = BrushSubtle,
+                FontSize = 12,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 4)
+            });
+
+            foreach (var (group, items) in SystemCommandGroups)
+            {
+                ToolsContainer.Children.Add(ToolSectionHeader(group));
+                var row = new WrapPanel();
+
+                foreach (var command in items)
+                {
+                    var item = command;
+                    var tile = CreateToolTile(item.Icon, item.Color, item.Title, item.Text, () => RunSystemCommand(item));
+
+                    var menu = CreateMenu();
+                    AddMenuItem(menu, "▶  Ausführen", () => RunSystemCommand(item));
+                    AddMenuItem(menu, "📋  Befehl kopieren", () =>
+                    {
+                        try
+                        {
+                            System.Windows.Clipboard.SetText(item.Script);
+                            ShowToast("📋", "Kopiert", "Der Befehl liegt in der Zwischenablage.", 3);
+                        }
+                        catch { }
+                    });
+                    tile.ContextMenu = menu;
+                    row.Children.Add(tile);
+                }
+
+                ToolsContainer.Children.Add(row);
+            }
+        }
+
+        // ───────────────────────────── Streamer-Seite ─────────────────────────────
+
+        private static readonly Regex StreamerAppPattern = new(
+            @"\bobs\b|obs studio|streamlabs|twitch studio|xsplit|vmix|prism live|elgato|stream ?deck|voicemeeter|wirecast|tiktok live|restream|streamelements|medal|nvidia broadcast|meld studio|camera hub",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private void NavStreamer_Click(object sender, RoutedEventArgs e)
+        {
+            ShowView(ViewStreamer);
+            RenderStreamerPage();
+        }
+
+        private void BtnStreamerToggle_Click(object sender, RoutedEventArgs e)
+        {
+            ToggleStreamerMode();
+            RenderStreamerPage();
+        }
+
+        private void RenderStreamerPage()
+        {
+            if (StreamerAppsPanel == null) return;
+
+            bool on = StreamerOn;
+            TxtStreamerState.Text = on
+                ? (settings.StreamerMode ? Loc.T("Aktiv (manuell)") : Loc.T("Aktiv (automatisch, weil eine Streaming-Software läuft)"))
+                : Loc.T("Aus");
+            TxtStreamerState.Foreground = MakeBrush(on ? "#34D399" : "#9CA3AF");
+            BtnStreamerToggle.Content = Loc.T(on ? "Ausschalten" : "Einschalten");
+
+            // Programme
+            StreamerAppsPanel.Children.Clear();
+            var found = cachedApps.Where(a => StreamerAppPattern.IsMatch(a.Name)).ToList();
+            foreach (var app in found) StreamerAppsPanel.Children.Add(CreateAppTile(app));
+
+            foreach (var custom in settings.StreamerApps.ToList())
+            {
+                var entry = new AppEntry
+                {
+                    Name = custom.Name,
+                    AppId = custom.AppId,
+                    ExePath = custom.ExePath,
+                    Icon = QuickIcon(custom),
+                    Category = "Medien",
+                    IsManual = true
+                };
+                var tile = CreateAppTile(entry);
+
+                var menu = CreateMenu();
+                AddMenuItem(menu, "▶  Starten", () => LaunchApp(entry));
+                AddMenuItem(menu, "🗑  Aus der Liste entfernen", () =>
+                {
+                    settings.StreamerApps.Remove(custom);
+                    SaveSettings();
+                    RenderStreamerPage();
+                });
+                tile.ContextMenu = menu;
+                StreamerAppsPanel.Children.Add(tile);
+            }
+
+            var add = new Border
+            {
+                Width = 150,
+                Height = 150,
+                Margin = new Thickness(0, 0, 12, 12),
+                CornerRadius = new CornerRadius(14),
+                Background = BrushCardBg,
+                BorderBrush = BrushCardBorder,
+                BorderThickness = new Thickness(1),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                ToolTip = Loc.T("Programm hinzufügen"),
+                Child = new TextBlock
+                {
+                    Text = "＋",
+                    FontSize = 34,
+                    Foreground = BrushSubtle,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center
+                }
+            };
+            add.MouseEnter += (s, e) => add.Background = BrushTileHover;
+            add.MouseLeave += (s, e) => add.Background = BrushCardBg;
+            add.MouseLeftButtonUp += (s, e) =>
+            {
+                var picked = ShowAppPicker(Loc.T("Streaming-Programm"));
+                if (picked == null) return;
+
+                var (path, name, appId, exePath) = picked.Value;
+                settings.StreamerApps.Add(new QuickButton { Name = name, Path = path, AppId = appId, ExePath = exePath });
+                SaveSettings();
+                RenderStreamerPage();
+            };
+            StreamerAppsPanel.Children.Add(add);
+
+            TxtStreamerAppsHint.Text = found.Count == 0
+                ? Loc.T("Es wurde noch keine Streaming-Software erkannt. Füge deine Programme mit dem Plus hinzu.")
+                : Loc.T($"{found.Count} Programme automatisch erkannt.");
+
+            // Schnellzugriffe
+            StreamerLinksPanel.Children.Clear();
+            void Link(string icon, string color, string title, string url)
+                => StreamerLinksPanel.Children.Add(CreateToolTile(icon, color, title, "Im Browser öffnen", () => OpenShell(url)));
+
+            Link("🟣", "#9146FF", "Twitch Dashboard", "https://dashboard.twitch.tv");
+            Link("▶", "#FF0033", "YouTube Studio", "https://studio.youtube.com");
+            Link("🎵", "#25F4EE", "TikTok LIVE Center", "https://livecenter.tiktok.com");
+            Link("🟢", "#53FC18", "Kick Dashboard", "https://dashboard.kick.com");
+            Link("🛠", "#3B82F6", "StreamElements", "https://streamelements.com/dashboard");
+            Link("📈", "#F59E0B", "Streamlabs", "https://streamlabs.com/dashboard");
+
+            // Checkliste
+            StreamerChecklist.Children.Clear();
+            void Check(bool ok, string text, string? fixText = null, Action? fix = null)
+            {
+                var line = new Grid { Margin = new Thickness(0, 0, 0, 10) };
+                line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+                line.Children.Add(new TextBlock
+                {
+                    Text = ok ? "✓" : "⚠",
+                    Foreground = MakeBrush(ok ? "#34D399" : "#F59E0B"),
+                    FontWeight = FontWeights.Bold,
+                    Margin = new Thickness(0, 0, 10, 0),
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center
+                });
+                var label = new TextBlock { Text = Loc.T(text), Foreground = MakeBrush("#D1D5DB"), VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                Grid.SetColumn(label, 1);
+                line.Children.Add(label);
+
+                if (!ok && fix != null && fixText != null)
+                {
+                    var button = new System.Windows.Controls.Button { Content = Loc.T(fixText), Padding = new Thickness(14, 5, 14, 5) };
+                    button.Click += (s, e) =>
+                    {
+                        fix();
+                        RenderStreamerPage();
+                    };
+                    Grid.SetColumn(button, 2);
+                    line.Children.Add(button);
+                }
+
+                StreamerChecklist.Children.Add(line);
+            }
+
+            Check(StreamProcesses.Any(IsProcessRunning), "Eine Streaming-Software läuft");
+            Check(settings.StreamerMode || streamAutoOn, "Der Streamer-Modus ist an", "Einschalten", () =>
+            {
+                if (!StreamerOn) ToggleStreamerMode();
+            });
+            Check(settings.StreamMuteAlerts, "Hinweis-Meldungen sind stumm", "Stumm schalten", () =>
+            {
+                settings.StreamMuteAlerts = true;
+                SaveSettings();
+            });
+            Check(settings.StreamHideName, "Dein Name wird verborgen", "Verbergen", () =>
+            {
+                settings.StreamHideName = true;
+                SaveSettings();
+                ApplyStreamerMode();
+            });
+            Check(settings.StreamHideMusic, "Der Musik-Player bleibt verborgen", "Verbergen", () =>
+            {
+                settings.StreamHideMusic = true;
+                SaveSettings();
+                ApplyStreamerMode();
+            });
+        }
+
+        private void UpdateStreamerToggles()
+        {
+            if (ChkStreamerPage == null) return;
+
+            bool before = isLoadingSettings;
+            isLoadingSettings = true;
+            try
+            {
+                ChkStreamerPage.IsChecked = !settings.HiddenSections.Contains("streamer");
+                ChkStreamHideMusic.IsChecked = settings.StreamHideMusic;
+            }
+            finally
+            {
+                isLoadingSettings = before;
+            }
+        }
+
+        private void ChkStreamerPage_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+            SetSectionVisible("streamer", ChkStreamerPage.IsChecked == true);
+        }
+
+        private void ChkStreamHideMusic_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+
+            settings.StreamHideMusic = ChkStreamHideMusic.IsChecked == true;
+            SaveSettings();
+            ApplyStreamerMode();
+        }
+
+        // ───────────────────────────── Systemüberwachung: mehr Werte ─────────────────────────────
+
+        private sealed class SensorSnapshot
+        {
+            public double? CpuTemp, CpuPower, GpuTemp, GpuPower, GpuClock, VramUsedMb, VramTotalMb;
+        }
+
+        private SensorSnapshot sensorSnap = new();
+        private double gpuTotalVramMb = -1;
+        private List<System.Diagnostics.PerformanceCounter>? vramCounters;
+
+        private static void CaptureSnapshot(SensorSnapshot snap, LibreHardwareMonitor.Hardware.IHardware hardware)
+        {
+            var type = hardware.HardwareType;
+            bool cpu = type == LibreHardwareMonitor.Hardware.HardwareType.Cpu;
+            bool gpu = type == LibreHardwareMonitor.Hardware.HardwareType.GpuNvidia
+                    || type == LibreHardwareMonitor.Hardware.HardwareType.GpuAmd
+                    || type == LibreHardwareMonitor.Hardware.HardwareType.GpuIntel;
+            if (!cpu && !gpu) return;
+
+            double? cpuPreferred = null, cpuMax = null;
+
+            foreach (var sensor in hardware.Sensors)
+            {
+                if (!sensor.Value.HasValue) continue;
+                double value = sensor.Value.Value;
+                string name = sensor.Name;
+
+                switch (sensor.SensorType)
+                {
+                    case LibreHardwareMonitor.Hardware.SensorType.Temperature:
+                        if (cpu)
+                        {
+                            if (Regex.IsMatch(name, "Package|Tctl|Tdie")) cpuPreferred = value;
+                            cpuMax = Math.Max(cpuMax ?? 0, value);
+                        }
+                        else if (name.Contains("Core") && !name.Contains("Hot")) snap.GpuTemp = value;
+                        else snap.GpuTemp ??= value;
+                        break;
+                    case LibreHardwareMonitor.Hardware.SensorType.Power:
+                        if (cpu && name.Contains("Package")) snap.CpuPower = value;
+                        else if (gpu && (name.Contains("Package") || name.Contains("Power"))) snap.GpuPower = value;
+                        break;
+                    case LibreHardwareMonitor.Hardware.SensorType.Clock:
+                        if (gpu && name.Contains("Core")) snap.GpuClock = value;
+                        break;
+                    case LibreHardwareMonitor.Hardware.SensorType.SmallData:
+                        if (gpu && name.Contains("Memory Used")) snap.VramUsedMb = value;
+                        else if (gpu && name.Contains("Memory Total")) snap.VramTotalMb = value;
+                        break;
+                }
+            }
+
+            if (cpu) snap.CpuTemp = cpuPreferred ?? cpuMax;
+        }
+
+        private double? ReadVramUsedMb()
+        {
+            try
+            {
+                if (vramCounters == null)
+                {
+                    vramCounters = new List<System.Diagnostics.PerformanceCounter>();
+                    var category = new System.Diagnostics.PerformanceCounterCategory("GPU Adapter Memory");
+                    foreach (string instance in category.GetInstanceNames())
+                        vramCounters.Add(new System.Diagnostics.PerformanceCounter("GPU Adapter Memory", "Dedicated Usage", instance, true));
+                }
+
+                if (vramCounters.Count == 0) return null;
+                return vramCounters.Max(c => c.NextValue()) / (1024.0 * 1024.0);
+            }
+            catch
+            {
+                vramCounters = new List<System.Diagnostics.PerformanceCounter>();
+                return null;
+            }
+        }
+
+        private double ReadVramTotalMb()
+        {
+            if (gpuTotalVramMb >= 0) return gpuTotalVramMb;
+
+            try
+            {
+                long bytes = ReadGpuAdapters().OrderByDescending(a => a.VramBytes).FirstOrDefault()?.VramBytes ?? 0;
+                gpuTotalVramMb = bytes / (1024.0 * 1024.0);
+            }
+            catch
+            {
+                gpuTotalVramMb = 0;
+            }
+            return gpuTotalVramMb;
+        }
+
+        private void UpdateMetricDetails()
+        {
+            if (TxtCpuDetail == null || lastSample == null) return;
+
+            var m = lastSample;
+            var s = sensorSnap;
+
+            // Prozessor
+            var cpu = new List<string> { Loc.T($"Auslastung: {m.Cpu:F0} %") };
+            if (m.Mhz > 0) cpu.Add(Loc.T($"Takt: {m.Mhz / 1000.0:F2} GHz"));
+            cpu.Add(Loc.T($"Threads: {Environment.ProcessorCount}"));
+            if (s.CpuTemp.HasValue) cpu.Add(Loc.T($"Temperatur: {s.CpuTemp.Value:F0} °C"));
+            if (s.CpuPower.HasValue) cpu.Add(Loc.T($"Leistung: {s.CpuPower.Value:F0} W"));
+            TxtCpuDetail.Text = string.Join("\n", cpu);
+
+            // Arbeitsspeicher
+            if (totalRamMB > 0)
+            {
+                double usedGb = m.UsedMb / 1024.0, totalGb = totalRamMB / 1024.0;
+                TxtRamDetail.Text = Loc.T($"{usedGb:F1} GB von {totalGb:F0} GB belegt") + "\n" + Loc.T($"Frei: {Math.Max(0, totalGb - usedGb):F1} GB");
+            }
+            else
+            {
+                TxtRamDetail.Text = Loc.T($"Auslastung: {m.Ram:F0} %");
+            }
+
+            // Grafikkarte
+            if (!m.HasGpu)
+            {
+                TxtGpuDetail.Text = Loc.T("Keine Messwerte für die Grafikkarte verfügbar.");
+                return;
+            }
+
+            var gpu = new List<string> { Loc.T($"Auslastung: {m.Gpu:F0} %") };
+
+            double vramTotal = s.VramTotalMb ?? ReadVramTotalMb();
+            double? vramUsed = s.VramUsedMb ?? ReadVramUsedMb();
+            if (vramTotal > 0 && vramUsed.HasValue)
+                gpu.Add(Loc.T($"VRAM: {vramUsed.Value / 1024.0:F1} GB von {vramTotal / 1024.0:F0} GB belegt"));
+            else if (vramTotal > 0)
+                gpu.Add(Loc.T($"VRAM: {vramTotal / 1024.0:F0} GB"));
+
+            if (s.GpuClock.HasValue) gpu.Add(Loc.T($"Takt: {s.GpuClock.Value:F0} MHz"));
+            if (s.GpuTemp.HasValue) gpu.Add(Loc.T($"Temperatur: {s.GpuTemp.Value:F0} °C"));
+            if (s.GpuPower.HasValue) gpu.Add(Loc.T($"Leistung: {s.GpuPower.Value:F0} W"));
+            TxtGpuDetail.Text = string.Join("\n", gpu);
+        }
+
+        private DateTime lastDriveUpdate = DateTime.MinValue;
+        private DateTime lastNetTime = DateTime.MinValue;
+        private long lastNetIn, lastNetOut;
+
+        private static string FormatSpeed(double bytesPerSecond)
+        {
+            if (bytesPerSecond < 1024) return $"{bytesPerSecond:F0} B/s";
+            if (bytesPerSecond < 1024 * 1024) return $"{bytesPerSecond / 1024.0:F0} KB/s";
+            return $"{bytesPerSecond / (1024.0 * 1024.0):F1} MB/s";
+        }
+
+        private void UpdateDriveAndNetwork()
+        {
+            if (DriveRows == null) return;
+
+            // Netzwerk (jede Sekunde)
+            try
+            {
+                long totalIn = 0, totalOut = 0;
+                string adapter = string.Empty;
+                foreach (var nic in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
+                {
+                    if (nic.OperationalStatus != System.Net.NetworkInformation.OperationalStatus.Up) continue;
+                    if (nic.NetworkInterfaceType == System.Net.NetworkInformation.NetworkInterfaceType.Loopback
+                        || nic.NetworkInterfaceType == System.Net.NetworkInformation.NetworkInterfaceType.Tunnel) continue;
+
+                    var stats = nic.GetIPv4Statistics();
+                    totalIn += stats.BytesReceived;
+                    totalOut += stats.BytesSent;
+                    if (adapter.Length == 0) adapter = nic.Name;
+                }
+
+                var now = DateTime.Now;
+                if (lastNetTime != DateTime.MinValue)
+                {
+                    double seconds = Math.Max(0.2, (now - lastNetTime).TotalSeconds);
+                    TxtNetDown.Text = "↓ " + FormatSpeed(Math.Max(0, totalIn - lastNetIn) / seconds);
+                    TxtNetUp.Text = "↑ " + FormatSpeed(Math.Max(0, totalOut - lastNetOut) / seconds);
+                }
+                lastNetIn = totalIn;
+                lastNetOut = totalOut;
+                lastNetTime = now;
+                TxtNetName.Text = adapter.Length > 0 ? adapter : Loc.T("Kein Netzwerk");
+            }
+            catch { }
+
+            // Laufwerke (alle 5 Sekunden)
+            if ((DateTime.Now - lastDriveUpdate).TotalSeconds < 5) return;
+            lastDriveUpdate = DateTime.Now;
+
+            DriveRows.Children.Clear();
+            foreach (var drive in DriveInfo.GetDrives())
+            {
+                try
+                {
+                    if (!drive.IsReady || drive.DriveType != DriveType.Fixed) continue;
+
+                    double totalGb = drive.TotalSize / (1024.0 * 1024 * 1024);
+                    double usedGb = totalGb - drive.AvailableFreeSpace / (1024.0 * 1024 * 1024);
+                    double percent = totalGb > 0 ? usedGb / totalGb * 100 : 0;
+
+                    var line = new StackPanel { Margin = new Thickness(0, 0, 0, 12) };
+                    string label = drive.VolumeLabel.Length > 0 ? $"{drive.Name.TrimEnd('\\')}  {drive.VolumeLabel}" : drive.Name.TrimEnd('\\');
+                    line.Children.Add(new TextBlock { Text = label, Foreground = System.Windows.Media.Brushes.White, FontWeight = FontWeights.SemiBold });
+
+                    var track = new Border { Height = 8, CornerRadius = new CornerRadius(4), Background = MakeBrush("#1F2937"), Margin = new Thickness(0, 6, 0, 4) };
+                    var fill = new Border { CornerRadius = new CornerRadius(4), HorizontalAlignment = System.Windows.HorizontalAlignment.Left, Background = MakeBrush(percent > 90 ? "#EF4444" : percent > 75 ? "#F59E0B" : "#34D399") };
+                    var host = new Grid();
+                    host.Children.Add(track);
+                    host.Children.Add(fill);
+                    host.SizeChanged += (s, e) => fill.Width = Math.Max(0, host.ActualWidth * percent / 100.0);
+                    line.Children.Add(host);
+
+                    line.Children.Add(new TextBlock
+                    {
+                        Text = Loc.T($"{usedGb:F0} GB von {totalGb:F0} GB belegt ({percent:F0} %)"),
+                        Foreground = BrushSubtle,
+                        FontSize = 12
+                    });
+                    DriveRows.Children.Add(line);
+                }
+                catch { }
+            }
+        }
+
+        // ═════════════════════════════ Runde 21, Teil 2: Cover-Flow und Controller-Modus ═════════════════════════════
+
+        private sealed class PadItem
+        {
+            public string Name = string.Empty;
+            public string Meta = string.Empty;
+            public GameItem? Game;
+            public AppEntry? App;
+        }
+
+        private PadItem PadItemFromGame(GameItem game) => new() { Name = game.Name, Meta = BuildMetaText(game), Game = game };
+
+        private PadItem PadItemFromApp(AppEntry app) => new() { Name = app.Name, Meta = Loc.T(app.IsManual ? "Eigene App" : app.Category), App = app };
+
+        private (ImageSource? Picture, bool Logo) ResolvePadPicture(PadItem item)
+        {
+            if (item.Game != null)
+            {
+                var game = item.Game;
+                BitmapImage? cover = HasCover(game) ? GetCachedImage(EffectiveCover(game)) : null;
+                if (cover != null) return (cover, EffectiveCover(game) == game.FallbackCoverPath);
+                return (game.LocalIcon, true);
+            }
+            return (item.App?.Icon, true);
+        }
+
+        private FrameworkElement CreateFlowCard(PadItem item, double width, double height)
+        {
+            double radius = 18;
+            var surface = new Grid { Background = BrushCardBg };
+
+            var (picture, logo) = ResolvePadPicture(item);
+            if (picture != null)
+            {
+                var image = new System.Windows.Controls.Image
+                {
+                    Source = picture,
+                    Stretch = logo ? Stretch.Uniform : Stretch.UniformToFill,
+                    Margin = logo ? new Thickness(width * 0.16) : new Thickness(0)
+                };
+                RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+                surface.Children.Add(image);
+            }
+            else
+            {
+                surface.Children.Add(new TextBlock
+                {
+                    Text = item.Name.Length > 0 ? item.Name.Substring(0, 1).ToUpperInvariant() : "?",
+                    FontSize = width * 0.34,
+                    FontWeight = FontWeights.Bold,
+                    Foreground = BrushPlaceholder,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center
+                });
+            }
+
+            var frame = new Border { CornerRadius = new CornerRadius(radius), BorderThickness = new Thickness(4), Opacity = 0 };
+            frame.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
+            surface.Children.Add(frame);
+
+            return new Border
+            {
+                CornerRadius = new CornerRadius(radius),
+                Background = BrushCardBg,
+                Child = surface,
+                Clip = new RectangleGeometry(new System.Windows.Rect(0, 0, width, height), radius, radius),
+                Tag = frame,
+                Cursor = System.Windows.Input.Cursors.Hand
+            };
+        }
+
+        private static void FlowFocus(FrameworkElement element, double amount)
+        {
+            if (element is Border { Tag: Border frame }) frame.Opacity = amount;
+        }
+
+        // ───────────────────────────── Spiele-Ansicht „Cover-Flow“ ─────────────────────────────
+
+        private List<PadItem> flowItems = new();
+
+        private void InitExtras14()
+        {
+            LibraryFlow.ItemFactory = index => CreateFlowCard(flowItems[index], LibraryFlow.ItemWidth, LibraryFlow.ItemHeight);
+            LibraryFlow.FocusChanged = FlowFocus;
+            LibraryFlow.SelectionChanged += (s, e) => UpdateFlowInfo();
+            LibraryFlow.ItemActivated += (s, index) => LaunchFlowSelection();
+            FlowHost.SizeChanged += (s, e) => ResizeFlow();
+
+            ChkQuickRealIcons.IsChecked = settings.QuickRealIcons;
+            ChipViewCards.IsChecked = settings.LibraryView != "flow";
+            ChipViewFlow.IsChecked = settings.LibraryView == "flow";
+            ApplyLibraryView();
+        }
+
+        private void ChkQuickRealIcons_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+
+            settings.QuickRealIcons = ChkQuickRealIcons.IsChecked == true;
+            SaveSettings();
+            BuildLinkTiles();
+            FillQuickWidget();
+        }
+
+        private void LibraryView_Checked(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings || sender is not System.Windows.Controls.RadioButton { Tag: string tag }) return;
+
+            settings.LibraryView = tag == "flow" ? "flow" : "cards";
+            SaveSettings();
+            ApplyLibraryView();
+            if (ViewGames.Visibility == Visibility.Visible) ApplyFilter();
+        }
+
+        private void ApplyLibraryView()
+        {
+            if (FlowHost == null) return;
+
+            bool flow = settings.LibraryView == "flow";
+            GamesScroll.Visibility = flow ? Visibility.Collapsed : Visibility.Visible;
+            FlowHost.Visibility = flow ? Visibility.Visible : Visibility.Collapsed;
+            if (flow) AlphaHost.Visibility = Visibility.Collapsed;
+        }
+
+        private void ResizeFlow()
+        {
+            if (FlowHost.ActualHeight < 200) return;
+
+            double height = Math.Clamp(FlowHost.ActualHeight - 190, 220, 560);
+            double width = Math.Round(height * 2.0 / 3.0);
+            if (Math.Abs(LibraryFlow.ItemHeight - height) < 2) return;
+
+            LibraryFlow.ItemHeight = height;
+            LibraryFlow.ItemWidth = width;
+            LibraryFlow.SetCount(flowItems.Count, Math.Max(0, LibraryFlow.SelectedIndex));
+        }
+
+        private void RenderFlow()
+        {
+            if (LibraryFlow == null) return;
+
+            string? keep = LibraryFlow.SelectedIndex >= 0 && LibraryFlow.SelectedIndex < flowItems.Count ? flowItems[LibraryFlow.SelectedIndex].Name : null;
+            flowItems = visibleGames.Select(PadItemFromGame).ToList();
+
+            int selected = keep == null ? 0 : Math.Max(0, flowItems.FindIndex(i => i.Name == keep));
+            ResizeFlow();
+            LibraryFlow.SetCount(flowItems.Count, selected);
+            TxtFlowEmpty.Visibility = flowItems.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void UpdateFlowInfo()
+        {
+            if (TxtFlowTitle == null) return;
+
+            int index = LibraryFlow.SelectedIndex;
+            if (index < 0 || index >= flowItems.Count)
+            {
+                TxtFlowTitle.Text = string.Empty;
+                TxtFlowMeta.Text = string.Empty;
+                FlowActions.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            var item = flowItems[index];
+            TxtFlowTitle.Text = item.Name;
+            TxtFlowMeta.Text = item.Meta;
+            FlowActions.Visibility = Visibility.Visible;
+            BtnFlowFav.Content = Loc.T(item.Game?.IsFavorite == true ? "★  Favorit" : "☆  Favorit");
+        }
+
+        private GameItem? FlowSelectedGame()
+        {
+            int index = LibraryFlow.SelectedIndex;
+            return index >= 0 && index < flowItems.Count ? flowItems[index].Game : null;
+        }
+
+        private void LaunchFlowSelection()
+        {
+            var game = FlowSelectedGame();
+            if (game != null) LaunchGame(game);
+        }
+
+        private void BtnFlowPlay_Click(object sender, RoutedEventArgs e) => LaunchFlowSelection();
+
+        private void BtnFlowDetails_Click(object sender, RoutedEventArgs e)
+        {
+            var game = FlowSelectedGame();
+            if (game != null) ShowGameDetails(game);
+        }
+
+        private void BtnFlowFav_Click(object sender, RoutedEventArgs e)
+        {
+            var game = FlowSelectedGame();
+            if (game != null) ToggleFavorite(game);
+        }
+
+        private bool FlowKeyDown(System.Windows.Input.KeyEventArgs e)
+        {
+            if (controllerMode || settings.LibraryView != "flow" || ViewGames.Visibility != Visibility.Visible) return false;
+            if (System.Windows.Input.Keyboard.FocusedElement is System.Windows.Controls.TextBox) return false;
+
+            switch (e.Key)
+            {
+                case System.Windows.Input.Key.Left: LibraryFlow.Move(-1); return true;
+                case System.Windows.Input.Key.Right: LibraryFlow.Move(1); return true;
+                case System.Windows.Input.Key.PageUp: LibraryFlow.Move(-8); return true;
+                case System.Windows.Input.Key.PageDown: LibraryFlow.Move(8); return true;
+                case System.Windows.Input.Key.Home: LibraryFlow.Select(0); return true;
+                case System.Windows.Input.Key.End: LibraryFlow.Select(flowItems.Count - 1); return true;
+                case System.Windows.Input.Key.Enter: LaunchFlowSelection(); return true;
+                default: return false;
+            }
+        }
+
+        // ───────────────────────────── Controller-Modus: eigene Vollbild-Oberfläche ─────────────────────────────
+
+        private Grid? padLayer;
+        private CoverFlowControl? padFlow;
+        private TextBlock? padTitle, padMeta, padClockText, padBatteryText, padEmpty, padMenuTitle;
+        private StackPanel? padTabs, padHints, padMenuList;
+        private Border? padBatteryPill;
+        private Grid? padMenuHost;
+        private System.Windows.Controls.Image? padBackdrop;
+        private DispatcherTimer? padClockTimer;
+        private DispatcherTimer? padRumbleTimer;
+        private List<PadItem> padItems = new();
+        private int padCategory;
+        private bool padMenuOpen;
+        private int padMenuIndex;
+        private List<(string Label, Action Run)> padMenuEntries = new();
+        private bool padResumeAfterGame;
+        private bool padWasConnected;
+        private DateTime? padStartHeld;
+        private DateTime padRepeatSince = DateTime.MinValue;
+        private DateTime padRepeatLast = DateTime.MinValue;
+
+        private static readonly string[] PadCategories = { "Bibliothek", "Zuletzt gespielt", "Favoriten", "Neu", "Anwendungen" };
+
+        private void EnsurePadLayer()
+        {
+            if (padLayer != null) return;
+
+            padLayer = new Grid { Visibility = Visibility.Collapsed, Background = MakeBrush("#080A10") };
+            System.Windows.Controls.Panel.SetZIndex(padLayer, 150);
+
+            padBackdrop = new System.Windows.Controls.Image { Stretch = Stretch.UniformToFill, Opacity = 0 };
+            RenderOptions.SetBitmapScalingMode(padBackdrop, BitmapScalingMode.LowQuality);
+            padLayer.Children.Add(padBackdrop);
+
+            var shade = new LinearGradientBrush(
+                new GradientStopCollection
+                {
+                    new GradientStop(System.Windows.Media.Color.FromArgb(0xE6, 0x08, 0x0A, 0x10), 0.0),
+                    new GradientStop(System.Windows.Media.Color.FromArgb(0x99, 0x08, 0x0A, 0x10), 0.45),
+                    new GradientStop(System.Windows.Media.Color.FromArgb(0xF2, 0x08, 0x0A, 0x10), 1.0)
+                }, 90);
+            padLayer.Children.Add(new Border { Background = shade });
+
+            var layout = new Grid { Margin = new Thickness(60, 36, 60, 34) };
+            layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            layout.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            padLayer.Children.Add(layout);
+
+            // Kopfzeile: Logo, Bereiche, Uhr und Akku
+            var top = new Grid();
+            top.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            top.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            top.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            var brand = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
+            var logo = (FrameworkElement)FindResource("DfpLogo");
+            logo.Width = 46;
+            logo.Height = 46;
+            brand.Children.Add(logo);
+            brand.Children.Add(new TextBlock
+            {
+                Text = "DFP PRO",
+                FontSize = 22,
+                FontWeight = FontWeights.ExtraBold,
+                Foreground = System.Windows.Media.Brushes.White,
+                Margin = new Thickness(14, 0, 0, 0),
+                VerticalAlignment = System.Windows.VerticalAlignment.Center
+            });
+            top.Children.Add(brand);
+
+            padTabs = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, VerticalAlignment = System.Windows.VerticalAlignment.Center };
+            Grid.SetColumn(padTabs, 1);
+            top.Children.Add(padTabs);
+
+            var status = new StackPanel
+            {
+                Orientation = System.Windows.Controls.Orientation.Horizontal,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center
+            };
+            padBatteryText = new TextBlock { FontSize = 15, FontWeight = FontWeights.SemiBold, Foreground = System.Windows.Media.Brushes.White };
+            padBatteryPill = new Border
+            {
+                Visibility = Visibility.Collapsed,
+                Padding = new Thickness(13, 5, 13, 5),
+                CornerRadius = new CornerRadius(15),
+                Background = MakeBrush("#26FFFFFF"),
+                Margin = new Thickness(0, 0, 20, 0),
+                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                Child = padBatteryText
+            };
+            padClockText = new TextBlock { FontSize = 26, FontWeight = FontWeights.Bold, Foreground = System.Windows.Media.Brushes.White, VerticalAlignment = System.Windows.VerticalAlignment.Center };
+            status.Children.Add(padBatteryPill);
+            status.Children.Add(padClockText);
+            Grid.SetColumn(status, 2);
+            top.Children.Add(status);
+            layout.Children.Add(top);
+
+            // Mitte: Cover-Flow
+            padFlow = new CoverFlowControl { ItemWidth = 250, ItemHeight = 375, Margin = new Thickness(0, 8, 0, 8) };
+            padFlow.ItemFactory = index => CreateFlowCard(padItems[index], padFlow.ItemWidth, padFlow.ItemHeight);
+            padFlow.FocusChanged = FlowFocus;
+            padFlow.SelectionChanged += (s, e) => OnPadSelectionChanged();
+            padFlow.ItemActivated += (s, index) => LaunchPadItem();
+            padFlow.SizeChanged += (s, e) =>
+            {
+                double height = Math.Clamp(padFlow.ActualHeight * 0.80, 240, 560);
+                if (Math.Abs(padFlow.ItemHeight - height) < 2) return;
+                padFlow.ItemHeight = height;
+                padFlow.ItemWidth = Math.Round(height * 2.0 / 3.0);
+                padFlow.SetCount(padItems.Count, Math.Max(0, padFlow.SelectedIndex));
+            };
+            Grid.SetRow(padFlow, 1);
+            layout.Children.Add(padFlow);
+
+            padEmpty = new TextBlock
+            {
+                Text = Loc.T("Hier ist noch nichts."),
+                FontSize = 22,
+                Foreground = MakeBrush("#9CA3AF"),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                Visibility = Visibility.Collapsed
+            };
+            Grid.SetRow(padEmpty, 1);
+            layout.Children.Add(padEmpty);
+
+            // Titel und Angaben
+            var info = new StackPanel { HorizontalAlignment = System.Windows.HorizontalAlignment.Center, Margin = new Thickness(0, 6, 0, 20) };
+            padTitle = new TextBlock
+            {
+                FontSize = 38,
+                FontWeight = FontWeights.Bold,
+                Foreground = System.Windows.Media.Brushes.White,
+                TextAlignment = TextAlignment.Center,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                MaxWidth = 1300
+            };
+            padMeta = new TextBlock { FontSize = 18, Foreground = MakeBrush("#B4BCCB"), TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 6, 0, 0) };
+            info.Children.Add(padTitle);
+            info.Children.Add(padMeta);
+            Grid.SetRow(info, 2);
+            layout.Children.Add(info);
+
+            // Tastenhinweise
+            padHints = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Center };
+            Grid.SetRow(padHints, 3);
+            layout.Children.Add(padHints);
+
+            // Menü
+            padMenuTitle = new TextBlock { FontSize = 24, FontWeight = FontWeights.Bold, Foreground = System.Windows.Media.Brushes.White, Margin = new Thickness(0, 0, 0, 16) };
+            padMenuList = new StackPanel();
+            var menuCard = new Border
+            {
+                Width = 520,
+                Padding = new Thickness(28),
+                CornerRadius = new CornerRadius(22),
+                Background = MakeBrush("#F2131722"),
+                BorderBrush = BrushCardBorder,
+                BorderThickness = new Thickness(1),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                Child = new StackPanel { Children = { padMenuTitle, padMenuList } }
+            };
+            padMenuHost = new Grid { Visibility = Visibility.Collapsed, Background = MakeBrush("#B3000000") };
+            padMenuHost.Children.Add(menuCard);
+            padLayer.Children.Add(padMenuHost);
+
+            WindowRoot.Children.Add(padLayer);
+        }
+
+        private void RefreshPadTabs()
+        {
+            if (padTabs == null) return;
+
+            padTabs.Children.Clear();
+            for (int i = 0; i < PadCategories.Length; i++)
+            {
+                bool active = i == padCategory;
+                var pill = new Border
+                {
+                    Padding = new Thickness(20, 9, 20, 9),
+                    CornerRadius = new CornerRadius(22),
+                    Margin = new Thickness(5, 0, 5, 0),
+                    Background = System.Windows.Media.Brushes.Transparent,
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    Child = new TextBlock
+                    {
+                        Text = Loc.T(PadCategories[i]),
+                        FontSize = 17,
+                        FontWeight = FontWeights.SemiBold,
+                        Foreground = active ? System.Windows.Media.Brushes.White : MakeBrush("#9CA3AF")
+                    }
+                };
+                if (active) pill.SetResourceReference(Border.BackgroundProperty, "AccentBrush");
+
+                int index = i;
+                pill.MouseLeftButtonUp += (s, e) => SetPadCategory(index);
+                padTabs.Children.Add(pill);
+            }
+        }
+
+        private void RefreshPadHints()
+        {
+            if (padHints == null) return;
+
+            padHints.Children.Clear();
+            (string Glyph, string Word)[] keys = ResolveLayout() switch
+            {
+                "ps" => new[] { ("✕", "Starten"), ("○", "Zurück"), ("□", "Optionen"), ("△", "Favorit"), ("L1 / R1", "Bereich"), ("L2 / R2", "Springen"), ("OPTIONS", "Menü") },
+                "nintendo" => new[] { ("B", "Starten"), ("A", "Zurück"), ("Y", "Optionen"), ("X", "Favorit"), ("L / R", "Bereich"), ("ZL / ZR", "Springen"), ("+", "Menü") },
+                _ => new[] { ("A", "Starten"), ("B", "Zurück"), ("X", "Optionen"), ("Y", "Favorit"), ("LB / RB", "Bereich"), ("LT / RT", "Springen"), ("☰", "Menü") }
+            };
+
+            foreach (var (glyph, word) in keys)
+            {
+                var chip = new Border
+                {
+                    Padding = new Thickness(13, 7, 15, 7),
+                    CornerRadius = new CornerRadius(11),
+                    Background = MakeBrush("#22FFFFFF"),
+                    Margin = new Thickness(7, 0, 7, 0)
+                };
+                var row = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
+                var glyphText = new TextBlock { Text = glyph, FontSize = 16, FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 9, 0), VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                glyphText.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
+                row.Children.Add(glyphText);
+                row.Children.Add(new TextBlock { Text = Loc.T(word), FontSize = 16, Foreground = MakeBrush("#E5E7EB"), VerticalAlignment = System.Windows.VerticalAlignment.Center });
+                chip.Child = row;
+                padHints.Children.Add(chip);
+            }
+        }
+
+        private void SetPadCategory(int index)
+        {
+            padCategory = ((index % PadCategories.Length) + PadCategories.Length) % PadCategories.Length;
+            RebuildPadItems();
+            RefreshPadTabs();
+            PlayUiSound("move");
+        }
+
+        private void RebuildPadItems()
+        {
+            if (padFlow == null) return;
+
+            IEnumerable<PadItem> source = padCategory switch
+            {
+                1 => allGames.Where(g => !g.Hidden && g.LastPlayed.HasValue).OrderByDescending(g => g.LastPlayed).Take(40).Select(PadItemFromGame),
+                2 => allGames.Where(g => !g.Hidden && g.IsFavorite).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase).Select(PadItemFromGame),
+                3 => allGames.Where(g => !g.Hidden && IsNewGame(g)).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase).Select(PadItemFromGame),
+                4 => cachedApps.OrderBy(a => a.Name, StringComparer.CurrentCultureIgnoreCase).Select(PadItemFromApp),
+                _ => allGames.Where(g => !g.Hidden).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase).Select(PadItemFromGame)
+            };
+
+            padItems = source.ToList();
+            padFlow.SetCount(padItems.Count, 0);
+            if (padEmpty != null) padEmpty.Visibility = padItems.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            OnPadSelectionChanged();
+        }
+
+        private void OnPadSelectionChanged()
+        {
+            if (padFlow == null || padTitle == null || padMeta == null) return;
+
+            int index = padFlow.SelectedIndex;
+            if (index < 0 || index >= padItems.Count)
+            {
+                padTitle.Text = string.Empty;
+                padMeta.Text = string.Empty;
+                if (padBackdrop != null) padBackdrop.Opacity = 0;
+                return;
+            }
+
+            var item = padItems[index];
+            padTitle.Text = item.Name;
+            padMeta.Text = item.Meta;
+
+            if (padBackdrop != null)
+            {
+                var (picture, logo) = ResolvePadPicture(item);
+                padBackdrop.Source = logo ? null : picture;
+                padBackdrop.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, logo ? 0 : 0.34, TimeSpan.FromMilliseconds(380)));
+            }
+
+            if (padFlow.IsLoaded && controllerMode)
+            {
+                PadRumble(16);
+                PlayUiSound("move");
+            }
+        }
+
+        private void LaunchPadItem()
+        {
+            int index = padFlow?.SelectedIndex ?? -1;
+            if (index < 0 || index >= padItems.Count) return;
+
+            var item = padItems[index];
+            PadRumble(70);
+
+            if (item.Game != null)
+            {
+                // Das Spiel soll vorne landen: den Controller-Modus verlassen und nach dem Spiel wieder öffnen
+                padResumeAfterGame = true;
+                ToggleControllerMode();
+                LaunchGame(item.Game);
+            }
+            else if (item.App != null)
+            {
+                ToggleControllerMode();
+                LaunchApp(item.App);
+            }
+        }
+
+        private void ResumePadAfterGame()
+        {
+            if (!padResumeAfterGame || activeSessions.Count > 0) return;
+
+            padResumeAfterGame = false;
+            if (!IsVisible) ShowFromTray();
+            if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+            if (!controllerMode) ToggleControllerMode();
+        }
+
+        private void ToggleControllerMode()
+        {
+            controllerMode = !controllerMode;
+            if (TitleBar != null) TitleBar.Visibility = controllerMode ? Visibility.Collapsed : Visibility.Visible;
+
+            if (controllerMode)
+            {
+                if (!IsVisible) ShowFromTray();
+                if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+
+                savedWindowState = WindowState;
+                savedWindowStyle = WindowStyle;
+                WindowStyle = WindowStyle.None;
+                WindowState = WindowState.Maximized;
+                Topmost = true;
+                Activate();
+
+                EnsurePadLayer();
+                padCategory = allGames.Any(g => !g.Hidden && g.LastPlayed.HasValue) ? 1 : 0;
+                RefreshPadTabs();
+                RefreshPadHints();
+                RebuildPadItems();
+
+                padLayer!.Opacity = 0;
+                padLayer.Visibility = Visibility.Visible;
+                padLayer.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(260)));
+
+                padClockTimer ??= new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+                padClockTimer.Tick -= PadClockTick;
+                padClockTimer.Tick += PadClockTick;
+                padClockTimer.Start();
+                PadClockTick(this, EventArgs.Empty);
+
+                controllerTimer.Interval = TimeSpan.FromMilliseconds(16);
+            }
+            else
+            {
+                ClosePadMenu();
+                if (padLayer != null) padLayer.Visibility = Visibility.Collapsed;
+                padClockTimer?.Stop();
+
+                WindowState = WindowState.Normal;
+                WindowStyle = savedWindowStyle;
+                WindowState = savedWindowState;
+                Topmost = settings.AlwaysOnTop;
+
+                controllerTimer.Interval = TimeSpan.FromMilliseconds(60);
+            }
+
+            ApplySidebar(true);
+            UpdatePadHint();
+            FixMaximizedOverhang();
+            PlayUiSound("select");
+        }
+
+        private void PadClockTick(object? sender, EventArgs e)
+        {
+            if (padClockText != null) padClockText.Text = DateTime.Now.ToString("HH:mm", CultureInfo.CurrentCulture);
+        }
+
+        // ───────────────────────────── Controller-Menüs ─────────────────────────────
+
+        private void OpenPadMenu(string title, List<(string Label, Action Run)> entries)
+        {
+            if (padMenuHost == null || padMenuList == null || padMenuTitle == null || entries.Count == 0) return;
+
+            padMenuEntries = entries;
+            padMenuIndex = 0;
+            padMenuOpen = true;
+            padMenuTitle.Text = title;
+            RenderPadMenu();
+            padMenuHost.Visibility = Visibility.Visible;
+        }
+
+        private void RenderPadMenu()
+        {
+            if (padMenuList == null) return;
+
+            padMenuList.Children.Clear();
+            for (int i = 0; i < padMenuEntries.Count; i++)
+            {
+                var row = new Border
+                {
+                    Padding = new Thickness(18, 13, 18, 13),
+                    CornerRadius = new CornerRadius(13),
+                    Margin = new Thickness(0, 0, 0, 6),
+                    Background = System.Windows.Media.Brushes.Transparent,
+                    Child = new TextBlock { Text = padMenuEntries[i].Label, FontSize = 20, Foreground = System.Windows.Media.Brushes.White }
+                };
+                if (i == padMenuIndex) row.SetResourceReference(Border.BackgroundProperty, "AccentBrush");
+                padMenuList.Children.Add(row);
+            }
+        }
+
+        private void MovePadMenu(int delta)
+        {
+            if (padMenuEntries.Count == 0) return;
+
+            padMenuIndex = (padMenuIndex + delta + padMenuEntries.Count) % padMenuEntries.Count;
+            RenderPadMenu();
+            PlayUiSound("move");
+            PadRumble(12);
+        }
+
+        private void ActivatePadMenu()
+        {
+            if (padMenuIndex < 0 || padMenuIndex >= padMenuEntries.Count) return;
+
+            var entry = padMenuEntries[padMenuIndex];
+            ClosePadMenu();
+            entry.Run();
+        }
+
+        private void ClosePadMenu()
+        {
+            padMenuOpen = false;
+            if (padMenuHost != null) padMenuHost.Visibility = Visibility.Collapsed;
+        }
+
+        private void OpenPadStartMenu()
+        {
+            OpenPadMenu(Loc.T("Menü"), new List<(string, Action)>
+            {
+                (Loc.T("Zurück zum Launcher"), ToggleControllerMode),
+                (Loc.T(StreamerOn ? "Streamer-Modus ausschalten" : "Streamer-Modus einschalten"), ToggleStreamerMode),
+                (Loc.T("Empfohlene Tastenbelegung"), () => { ToggleControllerMode(); ShowPadMappingDialog(); }),
+                (Loc.T("Controller-Einstellungen"), () => { ToggleControllerMode(); OpenControllerSettings(); }),
+                (Loc.T("Launcher beenden"), ExitApplication)
+            });
+        }
+
+        private void OpenPadGameMenu()
+        {
+            int index = padFlow?.SelectedIndex ?? -1;
+            if (index < 0 || index >= padItems.Count) return;
+
+            var item = padItems[index];
+            var entries = new List<(string Label, Action Run)> { (Loc.T("▶  Starten"), LaunchPadItem) };
+
+            if (item.Game != null)
+            {
+                var game = item.Game;
+                entries.Add((Loc.T(game.IsFavorite ? "★  Aus Favoriten entfernen" : "☆  Zu Favoriten hinzufügen"), () => ToggleFavorite(game)));
+                entries.Add((Loc.T("🙈  Verstecken"), () =>
+                {
+                    ToggleHidden(game);
+                    RebuildPadItems();
+                }
+                ));
+            }
+            entries.Add((Loc.T("Abbrechen"), () => { }));
+
+            OpenPadMenu(item.Name, entries);
+        }
+
+        private void OpenControllerSettings()
+        {
+            NavigateTo("settings");
+            ChipCatControl.IsChecked = true;
+        }
+
+        // ───────────────────────────── Controller: Eingaben, Tastenkombination, Akku, Vibration ─────────────────────────────
+
+        private void HandlePadInput(PadButton pressed)
+        {
+            if (padMenuOpen)
+            {
+                if ((pressed & PadButton.Up) != 0) MovePadMenu(-1);
+                if ((pressed & PadButton.Down) != 0) MovePadMenu(1);
+                if ((pressed & PadButton.Confirm) != 0) ActivatePadMenu();
+                if ((pressed & (PadButton.Back | PadButton.Start)) != 0) ClosePadMenu();
+                return;
+            }
+
+            if (padFlow == null) return;
+
+            if ((pressed & PadButton.Left) != 0) padFlow.Move(-1);
+            if ((pressed & PadButton.Right) != 0) padFlow.Move(1);
+            if ((pressed & PadButton.TriggerLeft) != 0) padFlow.Move(-10);
+            if ((pressed & PadButton.TriggerRight) != 0) padFlow.Move(10);
+            if ((pressed & (PadButton.Up | PadButton.PrevTab)) != 0) SetPadCategory(padCategory - 1);
+            if ((pressed & (PadButton.Down | PadButton.NextTab)) != 0) SetPadCategory(padCategory + 1);
+            if ((pressed & PadButton.Confirm) != 0) LaunchPadItem();
+            if ((pressed & PadButton.Back) != 0) ToggleControllerMode();
+            if ((pressed & PadButton.Details) != 0) OpenPadGameMenu();
+            if ((pressed & PadButton.Start) != 0) OpenPadStartMenu();
+
+            if ((pressed & PadButton.Favorite) != 0)
+            {
+                int index = padFlow.SelectedIndex;
+                if (index >= 0 && index < padItems.Count && padItems[index].Game is { } game)
+                {
+                    ToggleFavorite(game);
+                    ShowToast(game.IsFavorite ? "★" : "☆", Loc.T(game.IsFavorite ? "Zu Favoriten hinzugefügt" : "Aus Favoriten entfernt"), game.Name, 3);
+                }
+            }
+        }
+
+        private bool PadKeyDown(System.Windows.Input.KeyEventArgs e)
+        {
+            if (!controllerMode) return false;
+
+            var map = e.Key switch
+            {
+                System.Windows.Input.Key.Left => PadButton.Left,
+                System.Windows.Input.Key.Right => PadButton.Right,
+                System.Windows.Input.Key.Up => PadButton.Up,
+                System.Windows.Input.Key.Down => PadButton.Down,
+                System.Windows.Input.Key.PageUp => PadButton.PrevTab,
+                System.Windows.Input.Key.PageDown => PadButton.NextTab,
+                System.Windows.Input.Key.Enter => PadButton.Confirm,
+                System.Windows.Input.Key.Escape => PadButton.Back,
+                System.Windows.Input.Key.Space => PadButton.Start,
+                System.Windows.Input.Key.F => PadButton.Favorite,
+                System.Windows.Input.Key.O => PadButton.Details,
+                _ => PadButton.None
+            };
+
+            if (map == PadButton.None) return false;
+            HandlePadInput(map);
+            return true;
+        }
+
+        private PadButton ApplyPadRepeat(PadButton pad, PadButton pressed)
+        {
+            const PadButton directions = PadButton.Left | PadButton.Right | PadButton.Up | PadButton.Down;
+            var now = DateTime.Now;
+
+            if ((pressed & directions) != 0)
+            {
+                padRepeatSince = now;
+                padRepeatLast = now;
+                return pressed;
+            }
+
+            PadButton held = pad & directions;
+            if (held == PadButton.None) return pressed;
+
+            double interval = settings.PadRepeat switch { 1 => 170, 3 => 55, _ => 100 };
+            if ((now - padRepeatSince).TotalMilliseconds > 380 && (now - padRepeatLast).TotalMilliseconds >= interval)
+            {
+                padRepeatLast = now;
+                return pressed | held;
+            }
+            return pressed;
+        }
+
+        /// <summary>Startet oder beendet den Controller-Modus per Tastenkombination, auch wenn der Launcher im Hintergrund liegt.</summary>
+        private bool CheckPadCombo(PadButton pad, PadButton pressed)
+        {
+            if (!settings.PadCombo)
+            {
+                padStartHeld = null;
+                return false;
+            }
+            if (activeSessions.Count > 0 && !settings.PadComboInGame) return false;
+
+            bool fire = false;
+            switch (settings.PadComboMode)
+            {
+                case "bumpers":
+                    fire = (pad & (PadButton.PrevTab | PadButton.NextTab | PadButton.Start)) == (PadButton.PrevTab | PadButton.NextTab | PadButton.Start)
+                           && pressed != PadButton.None;
+                    break;
+
+                case "hold":
+                    if (controllerMode) return false;
+                    if ((pad & PadButton.Start) != 0 && (pad & ~PadButton.Start) == PadButton.None)
+                    {
+                        padStartHeld ??= DateTime.Now;
+                        if ((DateTime.Now - padStartHeld.Value).TotalMilliseconds >= 1500)
+                        {
+                            fire = true;
+                            padStartHeld = null;
+                        }
+                    }
+                    else
+                    {
+                        padStartHeld = null;
+                    }
+                    break;
+
+                default:
+                    fire = (pad & (PadButton.Select | PadButton.Start)) == (PadButton.Select | PadButton.Start) && pressed != PadButton.None;
+                    break;
+            }
+
+            if (!fire) return false;
+
+            ToggleControllerMode();
+            return true;
+        }
+
+        private void TrackPadConnection(bool connected)
+        {
+            if (!connected)
+            {
+                padWasConnected = false;
+                return;
+            }
+            if (padWasConnected) return;
+            padWasConnected = true;
+
+            string layout = ResolveLayout();
+            if (!settings.PadSeenLayouts.Contains(layout))
+            {
+                settings.PadSeenLayouts.Add(layout);
+                SaveSettings();
+                ShowToast("🎮", "Controller erkannt", padDescription + "\n" + Loc.T("Klicke hier für die empfohlene Tastenbelegung."), 14, ShowPadMappingDialog, true);
+            }
+
+            if (settings.PadAutoStart && !controllerMode && activeSessions.Count == 0 && IsVisible) ToggleControllerMode();
+        }
+
+        private void PadRumble(int milliseconds)
+        {
+            if (!settings.PadVibrate || padSlot < 0) return;
+
+            try
+            {
+                var on = new NativeFeatures.XInputVibration { LeftMotor = 9000, RightMotor = 14000 };
+                NativeFeatures.XInputSetState((uint)padSlot, ref on);
+
+                padRumbleTimer ??= new DispatcherTimer();
+                padRumbleTimer.Stop();
+                padRumbleTimer.Interval = TimeSpan.FromMilliseconds(milliseconds);
+                padRumbleTimer.Tick -= PadRumbleStop;
+                padRumbleTimer.Tick += PadRumbleStop;
+                padRumbleTimer.Start();
+            }
+            catch { }
+        }
+
+        private void PadRumbleStop(object? sender, EventArgs e)
+        {
+            padRumbleTimer?.Stop();
+            try
+            {
+                var off = new NativeFeatures.XInputVibration();
+                if (padSlot >= 0) NativeFeatures.XInputSetState((uint)padSlot, ref off);
+            }
+            catch { }
+        }
+
+        private void UpdatePadPill()
+        {
+            if (padBatteryPill == null || padBatteryText == null) return;
+
+            bool show = padBatteryLevel >= 0;
+            padBatteryPill.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            if (!show) return;
+
+            padBatteryText.Text = "🎮  " + PadBatteryLabel();
+            padBatteryText.Foreground = MakeBrush(padBatteryWired ? "#60A5FA" : padBatteryLevel switch
+            {
+                3 => "#34D399",
+                2 => "#A3E635",
+                1 => "#F59E0B",
+                _ => "#EF4444"
+            });
+        }
+
+        // ───────────────────────────── Empfohlene Tastenbelegung ─────────────────────────────
+
+        private void ShowPadMappingDialog()
+        {
+            string layout = ResolveLayout();
+            (string Action, string Button)[] rows = layout switch
+            {
+                "ps" => new[]
+                {
+                    ("Starten und bestätigen", "✕  (Kreuz)"), ("Zurück", "○  (Kreis)"), ("Optionen zum Spiel", "□  (Quadrat)"), ("Favorit", "△  (Dreieck)"),
+                    ("Bereich wechseln", "L1 / R1"), ("Zehn Spiele springen", "L2 / R2"), ("Menü", "OPTIONS"), ("Controller-Modus an und aus", "SHARE + OPTIONS")
+                },
+                "nintendo" => new[]
+                {
+                    ("Starten und bestätigen", "B"), ("Zurück", "A"), ("Optionen zum Spiel", "Y"), ("Favorit", "X"),
+                    ("Bereich wechseln", "L / R"), ("Zehn Spiele springen", "ZL / ZR"), ("Menü", "+"), ("Controller-Modus an und aus", "−  +  zusammen")
+                },
+                _ => new[]
+                {
+                    ("Starten und bestätigen", "A"), ("Zurück", "B"), ("Optionen zum Spiel", "X"), ("Favorit", "Y"),
+                    ("Bereich wechseln", "LB / RB"), ("Zehn Spiele springen", "LT / RT"), ("Menü", "☰  (Menü-Taste)"), ("Controller-Modus an und aus", "⧉  +  ☰  (Ansicht + Menü)")
+                }
+            };
+
+            var dialog = CreateDialog("Empfohlene Tastenbelegung", 560, out var panel);
+            string kind = layout == "ps" ? "PlayStation" : layout == "nintendo" ? "Nintendo" : "Xbox";
+
+            panel.Children.Add(new TextBlock { Text = "🎮", FontSize = 44, HorizontalAlignment = System.Windows.HorizontalAlignment.Center });
+            panel.Children.Add(new TextBlock
+            {
+                Text = Loc.T("Empfohlene Tastenbelegung"),
+                FontSize = 22,
+                FontWeight = FontWeights.Bold,
+                Foreground = System.Windows.Media.Brushes.White,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                Margin = new Thickness(0, 4, 0, 4)
+            });
+            panel.Children.Add(new TextBlock
+            {
+                Text = padDescription.Length > 0 ? padDescription + "  ·  " + kind : kind,
+                Foreground = BrushSubtle,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 16)
+            });
+
+            foreach (var (action, button) in rows)
+            {
+                var line = new Grid { Margin = new Thickness(0, 0, 0, 9) };
+                line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                line.Children.Add(new TextBlock { Text = Loc.T(action), Foreground = MakeBrush("#D1D5DB") });
+
+                var tag = new Border { Padding = new Thickness(12, 4, 12, 4), CornerRadius = new CornerRadius(9), Background = MakeBrush("#26FFFFFF") };
+                var tagText = new TextBlock { Text = button, FontWeight = FontWeights.Bold };
+                tagText.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
+                tag.Child = tagText;
+                Grid.SetColumn(tag, 1);
+                line.Children.Add(tag);
+                panel.Children.Add(line);
+            }
+
+            panel.Children.Add(new TextBlock
+            {
+                Text = Loc.T("Stimmt die Belegung nicht mit deinem Controller überein, wähle sie unter Einstellungen → Steuerung selbst aus."),
+                Foreground = BrushSubtle,
+                FontSize = 12,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 10, 0, 16)
+            });
+
+            var buttons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
+            var settingsButton = new System.Windows.Controls.Button { Content = Loc.T("Einstellungen öffnen"), Margin = new Thickness(0, 0, 10, 0) };
+            var close = new System.Windows.Controls.Button { Content = Loc.T("Schließen"), IsCancel = true, IsDefault = true, Padding = new Thickness(24, 8, 24, 8) };
+            close.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            buttons.Children.Add(settingsButton);
+            buttons.Children.Add(close);
+            panel.Children.Add(buttons);
+
+            settingsButton.Click += (s, e) =>
+            {
+                dialog.DialogResult = true;
+                OpenControllerSettings();
+            };
+            dialog.ShowDialog();
+        }
+
+        private void BtnPadMapping_Click(object sender, RoutedEventArgs e) => ShowPadMappingDialog();
+
+        private void BtnPadStart_Click(object sender, RoutedEventArgs e)
+        {
+            if (!controllerMode) ToggleControllerMode();
+        }
+
+        private void ReadExtra14Settings()
+        {
+            settings.PadCombo = ChkPadCombo.IsChecked == true;
+            settings.PadComboMode = ChipPadComboBumpers.IsChecked == true ? "bumpers" : ChipPadComboHold.IsChecked == true ? "hold" : "backstart";
+            settings.PadComboInGame = ChkPadComboInGame.IsChecked == true;
+            settings.PadVibrate = ChkPadVibrate.IsChecked == true;
+            settings.PadRepeat = ChipPadRepSlow.IsChecked == true ? 1 : ChipPadRepFast.IsChecked == true ? 3 : 2;
+            settings.PadAutoStart = ChkPadAutoStart.IsChecked == true;
+        }
+
+        private void PopulateExtra14Settings()
+        {
+            ChkPadCombo.IsChecked = settings.PadCombo;
+            ChipPadComboBackStart.IsChecked = settings.PadComboMode is not ("bumpers" or "hold");
+            ChipPadComboBumpers.IsChecked = settings.PadComboMode == "bumpers";
+            ChipPadComboHold.IsChecked = settings.PadComboMode == "hold";
+            ChkPadComboInGame.IsChecked = settings.PadComboInGame;
+            ChkPadVibrate.IsChecked = settings.PadVibrate;
+            ChipPadRepSlow.IsChecked = settings.PadRepeat == 1;
+            ChipPadRepMid.IsChecked = settings.PadRepeat is not (1 or 3);
+            ChipPadRepFast.IsChecked = settings.PadRepeat == 3;
+            ChkPadAutoStart.IsChecked = settings.PadAutoStart;
+        }
+
+        // ───────────────────────────── Hochladen auf GitHub (Entwickler) ─────────────────────────────
+
+        private void RunUploadScript()
+        {
+            string? folder = AppContext.BaseDirectory;
+            for (int i = 0; i < 9 && !string.IsNullOrEmpty(folder); i++)
+            {
+                string script = System.IO.Path.Combine(folder, "Hochladen.cmd");
+                if (File.Exists(script))
+                {
+                    Process.Start(new ProcessStartInfo(script) { UseShellExecute = true, WorkingDirectory = folder });
+                    return;
+                }
+                folder = System.IO.Path.GetDirectoryName(folder);
+            }
+
+            Msg("Die Datei „Hochladen.cmd“ wurde nicht gefunden. Lege sie in den Hauptordner deines Projekts (neben die .sln-Datei).", "Hochladen", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+    }
+
+    /// <summary>Ordnet Karten in zwei oder drei Spalten an und füllt dabei immer die kürzeste Spalte.</summary>
+    public sealed class MasonryPanel : System.Windows.Controls.Panel
+    {
+        public double MinColumnWidth { get; set; } = 540;
+        public int MaxColumns { get; set; } = 3;
+        private const double Gap = 16;
+
+        private int ColumnsFor(double width)
+            => Math.Max(1, Math.Min(MaxColumns, (int)Math.Floor((width + Gap) / (MinColumnWidth + Gap))));
+
+        private static int Shortest(double[] heights)
+        {
+            int index = 0;
+            for (int i = 1; i < heights.Length; i++) if (heights[i] < heights[index]) index = i;
+            return index;
+        }
+
+        protected override System.Windows.Size MeasureOverride(System.Windows.Size available)
+        {
+            double width = double.IsInfinity(available.Width) ? 900 : available.Width;
+            int columns = ColumnsFor(width);
+            double columnWidth = (width - Gap * (columns - 1)) / columns;
+            var heights = new double[columns];
+
+            foreach (UIElement child in InternalChildren)
+            {
+                child.Measure(new System.Windows.Size(columnWidth, double.PositiveInfinity));
+                if (child.Visibility == Visibility.Collapsed) continue;
+                heights[Shortest(heights)] += child.DesiredSize.Height;
+            }
+
+            return new System.Windows.Size(width, heights.Max());
+        }
+
+        protected override System.Windows.Size ArrangeOverride(System.Windows.Size finalSize)
+        {
+            int columns = ColumnsFor(finalSize.Width);
+            double columnWidth = (finalSize.Width - Gap * (columns - 1)) / columns;
+            var heights = new double[columns];
+
+            foreach (UIElement child in InternalChildren)
+            {
+                if (child.Visibility == Visibility.Collapsed)
+                {
+                    child.Arrange(new System.Windows.Rect(0, 0, 0, 0));
+                    continue;
+                }
+
+                int column = Shortest(heights);
+                child.Arrange(new System.Windows.Rect(column * (columnWidth + Gap), heights[column], columnWidth, child.DesiredSize.Height));
+                heights[column] += child.DesiredSize.Height;
+            }
+
+            return finalSize;
+        }
+
+    }
+
+    /// <summary>Blättert Cover flüssig von links nach rechts durch (Cover-Flow). Es werden nur die Einträge um die Auswahl herum gebaut.</summary>
+    public sealed class CoverFlowControl : Canvas
+    {
+        private readonly Dictionary<int, FrameworkElement> items = new();
+        private double position;
+        private double target;
+        private bool rendering;
+        private TimeSpan lastFrame = TimeSpan.Zero;
+
+        public int Count { get; private set; }
+        public double ItemWidth { get; set; } = 210;
+        public double ItemHeight { get; set; } = 315;
+        public Func<int, FrameworkElement>? ItemFactory { get; set; }
+        public Action<FrameworkElement, double>? FocusChanged { get; set; }
+        public event EventHandler? SelectionChanged;
+        public event EventHandler<int>? ItemActivated;
+
+        public int SelectedIndex => Count == 0 ? -1 : Math.Clamp((int)Math.Round(target), 0, Count - 1);
+
+        public CoverFlowControl()
+        {
+            Background = System.Windows.Media.Brushes.Transparent;
+            SizeChanged += (s, e) => ArrangeItems();
+            Unloaded += (s, e) => StopRendering();
+        }
+
+        public void SetCount(int count, int selected)
+        {
+            foreach (var element in items.Values) Children.Remove(element);
+            items.Clear();
+
+            Count = Math.Max(0, count);
+            target = position = Count == 0 ? 0 : Math.Clamp(selected, 0, Count - 1);
+            ArrangeItems();
+            SelectionChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void Move(int delta) => Select(SelectedIndex + delta);
+
+        public void Select(int index)
+        {
+            if (Count == 0) return;
+
+            index = Math.Clamp(index, 0, Count - 1);
+            if (Math.Abs(target - index) < 0.001) return;
+
+            target = index;
+            StartRendering();
+            SelectionChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected override void OnMouseWheel(System.Windows.Input.MouseWheelEventArgs e)
+        {
+            Move(e.Delta > 0 ? -1 : 1);
+            e.Handled = true;
+        }
+
+        private void StartRendering()
+        {
+            if (rendering) return;
+            rendering = true;
+            lastFrame = TimeSpan.Zero;
+            CompositionTarget.Rendering += OnFrame;
+        }
+
+        private void StopRendering()
+        {
+            if (!rendering) return;
+            rendering = false;
+            CompositionTarget.Rendering -= OnFrame;
+        }
+
+        private void OnFrame(object? sender, EventArgs e)
+        {
+            TimeSpan now = (e as RenderingEventArgs)?.RenderingTime ?? TimeSpan.Zero;
+            if (now == lastFrame && now != TimeSpan.Zero) return;
+
+            double dt = lastFrame == TimeSpan.Zero ? 0.016 : Math.Clamp((now - lastFrame).TotalSeconds, 0.001, 0.05);
+            lastFrame = now;
+
+            double difference = target - position;
+            if (Math.Abs(difference) < 0.003)
+            {
+                position = target;
+                ArrangeItems();
+                StopRendering();
+                return;
+            }
+
+            position += difference * (1 - Math.Exp(-dt * 12));
+            ArrangeItems();
+        }
+
+        private void ArrangeItems()
+        {
+            if (ItemFactory == null || Count == 0 || ActualWidth < 20 || ActualHeight < 20) return;
+
+            double centerX = ActualWidth / 2, centerY = ActualHeight / 2;
+            int first = Math.Max(0, (int)Math.Floor(position) - 6);
+            int last = Math.Min(Count - 1, (int)Math.Ceiling(position) + 6);
+
+            foreach (int key in items.Keys.Where(k => k < first || k > last).ToList())
+            {
+                Children.Remove(items[key]);
+                items.Remove(key);
+            }
+
+            for (int i = first; i <= last; i++)
+            {
+                if (!items.TryGetValue(i, out var element))
+                {
+                    element = ItemFactory(i);
+                    element.Width = ItemWidth;
+                    element.Height = ItemHeight;
+                    element.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
+                    element.RenderTransform = new TransformGroup { Children = { new ScaleTransform(1, 1), new TranslateTransform(0, 0) } };
+
+                    int index = i;
+                    element.MouseLeftButtonUp += (s, e) =>
+                    {
+                        if (index == SelectedIndex) ItemActivated?.Invoke(this, index);
+                        else Select(index);
+                    };
+
+                    items[i] = element;
+                    Children.Add(element);
+                }
+
+                double d = i - position;
+                double ad = Math.Abs(d);
+                double scale = 1.0 / (1.0 + 0.34 * Math.Min(ad, 3.0));
+                double slide = Math.Sign(d) * ItemWidth * (0.80 * Math.Min(ad, 1.0) + 0.42 * Math.Max(0.0, Math.Min(ad, 5.0) - 1.0));
+
+                SetLeft(element, centerX - ItemWidth / 2);
+                SetTop(element, centerY - ItemHeight / 2);
+
+                var group = (TransformGroup)element.RenderTransform;
+                var scaleTransform = (ScaleTransform)group.Children[0];
+                var moveTransform = (TranslateTransform)group.Children[1];
+                scaleTransform.ScaleX = scale;
+                scaleTransform.ScaleY = scale;
+                moveTransform.X = slide;
+
+                element.Opacity = Math.Max(0.0, 1.0 - 0.17 * Math.Min(ad, 5.0));
+                SetZIndex(element, 100 - (int)Math.Round(ad * 10));
+                FocusChanged?.Invoke(element, Math.Max(0.0, 1.0 - ad));
+            }
+        }
     }
 }
