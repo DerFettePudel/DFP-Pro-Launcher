@@ -384,6 +384,10 @@ namespace Game_launcher
         public int GoLiveMinutes { get; set; } = 5;
         public string GoLiveRoutine { get; set; } = string.Empty;   // Name des Ablaufs, leer = keiner
         public bool GoLiveStartObs { get; set; }
+
+        // Controller-Extras
+        public Dictionary<string, Dictionary<string, string>> PadMappings { get; set; } = new();   // Typ (xbox/ps/nintendo) → Aktion → Taste
+        public bool ConsoleStart { get; set; }
     }
 
     /// <summary>Ein Profil speichert eine Auswahl von Einstellungen (nach Bereichen) und optional einen Energieplan.</summary>
@@ -2676,6 +2680,46 @@ In Aufnahmen unsichtbar || Hidden from recordings || 录制中不可见 || Invis
 In Aufnahmen sichtbar || Visible in recordings || 录制中可见 || Visible en grabaciones || Visible dans les enregistrements || Visível em gravações || Виден в записях || 録画で表示
 OBS, Discord und Bildschirmfotos zeigen den Launcher nicht mehr. || OBS, Discord and screenshots no longer show the launcher. || OBS、Discord 和截图将不再显示启动器。 || OBS, Discord y las capturas ya no muestran el launcher. || OBS, Discord et les captures d'écran n'affichent plus le launcher. || OBS, Discord e capturas de tela não mostram mais o launcher. || OBS, Discord и снимки экрана больше не показывают лаунчер. || OBS、Discord、スクリーンショットにランチャーが映らなくなりました。
 Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recordings again. || 启动器会重新出现在录制中。 || El launcher vuelve a aparecer en las grabaciones. || Le launcher apparaît de nouveau dans les enregistrements. || O launcher volta a aparecer nas gravações. || Лаунчер снова виден в записях. || ランチャーが再び録画に映ります。
+
+# ───────── Controller-Extras ─────────
+Als Konsole starten || Start as a console || 以主机模式启动 || Iniciar como consola || Démarrer comme une console || Iniciar como console || Запуск как консоль || コンソールとして起動
+Startet den Launcher mit Windows und öffnet direkt den Controller-Modus. Schaltet dafür den Autostart ein. || Starts the launcher with Windows and opens controller mode right away. Turns on autostart for this. || 随 Windows 启动启动器并直接打开手柄模式。会为此开启开机自启。 || Inicia el launcher con Windows y abre directamente el modo mando. Para ello activa el inicio automático. || Lance le launcher avec Windows et ouvre directement le mode manette. Active pour cela le démarrage automatique. || Inicia o launcher com o Windows e abre direto o modo controle. Para isso, liga a inicialização automática. || Запускает лаунчер вместе с Windows и сразу открывает режим контроллера. Для этого включается автозапуск. || Windows と一緒にランチャーを起動し、すぐにコントローラーモードを開きます。そのため自動起動をオンにします。
+Eigene Tastenbelegung || Custom button mapping || 自定义按键映射 || Asignación de botones propia || Attribution des boutons personnalisée || Mapeamento de botões próprio || Своя раскладка кнопок || カスタムボタン割り当て
+Lege selbst fest, welche Taste was macht. Die Belegung wird pro Controller-Typ gespeichert. Wählst du eine Taste, die schon belegt ist, tauschen die beiden Aktionen ihre Tasten. Steuerkreuz und linker Stick bleiben fest. || Decide which button does what. The mapping is saved per controller type. If you pick a button that is already in use, the two actions swap buttons. The D-pad and left stick stay fixed. || 自行设置每个按键的功能。映射按手柄类型分别保存。如果选择已被占用的按键，两个操作会互换按键。方向键和左摇杆保持不变。 || Decide qué botón hace cada cosa. La asignación se guarda por tipo de mando. Si eliges un botón ya ocupado, las dos acciones intercambian sus botones. La cruceta y el stick izquierdo no cambian. || Choisis toi-même quel bouton fait quoi. L'attribution est enregistrée par type de manette. Si tu choisis un bouton déjà utilisé, les deux actions échangent leurs boutons. La croix directionnelle et le stick gauche restent fixes. || Defina qual botão faz o quê. O mapeamento é salvo por tipo de controle. Se você escolher um botão já usado, as duas ações trocam de botão. O direcional e o analógico esquerdo continuam fixos. || Назначьте, что делает каждая кнопка. Раскладка сохраняется для каждого типа контроллера. Если выбрать уже занятую кнопку, действия поменяются кнопками. Крестовина и левый стик не меняются. || どのボタンで何をするか自分で決められます。割り当てはコントローラーの種類ごとに保存されます。使用中のボタンを選ぶと、2 つの操作のボタンが入れ替わります。十字キーと左スティックは固定です。
+Controller-Typ || Controller type || 手柄类型 || Tipo de mando || Type de manette || Tipo de controle || Тип контроллера || コントローラーの種類
+Empfohlene Belegung wiederherstellen || Restore recommended mapping || 恢复推荐映射 || Restaurar asignación recomendada || Rétablir l'attribution recommandée || Restaurar mapeamento recomendado || Вернуть рекомендуемую раскладку || 推奨の割り当てに戻す
+Bereich links || Section left || 左侧区域 || Sección izquierda || Section à gauche || Seção à esquerda || Раздел влево || 左のカテゴリ
+Bereich rechts || Section right || 右侧区域 || Sección derecha || Section à droite || Seção à direita || Раздел вправо || 右のカテゴリ
+Zehn Spiele zurück || Ten games back || 后退十个游戏 || Diez juegos atrás || Dix jeux en arrière || Dez jogos para trás || На десять игр назад || 10 本戻る
+Zehn Spiele vor || Ten games forward || 前进十个游戏 || Diez juegos adelante || Dix jeux en avant || Dez jogos para frente || На десять игр вперёд || 10 本進む
+Ansicht (für die Tastenkombination) || View (for the button combo) || 视图（用于组合键） || Vista (para la combinación) || Affichage (pour la combinaison) || Exibir (para a combinação) || Просмотр (для сочетания кнопок) || ビュー（組み合わせ用）
+Taste wählen || Choose button || 选择按键 || Elegir botón || Choisir le bouton || Escolher botão || Выбрать кнопку || ボタンを選択
+Die empfohlene Belegung gilt wieder. || The recommended mapping applies again. || 已恢复推荐映射。 || Vuelve a aplicarse la asignación recomendada. || L'attribution recommandée s'applique de nouveau. || O mapeamento recomendado vale de novo. || Снова действует рекомендуемая раскладка. || 推奨の割り当てに戻りました。
+Deine Tastenbelegung || Your button mapping || 你的按键映射 || Tu asignación de botones || Ton attribution des boutons || Seu mapeamento de botões || Ваша раскладка кнопок || あなたのボタン割り当て
+Leerzeichen || Space || 空格 || Espacio || Espace || Espaço || Пробел || スペース
+Taste || Key || 按键 || Tecla || Touche || Tecla || Клавиша || キー
+Spiel suchen ... || Search games ... || 搜索游戏 ... || Buscar juegos ... || Rechercher des jeux ... || Buscar jogos ... || Поиск игр ... || ゲームを検索 ...
+Keine Treffer für „{0}“. || No results for “{0}”. || 没有找到“{0}”的结果。 || Sin resultados para «{0}». || Aucun résultat pour « {0} ». || Nenhum resultado para “{0}”. || Ничего не найдено по запросу «{0}». || 「{0}」の検索結果はありません。
+🔎 Suchen || 🔎 Search || 🔎 搜索 || 🔎 Buscar || 🔎 Rechercher || 🔎 Buscar || 🔎 Поиск || 🔎 検索
+🔊 Lautstärke || 🔊 Volume || 🔊 音量 || 🔊 Volumen || 🔊 Volume || 🔊 Volume || 🔊 Громкость || 🔊 音量
+Lautstärke || Volume || 音量 || Volumen || Volume || Volume || Громкость || 音量
+ändern || change || 调整 || cambiar || modifier || alterar || изменить || 変更
+stumm || mute || 静音 || silenciar || couper le son || mudo || без звука || ミュート
+Stumm || Muted || 已静音 || Silenciado || Son coupé || Mudo || Без звука || ミュート中
+Die Windows-Lautstärke konnte nicht gelesen werden. || The Windows volume could not be read. || 无法读取 Windows 音量。 || No se pudo leer el volumen de Windows. || Impossible de lire le volume de Windows. || Não foi possível ler o volume do Windows. || Не удалось прочитать громкость Windows. || Windows の音量を読み取れませんでした。
+⏹ Spiel beenden || ⏹ Quit game || ⏹ 结束游戏 || ⏹ Cerrar juego || ⏹ Quitter le jeu || ⏹ Fechar jogo || ⏹ Закрыть игру || ⏹ ゲームを終了
+Spiel beenden || Quit game || 结束游戏 || Cerrar juego || Quitter le jeu || Fechar jogo || Закрыть игру || ゲームを終了
+„{0}“ beenden? Nicht gespeicherter Fortschritt geht verloren. || Quit “{0}”? Unsaved progress will be lost. || 结束“{0}”？未保存的进度将会丢失。 || ¿Cerrar «{0}»? Se perderá el progreso no guardado. || Quitter « {0} » ? La progression non sauvegardée sera perdue. || Fechar “{0}”? O progresso não salvo será perdido. || Закрыть «{0}»? Несохранённый прогресс будет потерян. || 「{0}」を終了しますか？保存していない進行状況は失われます。
+Welches Spiel beenden? || Which game should be closed? || 要结束哪个游戏？ || ¿Qué juego quieres cerrar? || Quel jeu quitter ? || Qual jogo fechar? || Какую игру закрыть? || どのゲームを終了しますか？
+Spiel wird beendet || Closing game || 正在结束游戏 || Cerrando juego || Fermeture du jeu || Fechando jogo || Игра закрывается || ゲームを終了しています
+Zu diesem Spiel läuft kein Programm mehr. || No program for this game is running anymore. || 此游戏已没有正在运行的程序。 || Ya no se está ejecutando ningún programa de este juego. || Aucun programme de ce jeu n'est encore en cours. || Nenhum programa deste jogo está mais em execução. || Программы этой игры больше не запущены. || このゲームのプログラムはもう実行されていません。
+🔄 PC neu starten || 🔄 Restart PC || 🔄 重启电脑 || 🔄 Reiniciar PC || 🔄 Redémarrer le PC || 🔄 Reiniciar PC || 🔄 Перезагрузить ПК || 🔄 PC を再起動
+⏻ PC herunterfahren || ⏻ Shut down PC || ⏻ 关闭电脑 || ⏻ Apagar PC || ⏻ Éteindre le PC || ⏻ Desligar PC || ⏻ Выключить ПК || ⏻ PC をシャットダウン
+PC jetzt neu starten? || Restart the PC now? || 现在重启电脑吗？ || ¿Reiniciar el PC ahora? || Redémarrer le PC maintenant ? || Reiniciar o PC agora? || Перезагрузить ПК сейчас? || 今すぐ PC を再起動しますか？
+PC jetzt herunterfahren? || Shut down the PC now? || 现在关闭电脑吗？ || ¿Apagar el PC ahora? || Éteindre le PC maintenant ? || Desligar o PC agora? || Выключить ПК сейчас? || 今すぐ PC をシャットダウンしますか？
+🔄 Neu starten || 🔄 Restart || 🔄 重启 || 🔄 Reiniciar || 🔄 Redémarrer || 🔄 Reiniciar || 🔄 Перезагрузить || 🔄 再起動
+⏻ Herunterfahren || ⏻ Shut down || ⏻ 关机 || ⏻ Apagar || ⏻ Éteindre || ⏻ Desligar || ⏻ Выключить || ⏻ シャットダウン
+Das hat nicht geklappt. || That didn't work. || 操作未成功。 || No ha funcionado. || Cela n'a pas fonctionné. || Não funcionou. || Не получилось. || うまくいきませんでした。
 """;
     }
 
@@ -3273,6 +3317,7 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
             InitExtras16();
             InitExtras17();
             InitExtras18();
+            InitExtras19();
 
             isLoadingSettings = false;
             RefreshDashboard();
@@ -3598,6 +3643,12 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
             settings.ProfileOnObs ??= string.Empty;
             if (!GoLiveMinuteOptions.Contains(settings.GoLiveMinutes)) settings.GoLiveMinutes = 5;
             settings.GoLiveRoutine ??= string.Empty;
+            settings.PadMappings ??= new Dictionary<string, Dictionary<string, string>>();
+            foreach (string layoutKey in settings.PadMappings.Keys.ToList())
+            {
+                // Ungültige oder unvollständige Belegungen verwerfen (dann gilt die empfohlene)
+                if (!IsValidPadMapping(settings.PadMappings[layoutKey])) settings.PadMappings.Remove(layoutKey);
+            }
 
             ApplyTheme();
             UpdateUserNameDisplay();
@@ -3785,13 +3836,14 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
             }
         }
 
-        private static void SetAutostart(bool enable)
+        private static void SetAutostart(bool enable, bool controller = false)
         {
             using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
             if (key == null) return;
 
+            // „Als Konsole starten“: mit dem Startparameter --controller öffnet sich direkt der Controller-Modus
             if (enable && Environment.ProcessPath is string exe)
-                key.SetValue(AutostartName, $"\"{exe}\"");
+                key.SetValue(AutostartName, controller ? $"\"{exe}\" --controller" : $"\"{exe}\"");
             else
                 key.DeleteValue(AutostartName, false);
         }
@@ -3949,7 +4001,15 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
 
             try
             {
-                SetAutostart(ChkAutostart.IsChecked == true);
+                bool on = ChkAutostart.IsChecked == true;
+                // Ohne Autostart gibt es auch keinen Konsolen-Start
+                if (!on && settings.ConsoleStart)
+                {
+                    settings.ConsoleStart = false;
+                    SaveSettings();
+                    PopulateControllerExtras();
+                }
+                SetAutostart(on, settings.ConsoleStart);
             }
             catch (Exception ex)
             {
@@ -9856,6 +9916,7 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
             PopulateExtra14Settings();
             PopulateObsSettings();
             PopulateStreamerExtras();
+            PopulateControllerExtras();
         }
 
         private void UpdateExtraSliderLabels()
@@ -11691,7 +11752,14 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
 
         private void RunTranslationPass()
         {
-            TranslateTree(this);
+            // Im Controller-Modus ist die normale Oberfläche ausgeblendet: nur die Controller-Ebene übersetzen,
+            // damit der Durchlauf den Oberflächen-Thread nicht lange blockiert (Eingabe-Verzögerung)
+            if (controllerMode && padLayer != null)
+            {
+                TranslateTree(padLayer);
+                TranslateTree(ToastHost);
+            }
+            else TranslateTree(this);
             if (Loc.Language == "de") germanRestorePending = false;
         }
 
@@ -22622,6 +22690,35 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
             Dev("💬 Dialog mit Benutzername (Zensur-Test)", () =>
                 Msg($"Zensur-Test: Windows-Benutzer {Environment.UserName} auf {Environment.MachineName}, Ordner {Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}.\n\nIm Streamer-Modus muss diese Zeile verdeckt sein.", "Entwickler"));
 
+            Group("Controller-Extras");
+            Dev("⌨ Bildschirmtastatur zeigen", () =>
+            {
+                if (!controllerMode) ToggleControllerMode();
+                OpenPadKeyboard();
+            });
+            Dev("🔊 Lautstärke-Anzeige", () =>
+            {
+                if (!controllerMode) ToggleControllerMode();
+                OpenPadVolume();
+            });
+            Dev("⏹ Spiel-beenden-Abfrage", () =>
+            {
+                if (activeSessions.Count == 0)
+                {
+                    Msg("Dafür muss ein Spiel laufen. Starte ein Spiel und öffne dann im Controller-Modus das Menü.", "Entwickler");
+                    return;
+                }
+                if (!controllerMode) ToggleControllerMode();
+                PadEndGame();
+            });
+            Dev("⏻ Herunterfahren-Abfrage (nur Anzeige)", () =>
+            {
+                if (!controllerMode) ToggleControllerMode();
+                OpenPadConfirm(Loc.T("PC jetzt herunterfahren?") + " (Test)", Loc.T("⏻  Herunterfahren"), () => ShowToast("⏻", "Entwickler", "Test: Es wurde nichts ausgeführt.", 4));
+            });
+            Dev("🔁 Test: Starten und Zurück tauschen", () => AssignPadSlot(ResolveLayout(), "confirm", PadMappingFor(ResolveLayout())["back"]));
+            Dev("↺ Tastenbelegung zurücksetzen", () => BtnPadRemapReset_Click(this, new RoutedEventArgs()));
+
             Group("Controller-Akku (Vorschau)");
             Dev("🔋 Voll", () => PreviewPadBattery(3, false));
             Dev("🔋 Mittel", () => PreviewPadBattery(2, false));
@@ -23924,9 +24021,24 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
             if (padTabs == null) return;
 
             padTabs.Children.Clear();
+
+            // Aktive Suche als eigener Reiter vorne
+            if (padSearch.Length > 0)
+            {
+                var searchPill = new Border
+                {
+                    Padding = new Thickness(20, 9, 20, 9),
+                    CornerRadius = new CornerRadius(22),
+                    Margin = new Thickness(5, 0, 5, 0),
+                    Child = new TextBlock { Text = "🔎 " + padSearch, FontSize = 17, FontWeight = FontWeights.SemiBold, Foreground = System.Windows.Media.Brushes.White }
+                };
+                searchPill.SetResourceReference(Border.BackgroundProperty, "AccentBrush");
+                padTabs.Children.Add(searchPill);
+            }
+
             for (int i = 0; i < PadCategories.Length; i++)
             {
-                bool active = i == padCategory;
+                bool active = i == padCategory && padSearch.Length == 0;
                 var pill = new Border
                 {
                     Padding = new Thickness(20, 9, 20, 9),
@@ -23955,11 +24067,12 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
             if (padHints == null) return;
 
             padHints.Children.Clear();
-            (string Glyph, string Word)[] keys = ResolveLayout() switch
+            // Beschriftung folgt dem Controller-Typ und der eigenen Tastenbelegung
+            (string Glyph, string Word)[] keys =
             {
-                "ps" => new[] { ("✕", "Starten"), ("○", "Zurück"), ("□", "Optionen"), ("△", "Favorit"), ("L1 / R1", "Bereich"), ("L2 / R2", "Springen"), ("OPTIONS", "Menü") },
-                "nintendo" => new[] { ("B", "Starten"), ("A", "Zurück"), ("Y", "Optionen"), ("X", "Favorit"), ("L / R", "Bereich"), ("ZL / ZR", "Springen"), ("+", "Menü") },
-                _ => new[] { ("A", "Starten"), ("B", "Zurück"), ("X", "Optionen"), ("Y", "Favorit"), ("LB / RB", "Bereich"), ("LT / RT", "Springen"), ("☰", "Menü") }
+                (PadGlyph("confirm"), "Starten"), (PadGlyph("back"), "Zurück"), (PadGlyph("details"), "Optionen"), (PadGlyph("favorite"), "Favorit"),
+                (PadGlyph("prevtab") + " / " + PadGlyph("nexttab"), "Bereich"), (PadGlyph("jumpleft") + " / " + PadGlyph("jumpright"), "Springen"),
+                (PadGlyph("menu"), "Menü")
             };
 
             foreach (var (glyph, word) in keys)
@@ -23984,6 +24097,7 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
         private void SetPadCategory(int index)
         {
             padCategory = ((index % PadCategories.Length) + PadCategories.Length) % PadCategories.Length;
+            padSearch = string.Empty;
             RebuildPadItems();
             RefreshPadTabs();
             PlayUiSound("move");
@@ -23993,7 +24107,7 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
         {
             if (padFlow == null) return;
 
-            IEnumerable<PadItem> source = padCategory switch
+            IEnumerable<PadItem> source = padSearch.Length > 0 ? SearchPadItems(padSearch) : padCategory switch
             {
                 1 => allGames.Where(g => !g.Hidden && g.LastPlayed.HasValue).OrderByDescending(g => g.LastPlayed).Take(40).Select(PadItemFromGame),
                 2 => allGames.Where(g => !g.Hidden && g.IsFavorite).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase).Select(PadItemFromGame),
@@ -24005,7 +24119,11 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
             padItems = source.ToList();
             padFlow.SetCount(padItems.Count, 0);
             PrefetchFlow(padFlow, padItems);
-            if (padEmpty != null) padEmpty.Visibility = padItems.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            if (padEmpty != null)
+            {
+                padEmpty.Text = padSearch.Length > 0 ? Loc.T($"Keine Treffer für „{padSearch}“.") : Loc.T("Hier ist noch nichts.");
+                padEmpty.Visibility = padItems.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+            }
             OnPadSelectionChanged();
         }
 
@@ -24085,6 +24203,9 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
             else
             {
                 ClosePadMenu();
+                if (padKeyboardOpen) ClosePadKeyboard();
+                if (padVolumeOpen) ClosePadVolume();
+                padSearch = string.Empty;
                 RootGrid.Visibility = Visibility.Visible;
                 if (padLayer != null) padLayer.Visibility = Visibility.Collapsed;
                 padClockTimer?.Stop();
@@ -24171,14 +24292,23 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
 
         private void OpenPadStartMenu()
         {
-            OpenPadMenu(Loc.T("Menü"), new List<(string, Action)>
+            var entries = new List<(string, Action)>
             {
                 (Loc.T("Zurück zum Launcher"), ToggleControllerMode),
-                (Loc.T(StreamerOn ? "Streamer-Modus ausschalten" : "Streamer-Modus einschalten"), ToggleStreamerMode),
-                (Loc.T("Empfohlene Tastenbelegung"), () => { ToggleControllerMode(); ShowPadMappingDialog(); }),
-                (Loc.T("Controller-Einstellungen"), () => { ToggleControllerMode(); OpenControllerSettings(); }),
-                (Loc.T("Launcher beenden"), ExitApplication)
-            });
+                (Loc.T("🔎  Suchen"), OpenPadKeyboard),
+                (Loc.T("🔊  Lautstärke"), OpenPadVolume)
+            };
+            if (activeSessions.Count > 0) entries.Add((Loc.T("⏹  Spiel beenden"), PadEndGame));
+            entries.Add((Loc.T(StreamerOn ? "Streamer-Modus ausschalten" : "Streamer-Modus einschalten"), ToggleStreamerMode));
+            entries.Add((Loc.T("Empfohlene Tastenbelegung"), () => { ToggleControllerMode(); ShowPadMappingDialog(); }));
+            entries.Add((Loc.T("Controller-Einstellungen"), () => { ToggleControllerMode(); OpenControllerSettings(); }));
+            if (settings.PowerButtons)
+            {
+                entries.Add((Loc.T("🔄  PC neu starten"), () => PadPowerAction("restart")));
+                entries.Add((Loc.T("⏻  PC herunterfahren"), () => PadPowerAction("shutdown")));
+            }
+            entries.Add((Loc.T("Launcher beenden"), ExitApplication));
+            OpenPadMenu(Loc.T("Menü"), entries);
         }
 
         private void OpenPadGameMenu()
@@ -24215,6 +24345,17 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
 
         private void HandlePadInput(PadButton pressed)
         {
+            if (padKeyboardOpen)
+            {
+                HandlePadKeyboard(pressed);
+                return;
+            }
+            if (padVolumeOpen)
+            {
+                HandlePadVolume(pressed);
+                return;
+            }
+
             if (padMenuOpen)
             {
                 if ((pressed & PadButton.Up) != 0) MovePadMenu(-1);
@@ -24233,7 +24374,12 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
             if ((pressed & (PadButton.Up | PadButton.PrevTab)) != 0) SetPadCategory(padCategory - 1);
             if ((pressed & (PadButton.Down | PadButton.NextTab)) != 0) SetPadCategory(padCategory + 1);
             if ((pressed & PadButton.Confirm) != 0) LaunchPadItem();
-            if ((pressed & PadButton.Back) != 0) ToggleControllerMode();
+            if ((pressed & PadButton.Back) != 0)
+            {
+                // Bei aktiver Suche zuerst die Suche verlassen, erst dann den Controller-Modus
+                if (padSearch.Length > 0) ClearPadSearch();
+                else ToggleControllerMode();
+            }
             if ((pressed & PadButton.Details) != 0) OpenPadGameMenu();
             if ((pressed & PadButton.Start) != 0) OpenPadStartMenu();
 
@@ -24400,32 +24546,21 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
         private void ShowPadMappingDialog()
         {
             string layout = ResolveLayout();
-            (string Action, string Button)[] rows = layout switch
+            bool custom = settings.PadMappings.ContainsKey(layout);
+            (string Action, string Button)[] rows =
             {
-                "ps" => new[]
-                {
-                    ("Starten und bestätigen", "✕  (Kreuz)"), ("Zurück", "○  (Kreis)"), ("Optionen zum Spiel", "□  (Quadrat)"), ("Favorit", "△  (Dreieck)"),
-                    ("Bereich wechseln", "L1 / R1"), ("Zehn Spiele springen", "L2 / R2"), ("Menü", "OPTIONS"), ("Controller-Modus an und aus", "SHARE + OPTIONS")
-                },
-                "nintendo" => new[]
-                {
-                    ("Starten und bestätigen", "B"), ("Zurück", "A"), ("Optionen zum Spiel", "Y"), ("Favorit", "X"),
-                    ("Bereich wechseln", "L / R"), ("Zehn Spiele springen", "ZL / ZR"), ("Menü", "+"), ("Controller-Modus an und aus", "−  +  zusammen")
-                },
-                _ => new[]
-                {
-                    ("Starten und bestätigen", "A"), ("Zurück", "B"), ("Optionen zum Spiel", "X"), ("Favorit", "Y"),
-                    ("Bereich wechseln", "LB / RB"), ("Zehn Spiele springen", "LT / RT"), ("Menü", "☰  (Menü-Taste)"), ("Controller-Modus an und aus", "⧉  +  ☰  (Ansicht + Menü)")
-                }
+                ("Starten und bestätigen", PadGlyph("confirm")), ("Zurück", PadGlyph("back")), ("Optionen zum Spiel", PadGlyph("details")), ("Favorit", PadGlyph("favorite")),
+                ("Bereich wechseln", PadGlyph("prevtab") + " / " + PadGlyph("nexttab")), ("Zehn Spiele springen", PadGlyph("jumpleft") + " / " + PadGlyph("jumpright")),
+                ("Menü", PadGlyph("menu")), ("Controller-Modus an und aus", PadGlyph("view") + "  &  " + PadGlyph("menu"))
             };
 
-            var dialog = CreateDialog("Empfohlene Tastenbelegung", 560, out var panel);
+            var dialog = CreateDialog(custom ? "Deine Tastenbelegung" : "Empfohlene Tastenbelegung", 560, out var panel);
             string kind = layout == "ps" ? "PlayStation" : layout == "nintendo" ? "Nintendo" : "Xbox";
 
             panel.Children.Add(new TextBlock { Text = "🎮", FontSize = 44, HorizontalAlignment = System.Windows.HorizontalAlignment.Center });
             panel.Children.Add(new TextBlock
             {
-                Text = Loc.T("Empfohlene Tastenbelegung"),
+                Text = Loc.T(custom ? "Deine Tastenbelegung" : "Empfohlene Tastenbelegung"),
                 FontSize = 22,
                 FontWeight = FontWeights.Bold,
                 Foreground = System.Windows.Media.Brushes.White,
@@ -25897,7 +26032,7 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
         private string padThreadDescription = string.Empty;
         private int padThreadKind;   // 0 = keiner, 1 = Xbox (XInput), 2 = anderes Gamepad (WinMM)
         private double padLatencyMax, padLatencySum;
-        private int padLatencyCount;
+        private int padLatencyCount, padLatencySpikes;
 
         private bool TryReadWinMm(uint id, out PadButton mapped)
         {
@@ -25954,10 +26089,11 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
             }
 
             ShowToast("🎮", "Controller-Latenz",
-                $"Ø {padLatencySum / padLatencyCount:F1} ms, Spitze {padLatencyMax:F1} ms ({padLatencyCount} Eingaben)", 8);
+                $"Ø {padLatencySum / padLatencyCount:F1} ms, Spitze {padLatencyMax:F1} ms ({padLatencyCount} Eingaben, {padLatencySpikes} über 30 ms)", 8);
             padLatencyMax = 0;
             padLatencySum = 0;
             padLatencyCount = 0;
+            padLatencySpikes = 0;
         }
 
         // ───────────────────────────── Controller-Akku und Kabel-Status ─────────────────────────────
@@ -26068,7 +26204,7 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
                             continue;
                         }
 
-                        Publish(MapXInput(state, ref stick));
+                        Publish(RemapPad(MapXInput(state, ref stick)));
                         System.Threading.Thread.Sleep(padFast ? 2 : 8);
                         continue;
                     }
@@ -26109,7 +26245,7 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
                             System.Threading.Volatile.Write(ref padThreadKind, 2);
                         }
 
-                        Publish(other);
+                        Publish(RemapPad(other));
                         System.Threading.Thread.Sleep(padFast ? 3 : 10);
                         continue;
                     }
@@ -26154,6 +26290,7 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
             padLatencySum += milliseconds;
             padLatencyCount++;
             if (milliseconds > padLatencyMax) padLatencyMax = milliseconds;
+            if (milliseconds > 30) padLatencySpikes++;
 
             PadButton pad = (PadButton)System.Threading.Volatile.Read(ref padThreadState);
             ProcessPad(pad | edges, edges);
@@ -27723,6 +27860,673 @@ Der Launcher erscheint wieder in Aufnahmen. || The launcher appears in recording
             SaveSettings();
             RenderGoLive();
             ShowToast("⚙", "Ablauf angelegt", "„Stream-Start“ schaltet den Streamer-Modus ein. Weitere Schritte fügst du bei den Abläufen hinzu.", 7, null, true);
+        }
+
+        // ═════════════════════════════ Controller-Extras ═════════════════════════════
+
+        private void InitExtras19()
+        {
+            RebuildPadRemap();
+
+            // „Als Konsole starten“: Startparameter --controller öffnet direkt den Controller-Modus
+            if (Environment.GetCommandLineArgs().Any(a => string.Equals(a, "--controller", StringComparison.OrdinalIgnoreCase)))
+            {
+                Loaded += (s, e) => Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (!controllerMode) ToggleControllerMode();
+                }), DispatcherPriority.ApplicationIdle);
+            }
+        }
+
+        // ───────── Eigene Tastenbelegung ─────────
+
+        // Jede physische Taste hat eine Standard-Bedeutung (so liefern MapXInput und MapJoystick sie)
+        private static readonly string[] PadSlotKeys = { "a", "b", "x", "y", "lb", "rb", "lt", "rt", "start", "select" };
+        private static readonly PadButton[] PadSlotBits =
+        {
+            PadButton.Confirm, PadButton.Back, PadButton.Details, PadButton.Favorite, PadButton.PrevTab,
+            PadButton.NextTab, PadButton.TriggerLeft, PadButton.TriggerRight, PadButton.Start, PadButton.Select
+        };
+
+        // Aktionen in derselben Reihenfolge wie die Tasten: Aktion i liegt standardmäßig auf Taste i
+        private static readonly (string Key, string Title)[] PadActions =
+        {
+            ("confirm", "Starten und bestätigen"), ("back", "Zurück"), ("details", "Optionen zum Spiel"), ("favorite", "Favorit"),
+            ("prevtab", "Bereich links"), ("nexttab", "Bereich rechts"), ("jumpleft", "Zehn Spiele zurück"), ("jumpright", "Zehn Spiele vor"),
+            ("menu", "Menü"), ("view", "Ansicht (für die Tastenkombination)")
+        };
+
+        private static readonly string[] PadLayouts = { "xbox", "ps", "nintendo" };
+
+        private static string[] PadSlotLabels(string layout) => layout switch
+        {
+            "ps" => new[] { "✕", "○", "□", "△", "L1", "R1", "L2", "R2", "OPTIONS", "SHARE" },
+            "nintendo" => new[] { "B", "A", "Y", "X", "L", "R", "ZL", "ZR", "+", "−" },
+            _ => new[] { "A", "B", "X", "Y", "LB", "RB", "LT", "RT", "☰", "⧉" }
+        };
+
+        private int[]?[] padRemapTables = new int[]?[3];
+        private string padRemapEditLayout = string.Empty;
+
+        private static bool IsValidPadMapping(Dictionary<string, string>? mapping)
+        {
+            if (mapping == null) return false;
+            if (!PadActions.All(a => mapping.TryGetValue(a.Key, out var slot) && PadSlotKeys.Contains(slot))) return false;
+            return PadActions.Select(a => mapping[a.Key]).Distinct().Count() == PadActions.Length;
+        }
+
+        private static Dictionary<string, string> DefaultPadMapping()
+            => PadActions.Select((a, i) => (a.Key, Slot: PadSlotKeys[i])).ToDictionary(x => x.Key, x => x.Slot);
+
+        private Dictionary<string, string> PadMappingFor(string layout)
+            => settings.PadMappings.TryGetValue(layout, out var mapping) && IsValidPadMapping(mapping) ? mapping : DefaultPadMapping();
+
+        /// <summary>Taste (Beschriftung), auf der eine Aktion beim aktuellen Controller-Typ liegt.</summary>
+        private string PadGlyph(string action)
+        {
+            string layout = ResolveLayout();
+            string slot = PadMappingFor(layout)[action];
+            return PadSlotLabels(layout)[Array.IndexOf(PadSlotKeys, slot)];
+        }
+
+        /// <summary>Baut die Umsortier-Tabellen für den Controller-Thread neu (null = empfohlene Belegung).</summary>
+        private void RebuildPadRemap()
+        {
+            var tables = new int[]?[PadLayouts.Length];
+            for (int l = 0; l < PadLayouts.Length; l++)
+            {
+                if (!settings.PadMappings.TryGetValue(PadLayouts[l], out var mapping) || !IsValidPadMapping(mapping)) continue;
+
+                var table = new int[PadSlotKeys.Length];
+                bool identity = true;
+                for (int a = 0; a < PadActions.Length; a++)
+                {
+                    int slot = Array.IndexOf(PadSlotKeys, mapping[PadActions[a].Key]);
+                    table[slot] = (int)PadSlotBits[a];
+                    if (slot != a) identity = false;
+                }
+                if (!identity) tables[l] = table;
+            }
+            System.Threading.Volatile.Write(ref padRemapTables, tables);
+        }
+
+        /// <summary>Läuft im Controller-Thread: ordnet die gedrückten Tasten nach der eigenen Belegung um. Sehr schnell, ohne Speicheranforderung.</summary>
+        private PadButton RemapPad(PadButton pad)
+        {
+            var tables = System.Threading.Volatile.Read(ref padRemapTables);
+            int index = ResolveLayout() switch { "ps" => 1, "nintendo" => 2, _ => 0 };
+            int[]? table = tables[index];
+            if (table == null || pad == PadButton.None) return pad;
+
+            PadButton result = pad & (PadButton.Up | PadButton.Down | PadButton.Left | PadButton.Right);
+            for (int i = 0; i < PadSlotBits.Length; i++)
+            {
+                if ((pad & PadSlotBits[i]) != 0) result |= (PadButton)table[i];
+            }
+            return result;
+        }
+
+        private void PopulateControllerExtras()
+        {
+            if (ChkConsoleStart == null) return;
+
+            bool before = isLoadingSettings;
+            isLoadingSettings = true;
+            try
+            {
+                ChkConsoleStart.IsChecked = settings.ConsoleStart;
+                if (padRemapEditLayout.Length == 0) padRemapEditLayout = ResolveLayout();
+                ChipRemapXbox.IsChecked = padRemapEditLayout == "xbox";
+                ChipRemapPs.IsChecked = padRemapEditLayout == "ps";
+                ChipRemapNintendo.IsChecked = padRemapEditLayout == "nintendo";
+            }
+            finally
+            {
+                isLoadingSettings = before;
+            }
+            RebuildPadRemap();
+            RenderPadRemap();
+        }
+
+        private void PadRemapLayout_Checked(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings || sender is not FrameworkElement { Tag: string layout }) return;
+            padRemapEditLayout = layout;
+            RenderPadRemap();
+        }
+
+        private void RenderPadRemap()
+        {
+            if (PadRemapPanel == null) return;
+            PadRemapPanel.Children.Clear();
+
+            string layout = padRemapEditLayout.Length > 0 ? padRemapEditLayout : ResolveLayout();
+            var mapping = PadMappingFor(layout);
+            var labels = PadSlotLabels(layout);
+
+            foreach (var (key, title) in PadActions)
+            {
+                string action = key;
+                var row = new Grid { Margin = new Thickness(0, 0, 0, 8) };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                row.Children.Add(new TextBlock { Text = Loc.T(title), Foreground = MakeBrush("#D1D5DB"), VerticalAlignment = System.Windows.VerticalAlignment.Center });
+
+                int slotIndex = Array.IndexOf(PadSlotKeys, mapping[action]);
+                bool changed = slotIndex != Array.FindIndex(PadActions, a => a.Key == action);
+                var button = new System.Windows.Controls.Button
+                {
+                    Content = labels[slotIndex] + "  ▾",
+                    MinWidth = 110,
+                    Padding = new Thickness(14, 6, 14, 6),
+                    ToolTip = Loc.T("Taste wählen")
+                };
+                if (changed) button.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+                button.Click += (s, e) =>
+                {
+                    var menu = CreateMenu();
+                    for (int i = 0; i < PadSlotKeys.Length; i++)
+                    {
+                        string slot = PadSlotKeys[i];
+                        string owner = PadActions.First(a => mapping[a.Key] == slot).Title;
+                        var item = new System.Windows.Controls.MenuItem
+                        {
+                            Header = labels[i] + "   ·   " + Loc.T(owner),
+                            IsChecked = mapping[action] == slot
+                        };
+                        item.Click += (s2, e2) => AssignPadSlot(layout, action, slot);
+                        menu.Items.Add(item);
+                    }
+                    menu.PlacementTarget = button;
+                    menu.IsOpen = true;
+                };
+                Grid.SetColumn(button, 1);
+                row.Children.Add(button);
+                PadRemapPanel.Children.Add(row);
+            }
+        }
+
+        /// <summary>Legt eine Aktion auf eine Taste. Ist die Taste schon belegt, tauschen beide Aktionen ihre Tasten.</summary>
+        private void AssignPadSlot(string layout, string action, string slot)
+        {
+            var mapping = new Dictionary<string, string>(PadMappingFor(layout));
+            string oldSlot = mapping[action];
+            if (oldSlot == slot) return;
+
+            string? other = mapping.FirstOrDefault(p => p.Value == slot && p.Key != action).Key;
+            if (other != null) mapping[other] = oldSlot;
+            mapping[action] = slot;
+
+            settings.PadMappings[layout] = mapping;
+            SaveSettings();
+            RebuildPadRemap();
+            RenderPadRemap();
+            RefreshPadHints();
+        }
+
+        private void BtnPadRemapReset_Click(object sender, RoutedEventArgs e)
+        {
+            string layout = padRemapEditLayout.Length > 0 ? padRemapEditLayout : ResolveLayout();
+            settings.PadMappings.Remove(layout);
+            SaveSettings();
+            RebuildPadRemap();
+            RenderPadRemap();
+            RefreshPadHints();
+            ShowToast("🎮", "Tastenbelegung", "Die empfohlene Belegung gilt wieder.", 3);
+        }
+
+        // ───────── Als Konsole starten ─────────
+
+        private void ChkConsoleStart_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+
+            settings.ConsoleStart = ChkConsoleStart.IsChecked == true;
+            SaveSettings();
+            try
+            {
+                if (settings.ConsoleStart)
+                {
+                    SetAutostart(true, true);
+                    bool before = isLoadingSettings;
+                    isLoadingSettings = true;
+                    try { ChkAutostart.IsChecked = true; }
+                    finally { isLoadingSettings = before; }
+                }
+                else if (IsAutostartEnabled())
+                {
+                    SetAutostart(true, false);   // normaler Autostart bleibt, nur ohne Controller-Modus
+                }
+            }
+            catch (Exception ex)
+            {
+                Msg($"Autostart konnte nicht geändert werden:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ───────── Bildschirmtastatur und Suche im Controller-Modus ─────────
+
+        private static readonly string[] PadKeyRows = { "1234567890", "QWERTZUIOP", "ASDFGHJKL-", "YXCVBNMÄÖÜ" };
+        private string padSearch = string.Empty;
+        private bool padKeyboardOpen;
+        private int padKeyRow, padKeyCol;
+        private Grid? padKeyboardHost;
+        private TextBlock? padSearchText, padKeyboardHint;
+        private readonly List<List<Border>> padKeyCells = new();
+
+        private void EnsurePadKeyboard()
+        {
+            if (padKeyboardHost != null || padLayer == null) return;
+
+            padSearchText = new TextBlock { FontSize = 26, FontWeight = FontWeights.SemiBold, Foreground = System.Windows.Media.Brushes.White, Margin = new Thickness(0, 0, 0, 16), TextTrimming = TextTrimming.CharacterEllipsis };
+            var rows = new StackPanel();
+            padKeyCells.Clear();
+
+            Border Key(string text, double width)
+            {
+                var cell = new Border
+                {
+                    Width = width,
+                    Height = 54,
+                    Margin = new Thickness(4),
+                    CornerRadius = new CornerRadius(10),
+                    Background = MakeBrush("#26FFFFFF"),
+                    Child = new TextBlock { Text = text, FontSize = 21, FontWeight = FontWeights.SemiBold, Foreground = System.Windows.Media.Brushes.White, HorizontalAlignment = System.Windows.HorizontalAlignment.Center, VerticalAlignment = System.Windows.VerticalAlignment.Center }
+                };
+                return cell;
+            }
+
+            foreach (string keys in PadKeyRows)
+            {
+                var line = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Center };
+                var cells = new List<Border>();
+                foreach (char c in keys)
+                {
+                    var cell = Key(c.ToString(), 62);
+                    cells.Add(cell);
+                    line.Children.Add(cell);
+                }
+                padKeyCells.Add(cells);
+                rows.Children.Add(line);
+            }
+
+            // Letzte Reihe: Leerzeichen, Löschen, Fertig
+            var special = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Center };
+            var specialCells = new List<Border> { Key(Loc.T("Leerzeichen"), 270), Key("⌫ " + Loc.T("Löschen"), 196), Key("✓ " + Loc.T("Fertig"), 196) };
+            foreach (var cell in specialCells) special.Children.Add(cell);
+            padKeyCells.Add(specialCells);
+            rows.Children.Add(special);
+
+            padKeyboardHint = new TextBlock { FontSize = 15, Foreground = MakeBrush("#9CA3AF"), HorizontalAlignment = System.Windows.HorizontalAlignment.Center, Margin = new Thickness(0, 14, 0, 0) };
+
+            var card = new Border
+            {
+                Padding = new Thickness(26, 22, 26, 20),
+                CornerRadius = new CornerRadius(22),
+                Background = MakeBrush("#F2131722"),
+                BorderBrush = BrushCardBorder,
+                BorderThickness = new Thickness(1),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                VerticalAlignment = System.Windows.VerticalAlignment.Bottom,
+                Margin = new Thickness(0, 0, 0, 40),
+                Child = new StackPanel { Children = { padSearchText, rows, padKeyboardHint } }
+            };
+
+            padKeyboardHost = new Grid { Visibility = Visibility.Collapsed };
+            padKeyboardHost.Children.Add(card);
+            padLayer.Children.Add(padKeyboardHost);
+        }
+
+        private void OpenPadKeyboard()
+        {
+            EnsurePadKeyboard();
+            if (padKeyboardHost == null) return;
+
+            padKeyboardOpen = true;
+            padKeyRow = 1;
+            padKeyCol = 0;
+            padKeyboardHost.Visibility = Visibility.Visible;
+            if (padKeyboardHint != null)
+                padKeyboardHint.Text = $"{PadGlyph("confirm")} {Loc.T("Taste")}   ·   {PadGlyph("back")} {Loc.T("Löschen")}   ·   {PadGlyph("details")} {Loc.T("Leerzeichen")}   ·   {PadGlyph("menu")} {Loc.T("Fertig")}";
+            UpdatePadKeyboard();
+        }
+
+        private void ClosePadKeyboard()
+        {
+            padKeyboardOpen = false;
+            if (padKeyboardHost != null) padKeyboardHost.Visibility = Visibility.Collapsed;
+            RefreshPadTabs();
+        }
+
+        private void UpdatePadKeyboard()
+        {
+            if (padSearchText != null) padSearchText.Text = "🔎  " + (padSearch.Length > 0 ? padSearch + "▏" : Loc.T("Spiel suchen ..."));
+
+            for (int r = 0; r < padKeyCells.Count; r++)
+            {
+                for (int c = 0; c < padKeyCells[r].Count; c++)
+                {
+                    var cell = padKeyCells[r][c];
+                    if (r == padKeyRow && c == padKeyCol) cell.SetResourceReference(Border.BackgroundProperty, "AccentBrush");
+                    else cell.Background = MakeBrush("#26FFFFFF");
+                }
+            }
+        }
+
+        /// <summary>Spalte in der letzten Reihe (3 breite Tasten) bzw. zurück in eine normale Reihe (10 Tasten).</summary>
+        private static int MapKeyColumn(int fromRow, int toRow, int col, int lastRow)
+        {
+            if (toRow == lastRow && fromRow != lastRow) return col <= 3 ? 0 : col <= 6 ? 1 : 2;
+            if (fromRow == lastRow && toRow != lastRow) return col switch { 0 => 2, 1 => 5, _ => 8 };
+            return col;
+        }
+
+        private void HandlePadKeyboard(PadButton pressed)
+        {
+            int lastRow = padKeyCells.Count - 1;
+            bool moved = false;
+
+            if ((pressed & (PadButton.Up | PadButton.Down)) != 0)
+            {
+                int target = Math.Clamp(padKeyRow + ((pressed & PadButton.Up) != 0 ? -1 : 1), 0, lastRow);
+                if (target != padKeyRow)
+                {
+                    padKeyCol = MapKeyColumn(padKeyRow, target, padKeyCol, lastRow);
+                    padKeyRow = target;
+                    moved = true;
+                }
+            }
+            if ((pressed & (PadButton.Left | PadButton.Right)) != 0)
+            {
+                int count = padKeyCells[padKeyRow].Count;
+                padKeyCol = (padKeyCol + ((pressed & PadButton.Left) != 0 ? -1 : 1) + count) % count;
+                moved = true;
+            }
+            if (moved)
+            {
+                UpdatePadKeyboard();
+                PlayUiSound("move");
+            }
+
+            if ((pressed & PadButton.Confirm) != 0)
+            {
+                if (padKeyRow < lastRow) TypePadKey(PadKeyRows[padKeyRow][padKeyCol].ToString());
+                else if (padKeyCol == 0) TypePadKey(" ");
+                else if (padKeyCol == 1) DeletePadKey();
+                else ClosePadKeyboard();
+            }
+            if ((pressed & PadButton.Details) != 0) TypePadKey(" ");
+            if ((pressed & PadButton.Back) != 0)
+            {
+                if (padSearch.Length == 0) ClosePadKeyboard();
+                else DeletePadKey();
+            }
+            if ((pressed & PadButton.Start) != 0) ClosePadKeyboard();
+        }
+
+        private void TypePadKey(string text)
+        {
+            if (padSearch.Length >= 40 || (text == " " && (padSearch.Length == 0 || padSearch.EndsWith(' ')))) return;
+            padSearch += padSearch.Length == 0 ? text : text.ToLower(CultureInfo.CurrentCulture);
+            PlayUiSound("select");
+            UpdatePadKeyboard();
+            RebuildPadItems();
+        }
+
+        private void DeletePadKey()
+        {
+            if (padSearch.Length == 0) return;
+            padSearch = padSearch.Substring(0, padSearch.Length - 1);
+            UpdatePadKeyboard();
+            RebuildPadItems();
+        }
+
+        private void ClearPadSearch()
+        {
+            if (padSearch.Length == 0) return;
+            padSearch = string.Empty;
+            RebuildPadItems();
+            RefreshPadTabs();
+        }
+
+        /// <summary>Treffer für die Controller-Suche: Spiele und Anwendungen, deren Name den Suchtext enthält.</summary>
+        private IEnumerable<PadItem> SearchPadItems(string query)
+        {
+            string text = query.Trim();
+            var games = allGames.Where(g => !g.Hidden && g.Name.Contains(text, StringComparison.CurrentCultureIgnoreCase))
+                .OrderBy(g => !g.Name.StartsWith(text, StringComparison.CurrentCultureIgnoreCase))
+                .ThenBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase)
+                .Select(PadItemFromGame);
+            var apps = cachedApps.Where(a => a.Name.Contains(text, StringComparison.CurrentCultureIgnoreCase))
+                .OrderBy(a => a.Name, StringComparer.CurrentCultureIgnoreCase)
+                .Select(PadItemFromApp);
+            return games.Concat(apps);
+        }
+
+        // ───────── Lautstärke (Windows-Hauptlautstärke) ─────────
+
+        private bool padVolumeOpen;
+        private Grid? padVolumeHost;
+        private TextBlock? padVolumeText, padVolumeHint;
+        private Border? padVolumeFill;
+        private int padVolume = -1;
+        private bool padVolumeMuted;
+        private readonly object padVolumeLock = new();
+
+        private void EnsurePadVolume()
+        {
+            if (padVolumeHost != null || padLayer == null) return;
+
+            padVolumeText = new TextBlock { FontSize = 44, FontWeight = FontWeights.Bold, Foreground = System.Windows.Media.Brushes.White, HorizontalAlignment = System.Windows.HorizontalAlignment.Center };
+            padVolumeFill = new Border { CornerRadius = new CornerRadius(5), HorizontalAlignment = System.Windows.HorizontalAlignment.Left, Width = 0 };
+            padVolumeFill.SetResourceReference(Border.BackgroundProperty, "AccentBrush");
+            var bar = new Border { Width = 400, Height = 10, CornerRadius = new CornerRadius(5), Background = MakeBrush("#26FFFFFF"), Margin = new Thickness(0, 14, 0, 16), Child = padVolumeFill };
+            var hint = padVolumeHint = new TextBlock
+            {
+                FontSize = 15,
+                Foreground = MakeBrush("#9CA3AF"),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center
+            };
+
+            var card = new Border
+            {
+                Width = 480,
+                Padding = new Thickness(28),
+                CornerRadius = new CornerRadius(22),
+                Background = MakeBrush("#F2131722"),
+                BorderBrush = BrushCardBorder,
+                BorderThickness = new Thickness(1),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                Child = new StackPanel
+                {
+                    Children =
+                    {
+                        new TextBlock { Text = Loc.T("🔊 Lautstärke"), FontSize = 22, FontWeight = FontWeights.Bold, Foreground = System.Windows.Media.Brushes.White, HorizontalAlignment = System.Windows.HorizontalAlignment.Center, Margin = new Thickness(0, 0, 0, 10) },
+                        padVolumeText, bar, hint
+                    }
+                }
+            };
+
+            padVolumeHost = new Grid { Visibility = Visibility.Collapsed, Background = MakeBrush("#B3000000") };
+            padVolumeHost.Children.Add(card);
+            padLayer.Children.Add(padVolumeHost);
+        }
+
+        private async void OpenPadVolume()
+        {
+            EnsurePadVolume();
+            if (padVolumeHost == null) return;
+
+            var current = await Task.Run(SystemVolume.Read);
+            if (current == null)
+            {
+                ShowToast("🔊", "Lautstärke", "Die Windows-Lautstärke konnte nicht gelesen werden.", 4);
+                return;
+            }
+
+            padVolume = (int)Math.Round(current.Value.Level * 100);
+            padVolumeMuted = current.Value.Muted;
+            if (padVolumeHint != null)
+                padVolumeHint.Text = $"◀ ▶  {Loc.T("ändern")}   ·   {PadGlyph("favorite")} {Loc.T("stumm")}   ·   {PadGlyph("back")} {Loc.T("Schließen")}";
+            padVolumeOpen = true;
+            padVolumeHost.Visibility = Visibility.Visible;
+            UpdatePadVolume();
+        }
+
+        private void ClosePadVolume()
+        {
+            padVolumeOpen = false;
+            if (padVolumeHost != null) padVolumeHost.Visibility = Visibility.Collapsed;
+        }
+
+        private void UpdatePadVolume()
+        {
+            if (padVolumeText == null || padVolumeFill == null) return;
+            padVolumeText.Text = padVolumeMuted ? "🔇  " + Loc.T("Stumm") : $"{padVolume} %";
+            padVolumeFill.Width = 400 * Math.Clamp(padVolume, 0, 100) / 100.0;
+            padVolumeFill.Opacity = padVolumeMuted ? 0.35 : 1;
+        }
+
+        private void HandlePadVolume(PadButton pressed)
+        {
+            int delta = 0;
+            if ((pressed & (PadButton.Right | PadButton.Up)) != 0) delta = 5;
+            if ((pressed & (PadButton.Left | PadButton.Down)) != 0) delta = -5;
+
+            if (delta != 0)
+            {
+                padVolume = Math.Clamp(padVolume + delta, 0, 100);
+                padVolumeMuted = false;
+                ApplyPadVolume();
+                PlayUiSound("move");
+            }
+            if ((pressed & PadButton.Favorite) != 0)
+            {
+                padVolumeMuted = !padVolumeMuted;
+                ApplyPadVolume();
+            }
+            if ((pressed & (PadButton.Back | PadButton.Confirm | PadButton.Start)) != 0) ClosePadVolume();
+        }
+
+        /// <summary>Setzt die Lautstärke im Hintergrund; es gilt immer der zuletzt gewählte Wert.</summary>
+        private void ApplyPadVolume()
+        {
+            UpdatePadVolume();
+            float level = padVolume / 100f;
+            bool muted = padVolumeMuted;
+            _ = Task.Run(() =>
+            {
+                lock (padVolumeLock) SystemVolume.Write(level, muted);
+            });
+        }
+
+        // ───────── Spiel beenden, Neustart und Herunterfahren ─────────
+
+        /// <summary>Bestätigung im Controller-Menü: „Abbrechen“ steht oben, damit nichts aus Versehen passiert.</summary>
+        private void OpenPadConfirm(string title, string confirmLabel, Action action)
+        {
+            OpenPadMenu(title, new List<(string, Action)>
+            {
+                (Loc.T("Abbrechen"), () => { }),
+                (confirmLabel, action)
+            });
+        }
+
+        private void PadEndGame()
+        {
+            var running = activeSessions.Keys.ToList();
+            if (running.Count == 0) return;
+
+            void Confirm(GameItem game) => OpenPadConfirm(Loc.T($"„{game.Name}“ beenden? Nicht gespeicherter Fortschritt geht verloren."),
+                Loc.T("⏹  Spiel beenden"), () => _ = EndGameAsync(game));
+
+            if (running.Count == 1)
+            {
+                Confirm(running[0]);
+                return;
+            }
+
+            var entries = running.Select(g => (g.Name, (Action)(() => Confirm(g)))).ToList();
+            entries.Add((Loc.T("Abbrechen"), () => { }));
+            OpenPadMenu(Loc.T("Welches Spiel beenden?"), entries);
+        }
+
+        /// <summary>Beendet ein laufendes Spiel: erst normal schließen, nach 5 Sekunden notfalls hart beenden.</summary>
+        private async Task EndGameAsync(GameItem game)
+        {
+            string installDir = game.InstallDir;
+            string exe = game.ExecutablePath;
+
+            bool Matches(string path)
+            {
+                // Nur eindeutige Spielordner, nie ein ganzes Laufwerk oder „Programme“
+                if (installDir.Length > 0)
+                {
+                    string dir = installDir.TrimEnd('\\', '/');
+                    string root = System.IO.Path.GetPathRoot(dir) ?? string.Empty;
+                    int depth = dir.Substring(Math.Min(root.Length, dir.Length)).Split('\\', StringSplitOptions.RemoveEmptyEntries).Length;
+                    string last = System.IO.Path.GetFileName(dir);
+                    string[] generic = { "common", "steamapps", "Games", "Program Files", "Program Files (x86)", "Epic Games", "SteamLibrary", "GOG Games", "XboxGames" };
+                    bool specific = depth >= 2 && !generic.Contains(last, StringComparer.OrdinalIgnoreCase);
+                    if (specific && path.StartsWith(dir + "\\", StringComparison.OrdinalIgnoreCase)) return true;
+                }
+                return exe.Length > 0 && string.Equals(path, exe, StringComparison.OrdinalIgnoreCase);
+            }
+
+            int Close(bool force)
+            {
+                int count = 0;
+                foreach (var process in Process.GetProcesses())
+                {
+                    try
+                    {
+                        if (process.Id == Environment.ProcessId) continue;
+                        string? path = NativeFeatures.GetProcessPath(process.Id);
+                        if (string.IsNullOrEmpty(path) || !Matches(path)) continue;
+                        count++;
+                        if (force) process.Kill(true);
+                        else process.CloseMainWindow();
+                    }
+                    catch { }
+                    finally { process.Dispose(); }
+                }
+                return count;
+            }
+
+            ShowToast("⏹", "Spiel wird beendet", game.Name, 4, null, true);
+            int found = await Task.Run(() => Close(false));
+            if (found == 0)
+            {
+                ShowToast("⏹", "Spiel beenden", Loc.T("Zu diesem Spiel läuft kein Programm mehr."), 4, null, true);
+                return;
+            }
+
+            await Task.Delay(5000);
+            int remaining = await Task.Run(() => Close(true));
+            if (remaining > 0) LogError("Spiel beenden", new InvalidOperationException($"{game.Name}: {remaining} Prozess(e) hart beendet"));
+        }
+
+        private void PadPowerAction(string kind)
+        {
+            string title = kind == "restart"
+                ? Loc.T("PC jetzt neu starten?")
+                : Loc.T("PC jetzt herunterfahren?");
+            if (activeSessions.Count > 0) title += " " + Loc.T("Es läuft noch ein Spiel.");
+
+            OpenPadConfirm(title, Loc.T(kind == "restart" ? "🔄  Neu starten" : "⏻  Herunterfahren"), () =>
+            {
+                try
+                {
+                    SaveSettings();
+                    Process.Start(new ProcessStartInfo("shutdown.exe", kind == "restart" ? "/r /t 3" : "/s /t 3") { UseShellExecute = false, CreateNoWindow = true });
+                }
+                catch (Exception ex)
+                {
+                    LogError("Energie", ex);
+                    ShowToast("⚠", "Energie", Loc.T("Das hat nicht geklappt."), 5, null, true);
+                }
+            });
         }
 
         private void InitExtras15()

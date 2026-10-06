@@ -3502,9 +3502,36 @@
                                             <RadioButton x:Name="ChipPadRepFast" Content="Schnell" Tag="3" GroupName="PadRepeat" Style="{StaticResource ChipStyle}" Checked="Option_Changed"/>
                                         </WrapPanel>
                                     </StackPanel>
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Als Konsole starten" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Startet den Launcher mit Windows und öffnet direkt den Controller-Modus. Schaltet dafür den Autostart ein." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkConsoleStart" Grid.Column="1" VerticalAlignment="Center" Checked="ChkConsoleStart_Changed" Unchecked="ChkConsoleStart_Changed"/>
+                                    </Grid>
                                     <WrapPanel>
                                         <Button Content="Controller-Modus jetzt starten" Margin="0,0,10,8" Background="{DynamicResource AccentBrush}" Click="BtnPadStart_Click"/>
                                         <Button Content="Empfohlene Tastenbelegung anzeigen" Margin="0,0,0,8" Click="BtnPadMapping_Click"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+                            <Border x:Name="PadRemapCard" Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="control" Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock Text="Eigene Tastenbelegung" Style="{StaticResource SectionTitle}"/>
+                                    <TextBlock Text="Lege selbst fest, welche Taste was macht. Die Belegung wird pro Controller-Typ gespeichert. Wählst du eine Taste, die schon belegt ist, tauschen die beiden Aktionen ihre Tasten. Steuerkreuz und linker Stick bleiben fest." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                    <TextBlock Text="Controller-Typ" Style="{StaticResource SubtleText}" FontSize="12" Margin="0,0,0,6"/>
+                                    <WrapPanel Margin="0,0,0,12">
+                                        <RadioButton x:Name="ChipRemapXbox" Content="Xbox" Tag="xbox" GroupName="PadRemapLayout" Style="{StaticResource ChipStyle}" Checked="PadRemapLayout_Checked"/>
+                                        <RadioButton x:Name="ChipRemapPs" Content="PlayStation" Tag="ps" GroupName="PadRemapLayout" Style="{StaticResource ChipStyle}" Checked="PadRemapLayout_Checked"/>
+                                        <RadioButton x:Name="ChipRemapNintendo" Content="Nintendo" Tag="nintendo" GroupName="PadRemapLayout" Style="{StaticResource ChipStyle}" Checked="PadRemapLayout_Checked"/>
+                                    </WrapPanel>
+                                    <StackPanel x:Name="PadRemapPanel" Margin="0,0,0,8"/>
+                                    <WrapPanel>
+                                        <Button Content="Empfohlene Belegung wiederherstellen" Margin="0,0,10,8" Click="BtnPadRemapReset_Click"/>
                                     </WrapPanel>
                                 </StackPanel>
                             </Border>
