@@ -67,12 +67,7 @@ namespace Game_launcher
         private const int WmSysCommand = 0x0112, ScMaximize = 0xF030;
         private bool syncingMaximize;
         private const uint MonitorDefaultToNearest = 2;
-        private static readonly IntPtr HwndTopmost = new(-1);
-        private const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010, SwpShowWindow = 0x0040;
-
-        private readonly DispatcherTimer taskbarTimer = new() { Interval = TimeSpan.FromMilliseconds(120) };
-        private bool taskbarRevealed;
-        private int taskbarEdgeTicks;
+        private bool taskbarAutoHideByUs;
 
         private void InitExtras23()
         {
@@ -93,17 +88,19 @@ namespace Game_launcher
             // Schon beim Start maximiert (gemerkte Fenstergröße): gleich ohne Windows-Rahmen maximieren
             if (WindowState == WindowState.Maximized) WindowStyle = WindowStyle.None;
 
-            taskbarTimer.Tick += (s, e) => CheckTaskbarReveal();
+            // Ist der Launcher letztes Mal abgestürzt, während die Taskleiste ausgeblendet war: zuerst zurückstellen
+            if (settings.TaskbarAutoHideByLauncher) RestoreTaskbar();
+
             StateChanged += (s, e) =>
             {
                 SyncMaximizeStyle();
                 UpdateFullscreenState();
             };
-            Activated += (s, e) => UpdateFullscreenState();
-            Deactivated += (s, e) => UpdateFullscreenState();
+            IsVisibleChanged += (s, e) => UpdateFullscreenState();
+            Loaded += (s, e) => UpdateFullscreenState();
+            Closed += (s, e) => RestoreTaskbar();
+            if (System.Windows.Application.Current is { } app) app.Exit += (s, e) => RestoreTaskbar();
         }
-
-        private bool TaskbarHidingActive => settings.TaskbarHideMaximized && WindowState == WindowState.Maximized && !controllerMode;
 
         /// <summary>
         /// Legt die Größe beim Maximieren selbst fest: genau der Arbeitsbereich (ohne Überstand über den Bildschirmrand,
@@ -125,7 +122,7 @@ namespace Game_launcher
                 var info = new MonitorInfo { Size = Interop.Marshal.SizeOf<MonitorInfo>() };
                 if (monitor == IntPtr.Zero || !GetMonitorInfo(monitor, ref info)) return IntPtr.Zero;
 
-                bool full = controllerMode || settings.TaskbarHideMaximized;
+                bool full = controllerMode;   // Taskleiste ausblenden läuft über „automatisch ausblenden“, dann ist der Arbeitsbereich ohnehin der ganze Bildschirm
                 var area = full ? info.Monitor : info.Work;
 
                 var mmi = Interop.Marshal.PtrToStructure<MinMaxInfo>(lParam);
@@ -172,84 +169,95 @@ namespace Game_launcher
             FixMaximizedOverhang();
         }
 
-        /// <summary>Im Vollbild bleibt der aktive Launcher vor der Taskleiste; die Überwachung des Rands läuft nur dann.</summary>
-        private void UpdateFullscreenState()
+        // ───────── Taskleiste im Vollbild: Windows-Funktion „automatisch ausblenden“ ─────────
+
+        [Interop.StructLayout(Interop.LayoutKind.Sequential)]
+        private struct AppBarData
         {
-            bool hiding = TaskbarHidingActive && IsActive;
-            taskbarRevealed = false;
-            taskbarEdgeTicks = 0;
-
-            if (!controllerMode) Topmost = hiding || settings.AlwaysOnTop;
-
-            if (hiding && !taskbarTimer.IsEnabled) taskbarTimer.Start();
-            else if (!hiding && taskbarTimer.IsEnabled) taskbarTimer.Stop();
+            public int Size;
+            public IntPtr Window;
+            public uint CallbackMessage;
+            public uint Edge;
+            public NativeExtras.NativeRect Rect;
+            public IntPtr Param;
         }
 
-        /// <summary>Zeigt die Taskleiste, wenn die Maus an ihrem Rand steht, und blendet sie wieder aus, sobald die Maus weg ist.</summary>
-        private void CheckTaskbarReveal()
+        [Interop.DllImport("shell32.dll")]
+        private static extern UIntPtr SHAppBarMessage(uint message, ref AppBarData data);
+
+        private const uint AbmGetState = 4, AbmSetState = 10;
+        private const int AbsAutoHide = 1;
+
+        private static AppBarData TaskbarData()
+            => new() { Size = Interop.Marshal.SizeOf<AppBarData>(), Window = FindWindowEx(IntPtr.Zero, IntPtr.Zero, "Shell_TrayWnd", null) };
+
+        private static int GetTaskbarState()
         {
-            if (!TaskbarHidingActive || !IsActive)
-            {
-                taskbarTimer.Stop();
-                return;
-            }
+            var data = TaskbarData();
+            return (int)SHAppBarMessage(AbmGetState, ref data);
+        }
+
+        private static void SetTaskbarAutoHide(bool on)
+        {
+            var data = TaskbarData();
+            int state = (int)SHAppBarMessage(AbmGetState, ref data);
+            data.Param = (IntPtr)(on ? state | AbsAutoHide : state & ~AbsAutoHide);
+            SHAppBarMessage(AbmSetState, ref data);
+        }
+
+        /// <summary>
+        /// Ist der Launcher maximiert und die Option an, schaltet er in Windows „Taskleiste automatisch ausblenden“ ein:
+        /// Das Fenster nutzt den ganzen Bildschirm, die Taskleiste erscheint, wenn die Maus an den Rand fährt.
+        /// Beim Verkleinern, Minimieren oder Beenden stellt er die eigene Einstellung des Nutzers wieder her.
+        /// </summary>
+        private void UpdateFullscreenState()
+        {
+            bool want = settings.TaskbarHideMaximized && WindowState == WindowState.Maximized && !controllerMode && IsVisible;
 
             try
             {
-                var handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-                IntPtr monitor = MonitorFromWindow(handle, MonitorDefaultToNearest);
-                var info = new MonitorInfo { Size = Interop.Marshal.SizeOf<MonitorInfo>() };
-                if (monitor == IntPtr.Zero || !GetMonitorInfo(monitor, ref info) || !GetCursorPos(out var cursor)) return;
-
-                var m = info.Monitor;
-                var w = info.Work;
-                if (cursor.X < m.Left || cursor.X >= m.Right || cursor.Y < m.Top || cursor.Y >= m.Bottom) return;
-
-                // An welchem Rand steht die Taskleiste? (Unterschied zwischen Bildschirm und Arbeitsbereich)
-                int bottom = m.Bottom - w.Bottom, top = w.Top - m.Top, left = w.Left - m.Left, right = m.Right - w.Right;
-                int thickness = Math.Max(Math.Max(bottom, top), Math.Max(left, right));
-                if (thickness <= 0) return;   // Taskleiste blendet sich schon selbst aus
-
-                int distance = bottom == thickness ? m.Bottom - 1 - cursor.Y
-                             : top == thickness ? cursor.Y - m.Top
-                             : left == thickness ? cursor.X - m.Left
-                             : m.Right - 1 - cursor.X;
-
-                if (!taskbarRevealed)
+                if (want && !taskbarAutoHideByUs)
                 {
-                    taskbarEdgeTicks = distance <= 1 ? taskbarEdgeTicks + 1 : 0;
-                    if (taskbarEdgeTicks < 2) return;   // kurz verweilen, damit sie nicht beim Vorbeifahren aufspringt
-
-                    IntPtr tray = FindTaskbar(m);
-                    if (tray == IntPtr.Zero) return;
-                    NativeExtras.SetWindowPos(tray, HwndTopmost, 0, 0, 0, 0, SwpNoMove | SwpNoSize | SwpNoActivate | SwpShowWindow);
-                    taskbarRevealed = true;
+                    if ((GetTaskbarState() & AbsAutoHide) != 0) return;   // hatte der Nutzer schon selbst so eingestellt
+                    SetTaskbarAutoHide(true);
+                    taskbarAutoHideByUs = true;
+                    settings.TaskbarAutoHideByLauncher = true;   // falls der Launcher abstürzt: beim nächsten Start zurückstellen
+                    SaveSettings();
+                    _ = RefitMaximizedAsync();
                 }
-                else if (distance > thickness + 16)
+                else if (!want && taskbarAutoHideByUs)
                 {
-                    // Maus hat die Taskleiste verlassen: Launcher wieder davor
-                    NativeExtras.SetWindowPos(handle, HwndTopmost, 0, 0, 0, 0, SwpNoMove | SwpNoSize | SwpNoActivate);
-                    taskbarRevealed = false;
-                    taskbarEdgeTicks = 0;
+                    RestoreTaskbar();
                 }
             }
             catch { }
         }
 
-        /// <summary>Taskleiste des Bildschirms finden (Hauptbildschirm und weitere Bildschirme haben eigene Fenster).</summary>
-        private static IntPtr FindTaskbar(NativeExtras.NativeRect monitor)
+        private void RestoreTaskbar()
         {
-            foreach (string className in new[] { "Shell_TrayWnd", "Shell_SecondaryTrayWnd" })
+            try
             {
-                IntPtr window = IntPtr.Zero;
-                while ((window = FindWindowEx(IntPtr.Zero, window, className, null)) != IntPtr.Zero)
-                {
-                    if (!NativeExtras.GetWindowRect(window, out var rect)) continue;
-                    int centerX = (rect.Left + rect.Right) / 2, centerY = (rect.Top + rect.Bottom) / 2;
-                    if (centerX >= monitor.Left && centerX < monitor.Right && centerY >= monitor.Top && centerY < monitor.Bottom) return window;
-                }
+                if (!taskbarAutoHideByUs && !settings.TaskbarAutoHideByLauncher) return;
+                SetTaskbarAutoHide(false);
+                taskbarAutoHideByUs = false;
+                settings.TaskbarAutoHideByLauncher = false;
+                SaveSettings();
             }
-            return IntPtr.Zero;
+            catch { }
+        }
+
+        /// <summary>Nach dem Umschalten ändert sich der freie Bereich: das maximierte Fenster daran anpassen.</summary>
+        private async Task RefitMaximizedAsync()
+        {
+            await Task.Delay(400);
+            if (WindowState != WindowState.Maximized || controllerMode) return;
+
+            var handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+            IntPtr monitor = MonitorFromWindow(handle, MonitorDefaultToNearest);
+            var info = new MonitorInfo { Size = Interop.Marshal.SizeOf<MonitorInfo>() };
+            if (!GetMonitorInfo(monitor, ref info) || !NativeExtras.GetWindowRect(handle, out var rect)) return;
+            if (rect.Bottom - rect.Top != info.Work.Bottom - info.Work.Top || rect.Right - rect.Left != info.Work.Right - info.Work.Left)
+                ReapplyMaximize();
         }
 
 #if DEBUG
@@ -331,7 +339,7 @@ namespace Game_launcher
             if (isLoadingSettings) return;
             settings.TaskbarHideMaximized = ChkHideTaskbar.IsChecked == true;
             SaveSettings();
-            ReapplyMaximize();
+            UpdateFullscreenState();
         }
 
         /// <summary>Ein schon maximiertes Fenster neu maximieren, damit die neue Größe gilt.</summary>

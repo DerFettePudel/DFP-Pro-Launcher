@@ -131,7 +131,8 @@ namespace Game_launcher
         public int CardAspect { get; set; } = 136;
         public int SidebarWidth { get; set; } = 250;
         public string SidebarPosition { get; set; } = "left";   // left | right | bottom (schwebende Leiste)
-        public bool TaskbarHideMaximized { get; set; }           // maximiert: ganzer Bildschirm, Taskleiste nur am Rand
+        public bool TaskbarHideMaximized { get; set; }
+        public bool TaskbarAutoHideByLauncher { get; set; }   // intern: Launcher hat „automatisch ausblenden“ eingeschaltet           // maximiert: ganzer Bildschirm, Taskleiste nur am Rand
         public string BrandLogoImage { get; set; } = string.Empty;   // eigenes Logo-Bild (leer = Pudel-Logo)
         public string BrandLogoShape { get; set; } = "circle";        // circle | rounded | square
         public string BackgroundSourcePath { get; set; } = string.Empty;   // Original des Hintergrundbilds (für neuen Ausschnitt)

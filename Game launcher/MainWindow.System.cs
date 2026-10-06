@@ -1891,16 +1891,92 @@ namespace Game_launcher
 
         // ───────── HWiNFO (Shared Memory) ─────────
 
+        // Nur das echte HWiNFO: Programme wie das Gigabyte Control Center bringen einen eigenen Prozess „HWINFO“ mit
         private static bool IsHwinfoRunning()
         {
             try
             {
-                return Process.GetProcessesByName("HWiNFO64").Length > 0 || Process.GetProcessesByName("HWiNFO").Length > 0
-                    || Process.GetProcessesByName("HWiNFO32").Length > 0;
+                return Process.GetProcessesByName("HWiNFO64").Length > 0 || Process.GetProcessesByName("HWiNFO32").Length > 0;
             }
             catch
             {
                 return false;
+            }
+        }
+
+        private bool hwinfoInstalling;
+
+        private static string? FindHwinfoExe()
+        {
+            string[] candidates =
+            {
+                System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "HWiNFO64", "HWiNFO64.exe"),
+                System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "HWiNFO64", "HWiNFO64.exe"),
+                System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "WinGet", "Links", "HWiNFO64.exe")
+            };
+            return candidates.FirstOrDefault(File.Exists);
+        }
+
+        private void StartHwinfo(string exe)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo(exe) { UseShellExecute = true });
+                ShowToast("🌡", "HWiNFO", "Schalte in HWiNFO unter Einstellungen (Settings) „Shared Memory Support“ ein, dann erscheinen die Werte im Launcher.", 12, null, true);
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                // Windows-Abfrage abgebrochen
+            }
+            catch (Exception ex)
+            {
+                LogError("HWiNFO", ex);
+            }
+        }
+
+        /// <summary>Lädt HWiNFO über die Windows-Paketverwaltung (winget) und installiert es; ohne winget öffnet sich die Download-Seite.</summary>
+        private async void InstallHwinfo()
+        {
+            if (hwinfoInstalling) return;
+
+            hwinfoInstalling = true;
+            ShowToast("⬇", "HWiNFO", "HWiNFO wird heruntergeladen und installiert. Bestätige bitte die Windows-Abfrage.", 8, null, true);
+            int exitCode = await Task.Run(() =>
+            {
+                try
+                {
+                    using var process = Process.Start(new ProcessStartInfo("winget",
+                        "install --id REALiX.HWiNFO -e --source winget --silent --accept-package-agreements --accept-source-agreements --disable-interactivity")
+                    {
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    });
+                    if (process == null) return -1;
+                    process.WaitForExit(10 * 60 * 1000);
+                    return process.HasExited ? process.ExitCode : -1;
+                }
+                catch
+                {
+                    return -2;   // winget fehlt
+                }
+            });
+            hwinfoInstalling = false;
+
+            string? exe = FindHwinfoExe();
+            if (exe != null)
+            {
+                StartHwinfo(exe);
+            }
+            else if (exitCode == -2)
+            {
+                try { Process.Start(new ProcessStartInfo("https://www.hwinfo.com/download/") { UseShellExecute = true }); }
+                catch { }
+            }
+            else
+            {
+                ShowToast("⚠", "HWiNFO", "HWiNFO konnte nicht installiert werden. Die Download-Seite wird geöffnet.", 8, null, true);
+                try { Process.Start(new ProcessStartInfo("https://www.hwinfo.com/download/") { UseShellExecute = true }); }
+                catch { }
             }
         }
 
@@ -2149,7 +2225,7 @@ namespace Game_launcher
             }
 
             string text;
-            System.Windows.Controls.Button? action = null;
+            var actions = new List<System.Windows.Controls.Button>();
             System.Windows.Controls.Button MakeLink(string caption, string url)
             {
                 var button = new System.Windows.Controls.Button { Content = Loc.T(caption) };
@@ -2160,28 +2236,47 @@ namespace Game_launcher
                 };
                 return button;
             }
+            System.Windows.Controls.Button MakeAction(string caption, Action click)
+            {
+                var button = new System.Windows.Controls.Button { Content = Loc.T(caption) };
+                button.Click += (s, e) => click();
+                return button;
+            }
 
-            if (report.Source != "HWiNFO" && IsHwinfoRunning())
+            string? hwinfoExe = FindHwinfoExe();
+            if (hwinfoInstalling)
+            {
+                text = "HWiNFO wird installiert … Bestätige bitte die Windows-Abfrage.";
+            }
+            else if (report.Source != "HWiNFO" && IsHwinfoRunning())
             {
                 // einfachster Weg: HWiNFO läuft schon, es muss nur seine Werte teilen
                 text = "HWiNFO läuft bereits. Öffne dort die Einstellungen (Settings) und schalte „Shared Memory Support“ ein. Dann zeigt der Launcher alle Temperaturen, Lüfter und die Prozessor-Leistung, auch ohne Administratorrechte.";
             }
+            else if (report.Source != "HWiNFO" && hwinfoExe != null)
+            {
+                text = "HWiNFO ist installiert, läuft aber nicht. Starte es, schalte in den Einstellungen (Settings) „Shared Memory Support“ ein und lass es im Hintergrund laufen.";
+                actions.Add(MakeAction("HWiNFO starten", () => StartHwinfo(hwinfoExe)));
+            }
             else if (!admin)
             {
                 text = "Für Prozessor-Temperaturen und die Lüfter am Mainboard braucht der Launcher Administratorrechte. Alternative ohne Adminrechte: HWiNFO mit eingeschaltetem „Shared Memory Support“ im Hintergrund laufen lassen.";
-                action = new System.Windows.Controls.Button { Content = Loc.T("Als Administrator neu starten") };
-                action.Click += BtnRestartAdmin_Click;
+                actions.Add(MakeAction("HWiNFO herunterladen", InstallHwinfo));
+                var restart = new System.Windows.Controls.Button { Content = Loc.T("Als Administrator neu starten") };
+                restart.Click += BtnRestartAdmin_Click;
+                actions.Add(restart);
             }
             else if (!IsPawnIoInstalled())
             {
                 text = "Für Prozessor-Temperaturen und Lüfter braucht Windows den kostenlosen Treiber „PawnIO“. Installiere ihn einmal und starte den Launcher danach neu.";
-                action = MakeLink("PawnIO herunterladen", "https://pawnio.eu");
+                actions.Add(MakeLink("PawnIO herunterladen", "https://pawnio.eu"));
+                actions.Add(MakeAction("HWiNFO herunterladen", InstallHwinfo));
             }
             else
             {
                 // Treiber und Adminrechte da, trotzdem keine Werte: HWiNFO als Quelle anbieten
                 text = "Dein PC gibt diese Werte nicht direkt heraus. Zuverlässige Alternative: das kostenlose HWiNFO installieren, dort in den Einstellungen „Shared Memory Support“ einschalten und im Hintergrund laufen lassen. Der Launcher liest die Werte dann automatisch.";
-                action = MakeLink("HWiNFO herunterladen", "https://www.hwinfo.com/download/");
+                actions.Add(MakeAction("HWiNFO herunterladen", InstallHwinfo));
             }
 
             var box = new Border
@@ -2194,17 +2289,20 @@ namespace Game_launcher
             };
             var stack = new StackPanel();
             stack.Children.Add(new TextBlock { Text = "💡 " + Loc.T(text), Foreground = MakeBrush("#FCD34D"), TextWrapping = TextWrapping.Wrap, FontSize = 12 });
-            if (action != null)
+            if (actions.Count > 0)
             {
-                action.Margin = new Thickness(0, 10, 0, 0);
-                action.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
-                stack.Children.Add(action);
+                var row = new WrapPanel { Margin = new Thickness(0, 10, 0, 0) };
+                foreach (var button in actions)
+                {
+                    button.Margin = new Thickness(0, 0, 8, 0);
+                    row.Children.Add(button);
+                }
+                stack.Children.Add(row);
             }
             box.Child = stack;
             SensorHelp.Children.Add(box);
             SensorHelp.Visibility = Visibility.Visible;
         }
-
         private void ApplySensorSettings()
         {
             if (SensorCard == null) return;
