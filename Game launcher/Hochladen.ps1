@@ -105,8 +105,14 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Step 'Auf GitHub hochladen'
-git push
-if ($LASTEXITCODE -ne 0) { Fail 'Das Hochladen (push) ist fehlgeschlagen. Pruefe deine Anmeldung bei GitHub.' }
+$branch = git branch --show-current
+if (-not $branch) { Fail 'Es ist kein Zweig ausgewaehlt. Wechsle in Visual Studio auf deinen Zweig (zum Beispiel main) und starte neu.' }
+Write-Host "Zweig: $branch"
+# HEAD in den gleichnamigen Zweig auf GitHub schieben und die Verknuepfung dabei richtig setzen
+git push -u origin HEAD
+if ($LASTEXITCODE -ne 0) {
+    Fail 'Das Hochladen (push) ist fehlgeschlagen. Steht oben "rejected", liegt auf GitHub etwas Neueres: Fuehre in Visual Studio unter Git-Aenderungen einen Pull aus und starte neu. Sonst pruefe deine Anmeldung bei GitHub.'
+}
 
 Step "Version $next anlegen"
 git tag $next
