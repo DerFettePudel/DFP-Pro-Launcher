@@ -363,6 +363,14 @@ namespace Game_launcher
         public bool DiscordSendName { get; set; } = true;
         public List<string> DashboardOrder { get; set; } = new();
         public List<string> DashboardHidden { get; set; } = new() { "goal", "backlog", "wishlist", "quick" };
+
+        // OBS-Steuerung (OBS WebSocket v5)
+        public bool ObsEnabled { get; set; }
+        public string ObsHost { get; set; } = "localhost";
+        public int ObsPort { get; set; } = 4455;
+        public string ObsPasswordProtected { get; set; } = string.Empty;   // mit Windows DPAPI verschlüsselt, nie im Klartext
+        public bool ObsAutoStreamer { get; set; } = true;
+        public List<string> ObsStreamerScenes { get; set; } = new();
     }
 
     public class InfoRow
@@ -3065,6 +3073,7 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
             InitExtras13();
             InitExtras14();
             InitExtras15();
+            InitExtras16();
 
             isLoadingSettings = false;
             RefreshDashboard();
@@ -3370,6 +3379,10 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
                 if (!string.IsNullOrWhiteSpace(settings.SteamGridDbKey)) settings.SgdbAnimated = true;
             }
             if (!new[] { 500, 1000, 2000, 5000 }.Contains(settings.MonitorIntervalMs)) settings.MonitorIntervalMs = 1000;
+            if (string.IsNullOrWhiteSpace(settings.ObsHost)) settings.ObsHost = "localhost";
+            if (settings.ObsPort is < 1 or > 65535) settings.ObsPort = 4455;
+            settings.ObsPasswordProtected ??= string.Empty;
+            settings.ObsStreamerScenes ??= new List<string>();
 
             ApplyTheme();
             UpdateUserNameDisplay();
@@ -9410,6 +9423,7 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
             PopulateExtra11Settings();
             PopulateExtra12Settings();
             PopulateExtra14Settings();
+            PopulateObsSettings();
         }
 
         private void UpdateExtraSliderLabels()
@@ -16407,7 +16421,7 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
             public double CpuSum, CpuMax, GpuSum, GpuMax, RamSum, RamMax;
         }
 
-        private bool StreamerOn => settings.StreamerMode || streamAutoOn;
+        private bool StreamerOn => settings.StreamerMode || streamAutoOn || obsAutoOn;
         private bool SHide(bool option) => StreamerOn && option;
         private string DisplayUserName() => SHide(settings.StreamHideName) ? "Gamer" : settings.UserName;
 
@@ -16490,6 +16504,8 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
             {
                 if (streamAutoOn) streamAutoSuppressed = true;
                 streamAutoOn = false;
+                if (obsAutoOn) obsAutoSuppressed = true;   // bleibt aus, bis der Stream endet oder die Szene wechselt
+                obsAutoOn = false;
                 settings.StreamerMode = false;
             }
 
@@ -16513,6 +16529,11 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
             {
                 streamAutoSuppressed = true;
                 streamAutoOn = false;
+            }
+            if (!wanted && obsAutoOn)
+            {
+                obsAutoSuppressed = true;
+                obsAutoOn = false;
             }
             SaveSettings();
             ApplyStreamerMode();
@@ -22637,7 +22658,9 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
 
             bool on = StreamerOn;
             TxtStreamerState.Text = on
-                ? (settings.StreamerMode ? Loc.T("Aktiv (manuell)") : Loc.T("Aktiv (automatisch, weil eine Streaming-Software läuft)"))
+                ? (settings.StreamerMode ? Loc.T("Aktiv (manuell)")
+                   : obsAutoOn ? Loc.T("Aktiv (automatisch durch OBS)")
+                   : Loc.T("Aktiv (automatisch, weil eine Streaming-Software läuft)"))
                 : Loc.T("Aus");
             TxtStreamerState.Foreground = MakeBrush(on ? "#34D399" : "#9CA3AF");
             BtnStreamerToggle.Content = Loc.T(on ? "Ausschalten" : "Einschalten");
@@ -22685,7 +22708,9 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
             }
 
             Check(StreamProcesses.Any(IsProcessRunning), "Eine Streaming-Software läuft");
-            Check(settings.StreamerMode || streamAutoOn, "Der Streamer-Modus ist an", "Einschalten", () =>
+            if (settings.ObsEnabled || obsSimulated)
+                Check(ObsActive, "Der Launcher ist mit OBS verbunden", "Verbinden", RestartObs);
+            Check(StreamerOn, "Der Streamer-Modus ist an", "Einschalten", () =>
             {
                 if (!StreamerOn) ToggleStreamerMode();
             });
@@ -25577,6 +25602,762 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
             if (padLayer != null && padLayer.Visibility == Visibility.Visible) UpdatePadPill();
 
             ProcessPad(pad, PadButton.None);
+        }
+
+        // ═════════════════════════════ OBS-Steuerung (OBS WebSocket v5) ═════════════════════════════
+
+        private enum ObsState { Off, Connecting, Connected, Failed, Lost, Simulated }
+
+        private sealed class ObsStatusSnapshot
+        {
+            public bool Streaming, Recording, RecordPaused;
+            public long StreamMs, RecordMs, Skipped, Total;
+        }
+
+        private readonly ObsClient obs = new();
+        private readonly SemaphoreSlim obsGate = new(1, 1);
+        private readonly DispatcherTimer obsUiTimer = new() { Interval = TimeSpan.FromSeconds(1) };
+        private DispatcherTimer? obsGraceTimer;
+        private CancellationTokenSource? obsLoopCts;
+        private ObsState obsState = ObsState.Off;
+        private ObsConnectResult obsLastResult = ObsConnectResult.NotReachable;
+        private bool obsSimulated;
+        private bool obsStreaming, obsRecording, obsRecordPaused, obsMicMuted;
+        private DateTime? obsStreamStart, obsRecordStart;
+        private long obsRecordFrozenMs;
+        private long obsSkipped, obsTotal;
+        private string obsMicInput = string.Empty;
+        private string obsCurrentScene = string.Empty;
+        private List<string> obsScenes = new();
+        private bool obsAutoOn, obsAutoSuppressed;
+
+        private bool ObsActive => obsSimulated || obsState == ObsState.Connected;
+
+        private void InitExtras16()
+        {
+            obs.EventReceived += (type, data) => Dispatcher.BeginInvoke(new Action(() => HandleObsEvent(type, data)));
+            obs.Disconnected += () => Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (!obsSimulated && obsState == ObsState.Connected) SetObsState(ObsState.Lost);
+            }));
+
+            obsUiTimer.Tick += (s, e) =>
+            {
+                if (obsSimulated && obsStreaming)
+                {
+                    // Simulation: Bilder zählen und ab und zu eines verlieren
+                    obsTotal += 60;
+                    if (random.Next(8) == 0) obsSkipped += random.Next(1, 4);
+                }
+                UpdateObsTimes();
+            };
+            Closed += (s, e) =>
+            {
+                try { obsLoopCts?.Cancel(); } catch { }
+                obs.Dispose();
+            };
+
+            SetObsState(ObsState.Off);
+            RestartObs();
+        }
+
+        // ───────── Verbindung im Hintergrund, mit automatischer Wiederverbindung ─────────
+
+        private void RestartObs()
+        {
+            try { obsLoopCts?.Cancel(); } catch { }
+            obsLoopCts = null;
+            if (obsSimulated) return;
+
+            if (!settings.ObsEnabled)
+            {
+                _ = Task.Run(async () =>
+                {
+                    await obsGate.WaitAsync();
+                    try { await obs.DisconnectAsync(); } finally { obsGate.Release(); }
+                });
+                ClearObsData();
+                SetObsState(ObsState.Off);
+                return;
+            }
+
+            var cts = new CancellationTokenSource();
+            obsLoopCts = cts;
+            string host = settings.ObsHost;
+            int port = settings.ObsPort;
+            string password = SecretStore.Unprotect(settings.ObsPasswordProtected);
+            _ = Task.Run(() => ObsLoopAsync(host, port, password, cts.Token));
+        }
+
+        private void ObsUi(Action action) => Dispatcher.BeginInvoke(action);
+
+        private async Task ObsLoopAsync(string host, int port, string password, CancellationToken token)
+        {
+            // Nur eine Schleife gleichzeitig: Die alte gibt die Verbindung frei, bevor die neue verbindet
+            try { await obsGate.WaitAsync(token); }
+            catch { return; }
+
+            try
+            {
+                int delay = 3;
+                while (!token.IsCancellationRequested)
+                {
+                    ObsUi(() => { if (!obsSimulated && obsState != ObsState.Lost) SetObsState(ObsState.Connecting); });
+
+                    var result = await obs.ConnectAsync(host, port, password, token);
+                    if (token.IsCancellationRequested) break;
+
+                    if (result == ObsConnectResult.Connected)
+                    {
+                        delay = 3;
+                        await ObsRefreshAllAsync();
+                        ObsUi(() => { if (!obsSimulated) SetObsState(ObsState.Connected); });
+
+                        // Status alle 2 Sekunden abfragen (Dauer, verlorene Bilder); Zustandswechsel kommen sofort als Ereignis
+                        while (!token.IsCancellationRequested && obs.IsConnected)
+                        {
+                            try { await Task.Delay(2000, token); } catch { break; }
+                            var status = await ObsReadStatusAsync();
+                            if (status != null) ObsUi(() => ApplyObsStatus(status));
+                        }
+                        if (token.IsCancellationRequested) break;
+                        ObsUi(() => { if (!obsSimulated) SetObsState(ObsState.Lost); });
+                    }
+                    else
+                    {
+                        var failed = result;
+                        ObsUi(() =>
+                        {
+                            obsLastResult = failed;
+                            if (!obsSimulated && obsState != ObsState.Lost) SetObsState(ObsState.Failed);
+                        });
+                        // Bei falschem Passwort seltener versuchen, damit OBS nicht dauernd Anmeldefehler meldet
+                        if (failed is ObsConnectResult.AuthFailed or ObsConnectResult.PasswordRequired) delay = 60;
+                    }
+
+                    try { await Task.Delay(TimeSpan.FromSeconds(delay), token); } catch { break; }
+                    delay = Math.Min(delay * 2, 30);
+                }
+            }
+            catch { }
+            finally
+            {
+                try { await obs.DisconnectAsync(); } catch { }
+                obsGate.Release();
+            }
+        }
+
+        private static string ObsStr(JsonElement? element, string name)
+            => element is { ValueKind: JsonValueKind.Object } e && e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String
+                ? v.GetString() ?? string.Empty : string.Empty;
+
+        private static bool ObsBool(JsonElement? element, string name)
+            => element is { ValueKind: JsonValueKind.Object } e && e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.True;
+
+        private static long ObsLong(JsonElement? element, string name)
+            => element is { ValueKind: JsonValueKind.Object } e && e.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.Number
+                ? (long)v.GetDouble() : 0;
+
+        private async Task<ObsStatusSnapshot?> ObsReadStatusAsync()
+        {
+            var stream = await obs.RequestAsync("GetStreamStatus");
+            var record = await obs.RequestAsync("GetRecordStatus");
+            if (stream == null && record == null) return null;
+
+            return new ObsStatusSnapshot
+            {
+                Streaming = ObsBool(stream, "outputActive"),
+                StreamMs = ObsLong(stream, "outputDuration"),
+                Skipped = ObsLong(stream, "outputSkippedFrames"),
+                Total = ObsLong(stream, "outputTotalFrames"),
+                Recording = ObsBool(record, "outputActive"),
+                RecordPaused = ObsBool(record, "outputPaused"),
+                RecordMs = ObsLong(record, "outputDuration")
+            };
+        }
+
+        /// <summary>Lädt Szenen, Mikrofon und Status neu (im Hintergrund) und überträgt alles auf die Oberfläche.</summary>
+        private async Task ObsRefreshAllAsync()
+        {
+            var sceneData = await obs.RequestAsync("GetSceneList");
+            var scenes = new List<(long Index, string Name)>();
+            if (sceneData is { ValueKind: JsonValueKind.Object } sd && sd.TryGetProperty("scenes", out var list) && list.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in list.EnumerateArray())
+                {
+                    string name = ObsStr(item, "sceneName");
+                    if (name.Length > 0) scenes.Add((ObsLong(item, "sceneIndex"), name));
+                }
+            }
+            string current = ObsStr(sceneData, "currentProgramSceneName");
+
+            var special = await obs.RequestAsync("GetSpecialInputs");
+            string mic = ObsStr(special, "mic1");
+            bool muted = false;
+            if (mic.Length > 0) muted = ObsBool(await obs.RequestAsync("GetInputMute", new { inputName = mic }), "inputMuted");
+
+            var status = await ObsReadStatusAsync();
+
+            ObsUi(() =>
+            {
+                // OBS liefert die unterste Szene zuerst; wie in OBS von oben nach unten anzeigen
+                obsScenes = scenes.OrderByDescending(s => s.Index).Select(s => s.Name).ToList();
+                obsCurrentScene = current;
+                obsMicInput = mic;
+                obsMicMuted = muted;
+                if (status != null) ApplyObsStatus(status);
+                RenderObs();
+                RenderObsSceneAutoList();
+                UpdateObsAutoStreamer();
+            });
+        }
+
+        private void ApplyObsStatus(ObsStatusSnapshot status)
+        {
+            if (obsSimulated) return;
+
+            obsStreaming = status.Streaming;
+            obsRecording = status.Recording;
+            obsRecordPaused = status.RecordPaused;
+            obsSkipped = status.Skipped;
+            obsTotal = status.Total;
+
+            // Startzeit aus der Dauer zurückrechnen, nur bei spürbarer Abweichung nachstellen (sonst springt die Anzeige)
+            DateTime now = DateTime.Now;
+            if (obsStreaming)
+            {
+                var start = now - TimeSpan.FromMilliseconds(status.StreamMs);
+                if (obsStreamStart == null || Math.Abs((obsStreamStart.Value - start).TotalSeconds) > 2) obsStreamStart = start;
+            }
+            else obsStreamStart = null;
+
+            obsRecordFrozenMs = status.RecordMs;
+            if (obsRecording)
+            {
+                var start = now - TimeSpan.FromMilliseconds(status.RecordMs);
+                if (obsRecordStart == null || Math.Abs((obsRecordStart.Value - start).TotalSeconds) > 2) obsRecordStart = start;
+            }
+            else obsRecordStart = null;
+
+            RenderObs();
+            UpdateObsAutoStreamer();
+        }
+
+        private void HandleObsEvent(string type, JsonElement data)
+        {
+            if (obsSimulated) return;
+
+            switch (type)
+            {
+                case "StreamStateChanged":
+                    obsStreaming = ObsBool(data, "outputActive");
+                    if (obsStreaming) obsStreamStart ??= DateTime.Now;
+                    else
+                    {
+                        obsStreamStart = null;
+                        obsSkipped = obsTotal = 0;
+                    }
+                    break;
+                case "RecordStateChanged":
+                    string state = ObsStr(data, "outputState");
+                    obsRecording = ObsBool(data, "outputActive");
+                    bool pausedNow = state == "OBS_WEBSOCKET_OUTPUT_PAUSED";
+                    if (pausedNow && !obsRecordPaused && obsRecordStart is DateTime pausedFrom)
+                        obsRecordFrozenMs = (long)(DateTime.Now - pausedFrom).TotalMilliseconds;
+                    if (!pausedNow && obsRecordPaused)
+                        obsRecordStart = DateTime.Now - TimeSpan.FromMilliseconds(obsRecordFrozenMs);   // nach der Pause weiterzählen
+                    obsRecordPaused = pausedNow;
+                    if (obsRecording) obsRecordStart ??= DateTime.Now;
+                    else obsRecordStart = null;
+                    break;
+                case "CurrentProgramSceneChanged":
+                    obsCurrentScene = ObsStr(data, "sceneName");
+                    break;
+                case "SceneListChanged":
+                case "SceneCreated":
+                case "SceneRemoved":
+                case "SceneNameChanged":
+                    _ = Task.Run(ObsRefreshAllAsync);
+                    return;
+                case "InputMuteStateChanged":
+                    if (ObsStr(data, "inputName") == obsMicInput) obsMicMuted = ObsBool(data, "inputMuted");
+                    break;
+                default:
+                    return;
+            }
+
+            RenderObs();
+            UpdateObsAutoStreamer();
+        }
+
+        private void ClearObsData()
+        {
+            obsStreaming = obsRecording = obsRecordPaused = obsMicMuted = false;
+            obsStreamStart = obsRecordStart = null;
+            obsSkipped = obsTotal = 0;
+            obsMicInput = string.Empty;
+            obsCurrentScene = string.Empty;
+            obsScenes = new List<string>();
+            UpdateObsAutoStreamer();
+        }
+
+        private void SetObsState(ObsState state)
+        {
+            obsState = state;
+
+            obsGraceTimer?.Stop();
+            if (state == ObsState.Lost)
+            {
+                // Kurz abgerissen: Zustand (und damit den Streamer-Modus) 30 Sekunden halten, falls OBS gleich wieder da ist
+                obsGraceTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+                obsGraceTimer.Tick += (s, e) =>
+                {
+                    obsGraceTimer?.Stop();
+                    if (obsState == ObsState.Lost && !obsSimulated)
+                    {
+                        obsLastResult = ObsConnectResult.NotReachable;
+                        SetObsState(ObsState.Failed);
+                    }
+                };
+                obsGraceTimer.Start();
+            }
+            else if (state is ObsState.Off or ObsState.Failed)
+            {
+                ClearObsData();
+            }
+
+            RenderObs();
+        }
+
+        // ───────── Anzeige ─────────
+
+        private void RenderObs()
+        {
+            if (ObsCard == null) return;
+
+            bool active = ObsActive;
+            string dot, status, hint;
+            switch (obsSimulated ? ObsState.Simulated : obsState)
+            {
+                case ObsState.Simulated:
+                    dot = "#A78BFA"; status = "Simulation"; hint = "Testmodus ohne OBS. Alle Knöpfe wirken nur im Launcher.";
+                    break;
+                case ObsState.Connected:
+                    dot = "#34D399"; status = "Verbunden"; hint = string.Empty;
+                    break;
+                case ObsState.Connecting:
+                    dot = "#F59E0B"; status = "Verbinde …"; hint = "Der Launcher verbindet sich mit OBS.";
+                    break;
+                case ObsState.Lost:
+                    dot = "#F59E0B"; status = "Verbindung unterbrochen"; hint = "Die Verbindung zu OBS ist abgerissen. Der Launcher verbindet sich automatisch neu.";
+                    break;
+                case ObsState.Failed:
+                    dot = "#EF4444"; status = "Nicht verbunden"; hint = ObsResultText(obsLastResult) + " " + Loc.T("Der Launcher versucht es automatisch weiter.");
+                    break;
+                default:
+                    dot = "#6B7280"; status = "Aus";
+                    hint = "Steuere Szenen, Stream und Aufnahme direkt von hier. Richte die Verbindung unter Einstellungen → Streamer → OBS-Steuerung ein.";
+                    break;
+            }
+
+            ObsStatusDot.Fill = MakeBrush(dot);
+            TxtObsStatus.Text = Loc.T(status);
+            TxtObsHint.Text = Loc.T(hint);
+            TxtObsHint.Visibility = hint.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+            ObsOfflineButtons.Visibility = active ? Visibility.Collapsed : Visibility.Visible;
+            BtnObsConnect.Visibility = settings.ObsEnabled ? Visibility.Visible : Visibility.Collapsed;
+            ObsControls.Visibility = active ? Visibility.Visible : Visibility.Collapsed;
+
+            if (active)
+            {
+                BtnObsStream.Content = Loc.T(obsStreaming ? "Stream beenden" : "Stream starten");
+                BtnObsStream.Background = MakeBrush(obsStreaming ? "#DC2626" : "#374151");
+                BtnObsRecord.Content = Loc.T(obsRecording ? "Aufnahme beenden" : "Aufnahme starten");
+                BtnObsRecord.Background = MakeBrush(obsRecording ? "#DC2626" : "#374151");
+
+                BtnObsMic.IsEnabled = obsMicInput.Length > 0;
+                BtnObsMic.Content = Loc.T(obsMicInput.Length == 0 ? "🎙 Kein Mikrofon" : obsMicMuted ? "🔇 Mikrofon stumm" : "🎙 Mikrofon an");
+                BtnObsMic.Background = MakeBrush(obsMicMuted ? "#B45309" : "#374151");
+                BtnObsMic.ToolTip = obsMicInput.Length == 0
+                    ? Loc.T("In OBS ist unter Einstellungen → Audio kein Mikrofon eingerichtet.")
+                    : Loc.T("Schaltet das Mikrofon in OBS stumm oder wieder an.");
+
+                RenderObsScenes();
+            }
+
+            UpdateObsTimes();
+            bool ticking = active && (obsStreaming || obsRecording);
+            if (ticking && !obsUiTimer.IsEnabled) obsUiTimer.Start();
+            else if (!ticking && obsUiTimer.IsEnabled) obsUiTimer.Stop();
+        }
+
+        private static string FormatObsDuration(TimeSpan span)
+            => $"{(int)span.TotalHours:00}:{span.Minutes:00}:{span.Seconds:00}";
+
+        private void UpdateObsTimes()
+        {
+            if (TxtObsLive == null) return;
+
+            TxtObsLive.Text = obsStreaming && obsStreamStart is DateTime start
+                ? Loc.T($"Live seit {start:HH:mm} ({FormatObsDuration(DateTime.Now - start)})")
+                : Loc.T("Offline");
+            TxtObsLive.Foreground = MakeBrush(obsStreaming ? "#F87171" : "#FFFFFF");
+
+            if (obsRecording && obsRecordStart is DateTime recStart)
+            {
+                // Während einer Pause bleibt die Zeit stehen
+                if (obsRecordPaused)
+                    TxtObsRecTime.Text = Loc.T($"{FormatObsDuration(TimeSpan.FromMilliseconds(obsRecordFrozenMs))} (pausiert)");
+                else
+                    TxtObsRecTime.Text = FormatObsDuration(DateTime.Now - recStart);
+            }
+            else TxtObsRecTime.Text = Loc.T("Aus");
+
+            if (obsStreaming && obsTotal > 0)
+            {
+                double percent = obsSkipped * 100.0 / obsTotal;
+                TxtObsDropped.Text = Loc.T(string.Format(Loc.Culture, "{0} von {1} ({2:0.0} %)", obsSkipped, obsTotal, percent));
+                TxtObsDropped.Foreground = MakeBrush(percent >= 5 ? "#F87171" : percent >= 1 ? "#F59E0B" : "#FFFFFF");
+            }
+            else
+            {
+                TxtObsDropped.Text = "–";
+                TxtObsDropped.Foreground = MakeBrush("#FFFFFF");
+            }
+        }
+
+        private void RenderObsScenes()
+        {
+            ObsScenePanel.Children.Clear();
+            if (obsScenes.Count == 0)
+            {
+                ObsScenePanel.Children.Add(new TextBlock { Text = Loc.T("Keine Szenen gefunden."), Foreground = BrushSubtle, FontSize = 12 });
+                return;
+            }
+
+            foreach (string scene in obsScenes)
+            {
+                string target = scene;
+                bool current = scene == obsCurrentScene;
+                var button = new System.Windows.Controls.Button
+                {
+                    Content = scene,
+                    Margin = new Thickness(0, 0, 8, 8),
+                    Padding = new Thickness(16, 8, 16, 8),
+                    ToolTip = current ? Loc.T("Aktuelle Szene") : Loc.T("Zu dieser Szene wechseln")
+                };
+                if (current) button.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+                button.Click += (s, e) => _ = ObsSetSceneAsync(target);
+                ObsScenePanel.Children.Add(button);
+            }
+        }
+
+        // ───────── Befehle (gehen bei der Simulation nicht an OBS) ─────────
+
+        private async Task ObsCommandAsync(string requestType, object? data = null)
+        {
+            if (obsSimulated)
+            {
+                SimulateObsCommand(requestType, data);
+                return;
+            }
+            if (obsState != ObsState.Connected) return;
+
+            var result = await Task.Run(() => obs.RequestAsync(requestType, data));
+            if (result == null)
+                ShowToast("🎥", "OBS", Loc.T("OBS hat den Befehl nicht ausgeführt."), 5);
+
+            // Zustand gleich nachladen, damit die Knöpfe sofort stimmen
+            var status = await Task.Run(ObsReadStatusAsync);
+            if (status != null) ApplyObsStatus(status);
+        }
+
+        private async Task ObsSetSceneAsync(string scene)
+        {
+            if (!ObsActive) return;
+            await ObsCommandAsync("SetCurrentProgramScene", new { sceneName = scene });
+            if (!obsSimulated && obsState == ObsState.Connected)
+            {
+                obsCurrentScene = scene;
+                RenderObs();
+                UpdateObsAutoStreamer();
+            }
+        }
+
+        private async Task ObsToggleStreamAsync()
+        {
+            if (!ObsActive) return;
+            if (obsStreaming)
+            {
+                if (Msg("Stream wirklich beenden?", "OBS", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+                await ObsCommandAsync("StopStream");
+            }
+            else await ObsCommandAsync("StartStream");
+        }
+
+        private async Task ObsToggleRecordAsync()
+        {
+            if (!ObsActive) return;
+            if (obsRecording)
+            {
+                if (Msg("Aufnahme wirklich beenden?", "OBS", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+                await ObsCommandAsync("StopRecord");
+            }
+            else await ObsCommandAsync("StartRecord");
+        }
+
+        private async Task ObsToggleMicAsync()
+        {
+            if (!ObsActive || obsMicInput.Length == 0) return;
+            bool mute = !obsMicMuted;
+            await ObsCommandAsync("SetInputMute", new { inputName = obsMicInput, inputMuted = mute });
+            if (!obsSimulated) obsMicMuted = mute;
+            RenderObs();
+        }
+
+        private void BtnObsStream_Click(object sender, RoutedEventArgs e) => _ = ObsToggleStreamAsync();
+        private void BtnObsRecord_Click(object sender, RoutedEventArgs e) => _ = ObsToggleRecordAsync();
+        private void BtnObsMic_Click(object sender, RoutedEventArgs e) => _ = ObsToggleMicAsync();
+
+        private void BtnObsConnect_Click(object sender, RoutedEventArgs e)
+        {
+            if (!settings.ObsEnabled) return;
+            RestartObs();
+        }
+
+        private void BtnObsSettings_Click(object sender, RoutedEventArgs e) => OpenObsSettings();
+
+        private void OpenObsSettings()
+        {
+            NavigateTo("settings");
+            ChipCatStreamer.IsChecked = true;
+            Dispatcher.BeginInvoke(new Action(() => ObsSettingsCard.BringIntoView()), DispatcherPriority.Background);
+        }
+
+        // ───────── Streamer-Modus automatisch mit Stream und Szenen ─────────
+
+        private void UpdateObsAutoStreamer()
+        {
+            bool sceneMatch = ObsActive && obsCurrentScene.Length > 0 && settings.ObsStreamerScenes.Contains(obsCurrentScene);
+            bool want = (settings.ObsAutoStreamer && obsStreaming) || sceneMatch;
+
+            if (!want)
+            {
+                obsAutoSuppressed = false;
+                if (obsAutoOn)
+                {
+                    obsAutoOn = false;
+                    ApplyStreamerMode();
+                    if (!StreamerOn) ShowToast("📡", "Streamer-Modus aus", "OBS sendet nicht mehr. Alle Angaben sind wieder sichtbar.", 5);
+                    RenderStreamerPageIfVisible();
+                }
+                return;
+            }
+
+            if (obsAutoOn || obsAutoSuppressed) return;
+            obsAutoOn = true;
+            if (!settings.StreamerMode && !streamAutoOn)
+                ShowToast("📡", "Streamer-Modus aktiv", obsStreaming ? "Dein Stream läuft. Private Angaben sind verborgen." : "Diese OBS-Szene ist für den Streamer-Modus markiert. Private Angaben sind verborgen.", 6);
+            ApplyStreamerMode();
+            RenderStreamerPageIfVisible();
+        }
+
+        private void RenderStreamerPageIfVisible()
+        {
+            if (ViewStreamer.Visibility == Visibility.Visible) RenderStreamerPage();
+        }
+
+        // ───────── Einstellungen ─────────
+
+        private void PopulateObsSettings()
+        {
+            TxtObsHost.Text = settings.ObsHost;
+            TxtObsPort.Text = settings.ObsPort.ToString(CultureInfo.InvariantCulture);
+            PwdObs.Password = SecretStore.Unprotect(settings.ObsPasswordProtected);
+            ChkObsEnabled.IsChecked = settings.ObsEnabled;
+            ChkObsAutoStreamer.IsChecked = settings.ObsAutoStreamer;
+            RenderObsSceneAutoList();
+        }
+
+        /// <summary>Übernimmt Adresse, Port und Passwort aus den Feldern. Gibt true zurück, wenn sich etwas geändert hat.</summary>
+        private bool ReadObsConnectionFields()
+        {
+            bool changed = false;
+
+            string host = TxtObsHost.Text.Trim();
+            if (host.Length == 0) host = "localhost";
+            if (host != settings.ObsHost) { settings.ObsHost = host; changed = true; }
+            TxtObsHost.Text = host;
+
+            if (int.TryParse(TxtObsPort.Text.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int port) && port is >= 1 and <= 65535)
+            {
+                if (port != settings.ObsPort) { settings.ObsPort = port; changed = true; }
+            }
+            TxtObsPort.Text = settings.ObsPort.ToString(CultureInfo.InvariantCulture);
+
+            string password = PwdObs.Password;
+            if (password != SecretStore.Unprotect(settings.ObsPasswordProtected))
+            {
+                settings.ObsPasswordProtected = SecretStore.Protect(password);
+                changed = true;
+            }
+
+            if (changed) SaveSettings();
+            return changed;
+        }
+
+        private void ChkObsEnabled_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+            ReadObsConnectionFields();
+            settings.ObsEnabled = ChkObsEnabled.IsChecked == true;
+            SaveSettings();
+            RestartObs();
+        }
+
+        private void ChkObsAutoStreamer_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+            settings.ObsAutoStreamer = ChkObsAutoStreamer.IsChecked == true;
+            SaveSettings();
+            UpdateObsAutoStreamer();
+        }
+
+        private void ObsConnectionField_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+            if (ReadObsConnectionFields() && settings.ObsEnabled) RestartObs();
+        }
+
+        private static string ObsResultText(ObsConnectResult result) => Loc.T(result switch
+        {
+            ObsConnectResult.NotReachable => "OBS antwortet nicht. Läuft OBS, und ist der WebSocket-Server eingeschaltet (Werkzeuge → WebSocket-Servereinstellungen)? Stimmen Adresse und Port?",
+            ObsConnectResult.PasswordRequired => "OBS verlangt ein Passwort. Trage es in den Einstellungen ein.",
+            ObsConnectResult.AuthFailed => "Das Passwort für OBS ist falsch.",
+            _ => "Die Verbindung zu OBS ist fehlgeschlagen."
+        });
+
+        private async void BtnObsTest_Click(object sender, RoutedEventArgs e)
+        {
+            bool changed = ReadObsConnectionFields();
+            string host = settings.ObsHost;
+            int port = settings.ObsPort;
+            string password = SecretStore.Unprotect(settings.ObsPasswordProtected);
+
+            BtnObsTest.IsEnabled = false;
+            TxtObsTestResult.Foreground = MakeBrush("#9CA3AF");
+            TxtObsTestResult.Text = Loc.T("Teste die Verbindung …");
+
+            // Eigener Test-Client, damit die laufende Verbindung nicht gestört wird
+            var (result, version) = await Task.Run(async () =>
+            {
+                using var test = new ObsClient();
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+                var r = await test.ConnectAsync(host, port, password, cts.Token);
+                string v = string.Empty;
+                if (r == ObsConnectResult.Connected)
+                {
+                    v = ObsStr(await test.RequestAsync("GetVersion"), "obsVersion");
+                    await test.DisconnectAsync();
+                }
+                return (r, v);
+            });
+
+            BtnObsTest.IsEnabled = true;
+            if (result == ObsConnectResult.Connected)
+            {
+                TxtObsTestResult.Foreground = MakeBrush("#34D399");
+                TxtObsTestResult.Text = Loc.T($"✓ Verbindung klappt: OBS {(version.Length > 0 ? version : "?")}")
+                    + (settings.ObsEnabled ? string.Empty : " " + Loc.T("Schalte oben „OBS aus dem Launcher steuern“ ein, um OBS von der Streamer-Seite zu bedienen."));
+                if (settings.ObsEnabled && (changed || obsState != ObsState.Connected)) RestartObs();
+            }
+            else
+            {
+                TxtObsTestResult.Foreground = MakeBrush("#F87171");
+                TxtObsTestResult.Text = "✗ " + ObsResultText(result);
+            }
+        }
+
+        private void RenderObsSceneAutoList()
+        {
+            if (ObsSceneAutoPanel == null) return;
+            ObsSceneAutoPanel.Children.Clear();
+
+            var names = obsScenes.Concat(settings.ObsStreamerScenes).Distinct().ToList();
+            foreach (string scene in names)
+            {
+                string target = scene;
+                var box = new System.Windows.Controls.CheckBox
+                {
+                    Content = scene,
+                    IsChecked = settings.ObsStreamerScenes.Contains(scene),
+                    Margin = new Thickness(0, 0, 20, 10)
+                };
+                box.Checked += (s, e) => SetObsStreamerScene(target, true);
+                box.Unchecked += (s, e) => SetObsStreamerScene(target, false);
+                ObsSceneAutoPanel.Children.Add(box);
+            }
+
+            TxtObsSceneAutoHint.Text = obsScenes.Count == 0
+                ? Loc.T("Sobald OBS verbunden ist, erscheinen hier deine Szenen zum Auswählen.")
+                : string.Empty;
+            TxtObsSceneAutoHint.Visibility = obsScenes.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void SetObsStreamerScene(string scene, bool on)
+        {
+            settings.ObsStreamerScenes.Remove(scene);
+            if (on) settings.ObsStreamerScenes.Add(scene);
+            SaveSettings();
+            UpdateObsAutoStreamer();
+        }
+
+        // ───────── Simulation für den Entwickler-Reiter (ohne OBS) ─────────
+
+        private void StartObsSimulation()
+        {
+            try { obsLoopCts?.Cancel(); } catch { }
+            obsLoopCts = null;
+            obsSimulated = true;
+            obsScenes = new List<string> { "Startet gleich", "Gameplay", "Desktop", "Pause" };
+            obsCurrentScene = "Startet gleich";
+            obsMicInput = "Mikrofon/AUX";
+            obsMicMuted = false;
+            obsStreaming = obsRecording = obsRecordPaused = false;
+            obsStreamStart = obsRecordStart = null;
+            obsSkipped = obsTotal = 0;
+            RenderObs();
+            RenderObsSceneAutoList();
+            UpdateObsAutoStreamer();
+            ShowToast("🎥", "OBS", Loc.T("OBS-Simulation gestartet."), 4);
+        }
+
+        private void StopObsSimulation()
+        {
+            if (!obsSimulated) return;
+            obsSimulated = false;
+            ClearObsData();
+            SetObsState(ObsState.Off);
+            RenderObsSceneAutoList();
+            RestartObs();
+        }
+
+        private void SimulateObsCommand(string requestType, object? data)
+        {
+            string Prop(string name) => data?.GetType().GetProperty(name)?.GetValue(data)?.ToString() ?? string.Empty;
+
+            switch (requestType)
+            {
+                case "StartStream": obsStreaming = true; obsStreamStart = DateTime.Now; obsSkipped = 0; obsTotal = 1; break;
+                case "StopStream": obsStreaming = false; obsStreamStart = null; obsSkipped = obsTotal = 0; break;
+                case "StartRecord": obsRecording = true; obsRecordStart = DateTime.Now; break;
+                case "StopRecord": obsRecording = false; obsRecordStart = null; break;
+                case "SetInputMute": obsMicMuted = Prop("inputMuted") == bool.TrueString; break;
+                case "SetCurrentProgramScene": obsCurrentScene = Prop("sceneName"); break;
+            }
+
+            RenderObs();
+            UpdateObsAutoStreamer();
         }
 
         private void InitExtras15()

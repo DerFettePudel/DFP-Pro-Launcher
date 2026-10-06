@@ -144,6 +144,25 @@
             </Setter>
         </Style>
 
+        <!-- Passwortfelder wie die Textfelder -->
+        <Style TargetType="PasswordBox">
+            <Setter Property="Background" Value="#1F2937"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="CaretBrush" Value="White"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="MinHeight" Value="36"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="9" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Navigation links -->
         <Style x:Key="CaptionButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="46"/>
@@ -1781,6 +1800,46 @@
                                 </StackPanel>
                                 <Button x:Name="BtnStreamerToggle" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="22,9" Background="{DynamicResource AccentBrush}" Click="BtnStreamerToggle_Click"/>
                             </Grid>
+                        </Border>
+
+                        <Border x:Name="ObsCard" Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,4">
+                                    <TextBlock Text="🎥  OBS" Style="{StaticResource SectionTitle}" Margin="0"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                        <Ellipse x:Name="ObsStatusDot" Width="9" Height="9" Fill="#6B7280" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TxtObsStatus" Text="Nicht verbunden" Foreground="#9CA3AF" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock x:Name="TxtObsHint" Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                <WrapPanel x:Name="ObsOfflineButtons">
+                                    <Button x:Name="BtnObsConnect" Content="Jetzt verbinden" Margin="0,0,10,0" Background="{DynamicResource AccentBrush}" Click="BtnObsConnect_Click"/>
+                                    <Button Content="OBS-Einstellungen" Margin="0,0,10,0" Click="BtnObsSettings_Click"/>
+                                </WrapPanel>
+                                <StackPanel x:Name="ObsControls" Visibility="Collapsed">
+                                    <WrapPanel Margin="0,0,0,8">
+                                        <Button x:Name="BtnObsStream" Content="Stream starten" Margin="0,0,10,10" Padding="18,9" Click="BtnObsStream_Click"/>
+                                        <Button x:Name="BtnObsRecord" Content="Aufnahme starten" Margin="0,0,10,10" Padding="18,9" Click="BtnObsRecord_Click"/>
+                                        <Button x:Name="BtnObsMic" Content="🎙 Mikrofon an" Margin="0,0,10,10" Padding="18,9" Click="BtnObsMic_Click"/>
+                                    </WrapPanel>
+                                    <WrapPanel Margin="0,0,0,14">
+                                        <StackPanel Margin="0,0,32,6">
+                                            <TextBlock Text="Stream" Style="{StaticResource SubtleText}" FontSize="12"/>
+                                            <TextBlock x:Name="TxtObsLive" Text="Offline" Foreground="White" FontWeight="SemiBold" FontSize="15"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,32,6">
+                                            <TextBlock Text="Aufnahme" Style="{StaticResource SubtleText}" FontSize="12"/>
+                                            <TextBlock x:Name="TxtObsRecTime" Text="Aus" Foreground="White" FontWeight="SemiBold" FontSize="15"/>
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,32,6">
+                                            <TextBlock Text="Verlorene Bilder" Style="{StaticResource SubtleText}" FontSize="12"/>
+                                            <TextBlock x:Name="TxtObsDropped" Text="–" Foreground="White" FontWeight="SemiBold" FontSize="15"/>
+                                        </StackPanel>
+                                    </WrapPanel>
+                                    <TextBlock Text="Szenen" Foreground="White" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                    <WrapPanel x:Name="ObsScenePanel"/>
+                                </StackPanel>
+                            </StackPanel>
                         </Border>
 
                         <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
@@ -3624,6 +3683,60 @@
                                         </StackPanel>
                                         <CheckBox x:Name="ChkStreamMute" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
                                     </Grid>
+                                </StackPanel>
+                            </Border>
+                            <Border x:Name="ObsSettingsCard" Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="streamer" Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock Text="OBS-Steuerung" Style="{StaticResource SectionTitle}"/>
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="OBS aus dem Launcher steuern" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Verbindet sich über den WebSocket-Server von OBS (ab OBS 28). In OBS einschalten unter Werkzeuge → WebSocket-Servereinstellungen. Dort stehen auch Port und Passwort." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkObsEnabled" Grid.Column="1" VerticalAlignment="Center" Checked="ChkObsEnabled_Changed" Unchecked="ChkObsEnabled_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="110"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,10,0">
+                                            <TextBlock Text="Adresse" Style="{StaticResource SubtleText}" FontSize="12" Margin="0,0,0,4"/>
+                                            <TextBox x:Name="TxtObsHost" Height="38" LostFocus="ObsConnectionField_LostFocus"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="Port" Style="{StaticResource SubtleText}" FontSize="12" Margin="0,0,0,4"/>
+                                            <TextBox x:Name="TxtObsPort" Height="38" LostFocus="ObsConnectionField_LostFocus"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <StackPanel Margin="0,0,0,10">
+                                        <TextBlock Text="Passwort (leer lassen, wenn OBS keins verlangt)" Style="{StaticResource SubtleText}" FontSize="12" Margin="0,0,0,4"/>
+                                        <PasswordBox x:Name="PwdObs" Height="38" LostFocus="ObsConnectionField_LostFocus"/>
+                                        <TextBlock Text="Das Passwort wird verschlüsselt gespeichert und nur von deinem Windows-Konto gelesen." Style="{StaticResource SubtleText}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <WrapPanel Margin="0,0,0,6">
+                                        <Button x:Name="BtnObsTest" Content="Verbindung testen" Margin="0,0,10,8" Background="{DynamicResource AccentBrush}" Click="BtnObsTest_Click"/>
+                                    </WrapPanel>
+                                    <TextBlock x:Name="TxtObsTestResult" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,18"/>
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Streamer-Modus automatisch mit dem Stream" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Schaltet den Streamer-Modus ein, sobald der Stream in OBS startet, und wieder aus, wenn er endet." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkObsAutoStreamer" Grid.Column="1" VerticalAlignment="Center" Checked="ChkObsAutoStreamer_Changed" Unchecked="ChkObsAutoStreamer_Changed"/>
+                                    </Grid>
+                                    <TextBlock Text="Szenen, in denen der Streamer-Modus aktiv ist" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                    <TextBlock Text="Zusätzlich zum Stream: Ist eine dieser Szenen in OBS aktiv, wird der Streamer-Modus eingeschaltet, auch bei Aufnahmen ohne Stream." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,10"/>
+                                    <WrapPanel x:Name="ObsSceneAutoPanel"/>
+                                    <TextBlock x:Name="TxtObsSceneAutoHint" Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Border>
 
