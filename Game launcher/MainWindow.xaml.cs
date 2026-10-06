@@ -4605,12 +4605,6 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
             RefreshGamingCheck();
         }
 
-        private async void BtnPowerPlan_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is not System.Windows.Controls.Button button || button.Tag is not string guid) return;
-            await ActivatePowerPlanAsync(guid);
-        }
-
         // ───────────────────────────── Gaming-Check: Windows-Einstellungen für Spiele ─────────────────────────────
 
         private static bool ReadGameModeEnabled()
@@ -4768,68 +4762,6 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
             SetRow(IconCheckGameMode, gameModeOk);
             SetRow(IconCheckMouse, mouseOk);
             SetRow(IconCheckDvr, dvrOk);
-        }
-
-        private async void BtnCleanTemp_Click(object sender, RoutedEventArgs e)
-        {
-            var answer = Msg("Temporäre Dateien (älter als 24 Stunden) aus dem Temp-Ordner löschen?",
-                "Optimierung", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (answer != MessageBoxResult.Yes) return;
-
-            var button = sender as System.Windows.Controls.Button;
-            if (button != null) button.IsEnabled = false;
-
-            var (count, bytes) = await Task.Run(() => CleanTempFiles());
-
-            if (button != null) button.IsEnabled = true;
-            Msg($"{count} Dateien gelöscht – {FormatBytes(bytes)} freigegeben.", "Optimierung");
-        }
-
-        private static (int Count, long Bytes) CleanTempFiles()
-        {
-            int count = 0;
-            long bytes = 0;
-            var cutoff = DateTime.Now.AddHours(-24);
-
-            var options = new EnumerationOptions
-            {
-                RecurseSubdirectories = true,
-                IgnoreInaccessible = true,
-                AttributesToSkip = FileAttributes.Hidden | FileAttributes.System | FileAttributes.ReparsePoint
-            };
-
-            try
-            {
-                foreach (var file in Directory.EnumerateFiles(System.IO.Path.GetTempPath(), "*", options))
-                {
-                    try
-                    {
-                        var info = new FileInfo(file);
-                        if (info.LastWriteTime >= cutoff) continue;
-
-                        long length = info.Length;
-                        info.Delete();
-                        count++;
-                        bytes += length;
-                    }
-                    catch { } // in Benutzung oder keine Berechtigung → überspringen
-                }
-            }
-            catch { }
-
-            return (count, bytes);
-        }
-
-        private async void BtnEmptyRecycle_Click(object sender, RoutedEventArgs e)
-        {
-            var answer = Msg("Papierkorb wirklich endgültig leeren?", "Papierkorb",
-                MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            if (answer != MessageBoxResult.Yes) return;
-
-            // 7 = ohne Rückfrage, ohne Fortschrittsfenster, ohne Ton
-            int result = await Task.Run(() => NativeMethods.SHEmptyRecycleBin(IntPtr.Zero, null, 7));
-
-            Msg(result == 0 ? "Der Papierkorb wurde geleert." : "Der Papierkorb ist bereits leer.", "Papierkorb");
         }
 
         private void BtnOpenSetting_Click(object sender, RoutedEventArgs e)
@@ -6249,8 +6181,6 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
         private readonly DispatcherTimer controllerTimer = new();
         private bool controllerMode;
         private int controllerIndex;
-        private int controllerSkip;
-        private ushort lastButtons;
         private WindowState savedWindowState = WindowState.Normal;
         private WindowStyle savedWindowStyle = WindowStyle.SingleBorderWindow;
 
@@ -8976,17 +8906,6 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
         {
             if (controllerIndex >= 0 && controllerIndex < visibleGames.Count)
                 LaunchGame(visibleGames[controllerIndex]);
-        }
-
-        private void CycleFilter(int direction)
-        {
-            var chips = FilterChips.Children.OfType<System.Windows.Controls.RadioButton>().ToList();
-            if (chips.Count == 0) return;
-
-            int current = chips.FindIndex(c => c.IsChecked == true);
-            int next = ((current < 0 ? 0 : current) + direction + chips.Count) % chips.Count;
-            chips[next].IsChecked = true;
-            controllerIndex = 0;
         }
 
         // ───────────────────────────── Infobereich (Tray) ─────────────────────────────
@@ -12127,9 +12046,7 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
         private readonly Dictionary<string, GifAnimator> gifCache = new();
         private readonly DispatcherTimer shiftTimer = new();
 
-        private PadButton lastPad;
         private bool xinputMissing;
-        private uint winmmDevice = uint.MaxValue;
         private string padDescription = string.Empty;
         private string padLayoutDetected = "xbox";
 
@@ -12628,7 +12545,6 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
         private static string EffectiveCover(GameItem game)
             => !string.IsNullOrEmpty(game.CustomCover) && File.Exists(game.CustomCover) ? game.CustomCover : game.CoverPath;
 
-        private static bool IsGif(string path) => path.EndsWith(".gif", StringComparison.OrdinalIgnoreCase);
 
         private static bool IsImageFile(string path)
         {
@@ -12950,51 +12866,6 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
             UpdatePadBatteryUi();
         }
 
-        private bool ReadXInput(out PadButton pad)
-        {
-            pad = PadButton.None;
-            padSlot = -1;
-            if (xinputMissing) return false;
-
-            for (uint slot = 0; slot < 4; slot++)
-            {
-                NativeFeatures.XInputState state;
-                uint result;
-                try
-                {
-                    result = NativeFeatures.XInputGetState(slot, out state);
-                }
-                catch
-                {
-                    xinputMissing = true;
-                    return false;
-                }
-                if (result != 0) continue;
-
-                ushort b = state.Gamepad.Buttons;
-                if ((b & 0x0001) != 0 || state.Gamepad.ThumbLY > 16000) pad |= PadButton.Up;
-                if ((b & 0x0002) != 0 || state.Gamepad.ThumbLY < -16000) pad |= PadButton.Down;
-                if ((b & 0x0004) != 0 || state.Gamepad.ThumbLX < -16000) pad |= PadButton.Left;
-                if ((b & 0x0008) != 0 || state.Gamepad.ThumbLX > 16000) pad |= PadButton.Right;
-                if ((b & 0x1000) != 0) pad |= PadButton.Confirm;
-                if ((b & 0x2000) != 0) pad |= PadButton.Back;
-                if ((b & 0x4000) != 0) pad |= PadButton.Details;
-                if ((b & 0x8000) != 0) pad |= PadButton.Favorite;
-                if ((b & 0x0100) != 0) pad |= PadButton.PrevTab;
-                if ((b & 0x0200) != 0) pad |= PadButton.NextTab;
-                if ((b & 0x0010) != 0) pad |= PadButton.Start;
-                if ((b & 0x0020) != 0) pad |= PadButton.Select;
-                if (state.Gamepad.LeftTrigger > 120) pad |= PadButton.TriggerLeft;
-                if (state.Gamepad.RightTrigger > 120) pad |= PadButton.TriggerRight;
-
-                padSlot = (int)slot;
-                padDescription = $"Xbox-Controller (Slot {slot + 1})";
-                return true;
-            }
-
-            return false;
-        }
-
         private string DescribeJoystick(uint id)
         {
             padLayoutDetected = "xbox";
@@ -13071,43 +12942,6 @@ Rechtsklick auf ein Programm bearbeitet oder entfernt es. || Right-click a progr
             if (info.dwYpos > 53000) pad |= PadButton.Down;
 
             return pad;
-        }
-
-        private bool ReadJoystick(out PadButton pad)
-        {
-            pad = PadButton.None;
-
-            uint count;
-            try { count = NativePad.joyGetNumDevs(); }
-            catch { return false; }
-            if (count == 0) return false;
-            if (count > 16) count = 16;
-
-            for (uint id = 0; id < count; id++)
-            {
-                var info = new NativePad.JoyInfoEx
-                {
-                    dwSize = (uint)Interop.Marshal.SizeOf<NativePad.JoyInfoEx>(),
-                    dwFlags = 0xFF
-                };
-
-                uint result;
-                try { result = NativePad.joyGetPosEx(id, ref info); }
-                catch { return false; }
-                if (result != 0) continue;
-
-                if (winmmDevice != id)
-                {
-                    winmmDevice = id;
-                    padDescription = DescribeJoystick(id);
-                }
-
-                pad = MapJoystick(info);
-                return true;
-            }
-
-            winmmDevice = uint.MaxValue;
-            return false;
         }
 
         private void UpdatePadStatus()
