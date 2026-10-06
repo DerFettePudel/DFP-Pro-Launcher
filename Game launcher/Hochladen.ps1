@@ -1,5 +1,5 @@
 ﻿# DFP Pro Launcher - alles mit einem Doppelklick auf GitHub hochladen
-# Ablauf: Testbau -> Version bestimmen -> Text abfragen -> speichern (commit) -> hochladen (push) -> Version anlegen (tag)
+# Ablauf: Uebersetzungen pruefen -> Testbau -> Version bestimmen -> Text abfragen -> speichern (commit) -> hochladen (push) -> Version anlegen (tag)
 # GitHub baut danach selbst den Installer und veroeffentlicht das Update.
 
 $ErrorActionPreference = 'Stop'
@@ -45,7 +45,19 @@ if ($LASTEXITCODE -ne 0) {
     Fail 'Dieser Ordner ist kein Git-Projekt. Lege Hochladen.cmd und Hochladen.ps1 in den Hauptordner deines Projekts (dort, wo die .sln-Datei liegt).'
 }
 
-# 1) Testbau, damit kein kaputter Stand veroeffentlicht wird
+# 1) Uebersetzungen pruefen: Eine kaputte Zeile kann sonst alle spaeteren Uebersetzungen stumm verschlucken
+$checker = Join-Path $PSScriptRoot 'Tools\PruefeUebersetzung.ps1'
+if (Test-Path $checker) {
+    Step 'Pruefe die Uebersetzungstabelle'
+    & powershell -NoProfile -ExecutionPolicy Bypass -File $checker
+    if ($LASTEXITCODE -ne 0) {
+        Fail 'Die Uebersetzungstabelle hat Fehler (siehe oben). Korrigiere die genannten Zeilen in MainWindow.xaml.cs und starte das Hochladen danach noch einmal. Es wurde nichts hochgeladen.'
+    }
+} else {
+    Write-Host 'Hinweis: Die Pruefung der Uebersetzungen wurde uebersprungen (Tools\PruefeUebersetzung.ps1 fehlt).' -ForegroundColor Yellow
+}
+
+# 2) Testbau, damit kein kaputter Stand veroeffentlicht wird
 $project = Get-ChildItem -Path $PSScriptRoot -Recurse -Filter '*.csproj' |
     Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' } | Select-Object -First 1
 
@@ -60,7 +72,7 @@ if ($project -and (Get-Command dotnet -ErrorAction SilentlyContinue)) {
     Write-Host 'Hinweis: Der Testbau wurde uebersprungen (dotnet wurde nicht gefunden).' -ForegroundColor Yellow
 }
 
-# 2) Version bestimmen
+# 3) Version bestimmen
 Step 'Version bestimmen'
 git fetch --tags --quiet 2>$null
 $latest = git tag --list 'v*' --sort=-v:refname | Select-Object -First 1
@@ -77,13 +89,13 @@ if ($answer) {
 }
 if (git tag --list $next) { Fail "Die Version $next gibt es schon. Waehle eine andere Nummer." }
 
-# 3) Text fuer das Update-Fenster
+# 4) Text fuer das Update-Fenster
 Step 'Update-Text'
 Write-Host 'Dieser Text erscheint spaeter im Update-Fenster der Nutzer.'
 $message = Read-Host 'Was ist neu?'
 if ([string]::IsNullOrWhiteSpace($message)) { Fail 'Ohne Text gibt es kein Update.' }
 
-# 4) Uebersicht und Bestaetigung
+# 5) Uebersicht und Bestaetigung
 Step 'Das wird hochgeladen'
 git status --short
 Write-Host ''
@@ -93,7 +105,7 @@ if ($confirm -notmatch '^[JjYy]') {
     exit 0
 }
 
-# 5) Speichern, hochladen, Version anlegen
+# 6) Speichern, hochladen, Version anlegen
 Step 'Aenderungen speichern'
 git add -A
 git diff --cached --quiet
@@ -119,7 +131,7 @@ git tag $next
 git push origin $next
 if ($LASTEXITCODE -ne 0) { Fail 'Die Version konnte nicht hochgeladen werden.' }
 
-# 6) Fertig
+# 7) Fertig
 $remote = git remote get-url origin
 $repo = ''
 if ($remote -match 'github\.com[:/](.+?)(\.git)?$') { $repo = $Matches[1] }
