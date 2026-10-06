@@ -388,6 +388,39 @@ namespace Game_launcher
         // Controller-Extras
         public Dictionary<string, Dictionary<string, string>> PadMappings { get; set; } = new();   // Typ (xbox/ps/nintendo) → Aktion → Taste
         public bool ConsoleStart { get; set; }
+
+        // Bibliothek: smarte Listen, Spielgrößen, Jahresrückblick, Download-Meldung
+        public List<SmartList> SmartLists { get; set; } = new();
+        public Dictionary<string, GameSizeEntry> GameSizes { get; set; } = new();   // Schlüssel: Installationsordner
+        public Dictionary<string, YearStat> YearStats { get; set; } = new();        // Schlüssel: Jahr, zum Beispiel "2026"
+        public DateTime? YearStatsSince { get; set; }
+        public bool DownloadDoneNotify { get; set; } = true;
+    }
+
+    /// <summary>Gespeicherter Filter aus kombinierbaren Regeln (alle aktiven Regeln müssen passen).</summary>
+    public class SmartList
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString("N");
+        public string Name { get; set; } = string.Empty;
+        public bool NeverPlayed { get; set; }
+        public int MaxSizeGb { get; set; }          // 0 = egal
+        public int NotPlayedMonths { get; set; }    // 0 = egal
+        public string Source { get; set; } = string.Empty;   // leer = egal
+    }
+
+    public class GameSizeEntry
+    {
+        public long Bytes { get; set; }
+        public DateTime Measured { get; set; }
+    }
+
+    public class YearStat
+    {
+        public Dictionary<string, double> Games { get; set; } = new();     // Spielname → Sekunden in diesem Jahr
+        public Dictionary<string, string> Sources { get; set; } = new();   // Spielname → Quelle
+        public double LongestSeconds { get; set; }
+        public string LongestGame { get; set; } = string.Empty;
+        public DateTime? LongestDate { get; set; }
     }
 
     /// <summary>Ein Profil speichert eine Auswahl von Einstellungen (nach Bereichen) und optional einen Energieplan.</summary>
@@ -2720,6 +2753,68 @@ PC jetzt herunterfahren? || Shut down the PC now? || 现在关闭电脑吗？ ||
 🔄 Neu starten || 🔄 Restart || 🔄 重启 || 🔄 Reiniciar || 🔄 Redémarrer || 🔄 Reiniciar || 🔄 Перезагрузить || 🔄 再起動
 ⏻ Herunterfahren || ⏻ Shut down || ⏻ 关机 || ⏻ Apagar || ⏻ Éteindre || ⏻ Desligar || ⏻ Выключить || ⏻ シャットダウン
 Das hat nicht geklappt. || That didn't work. || 操作未成功。 || No ha funcionado. || Cela n'a pas fonctionné. || Não funcionou. || Не получилось. || うまくいきませんでした。
+
+# ───────── Bibliothek: Auswahl, smarte Listen, Vorschlag, Rückblick, Downloads ─────────
+🎯 Was soll ich spielen? || 🎯 What should I play? || 🎯 玩什么好？ || 🎯 ¿A qué juego? || 🎯 À quoi jouer ? || 🎯 O que jogar? || 🎯 Во что поиграть? || 🎯 何をプレイする？
+Was soll ich spielen? || What should I play? || 玩什么好？ || ¿A qué juego? || À quoi jouer ? || O que jogar? || Во что поиграть? || 何をプレイする？
+＋ Smarte Liste || ＋ Smart list || ＋ 智能列表 || ＋ Lista inteligente || ＋ Liste intelligente || ＋ Lista inteligente || ＋ Умный список || ＋ スマートリスト
+Tipp: Mit Strg+Klick markierst du mehrere Spiele direkt, ein Rechtsklick bearbeitet dann alle zusammen. || Tip: Ctrl+click selects several games directly, then a right-click edits them all at once. || 提示：按住 Ctrl 单击可直接选择多个游戏，然后右键一次编辑全部。 || Consejo: con Ctrl+clic marcas varios juegos y con clic derecho los editas todos a la vez. || Astuce : Ctrl+clic sélectionne plusieurs jeux, puis un clic droit les modifie tous ensemble. || Dica: com Ctrl+clique você marca vários jogos e com o botão direito edita todos juntos. || Совет: Ctrl+щелчок выделяет несколько игр, а правый щелчок изменяет их все сразу. || ヒント: Ctrl+クリックで複数のゲームを選択し、右クリックでまとめて編集できます。
+☑ {#0} ausgewählt || ☑ {0} selected || ☑ 已选择 {0} 个 || ☑ {0} seleccionados || ☑ {0} sélectionnés || ☑ {0} selecionados || ☑ Выбрано: {0} || ☑ {0} 件選択
+{#0} Spiele ausgewählt || {0} games selected || 已选择 {0} 个游戏 || {0} juegos seleccionados || {0} jeux sélectionnés || {0} jogos selecionados || Выбрано игр: {0} || {0} 本のゲームを選択
+✕ Auswahl aufheben || ✕ Clear selection || ✕ 取消选择 || ✕ Quitar selección || ✕ Annuler la sélection || ✕ Limpar seleção || ✕ Снять выделение || ✕ 選択を解除
+nie gespielt || never played || 从未玩过 || nunca jugado || jamais joué || nunca jogado || ни разу не запускалась || 未プレイ
+kleiner als {#0} GB || smaller than {0} GB || 小于 {0} GB || menos de {0} GB || moins de {0} Go || menor que {0} GB || меньше {0} ГБ || {0} GB 未満
+seit {#0} Monaten nicht gespielt || not played for {0} months || {0} 个月未玩 || sin jugar desde hace {0} meses || pas joué depuis {0} mois || sem jogar há {0} meses || не запускалась {0} мес. || {0} か月プレイしていない
+Alle Spiele || All games || 全部游戏 || Todos los juegos || Tous les jeux || Todos os jogos || Все игры || すべてのゲーム
+🗑 Smarte Liste löschen || 🗑 Delete smart list || 🗑 删除智能列表 || 🗑 Eliminar lista inteligente || 🗑 Supprimer la liste intelligente || 🗑 Excluir lista inteligente || 🗑 Удалить умный список || 🗑 スマートリストを削除
+Smarte Liste „{0}“ löschen?\nDie Spiele selbst bleiben erhalten. || Delete smart list “{0}”?\nThe games themselves are kept. || 删除智能列表“{0}”？\n游戏本身会保留。 || ¿Eliminar la lista inteligente «{0}»?\nLos juegos se conservan. || Supprimer la liste intelligente « {0} » ?\nLes jeux eux-mêmes sont conservés. || Excluir a lista inteligente “{0}”?\nOs jogos continuam. || Удалить умный список «{0}»?\nСами игры останутся. || スマートリスト「{0}」を削除しますか？\nゲーム自体は残ります。
+Smarte Liste || Smart list || 智能列表 || Lista inteligente || Liste intelligente || Lista inteligente || Умный список || スマートリスト
+Neue smarte Liste || New smart list || 新建智能列表 || Nueva lista inteligente || Nouvelle liste intelligente || Nova lista inteligente || Новый умный список || 新しいスマートリスト
+Smarte Liste bearbeiten || Edit smart list || 编辑智能列表 || Editar lista inteligente || Modifier la liste intelligente || Editar lista inteligente || Изменить умный список || スマートリストを編集
+Regeln (alle ausgewählten müssen passen) || Rules (all selected ones must match) || 规则（必须全部满足所选条件） || Reglas (deben cumplirse todas las elegidas) || Règles (toutes celles choisies doivent correspondre) || Regras (todas as escolhidas precisam valer) || Правила (должны совпасть все выбранные) || ルール（選んだ条件をすべて満たす）
+Passt jetzt auf {#0} Spiele. || Currently matches {0} games. || 当前符合 {0} 个游戏。 || Ahora coincide con {0} juegos. || Correspond actuellement à {0} jeux. || Agora corresponde a {0} jogos. || Сейчас подходит игр: {0}. || 現在 {0} 本が該当します。
+Die Spielgrößen werden gerade ermittelt, danach können es mehr werden. || Game sizes are being measured right now; there may be more afterwards. || 正在计算游戏大小，之后可能会更多。 || Se están midiendo los tamaños de los juegos; después pueden ser más. || La taille des jeux est en cours de calcul ; il peut y en avoir plus ensuite. || Os tamanhos dos jogos estão sendo medidos; depois podem ser mais. || Размеры игр сейчас вычисляются, потом их может стать больше. || ゲームのサイズを計測中です。終わると増える場合があります。
+Nie gespielt || Never played || 从未玩过 || Nunca jugado || Jamais joué || Nunca jogado || Ни разу не запускалась || 未プレイ
+Kleiner als || Smaller than || 小于 || Menos de || Moins de || Menor que || Меньше чем || 未満
+Egal || Any || 不限 || Da igual || Peu importe || Tanto faz || Неважно || 指定なし
+Nicht mehr gespielt seit || Not played for || 已有多久未玩 || Sin jugar desde hace || Pas joué depuis || Sem jogar há || Не запускалась уже || プレイしていない期間
+1 Monat || 1 month || 1 个月 || 1 mes || 1 mois || 1 mês || 1 месяц || 1 か月
+{#0} Monate || {0} months || {0} 个月 || {0} meses || {0} mois || {0} meses || {0} мес. || {0} か月
+Quelle ist || Source is || 来源为 || La fuente es || La source est || A fonte é || Источник || 入手元
+Es sind noch keine Spiele in deiner Bibliothek. || There are no games in your library yet. || 你的游戏库中还没有游戏。 || Todavía no hay juegos en tu biblioteca. || Ta bibliothèque ne contient encore aucun jeu. || Ainda não há jogos na sua biblioteca. || В вашей библиотеке пока нет игр. || ライブラリにまだゲームがありません。
+Spielvorschlag || Game suggestion || 游戏推荐 || Sugerencia de juego || Suggestion de jeu || Sugestão de jogo || Совет по игре || おすすめゲーム
+Spielvorschlag nach Laune || Game suggestion for your mood || 按心情推荐游戏 || Sugerencia según tu ánimo || Suggestion selon ton humeur || Sugestão conforme o seu humor || Игра под настроение || 気分に合わせたおすすめ
+Wie viel Zeit hast du? || How much time do you have? || 你有多少时间？ || ¿Cuánto tiempo tienes? || Combien de temps as-tu ? || Quanto tempo você tem? || Сколько у тебя времени? || どれくらい時間がある？
+30 Minuten || 30 minutes || 30 分钟 || 30 minutos || 30 minutes || 30 minutos || 30 минут || 30 分
+1 Stunde || 1 hour || 1 小时 || 1 hora || 1 heure || 1 hora || 1 час || 1 時間
+Worauf hast du Lust? || What are you in the mood for? || 你想玩什么类型？ || ¿Qué te apetece? || De quoi as-tu envie ? || Está a fim de quê? || Чего хочется? || どんな気分？
+Etwas Entspanntes || Something relaxing || 轻松一点的 || Algo relajado || Quelque chose de reposant || Algo relaxante || Что-то спокойное || リラックスできるもの
+Etwas Spannendes || Something exciting || 刺激一点的 || Algo emocionante || Quelque chose de palpitant || Algo emocionante || Что-то захватывающее || ワクワクするもの
+Etwas Neues || Something new || 新鲜一点的 || Algo nuevo || Quelque chose de nouveau || Algo novo || Что-то новое || 新しいもの
+🎲 Anderer Vorschlag || 🎲 Another suggestion || 🎲 换一个 || 🎲 Otra sugerencia || 🎲 Autre suggestion || 🎲 Outra sugestão || 🎲 Другой вариант || 🎲 別の候補
+Entspannt || Relaxing || 轻松 || Relajado || Reposant || Relaxante || Спокойная || リラックス
+Spannend || Exciting || 刺激 || Emocionante || Palpitant || Emocionante || Захватывающая || ワクワク
+noch nie gespielt || never played yet || 还没玩过 || todavía sin jugar || jamais joué || ainda não jogado || ещё не запускалась || まだ未プレイ
+erst kurz angespielt || only played briefly || 只玩过一会儿 || solo lo has probado un poco || seulement essayé brièvement || jogado só um pouco || пока только попробовал || 少しだけプレイ済み
+neu in deiner Bibliothek || new in your library || 新加入你的游戏库 || nuevo en tu biblioteca || nouveau dans ta bibliothèque || novo na sua biblioteca || новинка в библиотеке || ライブラリに新しく追加
+steht auf deiner Liste || on your list || 在你的清单上 || está en tu lista || dans ta liste || está na sua lista || в твоём списке || あなたのリストに入っている
+gut für zwischendurch || good for a quick session || 适合抽空玩一会儿 || ideal para un rato || parfait pour une petite session || bom para uma partida rápida || подходит на короткое время || ちょっとした時間に最適
+Ein Zufallstreffer aus deiner Bibliothek || A random pick from your library || 从你的游戏库中随机挑选 || Una elección al azar de tu biblioteca || Un choix au hasard dans ta bibliothèque || Uma escolha aleatória da sua biblioteca || Случайный выбор из библиотеки || ライブラリからランダムに選択
+Jahresrückblick || Year in review || 年度回顾 || Resumen del año || Bilan de l'année || Retrospectiva do ano || Итоги года || 年間ふりかえり
+Dein Spielejahr || Your gaming year || 你的游戏年 || Tu año de juego || Ton année de jeu || Seu ano de jogos || Твой игровой год || あなたのゲームの一年
+🎉 Dein Spielejahr {#0} || 🎉 Your gaming year {0} || 🎉 你的 {0} 游戏年 || 🎉 Tu año de juego {0} || 🎉 Ton année de jeu {0} || 🎉 Seu ano de jogos {0} || 🎉 Твой игровой {0} год || 🎉 あなたのゲームの一年 {0}
+Der Streamer-Modus verbirgt gerade Spielzeiten und Statistiken. Den Jahresrückblick trotzdem anzeigen? || Streamer mode is currently hiding playtime and statistics. Show the year in review anyway? || 主播模式正在隐藏游戏时间和统计。仍要显示年度回顾吗？ || El modo streamer oculta ahora el tiempo de juego y las estadísticas. ¿Mostrar el resumen del año de todos modos? || Le mode streamer masque actuellement le temps de jeu et les statistiques. Afficher quand même le bilan de l'année ? || O modo streamer está ocultando tempo de jogo e estatísticas. Mostrar a retrospectiva mesmo assim? || Режим стримера скрывает время игры и статистику. Всё равно показать итоги года? || 配信者モードがプレイ時間と統計を隠しています。それでも年間ふりかえりを表示しますか？
+wird ab jetzt aufgezeichnet || recorded from now on || 从现在开始记录 || se registra a partir de ahora || enregistré à partir de maintenant || registrado a partir de agora || записывается с этого момента || 今後記録されます
+Längste Sitzung || Longest session || 最长单次游戏 || Sesión más larga || Plus longue session || Sessão mais longa || Самая долгая сессия || 最長セッション
+Lieblingsquelle || Favorite source || 最爱的来源 || Fuente favorita || Source préférée || Fonte favorita || Любимый источник || お気に入りの入手元
+Gespielte Spiele || Games played || 玩过的游戏 || Juegos jugados || Jeux joués || Jogos jogados || Сыграно игр || プレイしたゲーム
+Top 5 des Jahres || Top 5 of the year || 年度前五 || Top 5 del año || Top 5 de l'année || Top 5 do ano || Топ-5 года || 今年のトップ 5
+Für dieses Jahr gibt es noch keine Zeiten pro Spiel. Gezeigt wird die Gesamtspielzeit der Spiele, die du dieses Jahr gespielt hast. || There is no per-game time for this year yet. Shown is the total playtime of the games you played this year. || 今年还没有按游戏统计的时间。显示的是你今年玩过的游戏的总游戏时间。 || Aún no hay tiempos por juego para este año. Se muestra el tiempo total de los juegos que has jugado este año. || Il n'y a pas encore de temps par jeu pour cette année. Le temps total des jeux joués cette année est affiché. || Ainda não há tempos por jogo para este ano. É mostrado o tempo total dos jogos que você jogou neste ano. || Для этого года пока нет времени по каждой игре. Показано общее время игр, в которые ты играл в этом году. || 今年のゲーム別の時間はまだありません。今年プレイしたゲームの合計プレイ時間を表示しています。
+Spielzeit pro Spiel und längste Sitzung werden seit dem {0} aufgezeichnet. || Playtime per game and the longest session have been recorded since {0}. || 自 {0} 起记录每个游戏的游戏时间和最长单次游戏。 || El tiempo por juego y la sesión más larga se registran desde el {0}. || Le temps par jeu et la plus longue session sont enregistrés depuis le {0}. || O tempo por jogo e a sessão mais longa são registrados desde {0}. || Время по играм и самая долгая сессия записываются с {0}. || ゲーム別のプレイ時間と最長セッションは {0} から記録しています。
+Download fertig || Download complete || 下载完成 || Descarga completada || Téléchargement terminé || Download concluído || Загрузка завершена || ダウンロード完了
+„{0}“ ist fertig. || “{0}” is ready. || “{0}”已完成。 || «{0}» está listo. || « {0} » est prêt. || “{0}” está pronto. || «{0}» готова. || 「{0}」の準備ができました。
+Meldung, wenn ein Download fertig ist || Notify when a download is complete || 下载完成时提醒 || Avisar cuando termine una descarga || Prévenir quand un téléchargement est terminé || Avisar quando um download terminar || Сообщать о завершении загрузки || ダウンロード完了時に通知
+Sagt Bescheid, sobald Steam oder Epic Games ein Spiel fertig geladen hat, auch wenn der Launcher im Hintergrund läuft. Im Streamer-Modus bleibt die Meldung stumm, wenn Meldungen dort stumm geschaltet sind. || Lets you know as soon as Steam or Epic Games has finished downloading a game, even when the launcher runs in the background. In streamer mode the notice stays silent if notices are muted there. || Steam 或 Epic Games 下载完游戏后会立即提醒你，即使启动器在后台运行。在主播模式下，如果提示已静音，此提醒也不会显示。 || Te avisa en cuanto Steam o Epic Games termina de descargar un juego, aunque el launcher esté en segundo plano. En el modo streamer no se muestra si los avisos están silenciados. || Te prévient dès que Steam ou Epic Games a fini de télécharger un jeu, même si le launcher tourne en arrière-plan. En mode streamer, le message reste muet si les notifications y sont coupées. || Avisa assim que o Steam ou a Epic Games terminar de baixar um jogo, mesmo com o launcher em segundo plano. No modo streamer o aviso fica mudo se os avisos estiverem silenciados. || Сообщает, как только Steam или Epic Games докачали игру, даже если лаунчер работает в фоне. В режиме стримера сообщение не показывается, если уведомления там отключены. || Steam や Epic Games のダウンロードが終わると、ランチャーがバックグラウンドでもお知らせします。配信者モードで通知をミュートしている場合は表示されません。
 """;
     }
 
@@ -3318,6 +3413,7 @@ Das hat nicht geklappt. || That didn't work. || 操作未成功。 || No ha func
             InitExtras17();
             InitExtras18();
             InitExtras19();
+            InitExtras20();
 
             isLoadingSettings = false;
             RefreshDashboard();
@@ -3643,6 +3739,22 @@ Das hat nicht geklappt. || That didn't work. || 操作未成功。 || No ha func
             settings.ProfileOnObs ??= string.Empty;
             if (!GoLiveMinuteOptions.Contains(settings.GoLiveMinutes)) settings.GoLiveMinutes = 5;
             settings.GoLiveRoutine ??= string.Empty;
+            settings.SmartLists ??= new List<SmartList>();
+            settings.SmartLists.RemoveAll(l => l == null);
+            foreach (var list in settings.SmartLists)
+            {
+                if (string.IsNullOrWhiteSpace(list.Id)) list.Id = Guid.NewGuid().ToString("N");
+                list.Name ??= string.Empty;
+                list.Source ??= string.Empty;
+            }
+            settings.GameSizes ??= new Dictionary<string, GameSizeEntry>(StringComparer.OrdinalIgnoreCase);
+            settings.YearStats ??= new Dictionary<string, YearStat>();
+            foreach (var stat in settings.YearStats.Values.Where(v => v != null))
+            {
+                stat.Games ??= new Dictionary<string, double>();
+                stat.Sources ??= new Dictionary<string, string>();
+                stat.LongestGame ??= string.Empty;
+            }
             settings.PadMappings ??= new Dictionary<string, Dictionary<string, string>>();
             foreach (string layoutKey in settings.PadMappings.Keys.ToList())
             {
@@ -6267,6 +6379,11 @@ Das hat nicht geklappt. || That didn't work. || 操作未成功。 || No ha func
                 query = query.Where(g => g.PlaySeconds < 60 && g.LaunchCount == 0);
             else if (currentFilter.StartsWith("col:"))
                 query = query.Where(g => g.Collections.Contains(currentFilter.Substring(4)));
+            else if (currentFilter.StartsWith("smart:"))
+            {
+                var smart = settings.SmartLists.FirstOrDefault(l => l.Id == currentFilter.Substring(6));
+                if (smart != null) query = query.Where(g => MatchesSmartList(smart, g));
+            }
             else if (currentFilter != "all" && currentFilter != "hidden")
                 query = query.Where(g => g.Source == currentFilter);
 
@@ -8163,6 +8280,7 @@ Das hat nicht geklappt. || That didn't work. || 操作未成功。 || No ha func
             {
                 if (!settings.DoubleClickLaunch || e.ClickCount >= 2) LaunchGame(game);
             };
+            HookMultiSelect(outer, game);
             HookCoverDrop(outer, game);
             AddModButton(imageArea, outer, game, true);
             playButton.Click += (s, e) =>
@@ -8339,6 +8457,7 @@ Das hat nicht geklappt. || That didn't work. || 操作未成功。 || No ha func
             {
                 if (!settings.DoubleClickLaunch || e.ClickCount >= 2) LaunchGame(game);
             };
+            HookMultiSelect(row, game);
             HookCoverDrop(row, game);
 
             return row;
@@ -8735,12 +8854,14 @@ Das hat nicht geklappt. || That didn't work. || 操作未成功。 || No ha func
                     game.PlaySeconds += 10;
                     game.LastPlayed = now;
                     AddPlayLog(10);
+                    AddYearPlay(game, 10);
                 }
                 else if (activeSessions.TryGetValue(game, out int missed))
                 {
                     if (missed + 1 >= 2)
                     {
                         activeSessions.Remove(game);
+                        if (sessionStart.TryGetValue(game, out var startedAt)) RecordSession(game, now - startedAt);
                         sessionStart.Remove(game);
                         CopyStateToSettings(game);
                         sessionEnded = true;
@@ -9167,6 +9288,8 @@ Das hat nicht geklappt. || That didn't work. || 操作未成功。 || No ha func
                     Add("🎥", "OBS verbinden", "OBS-Steuerung", RestartObs, 6);
                 }
                 Add("🎥", "OBS-Einstellungen", "Verbindung zu OBS einrichten", OpenObsSettings, 4);
+                Add("🎯", "Was soll ich spielen?", "Spielvorschlag nach Laune", ShowGameSuggestion, 6);
+                Add("🎉", "Jahresrückblick", "Dein Spielejahr", () => ShowYearReview(DateTime.Now.Year), 5);
                 foreach (var profileEntry in settings.Profiles)
                 {
                     var profile = profileEntry;
@@ -9917,6 +10040,7 @@ Das hat nicht geklappt. || That didn't work. || 操作未成功。 || No ha func
             PopulateObsSettings();
             PopulateStreamerExtras();
             PopulateControllerExtras();
+            if (ChkDownloadDone != null) ChkDownloadDone.IsChecked = settings.DownloadDoneNotify;
         }
 
         private void UpdateExtraSliderLabels()
@@ -11414,114 +11538,7 @@ Das hat nicht geklappt. || That didn't work. || 操作未成功。 || No ha func
             }
         }
 
-        private void BtnYearReview_Click(object sender, RoutedEventArgs e)
-        {
-            int year = DateTime.Now.Year;
-            var days = new List<(DateTime Day, double Seconds)>();
-            foreach (var pair in settings.PlayLog)
-            {
-                if (DateTime.TryParseExact(pair.Key, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var day) && day.Year == year)
-                    days.Add((day, pair.Value));
-            }
-
-            var dialog = CreateDialog($"Dein Spielejahr {year}", 560, out var panel);
-
-            void Stat(string label, string value)
-            {
-                var row = new Grid { Margin = new Thickness(0, 0, 0, 14) };
-                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-                row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                row.Children.Add(new TextBlock { Text = label, Foreground = BrushSubtle, VerticalAlignment = System.Windows.VerticalAlignment.Center });
-                var number = new TextBlock { Text = value, FontSize = 20, FontWeight = FontWeights.Bold, Foreground = System.Windows.Media.Brushes.White };
-                Grid.SetColumn(number, 1);
-                row.Children.Add(number);
-                panel.Children.Add(row);
-            }
-
-            if (days.Count == 0)
-            {
-                panel.Children.Add(new TextBlock
-                {
-                    Text = "Für dieses Jahr gibt es noch keine Spieldaten. Der Launcher erfasst die Spielzeit automatisch, sobald ein Spiel läuft.",
-                    Foreground = BrushSubtle,
-                    TextWrapping = TextWrapping.Wrap,
-                    Margin = new Thickness(0, 0, 0, 18)
-                });
-            }
-            else
-            {
-                double total = days.Sum(d => d.Seconds);
-                int played = days.Count(d => d.Seconds >= 300);
-                var best = days.OrderByDescending(d => d.Seconds).First();
-                var weekday = days.GroupBy(d => d.Day.DayOfWeek).OrderByDescending(g => g.Sum(d => d.Seconds)).First().Key;
-
-                int longest = 0, run = 0;
-                DateTime? previous = null;
-                foreach (var d in days.Where(x => x.Seconds >= 300).OrderBy(x => x.Day))
-                {
-                    run = previous.HasValue && (d.Day - previous.Value).Days == 1 ? run + 1 : 1;
-                    longest = Math.Max(longest, run);
-                    previous = d.Day;
-                }
-
-                Stat("Gesamte Spielzeit", FormatPlaytimeLong((long)total));
-                Stat("Tage mit Spielzeit", played.ToString());
-                Stat("Längste Serie", $"{longest} Tage");
-                Stat("Lieblings-Wochentag", GermanCulture.DateTimeFormat.GetDayName(weekday));
-                Stat("Längster Spieltag", $"{best.Day:dd.MM.} ({FormatPlaytime((long)best.Seconds)})");
-            }
-
-            var top = allGames.Where(g => g.PlaySeconds >= 60 && !IsTrackingIgnored(g)).OrderByDescending(g => g.PlaySeconds).Take(5).ToList();
-            if (top.Count > 0)
-            {
-                panel.Children.Add(new TextBlock { Text = "Meistgespielt (insgesamt)", Foreground = BrushSubtle, Margin = new Thickness(0, 6, 0, 8) });
-                int rank = 1;
-                foreach (var game in top)
-                {
-                    panel.Children.Add(new TextBlock
-                    {
-                        Text = $"{rank}.  {game.Name}   ·   {FormatPlaytime(game.PlaySeconds)}",
-                        Foreground = System.Windows.Media.Brushes.White,
-                        Margin = new Thickness(0, 0, 0, 6),
-                        TextTrimming = TextTrimming.CharacterEllipsis
-                    });
-                    rank++;
-                }
-            }
-
-            var saveImage = new System.Windows.Controls.Button
-            {
-                Content = "📸  Als Bild speichern",
-                Padding = new Thickness(18, 8, 18, 8),
-                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
-                Margin = new Thickness(0, 18, 0, 0)
-            };
-            panel.Children.Add(saveImage);
-
-            var close = new System.Windows.Controls.Button
-            {
-                Content = "Schließen",
-                Padding = new Thickness(26, 8, 26, 8),
-                HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
-                Margin = new Thickness(0, 18, 0, 0),
-                IsCancel = true
-            };
-            saveImage.Click += (s, e) =>
-            {
-                saveImage.Visibility = Visibility.Collapsed;
-                close.Visibility = Visibility.Collapsed;
-                try { SaveVisualAsPng(panel, "Bild speichern"); }
-                finally
-                {
-                    saveImage.Visibility = Visibility.Visible;
-                    close.Visibility = Visibility.Visible;
-                }
-            };
-            close.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
-            panel.Children.Add(close);
-
-            dialog.ShowDialog();
-        }
+        private void BtnYearReview_Click(object sender, RoutedEventArgs e) => ShowYearReview(DateTime.Now.Year);
 
         // ───────────────────────────── Netzwerk: Ping-Test ─────────────────────────────
 
@@ -17368,6 +17385,15 @@ Das hat nicht geklappt. || That didn't work. || 操作未成功。 || No ha func
 
         private void BtnBulk_Click(object sender, RoutedEventArgs e)
         {
+            // Mit Strg+Klick markierte Spiele direkt bearbeiten
+            if (selectedGames.Count > 0)
+            {
+                var selectionMenu = BuildBulkMenu(selectedGames.ToList());
+                selectionMenu.PlacementTarget = (UIElement)sender;
+                selectionMenu.IsOpen = true;
+                return;
+            }
+
             var names = visibleGames.Select(g => g.Name).ToList();
             if (names.Count == 0) return;
 
@@ -22718,6 +22744,25 @@ Das hat nicht geklappt. || That didn't work. || 操作未成功。 || No ha func
             });
             Dev("🔁 Test: Starten und Zurück tauschen", () => AssignPadSlot(ResolveLayout(), "confirm", PadMappingFor(ResolveLayout())["back"]));
             Dev("↺ Tastenbelegung zurücksetzen", () => BtnPadRemapReset_Click(this, new RoutedEventArgs()));
+
+            Group("Bibliothek");
+            Dev("🎯 Spielvorschlag", ShowGameSuggestion);
+            Dev("🎉 Jahresrückblick", () => ShowYearReview(DateTime.Now.Year));
+            Dev("🏁 Test-Sitzung (2 Std.) eintragen", () =>
+            {
+                var game = allGames.FirstOrDefault(g => !g.Hidden);
+                if (game == null) return;
+                AddYearPlay(game, 7200);
+                RecordSession(game, TimeSpan.FromHours(2));
+                SaveSettings();
+                ShowToast("🏁", "Entwickler", game.Name, 4);
+            });
+            Dev("⬇ Download fertig (Test)", () => NotifyDownloadDone("Test-Spiel", "Steam"));
+            Dev("📏 Spielgrößen jetzt messen", () =>
+            {
+                StartGameSizeScan(true);
+                ShowToast("📏", "Entwickler", "Die Spielgrößen werden im Hintergrund gemessen.", 4);
+            });
 
             Group("Controller-Akku (Vorschau)");
             Dev("🔋 Voll", () => PreviewPadBattery(3, false));
@@ -28527,6 +28572,890 @@ Das hat nicht geklappt. || That didn't work. || 操作未成功。 || No ha func
                     ShowToast("⚠", "Energie", Loc.T("Das hat nicht geklappt."), 5, null, true);
                 }
             });
+        }
+
+        // ═════════════════════════════ Bibliothek: Auswahl, smarte Listen, Vorschlag, Jahresrückblick, Downloads ═════════════════════════════
+
+        private void InitExtras20()
+        {
+            BuildSmartListChips();
+
+            downloadDoneTimer.Tick += async (s, e) => await CheckFinishedDownloadsAsync();
+            downloadDoneTimer.Start();
+        }
+
+        // ───────── Mehrfachauswahl (Strg+Klick, Rechtsklick für alle) ─────────
+
+        private readonly HashSet<GameItem> selectedGames = new();
+        private readonly Dictionary<Border, (System.Windows.Media.Brush? Brush, Thickness Thickness)> selectionOriginal = new();
+
+        private void HookMultiSelect(Border element, GameItem game)
+        {
+            if (selectedGames.Contains(game)) MarkSelected(element, true);
+
+            element.PreviewMouseLeftButtonDown += (s, e) =>
+            {
+                if ((System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) == 0) return;
+                e.Handled = true;   // kein Spielstart beim Markieren
+
+                if (!selectedGames.Remove(game)) selectedGames.Add(game);
+                MarkSelected(element, selectedGames.Contains(game));
+                UpdateSelectionButton();
+            };
+
+            element.ContextMenuOpening += (s, e) =>
+            {
+                if (selectedGames.Count < 2 || !selectedGames.Contains(game)) return;
+                e.Handled = true;
+                var menu = BuildBulkMenu(selectedGames.ToList());
+                menu.PlacementTarget = element;
+                menu.IsOpen = true;
+            };
+        }
+
+        private void MarkSelected(Border element, bool selected)
+        {
+            if (selected)
+            {
+                if (!selectionOriginal.ContainsKey(element)) selectionOriginal[element] = (element.BorderBrush, element.BorderThickness);
+                element.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
+                element.BorderThickness = new Thickness(3);
+            }
+            else if (selectionOriginal.Remove(element, out var original))
+            {
+                element.BorderBrush = original.Brush;
+                element.BorderThickness = original.Thickness;
+            }
+        }
+
+        private void UpdateSelectionButton()
+        {
+            if (BtnBulk == null) return;
+            BtnBulk.Content = selectedGames.Count > 0 ? Loc.T($"☑ {selectedGames.Count} ausgewählt") : Loc.T("☑ Auswahl bearbeiten");
+            if (selectedGames.Count > 0) BtnBulk.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            else BtnBulk.Background = MakeBrush("#1F2937");
+            BtnBulk.Foreground = selectedGames.Count > 0 ? System.Windows.Media.Brushes.White : MakeBrush("#9CA3AF");
+        }
+
+        private void ClearGameSelection()
+        {
+            selectedGames.Clear();
+            foreach (var element in selectionOriginal.Keys.ToList()) MarkSelected(element, false);
+            UpdateSelectionButton();
+        }
+
+        private System.Windows.Controls.ContextMenu BuildBulkMenu(List<GameItem> games)
+        {
+            var menu = CreateMenu();
+            menu.Items.Add(new System.Windows.Controls.MenuItem { Header = Loc.T($"{games.Count} Spiele ausgewählt"), IsEnabled = false });
+
+            var collections = new System.Windows.Controls.MenuItem { Header = Loc.T("📁  Sammlungen") };
+            foreach (string name in settings.CollectionNames)
+            {
+                string collection = name;
+                bool all = games.All(g => g.Collections.Contains(collection));
+                var item = new System.Windows.Controls.MenuItem { Header = collection, IsCheckable = true, IsChecked = all };
+                item.Click += (s, e) => ApplyBulk(games, g =>
+                {
+                    if (all) g.Collections.Remove(collection);
+                    else if (!g.Collections.Contains(collection)) g.Collections.Add(collection);
+                });
+                collections.Items.Add(item);
+            }
+            if (settings.CollectionNames.Count > 0) collections.Items.Add(new System.Windows.Controls.Separator());
+            var create = new System.Windows.Controls.MenuItem { Header = Loc.T("＋  Neue Sammlung ...") };
+            create.Click += (s, e) =>
+            {
+                string? name = PromptText("Neue Sammlung", "Name der Sammlung (zum Beispiel „Backlog“ oder „Koop“):", string.Empty);
+                if (name == null) return;
+                if (!settings.CollectionNames.Contains(name, StringComparer.OrdinalIgnoreCase))
+                {
+                    settings.CollectionNames.Add(name);
+                    BuildCollectionChips();
+                }
+                string existing = settings.CollectionNames.First(n => string.Equals(n, name, StringComparison.OrdinalIgnoreCase));
+                ApplyBulk(games, g =>
+                {
+                    if (!g.Collections.Contains(existing)) g.Collections.Add(existing);
+                });
+            };
+            collections.Items.Add(create);
+            menu.Items.Add(collections);
+
+            AddMenuItem(menu, "★  Zu Favoriten hinzufügen", () => ApplyBulk(games, g => g.IsFavorite = true));
+            AddMenuItem(menu, "☆  Aus Favoriten entfernen", () => ApplyBulk(games, g => g.IsFavorite = false));
+            foreach (var option in StatusOptions)
+            {
+                string key = option.Key;
+                AddMenuItem(menu, option.Title, () => ApplyBulk(games, g => g.Status = key));
+            }
+            AddMenuItem(menu, "🙈  Verstecken", () => ApplyBulk(games, g => g.Hidden = true));
+            AddMenuItem(menu, "👁  Wieder anzeigen", () => ApplyBulk(games, g => g.Hidden = false));
+            menu.Items.Add(new System.Windows.Controls.Separator());
+            AddMenuItem(menu, "✕  Auswahl aufheben", ClearGameSelection);
+            return menu;
+        }
+
+        // ───────── Smarte Listen ─────────
+
+        private bool sizeScanRunning;
+        private DateTime lastSizeScanCheck = DateTime.MinValue;
+
+        private long? KnownGameSize(GameItem game)
+        {
+            if (string.IsNullOrEmpty(game.InstallDir)) return null;
+            return settings.GameSizes.TryGetValue(game.InstallDir, out var entry) ? entry.Bytes : null;
+        }
+
+        private bool MatchesSmartList(SmartList list, GameItem game)
+        {
+            if (list.NeverPlayed && (game.PlaySeconds >= 60 || game.LaunchCount > 0)) return false;
+            if (list.NotPlayedMonths > 0 && (!game.LastPlayed.HasValue || game.LastPlayed.Value > DateTime.Now.AddMonths(-list.NotPlayedMonths))) return false;
+            if (list.Source.Length > 0 && !string.Equals(game.Source, list.Source, StringComparison.OrdinalIgnoreCase)) return false;
+            if (list.MaxSizeGb > 0)
+            {
+                long? size = KnownGameSize(game);
+                if (size == null)
+                {
+                    StartGameSizeScan();
+                    return false;
+                }
+                if (size.Value > list.MaxSizeGb * 1024L * 1024L * 1024L) return false;
+            }
+            return true;
+        }
+
+        /// <summary>Misst fehlende oder alte Spielgrößen im Hintergrund und aktualisiert danach die Liste.</summary>
+        private void StartGameSizeScan(bool force = false)
+        {
+            if (sizeScanRunning) return;
+
+            // Wird beim Filtern für jedes Spiel ohne Größe aufgerufen: höchstens alle 30 Sekunden neu prüfen
+            if (!force && (DateTime.Now - lastSizeScanCheck).TotalSeconds < 30) return;
+            lastSizeScanCheck = DateTime.Now;
+
+            var targets = allGames
+                .Where(g => !string.IsNullOrEmpty(g.InstallDir) && Directory.Exists(g.InstallDir))
+                .Select(g => g.InstallDir)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Where(dir => force || !settings.GameSizes.TryGetValue(dir, out var entry) || (DateTime.Now - entry.Measured).TotalDays > 14)
+                .ToList();
+            if (targets.Count == 0) return;
+
+            sizeScanRunning = true;
+            _ = Task.Run(() => targets.Select(dir => (Dir: dir, Size: GetDirectorySize(dir))).ToList()).ContinueWith(task =>
+            {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    sizeScanRunning = false;
+                    if (task.Status != TaskStatus.RanToCompletion) return;
+                    foreach (var (dir, size) in task.Result)
+                        settings.GameSizes[dir] = new GameSizeEntry { Bytes = size, Measured = DateTime.Now };
+                    SaveSettings();
+                    if (currentFilter.StartsWith("smart:")) ApplyFilter();
+                }));
+            });
+        }
+
+        private void BuildSmartListChips()
+        {
+            if (FilterChips == null) return;
+
+            foreach (var chip in FilterChips.Children.OfType<System.Windows.Controls.RadioButton>()
+                         .Where(c => c.Tag is string tag && tag.StartsWith("smart:")).ToList())
+                FilterChips.Children.Remove(chip);
+
+            int index = FilterChips.Children.IndexOf(BtnGenre);
+            if (index < 0) index = FilterChips.Children.Count;
+
+            foreach (var item in settings.SmartLists)
+            {
+                var list = item;
+                var chip = new System.Windows.Controls.RadioButton
+                {
+                    Content = "✨ " + list.Name,
+                    Tag = "smart:" + list.Id,
+                    GroupName = "Filter",
+                    Style = (Style)FindResource("ChipStyle"),
+                    ToolTip = DescribeSmartList(list),
+                    IsChecked = currentFilter == "smart:" + list.Id
+                };
+                chip.Checked += Filter_Checked;
+
+                var menu = CreateMenu();
+                AddMenuItem(menu, "✏  Bearbeiten ...", () => EditSmartList(list));
+                AddMenuItem(menu, "🗑  Smarte Liste löschen", () => DeleteSmartList(list));
+                chip.ContextMenu = menu;
+
+                FilterChips.Children.Insert(index++, chip);
+            }
+        }
+
+        private string DescribeSmartList(SmartList list)
+        {
+            var parts = new List<string>();
+            if (list.NeverPlayed) parts.Add(Loc.T("nie gespielt"));
+            if (list.MaxSizeGb > 0) parts.Add(Loc.T($"kleiner als {list.MaxSizeGb} GB"));
+            if (list.NotPlayedMonths > 0) parts.Add(Loc.T($"seit {list.NotPlayedMonths} Monaten nicht gespielt"));
+            if (list.Source.Length > 0) parts.Add(Loc.T("Quelle") + ": " + list.Source);
+            return parts.Count == 0 ? Loc.T("Alle Spiele") : string.Join(" · ", parts);
+        }
+
+        private void BtnSmartList_Click(object sender, RoutedEventArgs e) => EditSmartList(null);
+
+        private void DeleteSmartList(SmartList list)
+        {
+            if (Msg($"Smarte Liste „{list.Name}“ löschen?\nDie Spiele selbst bleiben erhalten.", "Smarte Liste", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes) return;
+
+            settings.SmartLists.Remove(list);
+            SaveSettings();
+            if (currentFilter == "smart:" + list.Id)
+            {
+                currentFilter = "all";
+                var all = FilterChips.Children.OfType<System.Windows.Controls.RadioButton>().FirstOrDefault(c => c.Tag as string == "all");
+                if (all != null) all.IsChecked = true;
+            }
+            BuildSmartListChips();
+            ApplyFilter();
+        }
+
+        private void EditSmartList(SmartList? existing)
+        {
+            var draft = new SmartList
+            {
+                Name = existing?.Name ?? string.Empty,
+                NeverPlayed = existing?.NeverPlayed ?? false,
+                MaxSizeGb = existing?.MaxSizeGb ?? 0,
+                NotPlayedMonths = existing?.NotPlayedMonths ?? 0,
+                Source = existing?.Source ?? string.Empty
+            };
+
+            var dialog = CreateDialog(existing == null ? "Neue smarte Liste" : "Smarte Liste bearbeiten", 580, out var panel);
+            var chipStyle = (Style)FindResource("ChipStyle");
+
+            panel.Children.Add(new TextBlock { Text = Loc.T("Name"), Foreground = BrushSubtle, FontSize = 12 });
+            var name = new System.Windows.Controls.TextBox { Text = draft.Name, Height = 38, Margin = new Thickness(0, 4, 0, 16) };
+            panel.Children.Add(name);
+
+            panel.Children.Add(new TextBlock { Text = Loc.T("Regeln (alle ausgewählten müssen passen)"), Foreground = System.Windows.Media.Brushes.White, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 10) });
+
+            var preview = new TextBlock { Foreground = MakeBrush("#34D399"), FontSize = 12, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 18) };
+            void UpdatePreview()
+            {
+                if (draft.MaxSizeGb > 0) StartGameSizeScan();
+                int count = allGames.Count(g => !g.Hidden && MatchesSmartList(draft, g));
+                string text = Loc.T($"Passt jetzt auf {count} Spiele.");
+                if (draft.MaxSizeGb > 0 && sizeScanRunning) text += " " + Loc.T("Die Spielgrößen werden gerade ermittelt, danach können es mehr werden.");
+                preview.Text = text;
+            }
+
+            var never = new System.Windows.Controls.CheckBox { Content = Loc.T("Nie gespielt"), IsChecked = draft.NeverPlayed, Margin = new Thickness(0, 0, 0, 12) };
+            never.Checked += (s, e) => { draft.NeverPlayed = true; UpdatePreview(); };
+            never.Unchecked += (s, e) => { draft.NeverPlayed = false; UpdatePreview(); };
+            panel.Children.Add(never);
+
+            WrapPanel Chips<T>(string label, IEnumerable<(string Text, T Value)> options, T current, Action<T> set, string group)
+            {
+                panel.Children.Add(new TextBlock { Text = Loc.T(label), Foreground = BrushSubtle, FontSize = 12, Margin = new Thickness(0, 0, 0, 6) });
+                var wrap = new WrapPanel { Margin = new Thickness(0, 0, 0, 10) };
+                foreach (var (text, value) in options)
+                {
+                    var option = value;
+                    var chip = new System.Windows.Controls.RadioButton { Content = text, GroupName = group, Style = chipStyle, IsChecked = Equals(option, current) };
+                    chip.Checked += (s, e) => { set(option); UpdatePreview(); };
+                    wrap.Children.Add(chip);
+                }
+                panel.Children.Add(wrap);
+                return wrap;
+            }
+
+            Chips("Kleiner als", new[] { 0, 5, 10, 20, 50, 100 }.Select(v => (v == 0 ? Loc.T("Egal") : $"{v} GB", v)), draft.MaxSizeGb, v => draft.MaxSizeGb = v, "SmartSize");
+            Chips("Nicht mehr gespielt seit", new[] { 0, 1, 3, 6, 12, 24 }.Select(v => (v == 0 ? Loc.T("Egal") : v == 1 ? Loc.T("1 Monat") : Loc.T($"{v} Monate"), v)), draft.NotPlayedMonths, v => draft.NotPlayedMonths = v, "SmartMonths");
+            var sources = allGames.Select(g => g.Source).Where(s => !string.IsNullOrEmpty(s)).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(s => s, StringComparer.CurrentCultureIgnoreCase).ToList();
+            if (draft.Source.Length > 0 && !sources.Contains(draft.Source, StringComparer.OrdinalIgnoreCase)) sources.Add(draft.Source);
+            Chips("Quelle ist", new[] { (Loc.T("Egal"), string.Empty) }.Concat(sources.Select(s => (s, s))), draft.Source, v => draft.Source = v, "SmartSource");
+
+            panel.Children.Add(preview);
+            UpdatePreview();
+
+            var buttons = new Grid();
+            var right = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
+            var cancel = new System.Windows.Controls.Button { Content = "Abbrechen", Margin = new Thickness(0, 0, 10, 0), IsCancel = true };
+            var save = new System.Windows.Controls.Button { Content = "Speichern", Padding = new Thickness(28, 8, 28, 8), IsDefault = true };
+            save.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            right.Children.Add(cancel);
+            right.Children.Add(save);
+            buttons.Children.Add(right);
+            panel.Children.Add(buttons);
+
+            save.Click += (s, e) =>
+            {
+                string text = name.Text.Trim();
+                if (text.Length == 0)
+                {
+                    name.Focus();
+                    return;
+                }
+
+                var target = existing ?? new SmartList();
+                target.Name = text;
+                target.NeverPlayed = draft.NeverPlayed;
+                target.MaxSizeGb = draft.MaxSizeGb;
+                target.NotPlayedMonths = draft.NotPlayedMonths;
+                target.Source = draft.Source;
+                if (existing == null) settings.SmartLists.Add(target);
+                SaveSettings();
+                dialog.DialogResult = true;
+
+                currentFilter = "smart:" + target.Id;
+                BuildSmartListChips();
+                playCardEntrance = true;
+                ApplyFilter();
+            };
+
+            dialog.Loaded += (s, e) => name.Focus();
+            dialog.ShowDialog();
+        }
+
+        // ───────── Spielvorschlag nach Laune ─────────
+
+        private static readonly string[] RelaxedKeys = { "casual", "gelegenheit", "simulation", "puzzle", "rätsel", "family", "familie", "aufbau", "building", "farming", "entspann", "chill", "cozy", "gemütlich" };
+        private static readonly string[] ExcitingKeys = { "action", "shooter", "racing", "rennspiel", "fighting", "kampf", "horror", "survival", "multiplayer", "massively", "sport", "battle", "spannend", "competitive" };
+        private static readonly string[] ShortKeys = { "casual", "gelegenheit", "arcade", "puzzle", "rätsel", "racing", "rennspiel", "sport", "fighting", "kampf", "roguelike", "rogue-lite", "roguelite" };
+        private static readonly string[] LongKeys = { "rpg", "rollenspiel", "strateg", "massively", "mmo", "open world", "offene welt" };
+
+        /// <summary>Genres (Steam-Infos) und eigene Sammlungen eines Spiels, klein geschrieben.</summary>
+        private List<string> GameTags(GameItem game)
+        {
+            var tags = new List<string>();
+            if (game.AppId.Length > 0 && settings.GameInfo.TryGetValue(game.AppId, out var info))
+                tags.AddRange(info.Genres.Select(g => g.ToLowerInvariant()));
+            tags.AddRange(game.Collections.Select(c => c.ToLowerInvariant()));
+            return tags;
+        }
+
+        private static bool HasAny(List<string> tags, string[] keys) => tags.Any(t => keys.Any(k => t.Contains(k, StringComparison.Ordinal)));
+
+        /// <summary>Bewertet ein Spiel für Zeit (30/60/0 = egal) und Laune (relaxed/exciting/new). Liefert Punkte und Begründung.</summary>
+        private (double Score, List<string> Reasons) ScoreSuggestion(GameItem game, int minutes, string mood)
+        {
+            var tags = GameTags(game);
+            bool relaxed = HasAny(tags, RelaxedKeys), exciting = HasAny(tags, ExcitingKeys);
+            bool shortGame = HasAny(tags, ShortKeys), longGame = HasAny(tags, LongKeys);
+            var reasons = new List<string>();
+            double score = random.NextDouble() * 1.5;   // etwas Zufall für Abwechslung
+
+            switch (mood)
+            {
+                case "relaxed":
+                    if (relaxed) { score += 3; reasons.Add("Entspannt"); }
+                    if (HasAny(tags, new[] { "horror", "shooter" })) score -= 2;
+                    break;
+                case "exciting":
+                    if (exciting) { score += 3; reasons.Add("Spannend"); }
+                    else if (relaxed) score -= 1;
+                    break;
+                case "new":
+                    if (game.PlaySeconds < 60 && game.LaunchCount == 0) { score += 4; reasons.Add("noch nie gespielt"); }
+                    else if (game.PlaySeconds < 2 * 3600) { score += 2; reasons.Add("erst kurz angespielt"); }
+                    if (game.FirstSeen.HasValue && (DateTime.Now - game.FirstSeen.Value).TotalDays < 30) { score += 1; reasons.Add("neu in deiner Bibliothek"); }
+                    if (game.Status == "backlog") { score += 1; reasons.Add("steht auf deiner Liste"); }
+                    if (game.PlaySeconds > 20 * 3600) score -= 3;
+                    break;
+            }
+
+            if (minutes == 30)
+            {
+                if (shortGame) { score += 2; reasons.Add("gut für zwischendurch"); }
+                if (longGame) score -= 2;
+            }
+            else if (minutes == 60)
+            {
+                if (shortGame) score += 1;
+                if (HasAny(tags, new[] { "massively", "mmo" })) score -= 1;
+            }
+
+            if (game.Status == "done") score -= 2;
+            if (game.LastPlayed.HasValue && (DateTime.Now - game.LastPlayed.Value).TotalHours < 12) score -= 1.5;
+            if (game.IsFavorite) score += 0.5;
+            score += game.Rating * 0.3;
+
+            return (score, reasons);
+        }
+
+        private void BtnSuggestGame_Click(object sender, RoutedEventArgs e) => ShowGameSuggestion();
+
+        private void ShowGameSuggestion()
+        {
+            var pool = allGames.Where(g => !g.Hidden && !IsTrackingIgnored(g)).ToList();
+            if (pool.Count == 0)
+            {
+                Msg("Es sind noch keine Spiele in deiner Bibliothek.", "Spielvorschlag");
+                return;
+            }
+
+            var dialog = CreateDialog("Was soll ich spielen?", 560, out var panel);
+            var chipStyle = (Style)FindResource("ChipStyle");
+            int minutes = 0;
+            string mood = "relaxed";
+            var shown = new HashSet<GameItem>();
+            GameItem? current = null;
+
+            // Ergebnis-Felder zuerst anlegen, die Auswahl-Chips greifen darauf zu
+            var cover = new System.Windows.Controls.Image { Width = 120, Height = 170, Stretch = Stretch.UniformToFill };
+            var title = new TextBlock { FontSize = 22, FontWeight = FontWeights.Bold, Foreground = System.Windows.Media.Brushes.White, TextWrapping = TextWrapping.Wrap };
+            var reason = new TextBlock { Foreground = BrushSubtle, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0) };
+            var meta = new TextBlock { Foreground = MakeBrush("#9CA3AF"), FontSize = 12, Margin = new Thickness(0, 6, 0, 0) };
+
+            panel.Children.Add(new TextBlock { Text = Loc.T("Wie viel Zeit hast du?"), Foreground = System.Windows.Media.Brushes.White, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 6) });
+            var timeChips = new WrapPanel { Margin = new Thickness(0, 0, 0, 12) };
+            foreach (var (text, value) in new[] { ("30 Minuten", 30), ("1 Stunde", 60), ("Egal", 0) })
+            {
+                int option = value;
+                var chip = new System.Windows.Controls.RadioButton { Content = Loc.T(text), GroupName = "SuggestTime", Style = chipStyle, IsChecked = option == minutes };
+                chip.Checked += (s, e) => { minutes = option; shown.Clear(); Suggest(); };
+                timeChips.Children.Add(chip);
+            }
+            panel.Children.Add(timeChips);
+
+            panel.Children.Add(new TextBlock { Text = Loc.T("Worauf hast du Lust?"), Foreground = System.Windows.Media.Brushes.White, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 6) });
+            var moodChips = new WrapPanel { Margin = new Thickness(0, 0, 0, 16) };
+            foreach (var (text, value) in new[] { ("Etwas Entspanntes", "relaxed"), ("Etwas Spannendes", "exciting"), ("Etwas Neues", "new") })
+            {
+                string option = value;
+                var chip = new System.Windows.Controls.RadioButton { Content = Loc.T(text), GroupName = "SuggestMood", Style = chipStyle, IsChecked = option == mood };
+                chip.Checked += (s, e) => { mood = option; shown.Clear(); Suggest(); };
+                moodChips.Children.Add(chip);
+            }
+            panel.Children.Add(moodChips);
+
+            // Ergebnis
+            var coverBox = new Border { Width = 120, Height = 170, CornerRadius = new CornerRadius(12), Background = BrushCardBg, ClipToBounds = true, Child = cover, Margin = new Thickness(0, 0, 18, 0) };
+            var result = new Grid { Margin = new Thickness(0, 0, 0, 18) };
+            result.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            result.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            result.Children.Add(coverBox);
+            var texts = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center, Children = { title, reason, meta } };
+            Grid.SetColumn(texts, 1);
+            result.Children.Add(texts);
+            panel.Children.Add(new Border { Background = MakeBrush("#14FFFFFF"), CornerRadius = new CornerRadius(16), Padding = new Thickness(16), Child = result, Margin = new Thickness(0, 0, 0, 18) });
+
+            var buttons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Right };
+            var another = new System.Windows.Controls.Button { Content = Loc.T("🎲  Anderer Vorschlag"), Margin = new Thickness(0, 0, 10, 0) };
+            var play = new System.Windows.Controls.Button { Content = Loc.T("▶  Spielen"), Padding = new Thickness(26, 8, 26, 8), IsDefault = true };
+            play.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            var close = new System.Windows.Controls.Button { Content = Loc.T("Schließen"), Margin = new Thickness(0, 0, 10, 0), IsCancel = true };
+            buttons.Children.Add(close);
+            buttons.Children.Add(another);
+            buttons.Children.Add(play);
+            panel.Children.Add(buttons);
+
+            void Suggest()
+            {
+                var ranked = pool.Where(g => !shown.Contains(g))
+                    .Select(g => (Game: g, Rating: ScoreSuggestion(g, minutes, mood)))
+                    .OrderByDescending(x => x.Rating.Score)
+                    .Take(5)
+                    .ToList();
+                if (ranked.Count == 0)
+                {
+                    shown.Clear();
+                    ranked = pool.Select(g => (Game: g, Rating: ScoreSuggestion(g, minutes, mood))).OrderByDescending(x => x.Rating.Score).Take(5).ToList();
+                }
+
+                var pick = ranked[random.Next(ranked.Count)];
+                current = pick.Game;
+                shown.Add(current);
+
+                title.Text = current.Name;
+                var reasons = pick.Rating.Reasons.Count > 0 ? pick.Rating.Reasons : new List<string> { "Ein Zufallstreffer aus deiner Bibliothek" };
+                reason.Text = string.Join(" · ", reasons.Select(r => Loc.T(r)));
+                meta.Text = current.PlaySeconds >= 60 && !SHide(settings.StreamHideStats)
+                    ? $"{current.Source}  ·  {Loc.T(FormatPlaytime(current.PlaySeconds))}"
+                    : current.Source;
+                cover.Source = HasCover(current) ? GetCachedImage(EffectiveCover(current)) : current.LocalIcon;
+            }
+
+            another.Click += (s, e) => Suggest();
+            play.Click += (s, e) =>
+            {
+                var game = current;
+                dialog.DialogResult = true;
+                if (game != null) LaunchGame(game);
+            };
+
+            Suggest();
+            dialog.ShowDialog();
+        }
+
+        // ───────── Jahresrückblick ─────────
+
+        private void AddYearPlay(GameItem game, double seconds)
+        {
+            settings.YearStatsSince ??= DateTime.Now;
+            string year = DateTime.Now.Year.ToString(CultureInfo.InvariantCulture);
+            if (!settings.YearStats.TryGetValue(year, out var stat) || stat == null)
+            {
+                stat = new YearStat();
+                settings.YearStats[year] = stat;
+            }
+            stat.Games.TryGetValue(game.Name, out double current);
+            stat.Games[game.Name] = current + seconds;
+            stat.Sources[game.Name] = game.Source;
+        }
+
+        private void RecordSession(GameItem game, TimeSpan duration)
+        {
+            if (duration.TotalMinutes < 1 || IsTrackingIgnored(game)) return;
+            string year = DateTime.Now.Year.ToString(CultureInfo.InvariantCulture);
+            if (!settings.YearStats.TryGetValue(year, out var stat) || stat == null)
+            {
+                stat = new YearStat();
+                settings.YearStats[year] = stat;
+            }
+            if (duration.TotalSeconds <= stat.LongestSeconds) return;
+
+            stat.LongestSeconds = duration.TotalSeconds;
+            stat.LongestGame = game.Name;
+            stat.LongestDate = DateTime.Now;
+        }
+
+        private void ShowYearReview(int year)
+        {
+            if (SHide(settings.StreamHideStats)
+                && Msg("Der Streamer-Modus verbirgt gerade Spielzeiten und Statistiken. Den Jahresrückblick trotzdem anzeigen?", "Jahresrückblick", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                return;
+
+            var dialog = CreateDialog("Jahresrückblick", 760, out var panel);
+            var sheet = new StackPanel();
+            panel.Children.Add(sheet);
+
+            // Jahre, für die es Daten gibt
+            var years = settings.PlayLog.Keys.Select(k => k.Length >= 4 && int.TryParse(k.Substring(0, 4), out int y) ? y : 0)
+                .Concat(settings.YearStats.Keys.Select(k => int.TryParse(k, out int y) ? y : 0))
+                .Where(y => y > 2000).Append(DateTime.Now.Year).Distinct().OrderByDescending(y => y).ToList();
+
+            var yearChips = new WrapPanel { Margin = new Thickness(0, 12, 0, 0) };
+            if (years.Count > 1)
+            {
+                var chipStyle = (Style)FindResource("ChipStyle");
+                foreach (int y in years)
+                {
+                    int option = y;
+                    var chip = new System.Windows.Controls.RadioButton { Content = option.ToString(CultureInfo.InvariantCulture), GroupName = "ReviewYear", Style = chipStyle, IsChecked = option == year };
+                    chip.Checked += (s, e) => Render(option);
+                    yearChips.Children.Add(chip);
+                }
+                panel.Children.Add(yearChips);
+            }
+
+            var buttons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Right, Margin = new Thickness(0, 16, 0, 0) };
+            var saveImage = new System.Windows.Controls.Button { Content = Loc.T("📸  Als Bild speichern"), Margin = new Thickness(0, 0, 10, 0) };
+            var close = new System.Windows.Controls.Button { Content = Loc.T("Schließen"), Padding = new Thickness(26, 8, 26, 8), IsCancel = true };
+            close.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            buttons.Children.Add(saveImage);
+            buttons.Children.Add(close);
+            panel.Children.Add(buttons);
+
+            saveImage.Click += (s, e) => SaveVisualAsPng(sheet, Loc.T("Bild speichern"));
+
+            void Render(int shownYear)
+            {
+                sheet.Children.Clear();
+                BuildYearSheet(sheet, shownYear);
+                TranslateTree(sheet);
+                if (StreamerOn) ScrubSensitiveText();
+            }
+
+            Render(year);
+            dialog.ShowDialog();
+        }
+
+        private void BuildYearSheet(StackPanel sheet, int year)
+        {
+            string key = year.ToString(CultureInfo.InvariantCulture);
+            var days = new List<(DateTime Day, double Seconds)>();
+            foreach (var pair in settings.PlayLog)
+            {
+                if (DateTime.TryParseExact(pair.Key, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var day) && day.Year == year)
+                    days.Add((day, pair.Value));
+            }
+            settings.YearStats.TryGetValue(key, out var stat);
+
+            // Kopf mit Verlauf in der Akzentfarbe
+            var accent = TryFindResource("AccentBrush") is SolidColorBrush accentBrush ? accentBrush.Color : System.Windows.Media.Color.FromRgb(0x8B, 0x5C, 0xF6);
+            var header = new Border
+            {
+                CornerRadius = new CornerRadius(18),
+                Padding = new Thickness(26, 22, 26, 22),
+                Margin = new Thickness(0, 0, 0, 16),
+                Background = new LinearGradientBrush(accent, System.Windows.Media.Color.FromRgb(0x13, 0x17, 0x22), 20),
+                Child = new StackPanel
+                {
+                    Children =
+                    {
+                        new TextBlock { Text = Loc.T($"🎉 Dein Spielejahr {year}"), FontSize = 30, FontWeight = FontWeights.ExtraBold, Foreground = System.Windows.Media.Brushes.White },
+                        new TextBlock { Text = "DFP Pro Launcher  ·  " + DisplayUserName(), FontSize = 14, Foreground = MakeBrush("#E5E7EB"), Margin = new Thickness(0, 6, 0, 0) }
+                    }
+                }
+            };
+            sheet.Children.Add(header);
+
+            if (days.Count == 0 && (stat == null || stat.Games.Count == 0))
+            {
+                sheet.Children.Add(new TextBlock
+                {
+                    Text = Loc.T("Für dieses Jahr gibt es noch keine Spieldaten. Der Launcher erfasst die Spielzeit automatisch, sobald ein Spiel läuft."),
+                    Foreground = BrushSubtle,
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(4, 0, 4, 8)
+                });
+                return;
+            }
+
+            // Top 5: echte Jahreswerte, sonst Rückfall auf die Gesamtzeit der in diesem Jahr gespielten Spiele
+            bool yearly = stat != null && stat.Games.Count > 0;
+            List<(string Name, double Seconds, string Source)> top = yearly
+                ? stat!.Games.OrderByDescending(p => p.Value).Take(5)
+                    .Select(p => (p.Key, p.Value, stat.Sources.TryGetValue(p.Key, out var src) ? src : string.Empty)).ToList()
+                : allGames.Where(g => g.LastPlayed?.Year == year && g.PlaySeconds >= 60 && !IsTrackingIgnored(g))
+                    .OrderByDescending(g => g.PlaySeconds).Take(5).Select(g => (g.Name, (double)g.PlaySeconds, g.Source)).ToList();
+
+            double total = days.Sum(d => d.Seconds);
+            if (total <= 0 && yearly) total = stat!.Games.Values.Sum();
+
+            string favoriteSource = (yearly
+                    ? stat!.Games.GroupBy(p => stat.Sources.TryGetValue(p.Key, out var src) ? src : string.Empty).Select(g => (Source: g.Key, Seconds: g.Sum(p => p.Value)))
+                    : top.GroupBy(t => t.Source).Select(g => (Source: g.Key, Seconds: g.Sum(t => t.Seconds))))
+                .Where(x => x.Source.Length > 0).OrderByDescending(x => x.Seconds).Select(x => x.Source).FirstOrDefault() ?? "–";
+
+            int played = days.Count(d => d.Seconds >= 300);
+            int streak = 0, run = 0;
+            DateTime? previous = null;
+            foreach (var d in days.Where(x => x.Seconds >= 300).OrderBy(x => x.Day))
+            {
+                run = previous.HasValue && (d.Day - previous.Value).Days == 1 ? run + 1 : 1;
+                streak = Math.Max(streak, run);
+                previous = d.Day;
+            }
+
+            string longest = stat != null && stat.LongestSeconds >= 60
+                ? $"{FormatPlaytime((long)stat.LongestSeconds)}"
+                : "–";
+            string longestHint = stat != null && stat.LongestSeconds >= 60 ? stat.LongestGame : Loc.T("wird ab jetzt aufgezeichnet");
+
+            // Kacheln
+            var tiles = new System.Windows.Controls.Primitives.UniformGrid { Columns = 3, Margin = new Thickness(0, 0, 0, 16) };
+            void Tile(string icon, string label, string value, string hint = "")
+            {
+                var stack = new StackPanel();
+                stack.Children.Add(new TextBlock { Text = icon + "  " + Loc.T(label), Foreground = BrushSubtle, FontSize = 12 });
+                stack.Children.Add(new TextBlock { Text = value, FontSize = 22, FontWeight = FontWeights.Bold, Foreground = System.Windows.Media.Brushes.White, Margin = new Thickness(0, 4, 0, 0), TextTrimming = TextTrimming.CharacterEllipsis });
+                if (hint.Length > 0) stack.Children.Add(new TextBlock { Text = hint, Foreground = MakeBrush("#9CA3AF"), FontSize = 12, TextTrimming = TextTrimming.CharacterEllipsis });
+                tiles.Children.Add(new Border { Background = MakeBrush("#14FFFFFF"), CornerRadius = new CornerRadius(14), Padding = new Thickness(16, 12, 16, 12), Margin = new Thickness(0, 0, 10, 10), Child = stack });
+            }
+
+            Tile("⏱", "Gesamte Spielzeit", FormatPlaytimeLong((long)total));
+            Tile("📅", "Tage mit Spielzeit", played.ToString(CultureInfo.InvariantCulture));
+            Tile("🔥", "Längste Serie", Loc.T($"{streak} Tage"));
+            Tile("🏁", "Längste Sitzung", longest, longestHint);
+            Tile("🏪", "Lieblingsquelle", favoriteSource);
+            Tile("🎮", "Gespielte Spiele", (yearly ? stat!.Games.Count : top.Count).ToString(CultureInfo.InvariantCulture));
+            sheet.Children.Add(tiles);
+
+            // Top 5 mit Balken
+            if (top.Count > 0)
+            {
+                sheet.Children.Add(new TextBlock { Text = Loc.T("Top 5 des Jahres"), FontSize = 18, FontWeight = FontWeights.SemiBold, Foreground = System.Windows.Media.Brushes.White, Margin = new Thickness(0, 0, 0, 10) });
+                double max = top.Max(t => t.Seconds);
+                int rank = 1;
+                foreach (var (name, seconds, _) in top)
+                {
+                    var row = new Grid { Margin = new Thickness(0, 0, 0, 10) };
+                    row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(34) });
+                    row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                    var rankText = new TextBlock { Text = $"{rank}.", FontSize = 18, FontWeight = FontWeights.Bold, VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                    rankText.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
+                    row.Children.Add(rankText);
+
+                    var middle = new StackPanel();
+                    middle.Children.Add(new TextBlock { Text = name, Foreground = System.Windows.Media.Brushes.White, FontWeight = FontWeights.SemiBold, TextTrimming = TextTrimming.CharacterEllipsis });
+                    var bar = new Border { Height = 6, CornerRadius = new CornerRadius(3), Background = MakeBrush("#26FFFFFF"), Margin = new Thickness(0, 5, 12, 0) };
+                    var fill = new Border { CornerRadius = new CornerRadius(3), HorizontalAlignment = System.Windows.HorizontalAlignment.Left };
+                    fill.SetResourceReference(Border.BackgroundProperty, "AccentBrush");
+                    bar.Child = fill;
+                    double fraction = max > 0 ? seconds / max : 0;
+                    bar.SizeChanged += (s, e) => fill.Width = Math.Max(4, bar.ActualWidth * fraction);
+                    middle.Children.Add(bar);
+                    Grid.SetColumn(middle, 1);
+                    row.Children.Add(middle);
+
+                    var time = new TextBlock { Text = FormatPlaytime((long)seconds), Foreground = MakeBrush("#D1D5DB"), VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                    Grid.SetColumn(time, 2);
+                    row.Children.Add(time);
+                    sheet.Children.Add(row);
+                    rank++;
+                }
+            }
+
+            // Hinweis zur Datengrundlage
+            string note = !yearly
+                ? "Für dieses Jahr gibt es noch keine Zeiten pro Spiel. Gezeigt wird die Gesamtspielzeit der Spiele, die du dieses Jahr gespielt hast."
+                : settings.YearStatsSince is DateTime since && since.Year == year && since.DayOfYear > 1
+                    ? Loc.T($"Spielzeit pro Spiel und längste Sitzung werden seit dem {since:dd.MM.yyyy} aufgezeichnet.")
+                    : string.Empty;
+            if (note.Length > 0)
+                sheet.Children.Add(new TextBlock { Text = Loc.T(note), Foreground = MakeBrush("#9CA3AF"), FontSize = 12, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0) });
+        }
+
+        // ───────── Download fertig ─────────
+
+        private readonly DispatcherTimer downloadDoneTimer = new() { Interval = TimeSpan.FromSeconds(15) };
+        private Dictionary<string, (string Store, string Name, string Manifest)>? activeDownloads;
+        private bool downloadDoneBusy;
+
+        private static List<string> SteamLibraryFolders()
+        {
+            var libraries = new List<string>();
+            string? steamPath =
+                Registry.GetValue(@"HKEY_CURRENT_USER\Software\Valve\Steam", "SteamPath", null) as string
+                ?? Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Valve\Steam", "InstallPath", null) as string;
+            if (string.IsNullOrEmpty(steamPath) || !Directory.Exists(steamPath)) return libraries;
+
+            libraries.Add(System.IO.Path.GetFullPath(System.IO.Path.Combine(steamPath, "steamapps")));
+            string vdf = System.IO.Path.Combine(steamPath, "steamapps", "libraryfolders.vdf");
+            if (File.Exists(vdf))
+            {
+                foreach (Match match in Regex.Matches(File.ReadAllText(vdf), "\"path\"\\s+\"([^\"]+)\""))
+                {
+                    string library = System.IO.Path.GetFullPath(System.IO.Path.Combine(match.Groups[1].Value.Replace(@"\\", @"\"), "steamapps"));
+                    if (Directory.Exists(library) && !libraries.Contains(library, StringComparer.OrdinalIgnoreCase)) libraries.Add(library);
+                }
+            }
+            return libraries;
+        }
+
+        /// <summary>Alle laufenden Downloads von Steam und Epic (Schlüssel = Manifest-Datei). Läuft im Hintergrund.</summary>
+        private static Dictionary<string, (string Store, string Name, string Manifest)> ScanActiveDownloads()
+        {
+            var result = new Dictionary<string, (string, string, string)>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string library in SteamLibraryFolders())
+            {
+                try
+                {
+                    foreach (string acf in Directory.EnumerateFiles(library, "appmanifest_*.acf"))
+                    {
+                        try
+                        {
+                            string text = File.ReadAllText(acf);
+                            long flags = ReadAcfNumber(text, "StateFlags");
+                            // 256 = Update läuft, 1048576 = lädt herunter, 2097152 = entpackt; 512 = pausiert
+                            if ((flags & (256 | 1048576 | 2097152)) == 0 || (flags & 512) != 0) continue;
+                            var name = Regex.Match(text, "\"name\"\\s+\"([^\"]+)\"");
+                            result[acf] = ("Steam", name.Success ? name.Groups[1].Value : "Steam", acf);
+                        }
+                        catch { }
+                    }
+                }
+                catch { }
+            }
+
+            string epicDir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Epic", "EpicGamesLauncher", "Data", "Manifests");
+            if (Directory.Exists(epicDir))
+            {
+                foreach (string file in Directory.EnumerateFiles(epicDir, "*.item"))
+                {
+                    try
+                    {
+                        using var document = JsonDocument.Parse(File.ReadAllText(file));
+                        var root = document.RootElement;
+                        if (!root.TryGetProperty("bIsIncompleteInstall", out var incomplete) || incomplete.ValueKind != JsonValueKind.True) continue;
+                        string name = GetJsonString(root, "DisplayName");
+                        if (name.Length > 0) result[file] = ("Epic Games", name, file);
+                    }
+                    catch { }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>Ist der Download wirklich fertig (nicht nur pausiert oder abgebrochen)?</summary>
+        private static bool IsDownloadComplete(string store, string manifest)
+        {
+            try
+            {
+                if (!File.Exists(manifest)) return false;   // abgebrochen oder deinstalliert
+                string text = File.ReadAllText(manifest);
+
+                if (store == "Steam")
+                {
+                    long flags = ReadAcfNumber(text, "StateFlags");
+                    return (flags & 4) != 0 && (flags & (2 | 256 | 512 | 1048576 | 2097152)) == 0;   // 4 = vollständig installiert
+                }
+
+                using var document = JsonDocument.Parse(text);
+                return document.RootElement.TryGetProperty("bIsIncompleteInstall", out var incomplete) && incomplete.ValueKind == JsonValueKind.False;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private async Task CheckFinishedDownloadsAsync()
+        {
+            if (downloadDoneBusy) return;
+            if (!settings.DownloadDoneNotify)
+            {
+                activeDownloads = null;
+                return;
+            }
+
+            downloadDoneBusy = true;
+            try
+            {
+                var previous = activeDownloads;
+                var current = await Task.Run(ScanActiveDownloads);
+                activeDownloads = current;
+                if (previous == null) return;   // erster Durchlauf: nur merken
+
+                foreach (var (manifest, info) in previous)
+                {
+                    if (current.ContainsKey(manifest)) continue;
+                    bool done = await Task.Run(() => IsDownloadComplete(info.Store, info.Manifest));
+                    if (done) NotifyDownloadDone(info.Name, info.Store);
+                }
+            }
+            catch { }
+            finally
+            {
+                downloadDoneBusy = false;
+            }
+        }
+
+        private void NotifyDownloadDone(string name, string store)
+        {
+            if (!settings.DownloadDoneNotify || AlertsMuted()) return;
+
+            string text = Loc.T($"„{name}“ ist fertig.");
+            if (IsVisible && WindowState != WindowState.Minimized)
+            {
+                ShowToast("✅", Loc.T("Download fertig"), text + " (" + store + ")", 8, () => NavigateTo("games"));
+            }
+            else if (trayIcon != null && trayIcon.Visible)
+            {
+                trayIcon.ShowBalloonTip(6000, Loc.T("Download fertig"), text, Forms.ToolTipIcon.Info);
+            }
+        }
+
+        private void ChkDownloadDone_Changed(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings) return;
+            settings.DownloadDoneNotify = ChkDownloadDone.IsChecked == true;
+            SaveSettings();
         }
 
         private void InitExtras15()
