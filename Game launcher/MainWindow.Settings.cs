@@ -2996,7 +2996,15 @@ namespace Game_launcher
         private void BtnWinMin_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
 
         private void BtnWinMax_Click(object sender, RoutedEventArgs e)
-            => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        {
+            if (WindowState == WindowState.Maximized)
+            {
+                WindowState = WindowState.Normal;
+                return;
+            }
+            if (!controllerMode) WindowStyle = WindowStyle.None;   // ohne Rahmen maximieren: passt genau auf den Bildschirm
+            WindowState = WindowState.Maximized;
+        }
 
         private void BtnWinClose_Click(object sender, RoutedEventArgs e) => Close();
 

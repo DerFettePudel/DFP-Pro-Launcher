@@ -64,6 +64,8 @@ namespace Game_launcher
         private static extern IntPtr FindWindowEx(IntPtr parent, IntPtr after, string className, string? title);
 
         private const int WmGetMinMaxInfo = 0x0024;
+        private const int WmSysCommand = 0x0112, ScMaximize = 0xF030;
+        private bool syncingMaximize;
         private const uint MonitorDefaultToNearest = 2;
         private static readonly IntPtr HwndTopmost = new(-1);
         private const uint SwpNoSize = 0x0001, SwpNoMove = 0x0002, SwpNoActivate = 0x0010, SwpShowWindow = 0x0040;
@@ -88,8 +90,15 @@ namespace Game_launcher
             }
             catch { }
 
+            // Schon beim Start maximiert (gemerkte Fenstergröße): gleich ohne Windows-Rahmen maximieren
+            if (WindowState == WindowState.Maximized) WindowStyle = WindowStyle.None;
+
             taskbarTimer.Tick += (s, e) => CheckTaskbarReveal();
-            StateChanged += (s, e) => UpdateFullscreenState();
+            StateChanged += (s, e) =>
+            {
+                SyncMaximizeStyle();
+                UpdateFullscreenState();
+            };
             Activated += (s, e) => UpdateFullscreenState();
             Deactivated += (s, e) => UpdateFullscreenState();
         }
@@ -102,6 +111,12 @@ namespace Game_launcher
         /// </summary>
         private IntPtr MaximizeHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
+            // Maximieren per Doppelklick auf die Leiste oder Systemmenü: vorher den Rahmen abschalten (siehe SyncMaximizeStyle)
+            if (msg == WmSysCommand && ((int)wParam.ToInt64() & 0xFFF0) == ScMaximize && !controllerMode)
+            {
+                if (WindowStyle != WindowStyle.None) WindowStyle = WindowStyle.None;
+                return IntPtr.Zero;
+            }
             if (msg != WmGetMinMaxInfo) return IntPtr.Zero;
 
             try
@@ -124,6 +139,37 @@ namespace Game_launcher
             catch { }
 
             return IntPtr.Zero;
+        }
+
+        /// <summary>
+        /// Windows übergeht die eigene Größe beim Maximieren, solange das Fenster einen Windows-Rahmen hat, und lässt es
+        /// dann ein paar Pixel über den Bildschirmrand ragen (daher die dünne Linie oben). Ohne Rahmen (wie im Controller-Modus)
+        /// gilt die Größe pixelgenau. Optisch ändert sich nichts, weil der Launcher seine eigene Fensterleiste hat.
+        /// </summary>
+        private void SyncMaximizeStyle()
+        {
+            if (controllerMode || syncingMaximize) return;
+
+            syncingMaximize = true;
+            try
+            {
+                if (WindowState == WindowState.Maximized && WindowStyle != WindowStyle.None)
+                {
+                    // auf anderem Weg maximiert (zum Beispiel Win+Pfeil oder an den oberen Rand gezogen): neu maximieren
+                    WindowStyle = WindowStyle.None;
+                    WindowState = WindowState.Normal;
+                    WindowState = WindowState.Maximized;
+                }
+                else if (WindowState == WindowState.Normal && WindowStyle == WindowStyle.None)
+                {
+                    WindowStyle = WindowStyle.SingleBorderWindow;
+                }
+            }
+            finally
+            {
+                syncingMaximize = false;
+            }
+            FixMaximizedOverhang();
         }
 
         /// <summary>Im Vollbild bleibt der aktive Launcher vor der Taskleiste; die Überwachung des Rands läuft nur dann.</summary>
@@ -206,6 +252,80 @@ namespace Game_launcher
             return IntPtr.Zero;
         }
 
+#if DEBUG
+        /// <summary>Entwickler-Test: prüft die obersten Pixelreihen des Fensters auf eine helle Linie und nennt die Elemente dort.</summary>
+        private void DevTopLineReport()
+        {
+            var handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+            if (!NativeExtras.GetWindowRect(handle, out var rect)) return;
+            IntPtr monitor = MonitorFromWindow(handle, MonitorDefaultToNearest);
+            var info = new MonitorInfo { Size = Interop.Marshal.SizeOf<MonitorInfo>() };
+            GetMonitorInfo(monitor, ref info);
+
+            int left = Math.Max(rect.Left, info.Monitor.Left), right = Math.Min(rect.Right, info.Monitor.Right);
+            int top = Math.Max(rect.Top, info.Monitor.Top);
+            int width = Math.Max(1, right - left);
+            var dpi = VisualTreeHelper.GetDpi(this);
+
+            var text = new System.Text.StringBuilder();
+            text.AppendLine($"Zustand: {WindowState}, Rahmen: {WindowStyle}, DPI: {dpi.DpiScaleX:0.##}");
+            text.AppendLine($"Fenster: {rect.Left},{rect.Top} – {rect.Right},{rect.Bottom}");
+            text.AppendLine($"Bildschirm: {info.Monitor.Left},{info.Monitor.Top} – {info.Monitor.Right},{info.Monitor.Bottom} · Arbeitsbereich bis {info.Work.Bottom}");
+            text.AppendLine($"Rand-Ausgleich: {WindowRoot.Margin}");
+
+            using (var bitmap = new System.Drawing.Bitmap(width, 4))
+            {
+                using (var graphics = System.Drawing.Graphics.FromImage(bitmap))
+                    graphics.CopyFromScreen(left, top, 0, 0, new System.Drawing.Size(width, 4));
+
+                for (int y = 0; y < 4; y++)
+                {
+                    int bright = 0, first = -1, last = -1;
+                    System.Drawing.Color sample = System.Drawing.Color.Empty;
+                    for (int x = 0; x < width; x += 3)
+                    {
+                        var c = bitmap.GetPixel(x, y);
+                        if (c.R + c.G + c.B > 330)
+                        {
+                            bright++;
+                            if (first < 0) { first = x; sample = c; }
+                            last = x;
+                        }
+                    }
+                    text.AppendLine(bright == 0
+                        ? $"Reihe {y}: keine helle Linie"
+                        : $"Reihe {y}: HELL von x={first} bis x={last} (Farbe {sample.R},{sample.G},{sample.B})");
+                }
+            }
+
+            // Elemente, die ganz oben liegen
+            text.AppendLine("Elemente oben:");
+            int listed = 0;
+            void Walk(DependencyObject node)
+            {
+                if (listed >= 25) return;
+                if (node is FrameworkElement element && element.IsVisible && element.ActualHeight > 0 && element.Name.Length > 0)
+                {
+                    try
+                    {
+                        var bounds = element.TransformToAncestor(this).TransformBounds(new Rect(element.RenderSize));
+                        if (bounds.Top <= 2 && bounds.Bottom > 0)
+                        {
+                            text.AppendLine($"  {element.Name} ({element.GetType().Name}) {bounds.Left:0},{bounds.Top:0.##} {bounds.Width:0}×{bounds.Height:0}");
+                            listed++;
+                        }
+                    }
+                    catch { }
+                }
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(node); i++) Walk(VisualTreeHelper.GetChild(node, i));
+            }
+            Walk(WindowRoot);
+
+            try { System.Windows.Clipboard.SetText(text.ToString()); } catch { }
+            Msg(text + "\n(In die Zwischenablage kopiert)", "Linie oben prüfen");
+        }
+#endif
+
         private void ChkHideTaskbar_Changed(object sender, RoutedEventArgs e)
         {
             if (isLoadingSettings) return;
@@ -219,8 +339,17 @@ namespace Game_launcher
         {
             if (WindowState == WindowState.Maximized && !controllerMode)
             {
-                WindowState = WindowState.Normal;
-                WindowState = WindowState.Maximized;
+                syncingMaximize = true;
+                try
+                {
+                    WindowState = WindowState.Normal;
+                    WindowStyle = WindowStyle.None;
+                    WindowState = WindowState.Maximized;
+                }
+                finally
+                {
+                    syncingMaximize = false;
+                }
             }
             UpdateFullscreenState();
         }

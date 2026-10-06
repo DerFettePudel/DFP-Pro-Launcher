@@ -167,6 +167,7 @@ namespace Game_launcher
                 else ReapplyMaximize();
                 ShowToast("🖥", "Entwickler", settings.TaskbarHideMaximized ? "Taskleiste im Vollbild: an" : "Taskleiste im Vollbild: aus", 4);
             });
+            Dev("📏 Linie oben prüfen", DevTopLineReport);
             Dev("📋 Rechtsklick-Menü testen", () =>
             {
                 var menu = new ContextMenu();
@@ -186,6 +187,7 @@ namespace Game_launcher
             {
                 string text = Loc.T("Administrator") + ": " + (IsRunningAsAdmin() ? "✔" : "✘") + "\n"
                             + "PawnIO: " + (IsPawnIoInstalled() ? "✔" : "✘") + "\n"
+                            + "HWiNFO: " + (IsHwinfoRunning() ? "✔" : "✘") + " · Shared Memory: " + (ReadHwinfo(new SensorSnapshot()) is { Count: > 0 } list ? $"✔ ({list.Count})" : "✘") + "\n"
                             + Loc.T("Sensoren") + ": " + (settings.SensorsEnabled ? "✔" : "✘");
                 Msg(text, "Sensor-Diagnose");
             });

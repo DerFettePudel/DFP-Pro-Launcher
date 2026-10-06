@@ -1735,6 +1735,7 @@ namespace Game_launcher
         {
             public List<SensorRow> Rows { get; } = new();
             public bool CpuFound, CpuTemp, BoardFound, BoardFans;
+            public string Source = "LibreHardwareMonitor";
         }
 
         private void InitSensors()
@@ -1873,8 +1874,152 @@ namespace Game_launcher
                 Collect(hardware, name, icon, order, board);
             }
 
+            // HWiNFO läuft mit „Shared Memory“: liefert alle Werte auch ohne Administratorrechte, darum bevorzugt
+            var hwinfo = ReadHwinfo(snap);
+            if (hwinfo != null && hwinfo.Count > 0)
+            {
+                report.Rows.Clear();
+                report.Rows.AddRange(hwinfo);
+                report.Source = "HWiNFO";
+                report.CpuTemp = snap.CpuTemp.HasValue;
+                report.BoardFans = hwinfo.Any(r => r.Kind == "fan");
+            }
+
             sensorSnap = snap;
             return report;
+        }
+
+        // ───────── HWiNFO (Shared Memory) ─────────
+
+        private static bool IsHwinfoRunning()
+        {
+            try
+            {
+                return Process.GetProcessesByName("HWiNFO64").Length > 0 || Process.GetProcessesByName("HWiNFO").Length > 0
+                    || Process.GetProcessesByName("HWiNFO32").Length > 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static string ReadFixedString(System.IO.MemoryMappedFiles.MemoryMappedViewAccessor view, long offset, int length, bool utf8)
+        {
+            var bytes = new byte[length];
+            view.ReadArray(offset, bytes, 0, length);
+            int end = Array.IndexOf(bytes, (byte)0);
+            if (end < 0) end = length;
+            return (utf8 ? System.Text.Encoding.UTF8 : System.Text.Encoding.Latin1).GetString(bytes, 0, end).Trim();
+        }
+
+        private static (string Icon, int Order) HwinfoGroupStyle(string name)
+        {
+            if (name.StartsWith("CPU", StringComparison.OrdinalIgnoreCase)) return ("🧠", 0);
+            if (name.StartsWith("GPU", StringComparison.OrdinalIgnoreCase)) return ("🎮", 1);
+            if (Regex.IsMatch(name, "ITE|Nuvoton|Fintek|GIGABYTE|AORUS|ASUS|MSI|ASRock|Mainboard|Motherboard|Embedded Controller", RegexOptions.IgnoreCase)) return ("🧩", 2);
+            if (Regex.IsMatch(name, "S\\.M\\.A\\.R\\.T|Drive|NVMe|SSD", RegexOptions.IgnoreCase)) return ("💾", 4);
+            if (Regex.IsMatch(name, "DIMM|Memory|DDR", RegexOptions.IgnoreCase)) return ("🧷", 3);
+            return ("🔧", 5);
+        }
+
+        /// <summary>Liest die Werte, die HWiNFO über „Shared Memory Support“ teilt. null = nicht verfügbar.</summary>
+        private static List<SensorRow>? ReadHwinfo(SensorSnapshot snap)
+        {
+            try
+            {
+                using var map = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting("Global\\HWiNFO_SENS_SM2", System.IO.MemoryMappedFiles.MemoryMappedFileRights.Read);
+                using var view = map.CreateViewAccessor(0, 0, System.IO.MemoryMappedFiles.MemoryMappedFileAccess.Read);
+                if (view.ReadUInt32(0) != 0x53695748) return null;   // „HWiS“; bei „DEAD“ ist das Teilen abgeschaltet
+
+                uint sensorOffset = view.ReadUInt32(20), sensorSize = view.ReadUInt32(24), sensorCount = view.ReadUInt32(28);
+                uint readingOffset = view.ReadUInt32(32), readingSize = view.ReadUInt32(36), readingCount = view.ReadUInt32(40);
+                if (sensorSize < 264 || readingSize < 316 || sensorCount > 1024 || readingCount > 16384) return null;
+
+                var names = new string[sensorCount];
+                for (uint i = 0; i < sensorCount; i++)
+                {
+                    long at = sensorOffset + (long)i * sensorSize;
+                    string name = sensorSize >= 392 ? ReadFixedString(view, at + 264, 128, true) : string.Empty;
+                    if (name.Length == 0) name = ReadFixedString(view, at + 136, 128, false);
+                    names[i] = name;
+                }
+
+                var rows = new List<SensorRow>();
+                var perGroup = new Dictionary<string, int>();
+                for (uint i = 0; i < readingCount; i++)
+                {
+                    long at = readingOffset + (long)i * readingSize;
+                    uint type = view.ReadUInt32(at);
+                    uint sensorIndex = view.ReadUInt32(at + 4);
+                    if (sensorIndex >= sensorCount) continue;
+
+                    string label = readingSize >= 444 ? ReadFixedString(view, at + 316, 128, true) : string.Empty;
+                    if (label.Length == 0) label = ReadFixedString(view, at + 140, 128, false);
+                    string unit = ReadFixedString(view, at + 268, 16, false);
+                    double value = view.ReadDouble(at + 284);
+                    double max = view.ReadDouble(at + 300);
+                    if (double.IsNaN(value) || double.IsInfinity(value)) continue;
+
+                    string group = names[sensorIndex];
+                    bool cpu = group.StartsWith("CPU", StringComparison.OrdinalIgnoreCase);
+                    bool gpu = group.StartsWith("GPU", StringComparison.OrdinalIgnoreCase);
+                    bool storage = Regex.IsMatch(group, "S\\.M\\.A\\.R\\.T|Drive|NVMe", RegexOptions.IgnoreCase);
+
+                    // Werte für die Systemüberwachung (Prozessor-Temperatur und -Leistung)
+                    if (type == 1 && cpu && Regex.IsMatch(label, "Tctl/Tdie|^CPU Package$|^CPU \\(Tctl", RegexOptions.IgnoreCase)) snap.CpuTemp ??= value;
+                    if (type == 5 && cpu && Regex.IsMatch(label, "^CPU Package Power", RegexOptions.IgnoreCase)) snap.CpuPower ??= value;
+                    if (type == 1 && gpu && Regex.IsMatch(label, "^GPU Temperature$", RegexOptions.IgnoreCase)) snap.GpuTemp ??= value;
+                    if (type == 5 && gpu && Regex.IsMatch(label, "^GPU Power$|Total Board Power|^GPU ASIC Power", RegexOptions.IgnoreCase)) snap.GpuPower ??= value;
+
+                    var (icon, order) = HwinfoGroupStyle(group);
+                    var row = new SensorRow { Group = group, Icon = icon, Order = order, Name = label };
+                    switch (type)
+                    {
+                        case 1:   // Temperatur
+                            if (value <= 0 || value > 150 || label.Contains("Distance", StringComparison.OrdinalIgnoreCase)) continue;
+                            row.Kind = "temp";
+                            row.Value = $"{value:F0} °C";
+                            if (max > 0 && max <= 150) row.Max = Loc.T($"max. {max:F0} °C");
+                            row.Level = Math.Clamp(value / 100.0, 0, 1);
+                            row.Hot = value >= (storage ? 60 : 85);
+                            row.Warm = !row.Hot && value >= (storage ? 50 : 70);
+                            break;
+                        case 3:   // Lüfter
+                            if (value < 1) continue;
+                            row.Kind = "fan";
+                            row.Value = $"{value:F0} U/min";
+                            if (max >= 1) row.Max = Loc.T($"max. {max:F0}");
+                            row.Level = Math.Clamp(value / 3000.0, 0, 1);
+                            break;
+                        case 5:   // Leistung
+                            if (value <= 0 || !Regex.IsMatch(label, "Package Power|GPU Power|Total Board Power|ASIC Power", RegexOptions.IgnoreCase)) continue;
+                            row.Kind = "power";
+                            row.Value = $"{value:F0} W";
+                            break;
+                        case 7:
+                        case 8:   // Lüftersteuerung in Prozent
+                            if (unit != "%" || !Regex.IsMatch(label, "Fan|Pump", RegexOptions.IgnoreCase)) continue;
+                            row.Kind = "control";
+                            row.Value = $"{value:F0} %";
+                            row.Level = Math.Clamp(value / 100.0, 0, 1);
+                            break;
+                        default:
+                            continue;
+                    }
+
+                    perGroup.TryGetValue(group, out int taken);
+                    if (taken >= 32) continue;
+                    perGroup[group] = taken + 1;
+                    rows.Add(row);
+                }
+
+                return rows;
+            }
+            catch
+            {
+                return null;   // HWiNFO läuft nicht oder teilt keine Werte
+            }
         }
 
         private async Task RefreshSensorsAsync()
@@ -1918,7 +2063,8 @@ namespace Game_launcher
             }
 
             int temps = rows.Count(r => r.Kind == "temp"), fans = rows.Count(r => r.Kind == "fan");
-            TxtSensorStatus.Text = Loc.T($"{temps} Temperaturen und {fans} Lüfter · Aktualisiert alle 2 Sekunden.");
+            TxtSensorStatus.Text = Loc.T($"{temps} Temperaturen und {fans} Lüfter · Aktualisiert alle 2 Sekunden.")
+                + (report.Source == "HWiNFO" ? " · " + Loc.T("Quelle: HWiNFO") : string.Empty);
 
             foreach (var group in rows.GroupBy(r => r.Group).OrderBy(g => g.First().Order).ThenBy(g => g.Key))
             {
@@ -2004,29 +2150,38 @@ namespace Game_launcher
 
             string text;
             System.Windows.Controls.Button? action = null;
-            if (!admin)
+            System.Windows.Controls.Button MakeLink(string caption, string url)
             {
-                text = "Für Prozessor-Temperaturen und die Lüfter am Mainboard braucht der Launcher Administratorrechte.";
+                var button = new System.Windows.Controls.Button { Content = Loc.T(caption) };
+                button.Click += (s, e) =>
+                {
+                    try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); }
+                    catch { }
+                };
+                return button;
+            }
+
+            if (report.Source != "HWiNFO" && IsHwinfoRunning())
+            {
+                // einfachster Weg: HWiNFO läuft schon, es muss nur seine Werte teilen
+                text = "HWiNFO läuft bereits. Öffne dort die Einstellungen (Settings) und schalte „Shared Memory Support“ ein. Dann zeigt der Launcher alle Temperaturen, Lüfter und die Prozessor-Leistung, auch ohne Administratorrechte.";
+            }
+            else if (!admin)
+            {
+                text = "Für Prozessor-Temperaturen und die Lüfter am Mainboard braucht der Launcher Administratorrechte. Alternative ohne Adminrechte: HWiNFO mit eingeschaltetem „Shared Memory Support“ im Hintergrund laufen lassen.";
                 action = new System.Windows.Controls.Button { Content = Loc.T("Als Administrator neu starten") };
                 action.Click += BtnRestartAdmin_Click;
             }
             else if (!IsPawnIoInstalled())
             {
                 text = "Für Prozessor-Temperaturen und Lüfter braucht Windows den kostenlosen Treiber „PawnIO“. Installiere ihn einmal und starte den Launcher danach neu.";
-                action = new System.Windows.Controls.Button { Content = Loc.T("PawnIO herunterladen") };
-                action.Click += (s, e) =>
-                {
-                    try { Process.Start(new ProcessStartInfo("https://pawnio.eu") { UseShellExecute = true }); }
-                    catch { }
-                };
-            }
-            else if (report.BoardFound && !report.BoardFans)
-            {
-                text = "Dein Mainboard meldet keine Lüfter-Drehzahlen. Manche Mainboards geben sie nur an ihre eigene Software weiter.";
+                action = MakeLink("PawnIO herunterladen", "https://pawnio.eu");
             }
             else
             {
-                text = "Dein Prozessor meldet keine Temperatur. Ein Neustart des PCs hilft oft, nachdem der Treiber installiert wurde.";
+                // Treiber und Adminrechte da, trotzdem keine Werte: HWiNFO als Quelle anbieten
+                text = "Dein PC gibt diese Werte nicht direkt heraus. Zuverlässige Alternative: das kostenlose HWiNFO installieren, dort in den Einstellungen „Shared Memory Support“ einschalten und im Hintergrund laufen lassen. Der Launcher liest die Werte dann automatisch.";
+                action = MakeLink("HWiNFO herunterladen", "https://www.hwinfo.com/download/");
             }
 
             var box = new Border
@@ -3780,12 +3935,59 @@ namespace Game_launcher
         {
             if (!settings.AutomationsEnabled) return;
 
+            var tasks = new List<Task>();
             foreach (var routine in settings.Routines.Where(r => r.Enabled && r.Trigger == trigger).ToList())
             {
                 if (game != null && routine.GameFilter.Length > 0
                     && !game.Name.Contains(routine.GameFilter, StringComparison.CurrentCultureIgnoreCase)) continue;
 
-                _ = RunRoutineAsync(routine, false);
+                tasks.Add(RunRoutineAsync(routine, false));
+            }
+
+            if (trigger == "start" && tasks.Count > 0) KeepLauncherAfterStartRoutines(tasks);
+        }
+
+        /// <summary>
+        /// Programme aus dem Start-Ablauf (zum Beispiel Discord) drängen sich beim Öffnen gern nach vorn oder verkleinern den Launcher.
+        /// Kurz nach dem Start bleibt der Launcher darum so, wie er war (maximiert oder normal), und kommt danach wieder nach vorn.
+        /// </summary>
+        private async void KeepLauncherAfterStartRoutines(List<Task> tasks)
+        {
+            var wanted = WindowState;
+            if (wanted == WindowState.Minimized || !IsVisible || controllerMode) return;
+
+            DateTime until = DateTime.Now.AddSeconds(12);
+            void Guard(object? sender, EventArgs e)
+            {
+                if (DateTime.Now > until || controllerMode) return;
+                if (WindowState != wanted)
+                {
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        if (!IsVisible) return;
+                        WindowState = wanted;
+                        Activate();
+                    }), DispatcherPriority.Background);
+                }
+            }
+
+            StateChanged += Guard;
+            try
+            {
+                await Task.WhenAll(tasks);
+                await Task.Delay(2500);   // dem gestarteten Programm Zeit für sein Fenster geben
+                if (IsVisible && !controllerMode && DateTime.Now <= until)
+                {
+                    if (WindowState != wanted) WindowState = wanted;
+                    Activate();
+                    ForceForeground();
+                }
+                await Task.Delay(Math.Max(0, (int)(until - DateTime.Now).TotalMilliseconds));
+            }
+            catch { }
+            finally
+            {
+                StateChanged -= Guard;
             }
         }
 
@@ -3887,12 +4089,14 @@ namespace Game_launcher
         {
             try
             {
+                int self = Environment.ProcessId;   // nie das eigene Fenster verschieben oder verkleinern
                 foreach (var process in Process.GetProcessesByName(name))
                 {
                     using (process)
                     {
                         try
                         {
+                            if (process.Id == self) continue;
                             process.Refresh();
                             if (process.MainWindowHandle != IntPtr.Zero && NativeExtras.IsWindowVisible(process.MainWindowHandle))
                                 return process.MainWindowHandle;
@@ -3907,7 +4111,7 @@ namespace Game_launcher
                     {
                         try
                         {
-                            if (process.MainWindowHandle != IntPtr.Zero
+                            if (process.Id != self && process.MainWindowHandle != IntPtr.Zero
                                 && process.MainWindowTitle.Contains(name, StringComparison.OrdinalIgnoreCase)
                                 && NativeExtras.IsWindowVisible(process.MainWindowHandle))
                                 return process.MainWindowHandle;
