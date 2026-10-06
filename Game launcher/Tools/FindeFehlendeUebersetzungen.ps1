@@ -1,7 +1,7 @@
 ﻿# DFP Pro Launcher - sucht sichtbare Texte ohne Eintrag in der Uebersetzungstabelle (LocData.Text)
 # Prueft:
 #   - MainWindow.xaml: Text=, Content=, ToolTip=, Header=, Title=
-#   - MainWindow.xaml.cs: deutsche Texte in Anfuehrungszeichen (ohne Kommentare und ohne die Tabelle selbst)
+#   - MainWindow*.cs: deutsche Texte in Anfuehrungszeichen (ohne Kommentare); die Tabelle steht in Localization.cs
 # Die Suche ist eine Schaetzung: Sie kann Texte melden, die nie sichtbar sind (zum Beispiel Werte in Vergleichen).
 # Sie aendert nichts und gibt immer 0 zurueck.
 #
@@ -15,9 +15,12 @@ param(
 $ErrorActionPreference = 'Stop'
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { }
 
-$csDatei = Join-Path $Projekt 'MainWindow.xaml.cs'
+# Die Tabelle liegt in Localization.cs (früher in MainWindow.xaml.cs); durchsucht werden alle MainWindow*.cs-Dateien
+$tabDatei = Join-Path $Projekt 'Localization.cs'
+if (-not (Test-Path -LiteralPath $tabDatei)) { $tabDatei = Join-Path $Projekt 'MainWindow.xaml.cs' }
+$codeDateien = @(Get-ChildItem -Path $Projekt -Filter 'MainWindow*.cs' | Sort-Object Name)
 $xamlDatei = Join-Path $Projekt 'MainWindow.xaml'
-$cs = [System.IO.File]::ReadAllLines($csDatei, [System.Text.Encoding]::UTF8)
+$cs = [System.IO.File]::ReadAllLines($tabDatei, [System.Text.Encoding]::UTF8)
 $xaml = [System.IO.File]::ReadAllLines($xamlDatei, [System.Text.Encoding]::UTF8)
 
 # ───────── Tabelle laden (wie Loc.Load im Launcher) ─────────
@@ -108,10 +111,13 @@ for ($i = 0; $i -lt $xaml.Count; $i++) {
 }
 
 # ───────── C# ─────────
+foreach ($codeDatei in $codeDateien) {
+$codeZeilen = [System.IO.File]::ReadAllLines($codeDatei.FullName, [System.Text.Encoding]::UTF8)
+$istTabelle = $codeDatei.FullName -eq (Resolve-Path $tabDatei).Path
 $imDebug = $false
-for ($i = 0; $i -lt $cs.Count; $i++) {
-    if ($i -ge $tStart - 1 -and $i -le $tEnde) { continue }          # die Tabelle selbst
-    $zeile = $cs[$i]
+for ($i = 0; $i -lt $codeZeilen.Count; $i++) {
+    if ($istTabelle -and $i -ge $tStart - 1 -and $i -le $tEnde) { continue }          # die Tabelle selbst
+    $zeile = $codeZeilen[$i]
     $code = $zeile.Trim()
     if ($code.StartsWith('//') -or $code.StartsWith('///') -or $code.StartsWith('[')) { continue }
     if ($code -match '^#if DEBUG') { $imDebug = $true } elseif ($code -match '^#endif') { $imDebug = $false }
@@ -140,8 +146,9 @@ for ($i = 0; $i -lt $cs.Count; $i++) {
             if (Test-Uebersetzt $wert) { continue }
         }
         $art = if ($imDebug) { 'Code (nur Entwickler-Bau)' } else { 'Code' }
-        Melde 'MainWindow.xaml.cs' ($i + 1) $pruef $art
+        Melde $codeDatei.Name ($i + 1) $pruef $art
     }
+}
 }
 
 # ───────── Ausgabe ─────────

@@ -1,4 +1,4 @@
-# DFP Pro Launcher - Pruefung der Uebersetzungstabelle (LocData.Text in MainWindow.xaml.cs)
+# DFP Pro Launcher - Pruefung der Uebersetzungstabelle (LocData.Text in Localization.cs)
 # Prueft pro Zeile:
 #   - genau 8 Spalten (Deutsch || Englisch || Chinesisch || Spanisch || Franzoesisch || Portugiesisch || Russisch || Japanisch)
 #   - keine leere Spalte
@@ -9,8 +9,15 @@
 # Aufruf: powershell -NoProfile -ExecutionPolicy Bypass -File Tools\PruefeUebersetzung.ps1 [-Datei <Pfad>]
 
 param(
-    [string]$Datei = (Join-Path (Split-Path $PSScriptRoot -Parent) 'MainWindow.xaml.cs')
+    [string]$Datei = ''
 )
+
+# Standard: die Tabelle liegt in Localization.cs (früher in MainWindow.xaml.cs)
+if (-not $Datei) {
+    $projekt = Split-Path $PSScriptRoot -Parent
+    $Datei = Join-Path $projekt 'Localization.cs'
+    if (-not (Test-Path -LiteralPath $Datei)) { $Datei = Join-Path $projekt 'MainWindow.xaml.cs' }
+}
 
 $ErrorActionPreference = 'Stop'
 try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { }
@@ -102,7 +109,7 @@ if ($fehler.Count -gt 0) {
     Write-Host "Uebersetzungstabelle: $($fehler.Count) Fehler in $anzahl Eintraegen gefunden" -ForegroundColor Red
     foreach ($f in $fehler) { Write-Host "  $f" -ForegroundColor Yellow }
     Write-Host ''
-    Write-Host 'Bitte die genannten Zeilen in MainWindow.xaml.cs (Klasse LocData) korrigieren.' -ForegroundColor Red
+    Write-Host "Bitte die genannten Zeilen in $(Split-Path $Datei -Leaf) (Klasse LocData) korrigieren." -ForegroundColor Red
     exit 1
 }
 

@@ -51,7 +51,7 @@ if (Test-Path $checker) {
     Step 'Pruefe die Uebersetzungstabelle'
     & powershell -NoProfile -ExecutionPolicy Bypass -File $checker
     if ($LASTEXITCODE -ne 0) {
-        Fail 'Die Uebersetzungstabelle hat Fehler (siehe oben). Korrigiere die genannten Zeilen in MainWindow.xaml.cs und starte das Hochladen danach noch einmal. Es wurde nichts hochgeladen.'
+        Fail 'Die Uebersetzungstabelle hat Fehler (siehe oben). Korrigiere die genannten Zeilen in Localization.cs und starte das Hochladen danach noch einmal. Es wurde nichts hochgeladen.'
     }
 } else {
     Write-Host 'Hinweis: Die Pruefung der Uebersetzungen wurde uebersprungen (Tools\PruefeUebersetzung.ps1 fehlt).' -ForegroundColor Yellow
