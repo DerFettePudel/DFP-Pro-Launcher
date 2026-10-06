@@ -750,13 +750,32 @@
                                 <TextBlock x:Name="TxtGreeting" Text="Hallo" FontSize="30" FontWeight="Bold" Foreground="White" Effect="{StaticResource TextShadow}"/>
                                 <TextBlock x:Name="TxtDate" Style="{StaticResource SubtleText}" FontSize="14" Margin="0,4,0,0" Effect="{StaticResource TextShadow}"/>
                             </StackPanel>
-                            <Border Style="{StaticResource CardStyle}" Padding="18,10" HorizontalAlignment="Right" VerticalAlignment="Top">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock x:Name="TxtMiniCpu" Text="CPU --%" Foreground="#60A5FA" FontWeight="SemiBold" Margin="0,0,16,0"/>
-                                    <TextBlock x:Name="TxtMiniRam" Text="RAM --%" Foreground="#A78BFA" FontWeight="SemiBold" Margin="0,0,16,0"/>
-                                    <TextBlock x:Name="TxtMiniGpu" Text="GPU --%" Foreground="#34D399" FontWeight="SemiBold"/>
-                                </StackPanel>
-                            </Border>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                <Border x:Name="DownloadPill" Visibility="Collapsed" Style="{StaticResource CardStyle}" Padding="14,8,14,9" Margin="0,0,10,0" MouseLeftButtonUp="DownloadPill_Click">
+                                    <StackPanel MinWidth="200">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="⬇" FontWeight="Bold" Margin="0,0,8,0" Foreground="{DynamicResource AccentBrush}"/>
+                                            <TextBlock x:Name="TxtDlName" Foreground="White" FontWeight="SemiBold" FontSize="12" MaxWidth="210" TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                        <TextBlock x:Name="TxtDlInfo" Foreground="#9CA3AF" FontSize="11" Margin="0,2,0,7"/>
+                                        <Grid Height="3">
+                                            <Border Background="#26FFFFFF" CornerRadius="1.5"/>
+                                            <Border x:Name="DlFill" CornerRadius="1.5" Background="{DynamicResource AccentBrush}" RenderTransformOrigin="0,0.5">
+                                                <Border.RenderTransform>
+                                                    <ScaleTransform x:Name="DlFillScale" ScaleX="0"/>
+                                                </Border.RenderTransform>
+                                            </Border>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+                                <Border Style="{StaticResource CardStyle}" Padding="18,10">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock x:Name="TxtMiniCpu" Text="CPU --%" Foreground="#60A5FA" FontWeight="SemiBold" Margin="0,0,16,0"/>
+                                        <TextBlock x:Name="TxtMiniRam" Text="RAM --%" Foreground="#A78BFA" FontWeight="SemiBold" Margin="0,0,16,0"/>
+                                        <TextBlock x:Name="TxtMiniGpu" Text="GPU --%" Foreground="#34D399" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
                         </Grid>
 
                         <StackPanel x:Name="BannerHost"/>
@@ -1774,7 +1793,8 @@
 
                         <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
                             <StackPanel>
-                                <TextBlock Text="🔗  Schnellzugriffe" Style="{StaticResource SectionTitle}" Margin="0,0,0,12"/>
+                                <TextBlock Text="🔗  Schnellzugriffe" Style="{StaticResource SectionTitle}" Margin="0,0,0,4"/>
+                                <TextBlock Text="Rechtsklick auf einen Link bearbeitet oder entfernt ihn. Mit der Plus-Kachel fügst du eigene hinzu." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,14"/>
                                 <WrapPanel x:Name="StreamerLinksPanel"/>
                             </StackPanel>
                         </Border>
@@ -1812,7 +1832,7 @@
                             <RadioButton x:Name="ChipCatData" Content="Daten und Info" Tag="data" GroupName="SetCat" Style="{StaticResource ChipStyle}" Checked="SettingsCategory_Checked"/>
                             <RadioButton x:Name="ChipCatDev" Content="Entwickler" Tag="dev" GroupName="SetCat" Style="{StaticResource ChipStyle}" Visibility="Collapsed" Checked="SettingsCategory_Checked"/>
                         </WrapPanel>
-                        <local:MasonryPanel x:Name="SettingsCards">
+                        <local:SettingsGridPanel x:Name="SettingsCards">
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="general">
                                 <StackPanel>
                                     <TextBlock Text="Profil" Style="{StaticResource SectionTitle}"/>
@@ -2561,6 +2581,17 @@
                                             <TextBlock Text="Zeigt für Programme und Webseiten das echte Symbol statt eines Emojis." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                         </StackPanel>
                                         <CheckBox x:Name="ChkQuickRealIcons" Grid.Column="1" VerticalAlignment="Center" Checked="ChkQuickRealIcons_Changed" Unchecked="ChkQuickRealIcons_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Download-Anzeige im Dashboard" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Zeigt oben rechts Fortschritt, Geschwindigkeit und Restzeit, wenn Steam oder Epic Games etwas herunterladen." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkDownloadWidget" Grid.Column="1" VerticalAlignment="Center" Checked="ChkDownloadWidget_Changed" Unchecked="ChkDownloadWidget_Changed"/>
                                     </Grid>
                                     <StackPanel x:Name="DashWidgetPanel" Margin="0,0,0,8"/>
                                     <Button Content="Standard wiederherstellen" HorizontalAlignment="Left" Margin="0,4,0,0" Click="BtnResetWidgets_Click"/>
@@ -3455,6 +3486,25 @@
                                         </StackPanel>
                                         <CheckBox x:Name="ChkStreamHideMusic" Grid.Column="1" VerticalAlignment="Center" Checked="ChkStreamHideMusic_Changed" Unchecked="ChkStreamHideMusic_Changed"/>
                                     </Grid>
+                                    <StackPanel Margin="0,0,0,18">
+                                        <TextBlock Text="Zensur-Stil" Foreground="White" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Wie private Angaben im Stream verborgen werden: als dunkler Balken oder verschwommen." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,10"/>
+                                        <WrapPanel>
+                                            <RadioButton x:Name="ChipCensorBar" Content="Schwarzer Balken" Tag="bar" GroupName="CensorStyle" Style="{StaticResource ChipStyle}" Checked="CensorStyle_Checked"/>
+                                            <RadioButton x:Name="ChipCensorBlur" Content="Verschwommen" Tag="blur" GroupName="CensorStyle" Style="{StaticResource ChipStyle}" Checked="CensorStyle_Checked"/>
+                                        </WrapPanel>
+                                    </StackPanel>
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Computer- und Benutzername zensieren" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Verbirgt den Computernamen und deinen Windows-Benutzernamen überall im Launcher, auch in Dateipfaden." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkStreamHidePc" Grid.Column="1" VerticalAlignment="Center" Checked="ChkStreamHidePc_Changed" Unchecked="ChkStreamHidePc_Changed"/>
+                                    </Grid>
 
                                     <Grid Margin="0,0,0,18">
                                         <Grid.ColumnDefinitions>
@@ -3718,7 +3768,7 @@
                                     <StackPanel x:Name="DevPanel"/>
                                 </StackPanel>
                             </Border>
-                        </local:MasonryPanel>
+                        </local:SettingsGridPanel>
                         <Button x:Name="BtnSettingsTop" Content="⬆  Nach oben" HorizontalAlignment="Center" Padding="28,10" Margin="0,6,0,28"
                             Background="{DynamicResource AccentBrush}" Click="BtnSettingsTop_Click"/>
                     </StackPanel>
@@ -3779,8 +3829,6 @@
                 </StackPanel>
             </Border>
         </Grid>
-
-        <Canvas x:Name="NameEggLayer" Panel.ZIndex="52" IsHitTestVisible="False" ClipToBounds="True" Visibility="Collapsed"/>
 
         <Canvas x:Name="ConfettiLayer" IsHitTestVisible="False" Panel.ZIndex="50"/>
         <StackPanel x:Name="ToastHost" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,24,24" Panel.ZIndex="160"/>
