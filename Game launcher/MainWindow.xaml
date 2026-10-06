@@ -759,7 +759,7 @@
             </Border>
 
             <!-- ================= INHALT ================= -->
-            <Grid Grid.Column="1" Margin="28,42,16,16">
+            <Grid x:Name="ContentArea" Grid.Column="1" Margin="28,42,16,16">
 
                 <!-- ========== DASHBOARD ========== -->
                 <ScrollViewer x:Name="ViewDashboard" Visibility="Visible" VerticalScrollBarVisibility="Auto">
@@ -2554,6 +2554,15 @@
                                 <StackPanel>
                                     <TextBlock Text="Seitenleiste und Bereiche" Style="{StaticResource SectionTitle}"/>
                                     <StackPanel Margin="0,0,0,18">
+                                        <TextBlock Text="Position der Leiste" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        <TextBlock Text="Links oder rechts als Seitenleiste, oder unten als schwebende Leiste mit Symbolen. Den Namen eines Bereichs zeigt dort ein Hinweis beim Drüberfahren." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,10"/>
+                                        <WrapPanel>
+                                            <RadioButton x:Name="ChipNavLeft" Content="Links" Tag="left" GroupName="NavPosition" Style="{StaticResource ChipStyle}" Checked="NavPosition_Checked"/>
+                                            <RadioButton x:Name="ChipNavRight" Content="Rechts" Tag="right" GroupName="NavPosition" Style="{StaticResource ChipStyle}" Checked="NavPosition_Checked"/>
+                                            <RadioButton x:Name="ChipNavBottom" Content="Unten (schwebend)" Tag="bottom" GroupName="NavPosition" Style="{StaticResource ChipStyle}" Checked="NavPosition_Checked"/>
+                                        </WrapPanel>
+                                    </StackPanel>
+                                    <StackPanel Margin="0,0,0,18">
                                         <TextBlock Text="Sichtbare Bereiche und Reihenfolge" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
                                         <TextBlock Text="Mit dem Schalter blendest du einen Bereich aus, mit den Pfeilen verschiebst du ihn. Das geht auch per Rechtsklick auf die Seitenleiste. Einstellungen bleibt immer sichtbar." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                         <StackPanel x:Name="NavSettingsPanel" Margin="0,12,0,0"/>
@@ -4044,6 +4053,20 @@
                     </Border>
                     <Grid x:Name="MusicHost" Grid.Row="1"/>
                 </Grid>
+            </Border>
+
+            <!-- ========== SCHWEBENDE LEISTE UNTEN (Seitenleiste „Unten“) ========== -->
+            <Border x:Name="NavDock" Grid.ColumnSpan="2" Panel.ZIndex="20" Visibility="Collapsed"
+                HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,18" Padding="10,6"
+                CornerRadius="26" Background="{DynamicResource SidebarBrush}" BorderBrush="#33FFFFFF" BorderThickness="1">
+                <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+                    <StackPanel x:Name="NavDockPanel" Orientation="Horizontal">
+                        <Border x:Name="DockStreamBadge" Visibility="Collapsed" Margin="8,0,4,0" Padding="10,6" CornerRadius="14" Background="#33DC2626"
+                            VerticalAlignment="Center" Cursor="Hand" ToolTip="Streamer-Modus ist an. Klicken zum Ausschalten" MouseLeftButtonUp="StreamBadge_Click">
+                            <TextBlock Text="📡" FontFamily="Segoe UI Emoji" FontSize="16"/>
+                        </Border>
+                    </StackPanel>
+                </Viewbox>
             </Border>
         </Grid>
 

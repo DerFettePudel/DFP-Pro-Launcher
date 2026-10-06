@@ -485,6 +485,7 @@ namespace Game_launcher
             PopulateControllerExtras();
             if (ChkDownloadDone != null) ChkDownloadDone.IsChecked = settings.DownloadDoneNotify;
             PopulateReportAndBeta();
+            PopulateNavPosition();
         }
 
         private void UpdateExtraSliderLabels()
@@ -783,6 +784,211 @@ namespace Game_launcher
             TxtSearch.Text = e.Text;
             TxtSearch.CaretIndex = TxtSearch.Text.Length;
             e.Handled = true;
+        }
+
+        // ───────────────────────────── Position der Seitenleiste (links, rechts, unten schwebend) ─────────────────────────────
+
+        private System.Windows.Controls.Panel? navPanelHome;
+        private int navPanelHomeIndex;
+        private ColumnDefinition? colContent;
+        private string appliedNavPosition = string.Empty;
+
+        private string NavPosition => settings.SidebarPosition is "right" or "bottom" ? settings.SidebarPosition : "left";
+        private bool IsBottomNav => NavPosition == "bottom";
+
+        private void InitExtras22()
+        {
+            // Rechtsklick auf die schwebende Leiste: dasselbe Menü wie auf der Seitenleiste
+            NavDock.ContextMenu = BuildNavMenu(null);
+            NavDock.ContextMenuOpening += (s, e) => NavDock.ContextMenu = BuildNavMenu(null);
+
+            // Breite der schwebenden Leiste an das Fenster anpassen (sie verkleinert sich bei schmalen Fenstern)
+            RootGrid.SizeChanged += (s, e) => NavDock.MaxWidth = Math.Max(320, RootGrid.ActualWidth - 40);
+        }
+
+        /// <summary>Ordnet Seitenleiste, Inhalt und schwebende Leiste nach der gewählten Position an.</summary>
+        private void ApplySidebarPosition(bool animate)
+        {
+            if (RootGrid == null || NavDock == null || ContentArea == null) return;
+
+            string position = NavPosition;
+            bool right = position == "right";
+            bool bottom = position == "bottom";
+
+            // Spalten: Seitenleiste links oder rechts
+            colContent ??= RootGrid.ColumnDefinitions.FirstOrDefault(c => !ReferenceEquals(c, ColSidebar));
+            if (colContent != null && RootGrid.ColumnDefinitions.IndexOf(ColSidebar) != (right ? 1 : 0))
+            {
+                RootGrid.ColumnDefinitions.Clear();
+                if (right)
+                {
+                    RootGrid.ColumnDefinitions.Add(colContent);
+                    RootGrid.ColumnDefinitions.Add(ColSidebar);
+                }
+                else
+                {
+                    RootGrid.ColumnDefinitions.Add(ColSidebar);
+                    RootGrid.ColumnDefinitions.Add(colContent);
+                }
+            }
+            int sideColumn = right ? 1 : 0, contentColumn = right ? 0 : 1;
+            foreach (UIElement child in RootGrid.Children)
+            {
+                if (ReferenceEquals(child, NavDock)) continue;
+                Grid.SetColumn(child, ReferenceEquals(child, SidebarBorder) ? sideColumn : contentColumn);
+            }
+            SidebarBorder.BorderThickness = right ? new Thickness(1, 0, 0, 0) : new Thickness(0, 0, 1, 0);
+
+            // Unten: Seitenleiste aus, Navigation wandert in die schwebende Leiste
+            SidebarBorder.Visibility = bottom ? Visibility.Collapsed : Visibility.Visible;
+            NavDock.Visibility = bottom ? Visibility.Visible : Visibility.Collapsed;
+            ContentArea.Margin = bottom ? new Thickness(28, 42, 28, 104)
+                               : right ? new Thickness(16, 42, 28, 16)
+                               : new Thickness(28, 42, 16, 16);
+
+            if (bottom && !ReferenceEquals(NavPanel.Parent, NavDockPanel))
+            {
+                if (NavPanel.Parent is System.Windows.Controls.Panel home)
+                {
+                    navPanelHome = home;
+                    navPanelHomeIndex = home.Children.IndexOf(NavPanel);
+                    home.Children.Remove(NavPanel);
+                }
+                NavPanel.Orientation = System.Windows.Controls.Orientation.Horizontal;
+                NavDockPanel.Children.Insert(0, NavPanel);
+            }
+            else if (!bottom && ReferenceEquals(NavPanel.Parent, NavDockPanel) && navPanelHome != null)
+            {
+                NavDockPanel.Children.Remove(NavPanel);
+                NavPanel.Orientation = System.Windows.Controls.Orientation.Vertical;
+                navPanelHome.Children.Insert(Math.Clamp(navPanelHomeIndex, 0, navPanelHome.Children.Count), NavPanel);
+            }
+
+            foreach (var item in NavPanel.Children.OfType<System.Windows.Controls.RadioButton>())
+            {
+                AttachNavIconHover(item);
+                var icon = NavIcon(item);
+                if (bottom)
+                {
+                    item.Margin = new Thickness(3, 0, 3, 0);
+                    if (icon != null) icon.FontSize = 24;
+                }
+                else
+                {
+                    item.ClearValue(FrameworkElement.MarginProperty);
+                    icon?.ClearValue(TextBlock.FontSizeProperty);
+                }
+            }
+
+            // Schatten nur ohne Leistungsmodus
+            NavDock.Effect = bottom && !settings.PerformanceMode
+                ? new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 30, ShadowDepth = 6, Direction = 270, Opacity = 0.45, Color = Colors.Black }
+                : null;
+            NavDock.MaxWidth = Math.Max(320, RootGrid.ActualWidth - 40);
+            if (DockStreamBadge != null) DockStreamBadge.Visibility = StreamerOn ? Visibility.Visible : Visibility.Collapsed;
+
+            // Beim Wechsel nach unten schwebt die Leiste von unten herein
+            if (bottom && appliedNavPosition != "bottom" && animate && settings.PageAnimations)
+            {
+                var slide = new TranslateTransform(0, 70);
+                NavDock.RenderTransform = slide;
+                slide.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(70, 0, TimeSpan.FromMilliseconds(420))
+                {
+                    EasingFunction = new BackEase { Amplitude = 0.4, EasingMode = EasingMode.EaseOut }
+                });
+                NavDock.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(260)));
+            }
+            appliedNavPosition = position;
+        }
+
+        private static TextBlock? NavIcon(System.Windows.Controls.RadioButton item)
+            => item.Content is StackPanel panel && panel.Children.Count > 0 ? panel.Children[0] as TextBlock : null;
+
+        /// <summary>Symbol wird beim Drüberfahren größer und wackelt kurz; in der schwebenden Leiste hebt es sich zusätzlich an.</summary>
+        private void AttachNavIconHover(System.Windows.Controls.RadioButton item)
+        {
+            var icon = NavIcon(item);
+            if (icon == null || icon.RenderTransform is TransformGroup) return;   // schon eingerichtet
+
+            var scale = new ScaleTransform(1, 1);
+            var rotate = new RotateTransform(0);
+            var lift = new TranslateTransform(0, 0);
+            icon.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
+            icon.RenderTransform = new TransformGroup { Children = { scale, rotate, lift } };
+
+            item.MouseEnter += (s, e) => AnimateNavIcon(scale, rotate, lift, true);
+            item.MouseLeave += (s, e) => AnimateNavIcon(scale, rotate, lift, false);
+        }
+
+        private void AnimateNavIcon(ScaleTransform scale, RotateTransform rotate, TranslateTransform lift, bool hover)
+        {
+            if (!settings.HoverAnimations)
+            {
+                scale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+                scale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+                rotate.BeginAnimation(RotateTransform.AngleProperty, null);
+                lift.BeginAnimation(TranslateTransform.YProperty, null);
+                return;
+            }
+
+            bool dock = IsBottomNav;
+            double target = hover ? (dock ? 1.45 : 1.28) : 1.0;
+            var grow = new DoubleAnimation(target, TimeSpan.FromMilliseconds(hover ? 420 : 200))
+            {
+                EasingFunction = hover
+                    ? new ElasticEase { Oscillations = 1, Springiness = 5, EasingMode = EasingMode.EaseOut }
+                    : new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            scale.BeginAnimation(ScaleTransform.ScaleXProperty, grow);
+            scale.BeginAnimation(ScaleTransform.ScaleYProperty, grow);
+
+            lift.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(hover && dock ? -8 : 0, TimeSpan.FromMilliseconds(220))
+            {
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            });
+
+            if (hover)
+            {
+                // Kurzes Wackeln
+                var wiggle = new DoubleAnimationUsingKeyFrames { Duration = TimeSpan.FromMilliseconds(460) };
+                wiggle.KeyFrames.Add(new EasingDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.Zero)));
+                wiggle.KeyFrames.Add(new EasingDoubleKeyFrame(-12, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(100))));
+                wiggle.KeyFrames.Add(new EasingDoubleKeyFrame(9, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(220))));
+                wiggle.KeyFrames.Add(new EasingDoubleKeyFrame(-5, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(340))));
+                wiggle.KeyFrames.Add(new EasingDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(460))));
+                rotate.BeginAnimation(RotateTransform.AngleProperty, wiggle);
+            }
+            else
+            {
+                rotate.BeginAnimation(RotateTransform.AngleProperty, null);
+            }
+        }
+
+        private void PopulateNavPosition()
+        {
+            if (ChipNavLeft == null) return;
+            bool before = isLoadingSettings;
+            isLoadingSettings = true;
+            try
+            {
+                ChipNavLeft.IsChecked = NavPosition == "left";
+                ChipNavRight.IsChecked = NavPosition == "right";
+                ChipNavBottom.IsChecked = NavPosition == "bottom";
+            }
+            finally
+            {
+                isLoadingSettings = before;
+            }
+        }
+
+        private void NavPosition_Checked(object sender, RoutedEventArgs e)
+        {
+            if (isLoadingSettings || sender is not FrameworkElement { Tag: string position }) return;
+            if (position == settings.SidebarPosition) return;
+
+            settings.SidebarPosition = position;
+            SaveSettings();
+            ApplySidebar(true);
         }
     }
 }

@@ -87,6 +87,7 @@ namespace Game_launcher
             settings.CardSpacing = Math.Clamp(settings.CardSpacing, 4, 28);
             settings.CardAspect = Math.Clamp(settings.CardAspect, 100, 170);
             settings.SidebarWidth = Math.Clamp(settings.SidebarWidth, 200, 340);
+            if (settings.SidebarPosition is not ("left" or "right" or "bottom")) settings.SidebarPosition = "left";
             settings.NavFontSize = Math.Clamp(settings.NavFontSize, 11, 20);
             settings.NavItemPadding = Math.Clamp(settings.NavItemPadding, 4, 16);
             settings.BrandLogoSize = Math.Clamp(settings.BrandLogoSize, 32, 96);
@@ -765,9 +766,13 @@ namespace Game_launcher
 
         private void ApplySidebar(bool animate)
         {
+            ApplySidebarPosition(animate);
+
             bool collapsed = settings.SidebarCollapsed;
-            double target = controllerMode ? 0 : collapsed ? 90 : settings.SidebarWidth;
+            bool bottomNav = IsBottomNav;
+            double target = controllerMode || bottomNav ? 0 : collapsed ? 90 : settings.SidebarWidth;
             var textVisibility = collapsed ? Visibility.Collapsed : Visibility.Visible;
+            bool iconsOnly = collapsed || bottomNav;   // unten: nur Symbole, der Name steht im Hinweis
             if (SidebarExtras != null && sidebarExtrasCompact != collapsed) RenderSidebarExtras();
 
             BrandText.Visibility = textVisibility;
@@ -776,14 +781,15 @@ namespace Game_launcher
             SidebarFooterText.Visibility = textVisibility;
             SidebarCredit.Visibility = textVisibility;
             ApplyBrand();
-            BtnSidebar.Content = collapsed ? "»" : "«";
+            // Pfeil zeigt in die Richtung, in die die Leiste klappt (rechts ist es spiegelverkehrt)
+            BtnSidebar.Content = collapsed != (NavPosition == "right") ? "»" : "«";
 
             foreach (var item in NavPanel.Children.OfType<System.Windows.Controls.RadioButton>())
             {
                 if (item.Content is StackPanel panel && panel.Children.Count > 1)
                 {
-                    panel.Children[1].Visibility = textVisibility;
-                    item.ToolTip = collapsed && panel.Children[1] is TextBlock label ? label.Text : null;
+                    panel.Children[1].Visibility = iconsOnly ? Visibility.Collapsed : Visibility.Visible;
+                    item.ToolTip = iconsOnly && panel.Children[1] is TextBlock label ? label.Text : null;
                 }
             }
 
@@ -3243,7 +3249,7 @@ namespace Game_launcher
             ("streamer", "Streamer-Modus", new[] { "StreamerMode", "StreamerAuto", "StreamHideName", "StreamHideLocation", "StreamHideStats",
                 "StreamHideRecent", "StreamHidePaths", "StreamHideShots", "StreamHidePc", "StreamHideMusic", "StreamMuteAlerts", "StreamCensorStyle", "ObsAutoStreamer" }),
             ("power", "Energieplan", Array.Empty<string>()),
-            ("sidebar", "Seitenleisten-Bereiche", new[] { "HiddenSections", "SidebarCollapsed" }),
+            ("sidebar", "Seitenleisten-Bereiche", new[] { "HiddenSections", "SidebarCollapsed", "SidebarPosition" }),
             ("controller", "Controller-Optionen", new[] { "ControllerSupport", "ControllerLayout", "PadCombo", "PadComboMode", "PadComboInGame",
                 "PadVibrate", "PadRepeat", "PadAutoStart" })
         };

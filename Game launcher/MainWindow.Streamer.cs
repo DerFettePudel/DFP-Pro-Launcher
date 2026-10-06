@@ -175,6 +175,7 @@ namespace Game_launcher
             else StopCensorTimer();
 
             StreamBadge.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
+            if (DockStreamBadge != null) DockStreamBadge.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
             TxtStreamBadge.Text = settings.StreamerMode ? Loc.T("📡 Streamer-Modus") : Loc.T("📡 Streamer-Modus (automatisch)");
 
             bool previous = isLoadingSettings;

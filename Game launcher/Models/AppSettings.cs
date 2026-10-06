@@ -130,6 +130,7 @@ namespace Game_launcher
         public int CardSpacing { get; set; } = 12;
         public int CardAspect { get; set; } = 136;
         public int SidebarWidth { get; set; } = 250;
+        public string SidebarPosition { get; set; } = "left";   // left | right | bottom (schwebende Leiste)
         public bool OledMode { get; set; }
         public bool OledPixelShift { get; set; } = true;
         public bool PerformanceMode { get; set; }

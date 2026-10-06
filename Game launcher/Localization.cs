@@ -2155,6 +2155,15 @@ Senden || Send || 发送 || Enviar || Envoyer || Enviar || Отправить ||
 Fehlerbericht || Error report || 错误报告 || Informe de errores || Rapport d'erreur || Relatório de erro || Отчёт об ошибке || エラーレポート
 Der Bericht wurde gesendet. Danke! || The report was sent. Thank you! || 报告已发送。谢谢！ || El informe se ha enviado. ¡Gracias! || Le rapport a été envoyé. Merci ! || O relatório foi enviado. Obrigado! || Отчёт отправлен. Спасибо! || レポートを送信しました。ありがとう！
 Der Bericht konnte nicht gesendet werden. || The report could not be sent. || 无法发送报告。 || No se pudo enviar el informe. || Impossible d'envoyer le rapport. || Não foi possível enviar o relatório. || Не удалось отправить отчёт. || レポートを送信できませんでした。
+
+# ───────── Position der Seitenleiste ─────────
+Position der Leiste || Bar position || 栏位置 || Posición de la barra || Position de la barre || Posição da barra || Положение панели || バーの位置
+Links oder rechts als Seitenleiste, oder unten als schwebende Leiste mit Symbolen. Den Namen eines Bereichs zeigt dort ein Hinweis beim Drüberfahren. || As a sidebar on the left or right, or at the bottom as a floating bar with icons. There, hovering shows the name of each section. || 作为左侧或右侧的侧边栏，或作为底部带图标的悬浮栏。在悬浮栏中，鼠标悬停时会显示区域名称。 || Como barra lateral a la izquierda o a la derecha, o abajo como barra flotante con iconos. Allí, al pasar el ratón se muestra el nombre de cada sección. || En barre latérale à gauche ou à droite, ou en bas en barre flottante avec des icônes. Là, le nom de chaque section s'affiche au survol. || Como barra lateral à esquerda ou à direita, ou embaixo como barra flutuante com ícones. Lá, ao passar o mouse aparece o nome de cada seção. || Боковая панель слева или справа либо плавающая панель со значками внизу. Там название раздела показывается при наведении. || 左右のサイドバー、または下部のアイコン付きフローティングバー。下部では、カーソルを合わせると各項目の名前が表示されます。
+Links || Left || 左侧 || Izquierda || Gauche || Esquerda || Слева || 左
+Rechts || Right || 右侧 || Derecha || Droite || Direita || Справа || 右
+Unten (schwebend) || Bottom (floating) || 底部（悬浮） || Abajo (flotante) || En bas (flottante) || Embaixo (flutuante) || Внизу (плавающая) || 下（フローティング）
+Streamer-Modus ist an. Klicken zum Ausschalten || Streamer mode is on. Click to turn it off || 主播模式已开启。点击关闭 || El modo streamer está activado. Haz clic para desactivarlo || Le mode streamer est activé. Clique pour le désactiver || O modo streamer está ligado. Clique para desligar || Режим стримера включён. Нажмите, чтобы выключить || 配信者モードがオンです。クリックでオフ
+Seitenleiste || Sidebar || 侧边栏 || Barra lateral || Barre latérale || Barra lateral || Боковая панель || サイドバー
 """;
     }
 }

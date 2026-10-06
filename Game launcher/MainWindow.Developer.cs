@@ -331,6 +331,16 @@ namespace Game_launcher
                 ShowToast("📏", "Entwickler", "Die Spielgrößen werden im Hintergrund gemessen.", 4);
             });
 
+            Group("Seitenleiste");
+            Dev("↔ Position wechseln (links → rechts → unten)", () =>
+            {
+                settings.SidebarPosition = NavPosition switch { "left" => "right", "right" => "bottom", _ => "left" };
+                SaveSettings();
+                PopulateNavPosition();
+                ApplySidebar(true);
+                ShowToast("↔", "Seitenleiste", settings.SidebarPosition, 2);
+            });
+
             Group("Fehlerbericht und Updates");
             Dev("⚠ Fehlerbericht-Vorschau (mit privaten Testdaten)", () =>
             {
