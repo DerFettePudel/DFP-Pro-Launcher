@@ -874,6 +874,7 @@
 
                 <!-- ========== DASHBOARD ========== -->
                 <ScrollViewer x:Name="ViewDashboard" Visibility="Visible" VerticalScrollBarVisibility="Auto">
+                    <Grid>
                     <StackPanel x:Name="DashStack" Margin="0,0,12,24">
                         <Grid Margin="0,0,0,24">
                             <StackPanel>
@@ -905,8 +906,31 @@
                                         <TextBlock x:Name="TxtMiniGpu" Text="GPU --%" Foreground="#34D399" FontWeight="SemiBold"/>
                                     </StackPanel>
                                 </Border>
+                                <Button x:Name="BtnDashEdit" Content="✏  Anpassen" Padding="14,9" Margin="10,0,0,0" VerticalAlignment="Center" Click="BtnDashEdit_Click"/>
                             </StackPanel>
                         </Grid>
+
+                        <!-- Leiste im Bearbeiten-Modus: Hinweis, ausgeblendete Widgets zum Hinzufügen, Fertig -->
+                        <Border x:Name="DashEditBar" Visibility="Collapsed" Style="{StaticResource CardStyle}" Margin="0,0,0,16" BorderBrush="{DynamicResource AccentBrush}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Margin="0,0,16,0">
+                                        <TextBlock Text="Dashboard anpassen" Foreground="White" FontWeight="SemiBold" FontSize="16"/>
+                                        <TextBlock Text="Ziehe ein Widget an die gewünschte Stelle. ✕ entfernt es, unten kannst du ausgeblendete Widgets wieder hinzufügen." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
+                                        <Button Content="Standard wiederherstellen" Margin="0,0,8,0" Click="BtnResetWidgets_Click"/>
+                                        <Button Content="✓  Fertig" Padding="20,8" Background="{DynamicResource AccentBrush}" Click="BtnDashEditDone_Click"/>
+                                    </StackPanel>
+                                </Grid>
+                                <TextBlock x:Name="TxtDashAddTitle" Text="Widget hinzufügen" Foreground="#9CA3AF" FontSize="12" FontWeight="SemiBold" Margin="0,14,0,8"/>
+                                <WrapPanel x:Name="DashAddPanel"/>
+                            </StackPanel>
+                        </Border>
 
                         <StackPanel x:Name="BannerHost"/>
                         <ContentControl x:Name="HeroHost" Visibility="Collapsed" HorizontalContentAlignment="Stretch" Margin="0,0,0,16"/>
@@ -987,16 +1011,21 @@
                             <WrapPanel x:Name="FavoritesContainer" Margin="-12,0,0,12"/>
                         </StackPanel>
 
-                        <TextBlock x:Name="DashActionsTitle" Text="Schnellaktionen" Style="{StaticResource SectionTitle}" Margin="0,8,0,12"/>
-                        <WrapPanel x:Name="DashActions">
-                            <Button Content="🎲  Zufälliges Spiel" Padding="18,11" Margin="0,0,10,10"
-                                Background="{DynamicResource AccentBrush}" Click="BtnRandomGame_Click"/>
-                            <Button Content="＋  Spiel hinzufügen" Padding="18,11" Margin="0,0,10,10" Click="BtnAddGame_Click"/>
-                            <Button Content="🔄  Neu scannen" Padding="18,11" Margin="0,0,10,10" Click="BtnRescanGames_Click"/>
-                            <Button Content="🔍  Suche (Strg+K)" Padding="18,11" Margin="0,0,10,10" Click="BtnSpotlight_Click"/>
-                            <Button Content="🎮  Controller-Modus (F11)" Padding="18,11" Margin="0,0,10,10" Click="BtnController_Click"/>
-                        </WrapPanel>
+                        <StackPanel x:Name="ActionsSection">
+                            <TextBlock x:Name="DashActionsTitle" Text="Schnellaktionen" Style="{StaticResource SectionTitle}" Margin="0,8,0,12"/>
+                            <WrapPanel x:Name="DashActions">
+                                <Button Content="🎲  Zufälliges Spiel" Padding="18,11" Margin="0,0,10,10"
+                                    Background="{DynamicResource AccentBrush}" Click="BtnRandomGame_Click"/>
+                                <Button Content="＋  Spiel hinzufügen" Padding="18,11" Margin="0,0,10,10" Click="BtnAddGame_Click"/>
+                                <Button Content="🔄  Neu scannen" Padding="18,11" Margin="0,0,10,10" Click="BtnRescanGames_Click"/>
+                                <Button Content="🔍  Suche (Strg+K)" Padding="18,11" Margin="0,0,10,10" Click="BtnSpotlight_Click"/>
+                                <Button Content="🎮  Controller-Modus (F11)" Padding="18,11" Margin="0,0,10,10" Click="BtnController_Click"/>
+                            </WrapPanel>
+                        </StackPanel>
                     </StackPanel>
+                    <!-- Einfügemarke beim Verschieben von Widgets -->
+                    <Canvas x:Name="DashDragLayer" IsHitTestVisible="False"/>
+                    </Grid>
                 </ScrollViewer>
 
                 <!-- ========== SPIELE ========== -->

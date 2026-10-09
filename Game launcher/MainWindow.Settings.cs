@@ -3283,6 +3283,21 @@ namespace Game_launcher
 
         private void BtnSettingsTop_Click(object sender, RoutedEventArgs e) => ViewSettings.ScrollToTop();
 
+        /// <summary>„Nach oben“ nur zeigen, wenn die Einstellungen (z. B. eine kurze Kategorie) überhaupt über den Bildschirm hinausreichen.</summary>
+        private void UpdateSettingsTopButton()
+        {
+            if (BtnSettingsTop == null || ViewSettings == null) return;
+
+            // Die Höhe des Knopfes selbst herausrechnen, sonst würde er sich durch Ein- und Ausblenden gegenseitig umschalten
+            double own = BtnSettingsTop.Visibility == Visibility.Visible
+                ? BtnSettingsTop.ActualHeight + BtnSettingsTop.Margin.Top + BtnSettingsTop.Margin.Bottom
+                : 0;
+            bool scrolls = ViewSettings.ExtentHeight - own > ViewSettings.ViewportHeight + 40;
+
+            var wanted = scrolls ? Visibility.Visible : Visibility.Collapsed;
+            if (BtnSettingsTop.Visibility != wanted) BtnSettingsTop.Visibility = wanted;
+        }
+
         // ═════════════════════════════ Einstellungs-Profile ═════════════════════════════
 
         /// <summary>Bereiche, die ein Profil umschalten kann, mit den zugehörigen Einstellungen.</summary>
@@ -3322,6 +3337,13 @@ namespace Game_launcher
 
             profileObsTimer.Tick += async (s, e) => await CheckObsProcessForProfileAsync();
             profileObsTimer.Start();
+
+            // Kategorie gewechselt, Fenstergröße geändert oder Karten auf-/zugeklappt: neu prüfen
+            ViewSettings.ScrollChanged += (s, e) =>
+            {
+                if (e.OriginalSource != ViewSettings) return;   // innere Listen und Textfelder melden sich auch
+                if (e.ExtentHeightChange != 0 || e.ViewportHeightChange != 0) UpdateSettingsTopButton();
+            };
         }
 
         private void SeedProfiles()

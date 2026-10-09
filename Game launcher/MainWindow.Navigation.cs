@@ -84,6 +84,7 @@ namespace Game_launcher
             activeView.Visibility = Visibility.Visible;
             AnimateIn(activeView);
             if (ErrorHooksReady) WriteSessionMarker(activeView.Name);
+            if (activeView != ViewDashboard) SetDashEditMode(false);
 
             if (StreamerOn) Dispatcher.BeginInvoke(new Action(() => { ApplyCensorCategories(true); ScrubSensitiveText(); }), DispatcherPriority.Background);
         }

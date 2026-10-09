@@ -1122,24 +1122,34 @@ namespace Game_launcher
 
         private bool DashHidden(string key) => settings.DashboardHidden.Contains(key);
 
-        private UIElement[] WidgetElements(string key)
+        /// <summary>Einige Widgets lassen sich zusätzlich über eigene Schalter abschalten (z. B. „Statistik anzeigen“).</summary>
+        private bool DashSwitchedOff(string key) => key switch
         {
-            UIElement?[] items = key switch
-            {
-                "hero" => new UIElement?[] { HeroHost },
-                "clock" => new UIElement?[] { WidgetsRow },
-                "stats" => new UIElement?[] { StatsGrid },
-                "recent" => new UIElement?[] { RecentSection },
-                "favorites" => new UIElement?[] { FavSection },
-                "actions" => new UIElement?[] { DashActionsTitle, DashActions },
-                "goal" => new UIElement?[] { goalWidget },
-                "backlog" => new UIElement?[] { backlogWidget },
-                "wishlist" => new UIElement?[] { wishWidget },
-                "quick" => new UIElement?[] { quickWidget },
-                _ => Array.Empty<UIElement?>()
-            };
-            return items.Where(i => i != null).Select(i => i!).ToArray();
-        }
+            "hero" => !settings.ShowHero,
+            "clock" => !settings.ShowClock && !settings.ShowWeather,
+            "stats" => !settings.ShowStats,
+            "recent" => !settings.ShowRecent,
+            "favorites" => !settings.ShowFavorites,
+            _ => false
+        };
+
+        /// <summary>Nicht auf dem Dashboard: entfernt oder über seinen Schalter abgeschaltet.</summary>
+        private bool DashOff(string key) => DashHidden(key) || DashSwitchedOff(key);
+
+        private FrameworkElement? WidgetElement(string key) => key switch
+        {
+            "hero" => HeroHost,
+            "clock" => WidgetsRow,
+            "stats" => StatsGrid,
+            "recent" => RecentSection,
+            "favorites" => FavSection,
+            "actions" => ActionsSection,
+            "goal" => goalWidget,
+            "backlog" => backlogWidget,
+            "wishlist" => wishWidget,
+            "quick" => quickWidget,
+            _ => null
+        };
 
         private void EnsureDashWidgets()
         {
@@ -1159,25 +1169,424 @@ namespace Game_launcher
             EnsureDashWidgets();
             var order = GetDashOrder();
 
-            var elements = new List<UIElement>();
-            foreach (string key in order) elements.AddRange(WidgetElements(key));
-
-            foreach (var element in elements) DashStack.Children.Remove(element);
-            int index = DashStack.Children.IndexOf(BannerHost) + 1;
-            foreach (var element in elements)
-                DashStack.Children.Insert(Math.Min(index++, DashStack.Children.Count), element);
-
+            // Jedes Widget steckt in einem eigenen Platz. Ausgeblendet wird der Platz, nicht das Widget selbst:
+            // Früher blieb ein wieder eingeblendetes Widget bis zum Neustart unsichtbar, weil niemand es zurückschaltete.
+            var slots = new List<Grid>();
             foreach (string key in order)
             {
-                if (!DashHidden(key)) continue;
-                foreach (var element in WidgetElements(key)) element.Visibility = Visibility.Collapsed;
+                var element = WidgetElement(key);
+                if (element == null) continue;
+
+                var slot = DashSlot(key);
+                if (!ReferenceEquals(element.Parent, slot))
+                {
+                    if (element.Parent is System.Windows.Controls.Panel oldParent) oldParent.Children.Remove(element);
+                    slot.Children.Insert(0, element);
+                }
+
+                slot.Visibility = DashOff(key) ? Visibility.Collapsed : Visibility.Visible;
+                slots.Add(slot);
             }
+
+            foreach (var slot in slots) DashStack.Children.Remove(slot);
+            int index = DashStack.Children.IndexOf(BannerHost) + 1;
+            foreach (var slot in slots)
+                DashStack.Children.Insert(Math.Min(index++, DashStack.Children.Count), slot);
 
             FillGoalWidget();
             FillBacklogWidget();
             FillWishWidget();
             FillQuickWidget();
+
+            // Erst nach dem Füllen steht fest, welche Widgets gerade leer sind (z. B. keine Favoriten)
+            foreach (string key in order)
+            {
+                if (WidgetElement(key) is FrameworkElement element) UpdateDashOverlay(key, DashSlot(key), element);
+            }
+            if (dashEditMode) BuildDashAddPanel();
         }
+
+        // ───────────────────────────── Dashboard anpassen (Widgets ziehen, entfernen, hinzufügen) ─────────────────────────────
+
+        private readonly Dictionary<string, Grid> dashSlots = new();
+        private readonly Dictionary<string, Grid> dashOverlays = new();
+        private bool dashEditMode;
+
+        // Ziehen
+        private string? dashDragKey;
+        private bool dashDragging;
+        private System.Windows.Point dashDragStart;
+        private int dashDropIndex = -1;
+        private System.Windows.Shapes.Rectangle? dashDropLine;
+
+        private Grid DashSlot(string key)
+        {
+            if (!dashSlots.TryGetValue(key, out var slot))
+            {
+                slot = new Grid { Tag = key };
+                dashSlots[key] = slot;
+            }
+            return slot;
+        }
+
+        private static string DashWidgetTitle(string key)
+        {
+            var info = DashWidgetInfo.FirstOrDefault(w => w.Key == key);
+            return info.Key == null ? key : info.Icon + "  " + Loc.T(info.Title);
+        }
+
+        /// <summary>Rahmen mit Griff und Knöpfen über einem Widget, nur im Bearbeiten-Modus sichtbar.</summary>
+        private void UpdateDashOverlay(string key, Grid slot, FrameworkElement element)
+        {
+            if (!dashEditMode)
+            {
+                if (dashOverlays.TryGetValue(key, out var old)) old.Visibility = Visibility.Collapsed;
+                slot.MinHeight = 0;
+                return;
+            }
+
+            if (!dashOverlays.TryGetValue(key, out var overlay))
+            {
+                overlay = BuildDashOverlay(key);
+                dashOverlays[key] = overlay;
+                slot.Children.Add(overlay);
+            }
+            else if (!ReferenceEquals(overlay.Parent, slot))
+            {
+                if (overlay.Parent is System.Windows.Controls.Panel oldParent) oldParent.Children.Remove(overlay);
+                slot.Children.Add(overlay);
+            }
+
+            // Der Rahmen liegt um das Widget, der Abstand nach unten gehört nicht dazu
+            bool empty = element.Visibility != Visibility.Visible;
+            double bottom = empty ? 12 : element.Margin.Bottom;
+            overlay.Margin = new Thickness(-6, -6, -6, Math.Max(0, bottom - 6));
+            slot.MinHeight = empty ? 70 : 0;
+
+            if (overlay.Tag is TextBlock placeholder) placeholder.Visibility = empty ? Visibility.Visible : Visibility.Collapsed;
+            if (overlay.Children.OfType<Border>().FirstOrDefault(b => b.Name == "Bar") is Border bar && bar.Child is StackPanel tools)
+            {
+                var order = GetDashOrder().Where(k => !DashOff(k)).ToList();
+                int position = order.IndexOf(key);
+                foreach (var button in tools.Children.OfType<System.Windows.Controls.Button>())
+                {
+                    if (Equals(button.Tag, -1)) button.IsEnabled = position > 0;
+                    if (Equals(button.Tag, 1)) button.IsEnabled = position >= 0 && position < order.Count - 1;
+                }
+            }
+            overlay.Visibility = Visibility.Visible;
+        }
+
+        private Grid BuildDashOverlay(string key)
+        {
+            // Fast durchsichtiger Hintergrund: fängt alle Klicks ab, damit beim Anordnen kein Spiel startet
+            var overlay = new Grid
+            {
+                Background = MakeBrush("#33000000"),
+                Cursor = System.Windows.Input.Cursors.SizeAll
+            };
+            System.Windows.Controls.Panel.SetZIndex(overlay, 10);
+
+            var frame = new System.Windows.Shapes.Rectangle
+            {
+                StrokeThickness = 2,
+                StrokeDashArray = new DoubleCollection { 4, 3 },
+                RadiusX = 16,
+                RadiusY = 16
+            };
+            frame.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, "AccentBrush");
+            overlay.Children.Add(frame);
+
+            var placeholder = new TextBlock
+            {
+                Text = Loc.T("Zurzeit nichts anzuzeigen. Das Widget erscheint, sobald es Inhalte gibt."),
+                Foreground = BrushSubtle,
+                FontSize = 12,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(18, 14, 220, 14),
+                VerticalAlignment = System.Windows.VerticalAlignment.Center
+            };
+            overlay.Children.Add(placeholder);
+            overlay.Tag = placeholder;
+
+            var tools = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
+            tools.Children.Add(new TextBlock
+            {
+                Text = "⠿  " + DashWidgetTitle(key),
+                Foreground = System.Windows.Media.Brushes.White,
+                FontWeight = FontWeights.SemiBold,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                Margin = new Thickness(4, 0, 12, 0)
+            });
+
+            System.Windows.Controls.Button ToolButton(string text, object tag, Action click)
+            {
+                var button = new System.Windows.Controls.Button
+                {
+                    Content = text,
+                    Tag = tag,
+                    Padding = new Thickness(10, 4, 10, 4),
+                    Margin = new Thickness(4, 0, 0, 0),
+                    Cursor = System.Windows.Input.Cursors.Hand
+                };
+                button.Click += (s, e) => click();
+                return button;
+            }
+
+            tools.Children.Add(ToolButton("▲", -1, () => MoveDashWidgetVisible(key, -1)));
+            tools.Children.Add(ToolButton("▼", 1, () => MoveDashWidgetVisible(key, 1)));
+            var remove = ToolButton("✕", "remove", () => SetDashWidgetVisible(key, false));
+            remove.Background = MakeBrush("#B91C1C");
+            tools.Children.Add(remove);
+
+            var bar = new Border
+            {
+                Name = "Bar",
+                Child = tools,
+                Background = MakeBrush("#E6161B28"),
+                BorderBrush = MakeBrush("#2A3142"),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(10),
+                Padding = new Thickness(8, 5, 6, 5),
+                Margin = new Thickness(0, 10, 10, 0),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+                VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                Cursor = System.Windows.Input.Cursors.Arrow
+            };
+            overlay.Children.Add(bar);
+
+            overlay.MouseLeftButtonDown += (s, e) =>
+            {
+                if (IsInsideButton(e.OriginalSource as DependencyObject)) return;
+                dashDragKey = key;
+                dashDragging = false;
+                dashDragStart = e.GetPosition(DashStack);
+                overlay.CaptureMouse();
+                e.Handled = true;
+            };
+            overlay.MouseMove += (s, e) => DashDragMove(overlay, e);
+            overlay.MouseLeftButtonUp += (s, e) => DashDragEnd(overlay, true);
+            overlay.LostMouseCapture += (s, e) => DashDragEnd(overlay, false);
+
+            return overlay;
+        }
+
+        private static bool IsInsideButton(DependencyObject? source)
+        {
+            for (var current = source; current != null; current = VisualTreeHelper.GetParent(current) ?? LogicalTreeHelper.GetParent(current))
+            {
+                if (current is System.Windows.Controls.Primitives.ButtonBase) return true;
+            }
+            return false;
+        }
+
+        private void DashDragMove(Grid overlay, System.Windows.Input.MouseEventArgs e)
+        {
+            if (dashDragKey == null || !overlay.IsMouseCaptured) return;
+
+            var position = e.GetPosition(DashStack);
+            if (!dashDragging)
+            {
+                if (Math.Abs(position.Y - dashDragStart.Y) < 6 && Math.Abs(position.X - dashDragStart.X) < 6) return;
+                dashDragging = true;
+                var dragged = DashSlot(dashDragKey);
+                System.Windows.Controls.Panel.SetZIndex(dragged, 100);
+                dragged.Opacity = 0.85;
+            }
+
+            // Am Rand des sichtbaren Bereichs mitscrollen
+            double inView = e.GetPosition(ViewDashboard).Y;
+            if (inView < 50) ViewDashboard.ScrollToVerticalOffset(ViewDashboard.VerticalOffset - 14);
+            else if (inView > ViewDashboard.ActualHeight - 50) ViewDashboard.ScrollToVerticalOffset(ViewDashboard.VerticalOffset + 14);
+
+            var slot = DashSlot(dashDragKey);
+            slot.RenderTransform = new TranslateTransform(0, position.Y - dashDragStart.Y);
+
+            // Einfügestelle: vor dem ersten anderen Widget, dessen Mitte unter dem Mauszeiger liegt
+            var others = VisibleDashSlots().Where(o => !ReferenceEquals(o, slot)).ToList();
+            int target = others.Count;
+            for (int i = 0; i < others.Count; i++)
+            {
+                double top = others[i].TranslatePoint(new System.Windows.Point(0, 0), DashStack).Y;
+                if (position.Y < top + others[i].ActualHeight / 2)
+                {
+                    target = i;
+                    break;
+                }
+            }
+            dashDropIndex = target;
+
+            double lineY;
+            if (others.Count == 0) lineY = slot.TranslatePoint(new System.Windows.Point(0, 0), DashStack).Y;
+            else if (target < others.Count) lineY = others[target].TranslatePoint(new System.Windows.Point(0, 0), DashStack).Y - 8;
+            else
+            {
+                var last = others[^1];
+                lineY = last.TranslatePoint(new System.Windows.Point(0, last.ActualHeight), DashStack).Y - 4;
+            }
+            ShowDashDropLine(lineY);
+        }
+
+        private List<Grid> VisibleDashSlots()
+            => DashStack.Children.OfType<Grid>()
+                .Where(g => g.Tag is string key && dashSlots.ContainsKey(key) && g.Visibility == Visibility.Visible)
+                .ToList();
+
+        private void ShowDashDropLine(double y)
+        {
+            if (DashDragLayer == null) return;
+
+            if (dashDropLine == null)
+            {
+                dashDropLine = new System.Windows.Shapes.Rectangle { Height = 4, RadiusX = 2, RadiusY = 2 };
+                dashDropLine.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "AccentBrush");
+                DashDragLayer.Children.Add(dashDropLine);
+            }
+
+            var origin = DashStack.TranslatePoint(new System.Windows.Point(0, y), DashDragLayer);
+            dashDropLine.Width = Math.Max(0, DashStack.ActualWidth);
+            Canvas.SetLeft(dashDropLine, origin.X);
+            Canvas.SetTop(dashDropLine, origin.Y - 2);
+            dashDropLine.Visibility = Visibility.Visible;
+        }
+
+        private void DashDragEnd(Grid overlay, bool drop)
+        {
+            if (dashDragKey == null) return;
+
+            string key = dashDragKey;
+            bool moved = dashDragging && drop && dashDropIndex >= 0;
+            int target = dashDropIndex;
+
+            dashDragKey = null;
+            dashDragging = false;
+            dashDropIndex = -1;
+            if (overlay.IsMouseCaptured) overlay.ReleaseMouseCapture();
+            if (dashDropLine != null) dashDropLine.Visibility = Visibility.Collapsed;
+
+            var slot = DashSlot(key);
+            slot.RenderTransform = null;
+            slot.Opacity = 1;
+            System.Windows.Controls.Panel.SetZIndex(slot, 0);
+
+            if (moved) PlaceDashWidget(key, target);
+        }
+
+        /// <summary>Setzt ein Widget vor das sichtbare Widget Nummer <paramref name="visibleIndex"/> (ohne sich selbst gezählt).</summary>
+        private void PlaceDashWidget(string key, int visibleIndex)
+        {
+            var order = GetDashOrder();
+            order.Remove(key);
+
+            var visible = order.Where(k => !DashOff(k)).ToList();
+            int insertAt = visibleIndex < visible.Count
+                ? order.IndexOf(visible[visibleIndex])
+                : (visible.Count > 0 ? order.IndexOf(visible[^1]) + 1 : order.Count);
+            order.Insert(Math.Clamp(insertAt, 0, order.Count), key);
+
+            if (order.SequenceEqual(GetDashOrder())) return;
+            settings.DashboardOrder = order;
+            SaveSettings();
+            BuildDashWidgetSettings();
+            ApplyDashboardLayout();
+        }
+
+        /// <summary>▲/▼ im Bearbeiten-Modus: springt über ausgeblendete Widgets hinweg zum nächsten sichtbaren.</summary>
+        private void MoveDashWidgetVisible(string key, int delta)
+        {
+            var visible = GetDashOrder().Where(k => !DashOff(k)).ToList();
+            int index = visible.IndexOf(key);
+            int target = index + delta;
+            if (index < 0 || target < 0 || target >= visible.Count) return;
+
+            // Unter den übrigen sichtbaren Widgets (ohne dieses) ist „target“ genau die neue Stelle:
+            // nach oben vor das vorherige, nach unten hinter das nächste
+            PlaceDashWidget(key, target);
+        }
+
+        private void BuildDashAddPanel()
+        {
+            if (DashAddPanel == null) return;
+            DashAddPanel.Children.Clear();
+
+            var hidden = GetDashOrder().Where(DashOff).ToList();
+            TxtDashAddTitle.Visibility = Visibility.Visible;
+            if (hidden.Count == 0)
+            {
+                DashAddPanel.Children.Add(WidgetHint("Alle Widgets sind schon auf dem Dashboard."));
+                return;
+            }
+
+            foreach (string key in hidden)
+            {
+                var button = new System.Windows.Controls.Button
+                {
+                    Content = "＋  " + DashWidgetTitle(key),
+                    Padding = new Thickness(14, 8, 14, 8),
+                    Margin = new Thickness(0, 0, 8, 8)
+                };
+                button.Click += (s, e) => AddDashWidget(key);
+                DashAddPanel.Children.Add(button);
+            }
+        }
+
+        /// <summary>Holt ein Widget zurück. War es zusätzlich über die Anzeige-Schalter abgeschaltet, wird es dort mit eingeschaltet.</summary>
+        private void AddDashWidget(string key)
+        {
+            switch (key)
+            {
+                case "hero": settings.ShowHero = true; break;
+                case "stats": settings.ShowStats = true; break;
+                case "recent": settings.ShowRecent = true; break;
+                case "favorites": settings.ShowFavorites = true; break;
+                case "clock":
+                    if (!settings.ShowClock && !settings.ShowWeather) settings.ShowClock = settings.ShowWeather = true;
+                    break;
+            }
+
+            settings.DashboardHidden.Remove(key);
+            SaveSettings();
+
+            // Schalter in den Einstellungen nachziehen, ohne dass deren Handler erneut speichern
+            isLoadingSettings = true;
+            try
+            {
+                ChkHero.IsChecked = settings.ShowHero;
+                ChkShowClock.IsChecked = settings.ShowClock;
+                ChkShowWeather.IsChecked = settings.ShowWeather;
+                ChkShowStats.IsChecked = settings.ShowStats;
+                ChkShowRecent.IsChecked = settings.ShowRecent;
+                ChkShowFavorites.IsChecked = settings.ShowFavorites;
+            }
+            finally
+            {
+                isLoadingSettings = false;
+            }
+
+            ApplyViewSettings();
+            BuildDashWidgetSettings();
+            RefreshDashboard();
+
+            // Das neue Widget sichtbar machen
+            Dispatcher.BeginInvoke(new Action(() => DashSlot(key).BringIntoView()), DispatcherPriority.Loaded);
+        }
+
+        private void SetDashEditMode(bool on)
+        {
+            if (dashEditMode == on || DashEditBar == null) return;
+            dashEditMode = on;
+
+            DashEditBar.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
+            BtnDashEdit.Visibility = on ? Visibility.Collapsed : Visibility.Visible;
+            if (!on && dashDropLine != null) dashDropLine.Visibility = Visibility.Collapsed;
+
+            ApplyDashboardLayout();
+            if (on) ViewDashboard.ScrollToTop();
+        }
+
+        private void BtnDashEdit_Click(object sender, RoutedEventArgs e) => SetDashEditMode(true);
+
+        private void BtnDashEditDone_Click(object sender, RoutedEventArgs e) => SetDashEditMode(false);
 
         private Border WidgetCard(string title, UIElement body, Action? onTitleClick = null)
         {
@@ -1423,6 +1832,7 @@ namespace Game_launcher
             else if (!settings.DashboardHidden.Contains(key)) settings.DashboardHidden.Add(key);
 
             SaveSettings();
+            if (!dashPanelBuilding) BuildDashWidgetSettings();   // Liste in den Einstellungen synchron halten
             RefreshDashboard();
         }
 
