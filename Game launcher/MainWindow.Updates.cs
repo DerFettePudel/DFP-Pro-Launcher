@@ -229,6 +229,10 @@ namespace Game_launcher
                     if (lines.Length > 0 && DateTime.TryParse(lines[0], CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var started))
                         previousStart = started;
                     if (lines.Length > 1) previousView = lines[1];
+
+                    // Neustart als Administrator oder nach einem Update: Der alte Launcher läuft noch kurz weiter, das ist kein Absturz
+                    if (lines.Length > 2 && int.TryParse(lines[2], out int pid) && pid != Environment.ProcessId && IsLauncherProcess(pid))
+                        previousStart = null;
                 }
             }
             catch { }
@@ -252,14 +256,35 @@ namespace Game_launcher
             try
             {
                 Directory.CreateDirectory(LogDir);
-                File.WriteAllText(SessionMarkerPath, sessionStarted.ToString("o", CultureInfo.InvariantCulture) + "\n" + view);
+                File.WriteAllText(SessionMarkerPath, sessionStarted.ToString("o", CultureInfo.InvariantCulture) + "\n" + view + "\n" + Environment.ProcessId);
             }
             catch { }
         }
 
+        private static bool IsLauncherProcess(int pid)
+        {
+            try
+            {
+                using var process = Process.GetProcessById(pid);
+                using var current = Process.GetCurrentProcess();
+                return !process.HasExited && string.Equals(process.ProcessName, current.ProcessName, StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private static void EndSessionMarker()
         {
-            try { File.Delete(SessionMarkerPath); }
+            try
+            {
+                // Nur die eigene Markierung löschen, nicht die eines inzwischen gestarteten neuen Launchers
+                if (!File.Exists(SessionMarkerPath)) return;
+                var lines = File.ReadAllLines(SessionMarkerPath);
+                if (lines.Length > 2 && int.TryParse(lines[2], out int pid) && pid != Environment.ProcessId) return;
+                File.Delete(SessionMarkerPath);
+            }
             catch { }
         }
 
