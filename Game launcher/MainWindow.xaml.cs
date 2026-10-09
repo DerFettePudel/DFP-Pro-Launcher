@@ -71,6 +71,7 @@ namespace Game_launcher
         private static readonly string LogDir = System.IO.Path.Combine(SettingsDir, "logs");
         private static readonly string SettingsBackupDir = System.IO.Path.Combine(SettingsDir, "settings_backups");
         private static readonly string PendingReportPath = System.IO.Path.Combine(LogDir, "fehlerbericht_offen.txt");
+        private static readonly string SessionMarkerPath = System.IO.Path.Combine(LogDir, "sitzung_laeuft.txt");
         private static readonly string LegacySettingsPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.json");
         private static readonly string DownloadsPath = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");

@@ -6933,6 +6933,7 @@ namespace Game_launcher
                 {
                     lastMoveSound = DateTime.Now;
                     PlayUiSound("move");
+                    PadRumble(PadRumbleShort);
                 }
             }
         }

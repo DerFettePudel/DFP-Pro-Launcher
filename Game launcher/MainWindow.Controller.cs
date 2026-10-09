@@ -102,7 +102,11 @@ namespace Game_launcher
             int next = controllerIndex + dx + dy * columns;
             int before = controllerIndex;
             controllerIndex = Math.Clamp(next, 0, count - 1);
-            if (controllerIndex != before) PlayUiSound("move");
+            if (controllerIndex != before)
+            {
+                PlayUiSound("move");
+                PadRumble(PadRumbleShort);
+            }
             HighlightControllerSelection();
         }
 
@@ -344,6 +348,7 @@ namespace Game_launcher
         private System.Windows.Controls.Image? padBackdrop;
         private DispatcherTimer? padClockTimer;
         private DispatcherTimer? padRumbleTimer;
+        private int padRumbleSlot = -1;
         private List<PadItem> padItems = new();
         private int padCategory;
         private bool padMenuOpen;
@@ -592,6 +597,7 @@ namespace Game_launcher
             RebuildPadItems();
             RefreshPadTabs();
             PlayUiSound("move");
+            PadRumble(PadRumbleShort);
         }
 
         private void RebuildPadItems()
@@ -625,7 +631,7 @@ namespace Game_launcher
             if (index < 0 || index >= padItems.Count) return;
 
             var item = padItems[index];
-            PadRumble(70);
+            PadRumble(PadRumbleLong);
 
             if (item.Game != null)
             {
@@ -763,7 +769,7 @@ namespace Game_launcher
             padMenuIndex = (padMenuIndex + delta + padMenuEntries.Count) % padMenuEntries.Count;
             RenderPadMenu();
             PlayUiSound("move");
-            PadRumble(12);
+            PadRumble(PadRumbleShort);
         }
 
         private void ActivatePadMenu()
@@ -1001,14 +1007,22 @@ namespace Game_launcher
             if (settings.PadAutoStart && !controllerMode && activeSessions.Count == 0 && IsVisible) ToggleControllerMode();
         }
 
-        private void PadRumble(int milliseconds)
+        // Die Motoren brauchen etwa 40 ms zum Anlaufen; kürzere Stöße (früher 12 ms) waren nicht zu spüren
+        private const int PadRumbleShort = 55, PadRumbleLong = 110;
+
+        private void PadRumble(int milliseconds, bool force = false)
         {
-            if (!settings.PadVibrate || padSlot < 0) return;
+            if (!force && !settings.PadVibrate) return;
+
+            // Der Status-Takt setzt padSlot nur alle paar hundert Millisekunden, der Controller-Thread kennt ihn sofort
+            int slot = padSlot >= 0 ? padSlot : System.Threading.Volatile.Read(ref padThreadSlot);
+            if (slot < 0) return;
 
             try
             {
-                var on = new NativeFeatures.XInputVibration { LeftMotor = 9000, RightMotor = 14000 };
-                NativeFeatures.XInputSetState((uint)padSlot, ref on);
+                var on = new NativeFeatures.XInputVibration { LeftMotor = 22000, RightMotor = 30000 };
+                if (NativeFeatures.XInputSetState((uint)slot, ref on) != 0) return;
+                padRumbleSlot = slot;
 
                 padRumbleTimer ??= new DispatcherTimer();
                 padRumbleTimer.Stop();
@@ -1025,8 +1039,10 @@ namespace Game_launcher
             padRumbleTimer?.Stop();
             try
             {
+                // Auf dem Slot ausschalten, auf dem eingeschaltet wurde, auch wenn der Controller inzwischen weg ist
                 var off = new NativeFeatures.XInputVibration();
-                if (padSlot >= 0) NativeFeatures.XInputSetState((uint)padSlot, ref off);
+                if (padRumbleSlot >= 0) NativeFeatures.XInputSetState((uint)padRumbleSlot, ref off);
+                padRumbleSlot = -1;
             }
             catch { }
         }
@@ -1539,6 +1555,12 @@ namespace Game_launcher
         private void InitExtras19()
         {
             RebuildPadRemap();
+
+            // Beim Einschalten der Vibration einmal kurz brummen, damit man sofort merkt, ob sie ankommt
+            ChkPadVibrate.Checked += (s, e) =>
+            {
+                if (!isLoadingSettings) PadRumble(250, true);
+            };
 
             // „Als Konsole starten“: Startparameter --controller öffnet direkt den Controller-Modus
             if (Environment.GetCommandLineArgs().Any(a => string.Equals(a, "--controller", StringComparison.OrdinalIgnoreCase)))

@@ -2765,11 +2765,14 @@ namespace Game_launcher
             }
             catch { }
 
-            double smallest = 0;
+            // Gemessen wird der Hauptbildschirm. Früher war es der kleinste Monitor, dann zeigte ein
+            // Desktop mit Zweitbildschirm dessen Größe an statt der des eigentlichen Bildschirms.
+            string primaryId = PrimaryMonitorDeviceId();
+            double primary = 0, first = 0;
             try
             {
                 using var searcher = new System.Management.ManagementObjectSearcher(@"root\wmi",
-                    "SELECT Active, MaxHorizontalImageSize, MaxVerticalImageSize FROM WmiMonitorBasicDisplayParams");
+                    "SELECT InstanceName, Active, MaxHorizontalImageSize, MaxVerticalImageSize FROM WmiMonitorBasicDisplayParams");
                 foreach (System.Management.ManagementBaseObject monitor in searcher.Get())
                 {
                     if (monitor["Active"] is bool active && !active) continue;
@@ -2779,19 +2782,51 @@ namespace Game_launcher
                     if (width <= 0 || height <= 0) continue;
 
                     double inches = Math.Sqrt(width * width + height * height) / 2.54;
-                    if (smallest == 0 || inches < smallest) smallest = inches;
+                    if (first == 0) first = inches;
+
+                    // WMI: DISPLAY\MSI3DD6\5&245f4cc2&0&UID4353_0  ·  Windows: \\?\DISPLAY#MSI3DD6#5&245f4cc2&0&UID4353#{…}
+                    string instance = monitor["InstanceName"] as string ?? "";
+                    int cut = instance.LastIndexOf('_');
+                    if (cut > 0) instance = instance[..cut];
+                    if (primaryId.Length > 0 && instance.Length > 0
+                        && primaryId.Contains(instance.Replace('\\', '#'), StringComparison.OrdinalIgnoreCase))
+                        primary = inches;
                 }
             }
             catch { }
 
-            var smallDisplay = ReadDisplays().OrderBy(d => (long)d.Width * d.Height).FirstOrDefault();
+            // Ohne Zuordnung (z. B. nur ein Bildschirm ohne passende Kennung) den ersten nehmen
+            double diagonal = primary > 0 ? primary : first;
+
+            var primaryDisplay = ReadDisplays().FirstOrDefault();
 
             string kind;
             if (!battery) kind = "desktop";
-            else if ((smallest > 0 && smallest <= 9.5) || (smallest == 0 && smallDisplay != null && smallDisplay.Width <= 1280 && smallDisplay.Height <= 800)) kind = "handheld";
+            else if ((diagonal > 0 && diagonal <= 9.5) || (diagonal == 0 && primaryDisplay != null && primaryDisplay.Width <= 1280 && primaryDisplay.Height <= 800)) kind = "handheld";
             else kind = "laptop";
 
-            return new DeviceInfo(kind, smallest, battery);
+            return new DeviceInfo(kind, diagonal, battery);
+        }
+
+        /// <summary>Geräte-Kennung des Monitors am Hauptbildschirm (leer, wenn nicht ermittelbar).</summary>
+        private static string PrimaryMonitorDeviceId()
+        {
+            try
+            {
+                for (uint index = 0; index < 32; index++)
+                {
+                    var adapter = new NativeExtras.DisplayDevice { cb = Interop.Marshal.SizeOf<NativeExtras.DisplayDevice>() };
+                    if (!NativeExtras.EnumDisplayDevices(null, index, ref adapter, 0)) break;
+                    if ((adapter.StateFlags & 0x4) == 0) continue;     // nicht der Hauptbildschirm
+
+                    var monitor = new NativeExtras.DisplayDevice { cb = Interop.Marshal.SizeOf<NativeExtras.DisplayDevice>() };
+                    const uint EDD_GET_DEVICE_INTERFACE_NAME = 0x1;
+                    if (NativeExtras.EnumDisplayDevices(adapter.DeviceName, 0, ref monitor, EDD_GET_DEVICE_INTERFACE_NAME))
+                        return monitor.DeviceID ?? "";
+                }
+            }
+            catch { }
+            return "";
         }
 
         private static string DeviceKindName(string kind) => kind switch
@@ -2804,7 +2839,8 @@ namespace Game_launcher
         private string DeviceInfoText(DeviceInfo info)
         {
             string text = Loc.T($"Erkannt: {Loc.T(DeviceKindName(info.Kind))}");
-            if (info.Diagonal > 0) text += " · " + info.Diagonal.ToString("0.#") + " " + Loc.T("Zoll");
+            // Windows kennt die Größe nur in ganzen Zentimetern, Nachkommastellen wären Scheingenauigkeit
+            if (info.Diagonal > 0) text += " · " + (info.Diagonal >= 12 ? Math.Round(info.Diagonal).ToString("0") : info.Diagonal.ToString("0.#")) + " " + Loc.T("Zoll");
             text += " · " + (info.Battery ? Loc.T("Akku vorhanden") : Loc.T("kein Akku"));
             return text;
         }

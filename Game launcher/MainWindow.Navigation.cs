@@ -83,6 +83,7 @@ namespace Game_launcher
 
             activeView.Visibility = Visibility.Visible;
             AnimateIn(activeView);
+            if (ErrorHooksReady) WriteSessionMarker(activeView.Name);
 
             if (StreamerOn) Dispatcher.BeginInvoke(new Action(() => { ApplyCensorCategories(true); ScrubSensitiveText(); }), DispatcherPriority.Background);
         }

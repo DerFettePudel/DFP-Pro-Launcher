@@ -1786,7 +1786,22 @@ namespace Game_launcher
             }
         }
 
+        // LibreHardwareMonitor arbeitet mit Treibern und Hersteller-Bibliotheken. Lesen und Schließen gleichzeitig
+        // (z. B. Beenden während einer Messung) beschädigt deren Speicher und reißt das ganze Programm mit.
+        private readonly object sensorLock = new();
+
         private SensorReport ReadSensors()
+        {
+            lock (sensorLock)
+            {
+                if (sensorsClosed) return new SensorReport();
+                return ReadSensorsLocked();
+            }
+        }
+
+        private bool sensorsClosed;
+
+        private SensorReport ReadSensorsLocked()
         {
             if (hardwareMonitor == null)
             {
@@ -2023,6 +2038,7 @@ namespace Game_launcher
 
                 var rows = new List<SensorRow>();
                 var perGroup = new Dictionary<string, int>();
+                bool hwCpuTemp = false, hwCpuPower = false, hwGpuTemp = false, hwGpuPower = false;
                 for (uint i = 0; i < readingCount; i++)
                 {
                     long at = readingOffset + (long)i * readingSize;
@@ -2042,11 +2058,15 @@ namespace Game_launcher
                     bool gpu = group.StartsWith("GPU", StringComparison.OrdinalIgnoreCase);
                     bool storage = Regex.IsMatch(group, "S\\.M\\.A\\.R\\.T|Drive|NVMe", RegexOptions.IgnoreCase);
 
-                    // Werte für die Systemüberwachung (Prozessor-Temperatur und -Leistung)
-                    if (type == 1 && cpu && Regex.IsMatch(label, "Tctl/Tdie|^CPU Package$|^CPU \\(Tctl", RegexOptions.IgnoreCase)) snap.CpuTemp ??= value;
-                    if (type == 5 && cpu && Regex.IsMatch(label, "^CPU Package Power", RegexOptions.IgnoreCase)) snap.CpuPower ??= value;
-                    if (type == 1 && gpu && Regex.IsMatch(label, "^GPU Temperature$", RegexOptions.IgnoreCase)) snap.GpuTemp ??= value;
-                    if (type == 5 && gpu && Regex.IsMatch(label, "^GPU Power$|Total Board Power|^GPU ASIC Power", RegexOptions.IgnoreCase)) snap.GpuPower ??= value;
+                    // Werte für die Systemüberwachung (Prozessor-Temperatur und -Leistung).
+                    // HWiNFO ist die genauere Quelle und ersetzt, was LibreHardwareMonitor vorher eingetragen hat (je Wert der erste Treffer).
+                    if (value > 0)
+                    {
+                        if (type == 1 && cpu && !hwCpuTemp && Regex.IsMatch(label, "Tctl/Tdie|^CPU Package$|^CPU \\(Tctl", RegexOptions.IgnoreCase)) { snap.CpuTemp = value; hwCpuTemp = true; }
+                        if (type == 5 && cpu && !hwCpuPower && Regex.IsMatch(label, "^CPU Package Power", RegexOptions.IgnoreCase)) { snap.CpuPower = value; hwCpuPower = true; }
+                        if (type == 1 && gpu && !hwGpuTemp && Regex.IsMatch(label, "^GPU Temperature$", RegexOptions.IgnoreCase)) { snap.GpuTemp = value; hwGpuTemp = true; }
+                        if (type == 5 && gpu && !hwGpuPower && Regex.IsMatch(label, "^GPU Power$|Total Board Power|^GPU ASIC Power", RegexOptions.IgnoreCase)) { snap.GpuPower = value; hwGpuPower = true; }
+                    }
 
                     var (icon, order) = HwinfoGroupStyle(group);
                     var row = new SensorRow { Group = group, Icon = icon, Order = order, Name = label };
@@ -2314,12 +2334,20 @@ namespace Game_launcher
 
         private void CloseSensors()
         {
+            // Höchstens kurz auf eine laufende Messung warten; klappt das nicht, lieber offen lassen
+            // (Windows räumt beim Beenden ohnehin auf) als mitten im Lesen zu schließen.
+            if (!System.Threading.Monitor.TryEnter(sensorLock, 3000)) return;
             try
             {
+                sensorsClosed = true;
                 hardwareMonitor?.Close();
                 hardwareMonitor = null;
             }
             catch { }
+            finally
+            {
+                System.Threading.Monitor.Exit(sensorLock);
+            }
         }
 
         private static bool IsRunningAsAdmin()
@@ -4451,8 +4479,11 @@ namespace Game_launcher
 
             foreach (var sensor in hardware.Sensors)
             {
+                // Ohne Treiberzugriff (keine Adminrechte) melden die Prozessor-Fühler 0 statt „kein Wert“.
+                // Diese Nullen dürfen weder angezeigt werden noch die echten Werte von HWiNFO verdrängen.
                 if (!sensor.Value.HasValue) continue;
                 double value = sensor.Value.Value;
+                if (value <= 0 || double.IsNaN(value) || double.IsInfinity(value)) continue;
                 string name = sensor.Name;
 
                 switch (sensor.SensorType)
@@ -4460,6 +4491,7 @@ namespace Game_launcher
                     case LibreHardwareMonitor.Hardware.SensorType.Temperature:
                         if (cpu)
                         {
+                            if (value > 150) break;
                             if (Regex.IsMatch(name, "Package|Tctl|Tdie")) cpuPreferred = value;
                             cpuMax = Math.Max(cpuMax ?? 0, value);
                         }
@@ -4480,7 +4512,7 @@ namespace Game_launcher
                 }
             }
 
-            if (cpu) snap.CpuTemp = cpuPreferred ?? cpuMax;
+            if (cpu && (cpuPreferred ?? cpuMax) is double cpuTemp) snap.CpuTemp = cpuTemp;
         }
 
         private double? ReadVramUsedMb()
@@ -4534,6 +4566,8 @@ namespace Game_launcher
             cpu.Add(Loc.T($"Threads: {Environment.ProcessorCount}"));
             if (s.CpuTemp.HasValue) cpu.Add(Loc.T($"Temperatur: {s.CpuTemp.Value:F0} °C"));
             if (s.CpuPower.HasValue) cpu.Add(Loc.T($"Leistung: {s.CpuPower.Value:F0} W"));
+            if (!s.CpuTemp.HasValue && !s.CpuPower.HasValue && settings.SensorsEnabled)
+                cpu.Add(Loc.T("Temperatur und Leistung: siehe Hinweis bei den Sensoren"));
             TxtCpuDetail.Text = string.Join("\n", cpu);
 
             // Arbeitsspeicher

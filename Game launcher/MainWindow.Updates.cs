@@ -158,7 +158,9 @@ namespace Game_launcher
 
         // ───────────────────────────── Fehlerprotokoll ─────────────────────────────
 
-        private static void LogError(string source, Exception? error)
+        internal static bool ErrorHooksReady { get; private set; }
+
+        internal static void LogError(string source, Exception? error)
         {
             try
             {
@@ -197,12 +199,134 @@ namespace Game_launcher
                 };
             }
 
-            AppDomain.CurrentDomain.UnhandledException += (s, e) => LogError("Programm", e.ExceptionObject as Exception);
+            // Programmabstürze protokolliert bereits App.OnStartup (auch vor dem Hauptfenster)
             TaskScheduler.UnobservedTaskException += (s, e) =>
             {
                 LogError("Hintergrundaufgabe", e.Exception);
                 e.SetObserved();
             };
+            ErrorHooksReady = true;
+
+            StartSessionMarker();
+        }
+
+        // ───────── Absturz-Erkennung über eine Sitzungs-Markierung ─────────
+        // Manche Abstürze (z. B. Speicherfehler in Treibern, Code 0xc0000374) beenden den Prozess sofort,
+        // ohne dass .NET noch etwas protokollieren kann. Bleibt die Markierung beim nächsten Start liegen,
+        // war das Ende unerwartet; die Ursache steht dann im Windows-Ereignisprotokoll.
+
+        private DateTime sessionStarted;
+
+        private void StartSessionMarker()
+        {
+            DateTime? previousStart = null;
+            string previousView = string.Empty;
+            try
+            {
+                if (File.Exists(SessionMarkerPath))
+                {
+                    var lines = File.ReadAllLines(SessionMarkerPath);
+                    if (lines.Length > 0 && DateTime.TryParse(lines[0], CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var started))
+                        previousStart = started;
+                    if (lines.Length > 1) previousView = lines[1];
+                }
+            }
+            catch { }
+
+            sessionStarted = DateTime.Now;
+            WriteSessionMarker(string.Empty);
+
+            var app = System.Windows.Application.Current;
+            if (app != null)
+            {
+                app.Exit += (s, e) => EndSessionMarker();
+                app.SessionEnding += (s, e) => EndSessionMarker();   // Windows fährt herunter: kein Absturz
+            }
+
+            if (previousStart != null) _ = ReportPreviousCrashAsync(previousStart.Value, previousView);
+        }
+
+        /// <summary>Merkt sich den gerade geöffneten Bereich, damit ein Absturz-Bericht sagen kann, wo es passiert ist.</summary>
+        private void WriteSessionMarker(string view)
+        {
+            try
+            {
+                Directory.CreateDirectory(LogDir);
+                File.WriteAllText(SessionMarkerPath, sessionStarted.ToString("o", CultureInfo.InvariantCulture) + "\n" + view);
+            }
+            catch { }
+        }
+
+        private static void EndSessionMarker()
+        {
+            try { File.Delete(SessionMarkerPath); }
+            catch { }
+        }
+
+        private async Task ReportPreviousCrashAsync(DateTime previousStart, string previousView)
+        {
+            string? details = await Task.Run(() => FindWindowsCrashEntry(previousStart));
+
+            var text = new System.Text.StringBuilder();
+            text.AppendLine("Der Launcher wurde beim letzten Mal unerwartet beendet.");
+            text.AppendLine($"Gestartet: {previousStart:yyyy-MM-dd HH:mm:ss}");
+            if (previousView.Length > 0) text.AppendLine($"Zuletzt geöffnet: {previousView}");
+            text.AppendLine(details ?? "Windows hat keinen Absturz gemeldet (z. B. über den Task-Manager beendet oder Strom weg).");
+            LogError("Unerwartetes Ende", new Exception(text.ToString().Trim()));
+
+            // Nur bei einem echten Absturz stören, nicht nach „Task beenden“
+            if (details == null) return;
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                ShowToast("⚠", "Absturz beim letzten Mal", "Der Launcher wurde beim letzten Mal unerwartet beendet. Klicke hier, um das Fehlerprotokoll zu öffnen.",
+                    14, () => BtnOpenLog_Click(this, new RoutedEventArgs()), true);
+
+                if (ErrorReportsPossible && !File.Exists(PendingReportPath))
+                    SavePendingReport(BuildErrorReport("Programm (Absturz ohne .NET-Meldung)", new Exception(SanitizeReport(text.ToString().Trim()))));
+            });
+        }
+
+        /// <summary>Sucht im Windows-Ereignisprotokoll den Absturz dieses Programms seit dem angegebenen Zeitpunkt.</summary>
+        private static string? FindWindowsCrashEntry(DateTime since)
+        {
+            try
+            {
+                string exe = System.IO.Path.GetFileName(Environment.ProcessPath ?? "DFPProLauncher.exe");
+                long ms = Math.Max(60_000, (long)(DateTime.Now - since).TotalMilliseconds + 60_000);
+                string xpath = $"*[System[(Provider[@Name='Application Error'] and EventID=1000) or (Provider[@Name='.NET Runtime'] and EventID=1026)]" +
+                               $"[TimeCreated[timediff(@SystemTime) <= {ms}]]]";
+
+                var query = new System.Diagnostics.Eventing.Reader.EventLogQuery("Application", System.Diagnostics.Eventing.Reader.PathType.LogName, xpath)
+                {
+                    ReverseDirection = true
+                };
+                using var reader = new System.Diagnostics.Eventing.Reader.EventLogReader(query);
+
+                var found = new List<string>();
+                for (var record = reader.ReadEvent(); record != null && found.Count < 2; record = reader.ReadEvent())
+                {
+                    using (record)
+                    {
+                        if (record.TimeCreated is DateTime when && when < since) continue;
+
+                        string message;
+                        try { message = record.FormatDescription() ?? string.Empty; }
+                        catch { message = string.Empty; }
+                        if (!message.Contains(exe, StringComparison.OrdinalIgnoreCase)) continue;
+
+                        // Die .NET-Meldung enthält den Programmablauf, die Windows-Meldung Modul und Fehlercode
+                        if (message.Length > 6000) message = message.Substring(0, 6000) + "\n…";
+                        found.Add($"[{record.TimeCreated:yyyy-MM-dd HH:mm:ss}] {record.ProviderName}:\n{message.Trim()}");
+                    }
+                }
+
+                return found.Count > 0 ? string.Join("\n\n", found) : null;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private void BtnOpenLog_Click(object sender, RoutedEventArgs e)
@@ -211,7 +335,13 @@ namespace Game_launcher
             {
                 Directory.CreateDirectory(LogDir);
                 string file = System.IO.Path.Combine(LogDir, "error.log");
-                Process.Start(new ProcessStartInfo(File.Exists(file) ? file : LogDir) { UseShellExecute = true });
+                if (!File.Exists(file))
+                {
+                    // Früher öffnete sich hier nur ein leerer Ordner, das sah aus, als ginge der Knopf nicht
+                    Msg("Bisher wurden keine Fehler aufgezeichnet.", "Fehlerprotokoll", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+                Process.Start(new ProcessStartInfo("notepad.exe", "\"" + file + "\"") { UseShellExecute = false });
             }
             catch (Exception ex)
             {
