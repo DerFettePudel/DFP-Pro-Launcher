@@ -201,7 +201,9 @@ namespace Game_launcher
                                 LaunchUri = $"steam://rungameid/{appId}",
                                 CoverUrls = SteamCoverUrls(appId),
                                 Source = "Steam",
-                                LocalIcon = ExtractIcon(exePath)
+                                LocalIcon = ExtractIcon(exePath),
+                                // 2 = Update nötig, 512 = Update pausiert
+                                UpdatePending = (ReadAcfNumber(text, "StateFlags") & (2 | 512)) != 0
                             };
                         }
                         catch { }
@@ -1526,6 +1528,12 @@ namespace Game_launcher
                 Margin = new Thickness(8)
             };
             if (IsNewGame(game)) badges.Children.Add(CreateBadge("NEU", true));
+            if (game.UpdatePending)
+            {
+                var update = CreateBadge("⬆ " + Loc.T("UPDATE"), true);
+                update.ToolTip = Loc.T("Für dieses Spiel wartet ein Update in Steam.");
+                badges.Children.Add(update);
+            }
             if (game.Status.Length > 0) badges.Children.Add(CreateBadge(StatusIcon(game.Status), false));
             if (badges.Children.Count > 0) imageArea.Children.Add(badges);
 

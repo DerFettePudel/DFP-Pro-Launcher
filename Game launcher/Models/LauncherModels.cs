@@ -77,6 +77,7 @@ namespace Game_launcher
         public string ProfileMode { get; set; } = "global";
         public string CloseMode { get; set; } = "global";
         public string ModPath { get; set; } = string.Empty;
+        public bool UpdatePending { get; set; }                     // Steam meldet ein ausstehendes Update (nur zur Laufzeit)
     }
 
     public class GameState
