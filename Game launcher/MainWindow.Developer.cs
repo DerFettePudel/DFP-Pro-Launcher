@@ -446,6 +446,40 @@ namespace Game_launcher
             Dev("💬 Test-Meldung", () => ShowToast("🧪", "Testmeldung", "So sieht eine Meldung im Launcher aus.", 6));
             Dev("ℹ Über-Dialog", ShowAbout);
             Dev("🔄 Update jetzt prüfen", () => _ = CheckForUpdateAsync(true));
+
+            Group("Spiel-Extras");
+            Dev("⬆ Update-Abzeichen auf 3 Spielen", () =>
+            {
+                foreach (var game in allGames.Where(g => !g.Hidden).Take(3)) game.UpdatePending = true;
+                ApplyFilter();
+            });
+            Dev("🎨 Dashboard-Farbe neu bestimmen", () =>
+            {
+                coverColors.Clear();
+                coverTintPath = string.Empty;
+                UpdateCoverTint();
+            });
+            Dev("🎮 Schnellmenü öffnen (wie Guide halten)", OpenQuickMenu);
+            Dev("🖥 Bildschirm und HDR anzeigen", () =>
+            {
+                var current = DisplayModes.Current();
+                var all = DisplayModes.All();
+                bool? hdr = DisplayModes.HdrEnabled();
+                Msg($"Aktuell: {current}\nModi: {all.Count} (größter: {all.FirstOrDefault()})\nHDR: {(hdr == null ? "nicht unterstützt" : hdr.Value ? "an" : "aus")}\n" +
+                    $"Zurückstellen offen: Auflösung {settings.DisplayChangedByLauncher}, HDR {settings.HdrRestore}", "Entwickler");
+            });
+            Dev("🏆 SteamID erkennen", () => Msg("SteamID64: " + (DetectSteamId64() is { Length: > 0 } id ? id : "nicht gefunden"), "Entwickler"));
+            Dev("💬 Discord-Status testen", () =>
+            {
+                if (DiscordApplicationId.Length == 0)
+                {
+                    Msg("In MainWindow.GameExtras.cs ist noch keine DiscordApplicationId eingetragen.", "Entwickler");
+                    return;
+                }
+                discordPresence ??= new DiscordPresence(DiscordApplicationId);
+                _ = discordPresence.SetAsync("Test-Spiel", "über DFP Pro Launcher", DateTime.Now);
+                ShowToast("💬", "Entwickler", "Discord-Status gesetzt (Test-Spiel).", 4);
+            });
         }
 #endif
 
