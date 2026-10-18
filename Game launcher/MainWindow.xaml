@@ -696,6 +696,7 @@
            RenderOptions.BitmapScalingMode="HighQuality"/>
         <Border x:Name="BackgroundDim" Background="{DynamicResource AppBackgroundBrush}" Opacity="0.55" Visibility="Collapsed" IsHitTestVisible="False"/>
         <Border x:Name="BackgroundGlow" Visibility="Collapsed" IsHitTestVisible="False"/>
+        <Border x:Name="CoverTint" Visibility="Collapsed" Opacity="0" IsHitTestVisible="False"/>
 
         <Grid x:Name="RootGrid">
             <Grid.ColumnDefinitions>
@@ -2538,6 +2539,17 @@
                                             <TextBlock Text="Lässt das Fenster leicht durchscheinen, so wie bei modernen Windows-Apps." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                         </StackPanel>
                                         <CheckBox x:Name="ChkGlass" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Dashboard passend zum letzten Spiel einfärben" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Ein sanfter Farbverlauf aus dem Cover des zuletzt gespielten Spiels liegt hinter dem Dashboard." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkCoverTint" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
                                     </Grid>
                                     <Grid Margin="0,0,0,18">
                                         <Grid.ColumnDefinitions>

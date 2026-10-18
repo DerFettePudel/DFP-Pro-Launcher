@@ -83,6 +83,7 @@ namespace Game_launcher
 
             activeView.Visibility = Visibility.Visible;
             AnimateIn(activeView);
+            UpdateCoverTint();
             if (ErrorHooksReady) WriteSessionMarker(activeView.Name);
             if (activeView != ViewDashboard) SetDashEditMode(false);
 

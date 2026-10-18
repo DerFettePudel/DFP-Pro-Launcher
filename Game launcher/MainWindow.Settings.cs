@@ -2509,6 +2509,7 @@ namespace Game_launcher
         {
             RefreshDashboardCore(animate);
             ApplyDashboardLayout();
+            UpdateCoverTint();
         }
 
         // ───────────────────────────── Ansichts-Schemas ─────────────────────────────
