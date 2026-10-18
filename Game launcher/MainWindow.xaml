@@ -2210,6 +2210,20 @@
                                         </StackPanel>
                                         <CheckBox x:Name="ChkSounds" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
                                     </Grid>
+                                    <Grid Margin="0,0,0,18" IsEnabled="{Binding IsChecked, ElementName=ChkSounds}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Sound beim Spielstart" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Welcher Ton beim Starten eines Spiels erklingt. Eigene Dateien im WAV-Format. Braucht eingeschaltete Klang-Effekte." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button x:Name="BtnLaunchSound" Content="Klassisch ▾" Margin="0,0,8,0" Click="BtnLaunchSound_Click"/>
+                                            <Button x:Name="BtnLaunchSoundTest" Content="▶ Probehören" Click="BtnLaunchSoundTest_Click"/>
+                                        </StackPanel>
+                                    </Grid>
                                     <Grid Margin="0,0,0,18">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>

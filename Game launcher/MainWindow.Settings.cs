@@ -1935,7 +1935,11 @@ namespace Game_launcher
         private void PlayUiSound(string kind)
         {
             if (!settings.UiSounds) return;
+            PlayTone(kind);
+        }
 
+        private void PlayTone(string kind)
+        {
             try
             {
                 if (!uiSounds.TryGetValue(kind, out var player))
@@ -1944,6 +1948,10 @@ namespace Game_launcher
                     {
                         "move" => MakeToneWav((880, 35)),
                         "launch" => MakeToneWav((660, 70), (990, 110)),
+                        "launch-coin" => MakeToneWav((988, 70), (1319, 260)),
+                        "launch-console" => MakeToneWav((523, 90), (659, 90), (784, 90), (1047, 320)),
+                        "launch-powerup" => MakeToneWav((392, 45), (523, 45), (659, 45), (784, 45), (1047, 45), (1319, 150)),
+                        "launch-fanfare" => MakeToneWav((523, 110), (523, 60), (523, 60), (698, 380)),
                         "bark" => MakeToneWav((520, 55), (400, 80), (520, 55), (330, 130)),
                         "dice" => MakeToneWav((660, 40), (520, 40), (780, 70)),
                         _ => MakeToneWav((740, 55))
@@ -1961,6 +1969,99 @@ namespace Game_launcher
             }
             catch { }
         }
+
+        // ───────────────────────────── Sound beim Spielstart ─────────────────────────────
+
+        private static readonly (string Key, string Label)[] LaunchSounds =
+        {
+            ("off", "Aus"),
+            ("classic", "Klassisch"),
+            ("coin", "Arcade-Münze"),
+            ("console", "Konsolen-Start"),
+            ("powerup", "Power-Up"),
+            ("fanfare", "Fanfare"),
+            ("custom", "Eigene Datei ...")
+        };
+
+        private void PlayLaunchSound(bool preview = false)
+        {
+            if (!preview && (!settings.UiSounds || AlertsMuted())) return;
+
+            switch (settings.LaunchSound ?? "classic")
+            {
+                case "off":
+                    return;
+                case "custom" when File.Exists(settings.LaunchSoundFile):
+                    PlaySoundFile(settings.LaunchSoundFile);
+                    return;
+                case "coin" or "console" or "powerup" or "fanfare":
+                    PlayTone("launch-" + settings.LaunchSound);
+                    return;
+                default:
+                    PlayTone("launch");   // auch, wenn die eigene Datei fehlt
+                    return;
+            }
+        }
+
+        private void PlaySoundFile(string path)
+        {
+            // Laden und Abspielen im Hintergrund: Die Datei kann groß sein oder auf einem langsamen Laufwerk liegen
+            System.Threading.ThreadPool.QueueUserWorkItem(_ =>
+            {
+                try
+                {
+                    using var player = new System.Media.SoundPlayer(path);
+                    player.PlaySync();
+                }
+                catch { }
+            });
+        }
+
+        private void UpdateLaunchSoundButton()
+        {
+            string key = settings.LaunchSound ?? "classic";
+            string label = key == "custom" && settings.LaunchSoundFile.Length > 0
+                ? System.IO.Path.GetFileNameWithoutExtension(settings.LaunchSoundFile)
+                : Loc.T(LaunchSounds.FirstOrDefault(s => s.Key == key).Label ?? "Klassisch");
+            BtnLaunchSound.Content = label + " ▾";
+        }
+
+        private void BtnLaunchSound_Click(object sender, RoutedEventArgs e)
+        {
+            var menu = CreateMenu();
+            foreach (var (key, label) in LaunchSounds)
+            {
+                var item = new MenuItem { Header = Loc.T(label), IsCheckable = true, IsChecked = settings.LaunchSound == key };
+                item.Click += (s, args) =>
+                {
+                    if (key == "custom" && !PickLaunchSoundFile()) return;
+                    settings.LaunchSound = key;
+                    SaveSettings();
+                    UpdateLaunchSoundButton();
+                    PlayLaunchSound(preview: true);
+                };
+                menu.Items.Add(item);
+            }
+            menu.PlacementTarget = BtnLaunchSound;
+            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            menu.IsOpen = true;
+        }
+
+        private bool PickLaunchSoundFile()
+        {
+            var picker = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = Loc.T("Sound beim Spielstart"),
+                Filter = Loc.T("WAV-Dateien") + "|*.wav"
+            };
+            if (File.Exists(settings.LaunchSoundFile)) picker.InitialDirectory = System.IO.Path.GetDirectoryName(settings.LaunchSoundFile);
+            if (picker.ShowDialog(this) != true) return false;
+
+            settings.LaunchSoundFile = picker.FileName;
+            return true;
+        }
+
+        private void BtnLaunchSoundTest_Click(object sender, RoutedEventArgs e) => PlayLaunchSound(preview: true);
 
         // ───────────────────────────── Design teilen ─────────────────────────────
 
@@ -2265,6 +2366,7 @@ namespace Game_launcher
         private void PopulateExtra6Settings()
         {
             ChkSounds.IsChecked = settings.UiSounds;
+            UpdateLaunchSoundButton();
             ChkSensors.IsChecked = settings.SensorsEnabled;
             ChkFetchInfo.IsChecked = settings.FetchGameInfo;
             ChkUpdates.IsChecked = settings.CheckUpdates;

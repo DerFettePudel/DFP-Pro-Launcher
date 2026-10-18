@@ -2263,6 +2263,16 @@ Ziehe ein Widget an die gewünschte Stelle. ✕ entfernt es, unten kannst du aus
 Widget hinzufügen || Add widget || 添加小组件 || Añadir widget || Ajouter un widget || Adicionar widget || Добавить виджет || ウィジェットを追加
 Zurzeit nichts anzuzeigen. Das Widget erscheint, sobald es Inhalte gibt. || Nothing to show right now. The widget appears as soon as there is content. || 当前没有可显示的内容。有内容时小组件会出现。 || Ahora no hay nada que mostrar. El widget aparecerá en cuanto haya contenido. || Rien à afficher pour l'instant. Le widget apparaît dès qu'il y a du contenu. || Nada para mostrar no momento. O widget aparece assim que houver conteúdo. || Сейчас нечего показать. Виджет появится, как только будет содержимое. || 現在表示する内容はありません。内容があるとウィジェットが表示されます。
 Alle Widgets sind schon auf dem Dashboard. || All widgets are already on the dashboard. || 所有小组件都已在仪表盘上。 || Todos los widgets ya están en el panel. || Tous les widgets sont déjà sur le tableau de bord. || Todos os widgets já estão no painel. || Все виджеты уже на панели. || すべてのウィジェットはすでにダッシュボードにあります。
+Sound beim Spielstart || Game launch sound || 游戏启动音效 || Sonido al iniciar un juego || Son au lancement d'un jeu || Som ao iniciar um jogo || Звук при запуске игры || ゲーム起動時のサウンド
+Welcher Ton beim Starten eines Spiels erklingt. Eigene Dateien im WAV-Format. Braucht eingeschaltete Klang-Effekte. || Which sound plays when you start a game. Custom files in WAV format. Requires sound effects to be turned on. || 启动游戏时播放的声音。自定义文件需为 WAV 格式。需要开启音效。 || Qué sonido suena al iniciar un juego. Archivos propios en formato WAV. Requiere los efectos de sonido activados. || Le son joué au lancement d'un jeu. Fichiers personnels au format WAV. Nécessite les effets sonores activés. || Qual som toca ao iniciar um jogo. Arquivos próprios em formato WAV. Requer os efeitos sonoros ativados. || Какой звук звучит при запуске игры. Свои файлы в формате WAV. Требуются включённые звуковые эффекты. || ゲーム起動時に鳴るサウンドです。独自のファイルは WAV 形式。サウンドエフェクトをオンにする必要があります。
+Klassisch || Classic || 经典 || Clásico || Classique || Clássico || Классический || クラシック
+Arcade-Münze || Arcade coin || 街机投币 || Moneda arcade || Pièce d'arcade || Moeda de fliperama || Монетка аркады || アーケードのコイン
+Konsolen-Start || Console boot || 主机开机 || Arranque de consola || Démarrage de console || Inicialização de console || Запуск консоли || コンソール起動
+Power-Up || Power-up || 能量提升 || Power-up || Power-up || Power-up || Усиление || パワーアップ
+Fanfare || Fanfare || 号角 || Fanfarria || Fanfare || Fanfarra || Фанфары || ファンファーレ
+Eigene Datei ... || Custom file ... || 自定义文件 ... || Archivo propio ... || Fichier personnel ... || Arquivo próprio ... || Свой файл ... || 独自のファイル ...
+WAV-Dateien || WAV files || WAV 文件 || Archivos WAV || Fichiers WAV || Arquivos WAV || Файлы WAV || WAV ファイル
+▶ Probehören || ▶ Preview || ▶ 试听 || ▶ Escuchar || ▶ Écouter || ▶ Ouvir || ▶ Прослушать || ▶ 試聴
 """;
     }
 }

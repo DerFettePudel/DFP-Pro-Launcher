@@ -174,6 +174,8 @@ namespace Game_launcher
         public DateTime LastWishCheck { get; set; }
         public bool SensorsEnabled { get; set; }
         public bool UiSounds { get; set; }
+        public string LaunchSound { get; set; } = "classic";   // off, classic, coin, console, powerup, fanfare, custom
+        public string LaunchSoundFile { get; set; } = string.Empty;
         public bool FetchGameInfo { get; set; } = true;
         public bool CheckUpdates { get; set; } = true;
         public string UpdateRepo { get; set; } = string.Empty;

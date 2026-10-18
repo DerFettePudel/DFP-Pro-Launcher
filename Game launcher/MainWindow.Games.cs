@@ -647,7 +647,7 @@ namespace Game_launcher
         {
             if (!ConfirmBeforeLaunch(game)) return;
 
-            PlayUiSound("launch");
+            PlayLaunchSound();
             try
             {
                 if (!string.IsNullOrEmpty(game.LaunchUri))
