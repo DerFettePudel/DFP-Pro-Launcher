@@ -863,8 +863,16 @@ namespace Game_launcher
 
                 savedWindowState = WindowState;
                 savedWindowStyle = WindowStyle;
-                WindowStyle = WindowStyle.None;
-                WindowState = WindowState.Maximized;
+                windowTransition = true;
+                try
+                {
+                    WindowStyle = WindowStyle.None;
+                    WindowState = WindowState.Maximized;
+                }
+                finally
+                {
+                    windowTransition = false;
+                }
                 Topmost = true;
                 Activate();
                 ForceForeground();
@@ -906,9 +914,23 @@ namespace Game_launcher
                 if (padLayer != null) padLayer.Visibility = Visibility.Collapsed;
                 padClockTimer?.Stop();
 
-                WindowState = WindowState.Normal;
-                WindowStyle = savedWindowStyle;
-                WindowState = savedWindowState;
+                // Zwischenschritt über „Normal“, damit Windows die Größe neu berechnet. Dabei weder Rahmen noch Taskleiste
+                // umschalten lassen, sonst schaukeln sich Fenster und Taskleiste gegenseitig auf
+                syncingMaximize = true;
+                windowTransition = true;
+                try
+                {
+                    WindowState = WindowState.Normal;
+                    WindowStyle = savedWindowState == WindowState.Maximized ? WindowStyle.None : savedWindowStyle;
+                    WindowState = savedWindowState;
+                }
+                finally
+                {
+                    syncingMaximize = false;
+                    windowTransition = false;
+                }
+                if (WindowState == WindowState.Normal && WindowStyle == WindowStyle.None) WindowStyle = WindowStyle.SingleBorderWindow;
+                UpdateFullscreenState();
                 Topmost = settings.AlwaysOnTop;
 
                 controllerTimer.Interval = TimeSpan.FromMilliseconds(60);

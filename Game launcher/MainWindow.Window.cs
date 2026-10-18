@@ -68,6 +68,8 @@ namespace Game_launcher
         private bool syncingMaximize;
         private const uint MonitorDefaultToNearest = 2;
         private bool taskbarAutoHideByUs;
+        private bool windowTransition;   // kurzer Zwischenschritt (Normal → Maximiert): Taskleiste dabei nicht umschalten
+        private bool refitRunning;
 
         private void InitExtras23()
         {
@@ -212,7 +214,12 @@ namespace Game_launcher
         /// </summary>
         private void UpdateFullscreenState()
         {
-            bool want = settings.TaskbarHideMaximized && WindowState == WindowState.Maximized && !controllerMode && IsVisible;
+            // Während eines Zwischenschritts nicht umschalten: Sonst schaltet „Normal“ die Taskleiste ein, „Maximiert“ wieder aus,
+            // die Größe passt nie und das Fenster springt endlos (Fehler nach dem Verlassen des Controller-Modus)
+            if (windowTransition) return;
+
+            // Im Controller-Modus bleibt der Zustand, wie er ist: Das Vollbild deckt die Taskleiste ohnehin ab
+            bool want = settings.TaskbarHideMaximized && IsVisible && (controllerMode ? taskbarAutoHideByUs : WindowState == WindowState.Maximized);
 
             try
             {
@@ -249,15 +256,24 @@ namespace Game_launcher
         /// <summary>Nach dem Umschalten ändert sich der freie Bereich: das maximierte Fenster daran anpassen.</summary>
         private async Task RefitMaximizedAsync()
         {
-            await Task.Delay(400);
-            if (WindowState != WindowState.Maximized || controllerMode) return;
+            if (refitRunning) return;
+            refitRunning = true;
+            try
+            {
+                await Task.Delay(400);
+                if (WindowState != WindowState.Maximized || controllerMode || windowTransition) return;
 
-            var handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-            IntPtr monitor = MonitorFromWindow(handle, MonitorDefaultToNearest);
-            var info = new MonitorInfo { Size = Interop.Marshal.SizeOf<MonitorInfo>() };
-            if (!GetMonitorInfo(monitor, ref info) || !NativeExtras.GetWindowRect(handle, out var rect)) return;
-            if (rect.Bottom - rect.Top != info.Work.Bottom - info.Work.Top || rect.Right - rect.Left != info.Work.Right - info.Work.Left)
-                ReapplyMaximize();
+                var handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+                IntPtr monitor = MonitorFromWindow(handle, MonitorDefaultToNearest);
+                var info = new MonitorInfo { Size = Interop.Marshal.SizeOf<MonitorInfo>() };
+                if (!GetMonitorInfo(monitor, ref info) || !NativeExtras.GetWindowRect(handle, out var rect)) return;
+                if (rect.Bottom - rect.Top != info.Work.Bottom - info.Work.Top || rect.Right - rect.Left != info.Work.Right - info.Work.Left)
+                    ReapplyMaximize();   // höchstens einmal je Umschalten, nie in einer Schleife
+            }
+            finally
+            {
+                refitRunning = false;
+            }
         }
 
 #if DEBUG
@@ -348,6 +364,7 @@ namespace Game_launcher
             if (WindowState == WindowState.Maximized && !controllerMode)
             {
                 syncingMaximize = true;
+                windowTransition = true;
                 try
                 {
                     WindowState = WindowState.Normal;
@@ -357,6 +374,7 @@ namespace Game_launcher
                 finally
                 {
                     syncingMaximize = false;
+                    windowTransition = false;
                 }
             }
             UpdateFullscreenState();
