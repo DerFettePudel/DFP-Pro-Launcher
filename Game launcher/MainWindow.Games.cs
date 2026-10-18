@@ -1312,6 +1312,8 @@ namespace Game_launcher
             menu.Items.Add(saves);
 
             AddMenuItem(menu, "⚙  Startoptionen und Begleitprogramme ...", () => ShowLaunchOptions(game));
+            if (game.Source == "Steam" && game.AppId.Length > 0)
+                AddMenuItem(menu, "🏆  Steam-Erfolge ...", () => _ = ShowSteamAchievementsAsync(game));
 
             if (!string.IsNullOrEmpty(game.InstallDir) || File.Exists(game.ExecutablePath))
                 AddMenuItem(menu, "📂  Speicherort öffnen", () => OpenGameLocation(game));

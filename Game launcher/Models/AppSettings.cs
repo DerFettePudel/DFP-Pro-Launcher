@@ -150,6 +150,8 @@ namespace Game_launcher
 
         // Cover-Quelle, Spielzeit-Ausnahmen, Logo, Navigation, Schnellzugriff, Infobereich
         public string SteamGridDbKey { get; set; } = string.Empty;
+        public string SteamApiKeyProtected { get; set; } = string.Empty;   // mit Windows DPAPI verschlüsselt, nie im Klartext
+        public string SteamId64 { get; set; } = string.Empty;
         public List<string> TrackingIgnored { get; set; } = new();
         public int BrandLogoSize { get; set; } = 54;
         public int BrandNameSize { get; set; } = 20;
@@ -262,6 +264,7 @@ namespace Game_launcher
         public bool ShowModButton { get; set; } = true;
         public bool WelcomeAnimation { get; set; } = true;
         public bool DiscordEnabled { get; set; }
+        public bool DiscordPresence { get; set; }
         public string DiscordWebhook { get; set; } = string.Empty;
         public bool DiscordOnStart { get; set; } = true;
         public bool DiscordOnEnd { get; set; } = true;

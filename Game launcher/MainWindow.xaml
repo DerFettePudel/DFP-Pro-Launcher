@@ -3100,6 +3100,19 @@
                                         </WrapPanel>
                                         <TextBlock x:Name="TxtSgdbStatus" Foreground="#34D399" FontSize="12" TextWrapping="Wrap"/>
                                     </StackPanel>
+                                    <StackPanel Margin="0,0,0,18">
+                                        <TextBlock Text="Steam-Erfolge (optional)" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                        <TextBlock Text="Mit einem kostenlosen Steam-Web-API-Schlüssel (steamcommunity.com/dev/apikey) zeigt der Launcher deine Erfolge pro Spiel (Rechtsklick auf ein Steam-Spiel). Dein Steam-Profil muss die Spieldetails öffentlich zeigen. Der Schlüssel wird verschlüsselt gespeichert." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        <TextBlock Text="API-Schlüssel" Style="{StaticResource SubtleText}" FontSize="12" Margin="0,10,0,4"/>
+                                        <PasswordBox x:Name="PwdSteamKey" Height="38" Width="520" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="SteamID64 (wird automatisch erkannt)" Style="{StaticResource SubtleText}" FontSize="12" Margin="0,10,0,4"/>
+                                        <TextBox x:Name="TxtSteamId" Height="38" Width="520" HorizontalAlignment="Left" Margin="0,0,0,10"/>
+                                        <WrapPanel>
+                                            <Button Content="Schlüssel testen" Margin="0,0,10,10" Click="BtnTestSteamKey_Click"/>
+                                            <Button Content="Speichern" Margin="0,0,10,10" Background="{DynamicResource AccentBrush}" Click="BtnSaveSteamKey_Click"/>
+                                        </WrapPanel>
+                                        <TextBlock x:Name="TxtSteamKeyStatus" Foreground="#34D399" FontSize="12" TextWrapping="Wrap"/>
+                                    </StackPanel>
                                     <StackPanel Margin="0,0,0,10">
                                         <TextBlock Text="Cover neu laden" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
                                         <TextBlock Text="Löscht die zwischengespeicherten Cover und lädt alle neu. Eigene Cover bleiben erhalten." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
@@ -3361,6 +3374,18 @@
                                 <StackPanel>
                                     <TextBlock Text="Discord-Benachrichtigung" Style="{StaticResource SectionTitle}"/>
                                     <TextBlock Text="Der Launcher kann eine Nachricht in einen Discord-Kanal deiner Wahl schicken, wenn du ein Spiel startest oder beendest. Dafür legst du in Discord einen Webhook an (Kanal bearbeiten, Integrationen, Webhooks). Gesendet wird nur, was du hier einschaltest, und nur an die Adresse, die du einträgst." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,16"/>
+
+                                    <Grid x:Name="DiscordPresenceRow" Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Discord-Status anzeigen" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Deine Freunde sehen in Discord, was du gerade spielst und seit wann. Braucht die Discord-App auf diesem PC, ein Webhook ist dafür nicht nötig." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkDiscordPresence" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
 
                                     <Grid Margin="0,0,0,18">
                                         <Grid.ColumnDefinitions>

@@ -19,12 +19,21 @@ namespace Game_launcher
         {
             settings.CloseCompanionsAfterGame = ChkCloseCompanions.IsChecked == true;
             settings.DashboardCoverTint = ChkCoverTint.IsChecked == true;
+
+            bool presenceBefore = settings.DiscordPresence;
+            settings.DiscordPresence = ChkDiscordPresence.IsChecked == true;
+            if (presenceBefore != settings.DiscordPresence) UpdateDiscordPresence();
         }
 
         private void PopulateGameExtrasSettings()
         {
             ChkCloseCompanions.IsChecked = settings.CloseCompanionsAfterGame;
             ChkCoverTint.IsChecked = settings.DashboardCoverTint;
+            ChkDiscordPresence.IsChecked = settings.DiscordPresence;
+            DiscordPresenceRow.Visibility = DiscordApplicationId.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+            PwdSteamKey.Password = SecretStore.Unprotect(settings.SteamApiKeyProtected);
+            if (settings.SteamId64.Length == 0) settings.SteamId64 = DetectSteamId64();
+            TxtSteamId.Text = settings.SteamId64;
         }
 
         // ───────────────────────────── Dashboard passend zum letzten Spiel einfärben ─────────────────────────────
@@ -167,6 +176,26 @@ namespace Game_launcher
         {
             CloseStartedCompanions();
             RestoreGameDisplay();
+        }
+
+        // ───────────────────────────── Discord-Status ─────────────────────────────
+
+        // Application ID der Discord-Anwendung „DFP Pro Launcher“ (discord.com/developers). Leer = Funktion ausgeblendet.
+        private const string DiscordApplicationId = "";
+
+        private DiscordPresence? discordPresence;
+
+        private void UpdateDiscordPresence()
+        {
+            if (DiscordApplicationId.Length == 0) return;
+            discordPresence ??= new DiscordPresence(DiscordApplicationId);
+
+            var game = settings.DiscordPresence
+                ? activeSessions.Keys.Where(sessionStart.ContainsKey).OrderByDescending(g => sessionStart[g]).FirstOrDefault()
+                : null;
+
+            if (game == null) _ = discordPresence.ClearAsync();
+            else _ = discordPresence.SetAsync(game.Name, Loc.T("über DFP Pro Launcher"), sessionStart[game]);
         }
 
         // ───────────────────────────── Auflösung und HDR pro Spiel ─────────────────────────────

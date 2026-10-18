@@ -486,7 +486,7 @@ namespace Game_launcher
             Censor(settings.StreamHideLocation, WeatherCard, TxtWeatherCity);
             Censor(settings.StreamHideStats, StatsGrid, goalWidget);
             Censor(settings.StreamHideRecent, HeroHost, RecentSection, FavSection);
-            Censor(settings.StreamHidePaths, GridDownloads, AppsContainer, DrivesControl, GameSizesControl, TxtSgdbKey, TxtCloudFolder, TxtUpdateRepo, TxtDiscordWebhook, quickWidget, TxtObsHost);
+            Censor(settings.StreamHidePaths, GridDownloads, AppsContainer, DrivesControl, GameSizesControl, TxtSgdbKey, TxtCloudFolder, TxtUpdateRepo, TxtDiscordWebhook, quickWidget, TxtObsHost, TxtSteamId);
             Censor(settings.StreamHideShots, GalleryContainer, WishContainer, wishWidget);
 
             foreach (var adorner in censorAdorners.Values) adorner.InvalidateVisual();

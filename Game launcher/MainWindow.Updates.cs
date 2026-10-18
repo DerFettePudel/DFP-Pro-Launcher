@@ -1208,6 +1208,7 @@ namespace Game_launcher
 
         private void DiscordSessionStarted(GameItem game)
         {
+            UpdateDiscordPresence();
             if (!settings.DiscordEnabled) return;
 
             discordStarts[game] = DateTime.Now;
@@ -1219,6 +1220,7 @@ namespace Game_launcher
 
         private void DiscordSessionEnded(GameItem game)
         {
+            UpdateDiscordPresence();
             if (!discordStarts.TryGetValue(game, out var started)) return;
             discordStarts.Remove(game);
 
