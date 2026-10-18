@@ -81,6 +81,19 @@ namespace Game_launcher
         [Interop.DllImport("xinput1_4.dll")]
         internal static extern uint XInputGetState(uint index, out XInputState state);
 
+        // Nicht dokumentierte Variante (Ordinal 100): liefert zusätzlich die Guide-Taste (Bit 0x0400). Die Struktur ist 4 Bytes länger.
+        [Interop.StructLayout(Interop.LayoutKind.Sequential)]
+        internal struct XInputStateEx
+        {
+            public XInputState State;
+            public uint Reserved;
+        }
+
+        [Interop.DllImport("xinput1_4.dll", EntryPoint = "#100")]
+        internal static extern uint XInputGetStateEx(uint index, out XInputStateEx state);
+
+        internal const ushort XInputGuide = 0x0400;
+
         [Interop.StructLayout(Interop.LayoutKind.Sequential)]
         internal struct XInputBatteryInformation
         {
@@ -109,6 +122,9 @@ namespace Game_launcher
 
         [Interop.DllImport("user32.dll")]
         internal static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [Interop.DllImport("user32.dll")]
+        internal static extern IntPtr GetForegroundWindow();
 
         [Interop.DllImport("kernel32.dll", SetLastError = true)]
         internal static extern IntPtr OpenProcess(uint access, bool inherit, int pid);

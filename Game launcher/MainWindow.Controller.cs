@@ -1373,6 +1373,7 @@ namespace Game_launcher
             settings.PadRepeat = ChipPadRepSlow.IsChecked == true ? 1 : ChipPadRepFast.IsChecked == true ? 3 : 2;
             settings.PadAutoStart = ChkPadAutoStart.IsChecked == true;
             settings.PadContinueRow = ChkPadContinue.IsChecked == true;
+            settings.PadGuideMenu = ChkPadGuide.IsChecked == true;
         }
 
         private void PopulateExtra14Settings()
@@ -1388,6 +1389,7 @@ namespace Game_launcher
             ChipPadRepFast.IsChecked = settings.PadRepeat == 3;
             ChkPadAutoStart.IsChecked = settings.PadAutoStart;
             ChkPadContinue.IsChecked = settings.PadContinueRow;
+            ChkPadGuide.IsChecked = settings.PadGuideMenu;
         }
 
         // ───────────────────────────── Controller: Abfrage im eigenen System.Threading.Thread ─────────────────────────────
@@ -1648,13 +1650,36 @@ namespace Game_launcher
                     // Xbox-Controller: sehr schnell abfragen
                     if (slot >= 0)
                     {
-                        if (NativeFeatures.XInputGetState((uint)slot, out var state) != 0)
+                        NativeFeatures.XInputState state;
+                        uint result;
+                        bool guide = false;
+                        if (guideApi)
+                        {
+                            try
+                            {
+                                result = NativeFeatures.XInputGetStateEx((uint)slot, out var ex);
+                                state = ex.State;
+                                guide = (ex.State.Gamepad.Buttons & NativeFeatures.XInputGuide) != 0;
+                            }
+                            catch (EntryPointNotFoundException)
+                            {
+                                guideApi = false;
+                                result = NativeFeatures.XInputGetState((uint)slot, out state);
+                            }
+                        }
+                        else
+                        {
+                            result = NativeFeatures.XInputGetState((uint)slot, out state);
+                        }
+
+                        if (result != 0)
                         {
                             Reset();
                             lastScan = -10000;
                             continue;
                         }
 
+                        TrackGuideHold(guide, clock.ElapsedMilliseconds);
                         Publish(RemapPad(MapXInput(state, ref stick)));
                         System.Threading.Thread.Sleep(padFast ? 2 : 8);
                         continue;
@@ -2434,6 +2459,68 @@ namespace Game_launcher
             await Task.Delay(5000);
             int remaining = await Task.Run(() => Close(true));
             if (remaining > 0) LogError("Spiel beenden", new InvalidOperationException($"{game.Name}: {remaining} Prozess(e) hart beendet"));
+        }
+
+        // ───────── Schnellmenü: Guide-Taste 1 Sekunde halten ─────────
+
+        private volatile bool guideApi = true;   // false, wenn Windows die erweiterte Abfrage nicht kennt
+        private long guideSince = -1;
+        private bool guideFired;
+        private IntPtr quickMenuGameWindow;
+
+        /// <summary>Läuft im Controller-Thread: meldet einmal pro Drücken, wenn die Guide-Taste 1 s gehalten wurde.</summary>
+        private void TrackGuideHold(bool down, long now)
+        {
+            if (!down)
+            {
+                guideSince = -1;
+                guideFired = false;
+                return;
+            }
+            if (guideSince < 0) guideSince = now;
+            if (guideFired || now - guideSince < 1000 || !settings.PadGuideMenu) return;
+
+            guideFired = true;
+            padDispatcher?.BeginInvoke(DispatcherPriority.Send, new Action(OpenQuickMenu));
+        }
+
+        private void OpenQuickMenu()
+        {
+            if (activeSessions.Count == 0)
+            {
+                // Kein Spiel: einfach den Controller-Modus öffnen
+                if (!controllerMode) ToggleControllerMode();
+                return;
+            }
+
+            // Das Spielfenster merken, damit „Weiterspielen“ genau dorthin zurückkehrt
+            var foreground = NativeFeatures.GetForegroundWindow();
+            var own = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+            if (foreground != own) quickMenuGameWindow = foreground;
+
+            if (!controllerMode) ToggleControllerMode();
+            else ForceForeground();
+            PadRumble(PadRumbleLong);
+
+            OpenPadMenu(Loc.T("Schnellmenü"), new List<(string, Action)>
+            {
+                (Loc.T("▶  Weiterspielen"), ReturnToGame),
+                (Loc.T("🔊  Lautstärke"), OpenPadVolume),
+                (Loc.T("⏹  Spiel beenden"), PadEndGame),
+                (Loc.T("🏠  Zum Launcher"), () => { })
+            });
+        }
+
+        private void ReturnToGame()
+        {
+            var target = quickMenuGameWindow;
+            quickMenuGameWindow = IntPtr.Zero;
+
+            // Nach dem Spiel soll der Controller-Modus wie gewohnt wiederkommen
+            padResumeAfterGame = true;
+            if (controllerMode) ToggleControllerMode();
+            WindowState = WindowState.Minimized;
+            if (target != IntPtr.Zero) NativeFeatures.SetForegroundWindow(target);
         }
 
         private void PadPowerAction(string kind)
