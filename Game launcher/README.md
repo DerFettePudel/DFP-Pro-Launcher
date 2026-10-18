@@ -42,4 +42,4 @@ Die Versionsnummer kommt aus dem Tag. In der Projektdatei musst du nichts änder
 ## Hinweise
 - Das Repository muss **öffentlich** sein, damit der Launcher Updates ohne Anmeldung laden kann.
 - Der Launcher prüft jede heruntergeladene Datei mit einer SHA-256-Prüfsumme, bevor er sie installiert.
-- Eingebundene Pakete: LibreHardwareMonitorLib (MPL 2.0), SixLabors.ImageSharp (Six Labors Split License), System.Management.
+- Eingebundene Pakete: LibreHardwareMonitorLib (MPL 2.0), System.Management.

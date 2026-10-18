@@ -626,7 +626,7 @@ namespace Game_launcher
             {
                 if (path.EndsWith(".webp", StringComparison.OrdinalIgnoreCase))
                 {
-                    var still = DecodeStillWithImageSharp(path, settings.PerformanceMode ? 320 : settings.FullResCovers ? 0 : 600);
+                    var still = DecodeWebpStill(path, settings.PerformanceMode ? 320 : settings.FullResCovers ? 0 : 600);
                     if (still != null) imageCache[key] = still;
                     return still;
                 }
@@ -5102,16 +5102,13 @@ namespace Game_launcher
             }
         }
 
-        /// <summary>Liest ein Standbild, das WPF selbst nicht kennt (zum Beispiel WebP), über ImageSharp.</summary>
-        private static BitmapImage? DecodeStillWithImageSharp(string path, int decodeWidth)
+        /// <summary>Liest das erste Bild einer WebP-Datei (auch bewegt) über die WebP-Erweiterung von Windows.</summary>
+        private static BitmapImage? DecodeWebpStill(string path, int decodeWidth)
         {
             try
             {
-                var options = new SixLabors.ImageSharp.Formats.DecoderOptions { MaxFrames = 1 };
-                using var image = SixLabors.ImageSharp.Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(options, path);
-                using var stream = new MemoryStream();
-                image.Save(stream, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
-                stream.Position = 0;
+                using var stream = AnimatedImageDecoder.FirstFrameAsPng(path);
+                if (stream == null) return null;
 
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
@@ -6781,7 +6778,7 @@ namespace Game_launcher
         {
             try
             {
-                if (path.EndsWith(".webp", StringComparison.OrdinalIgnoreCase)) return DecodeStillWithImageSharp(path, 380);
+                if (path.EndsWith(".webp", StringComparison.OrdinalIgnoreCase)) return DecodeWebpStill(path, 380);
 
                 var image = new BitmapImage();
                 image.BeginInit();

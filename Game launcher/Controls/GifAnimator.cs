@@ -19,7 +19,7 @@ using Interop = System.Runtime.InteropServices;
 
 namespace Game_launcher
 {
-    /// <summary>Spielt animierte GIFs ab (WPF kann das nicht von Haus aus). Teilbilder werden zusammengesetzt.</summary>
+    /// <summary>Spielt animierte GIFs, APNGs und WebPs ab (WPF kann das nicht von Haus aus). Gelesen wird über <see cref="AnimatedImageDecoder"/>.</summary>
     public sealed class GifAnimator
     {
         /// <summary>Warum die letzte Animation nicht geladen werden konnte (für das Fehlerprotokoll).</summary>
@@ -33,41 +33,6 @@ namespace Game_launcher
 
         public BitmapSource? FirstFrame => frames.Count > 0 ? frames[0] : null;
 
-        /// <summary>Liest die Anzeigedauer eines Einzelbilds (ms). Die Formate nennen die Eigenschaft unterschiedlich, daher per Reflexion.</summary>
-        private static int ReadDelayMs(object frameMetadata, string extension)
-        {
-            try
-            {
-                string method = extension == ".gif" ? "GetGifMetadata" : extension == ".webp" ? "GetWebpMetadata" : "GetPngMetadata";
-                var helper = typeof(SixLabors.ImageSharp.Image).Assembly.GetType("SixLabors.ImageSharp.MetadataExtensions");
-                var getter = helper?.GetMethods().FirstOrDefault(m => m.Name == method
-                    && m.GetParameters().Length == 1 && m.GetParameters()[0].ParameterType.Name == "ImageFrameMetadata");
-                object? meta = getter?.Invoke(null, new[] { frameMetadata });
-                if (meta == null) return 80;
-
-                foreach (string name in new[] { "FrameDelay", "FrameDuration" })
-                {
-                    object? value = meta.GetType().GetProperty(name)?.GetValue(meta);
-                    if (value == null) continue;
-
-                    double number = value switch
-                    {
-                        int i => i,
-                        uint u => u,
-                        long l => l,
-                        double d => d,
-                        _ => Convert.ToDouble(value.GetType().GetMethod("ToDouble")?.Invoke(value, null) ?? 0.0)
-                    };
-
-                    double ms = extension == ".gif" ? number * 10 : extension == ".webp" ? number : number * 1000;
-                    return (int)Math.Clamp(ms, 20, 5000);
-                }
-            }
-            catch { }
-
-            return 80;
-        }
-
         public static GifAnimator? TryLoad(string path, int maxWidth)
         {
             try
@@ -79,46 +44,22 @@ namespace Game_launcher
                     return null;
                 }
 
-                string extension = System.IO.Path.GetExtension(path).ToLowerInvariant();
-                var options = new SixLabors.ImageSharp.Formats.DecoderOptions { MaxFrames = 150 };
-                using var image = SixLabors.ImageSharp.Image.Load<SixLabors.ImageSharp.PixelFormats.Rgba32>(options, path);
-
-                int total = image.Frames.Count;
-                if (total < 2)
+                // höchstens 150 Bilder lesen und etwa 90 davon im Speicher halten
+                var decoded = AnimatedImageDecoder.Decode(path, maxWidth, 150, 90, out int total);
+                if (total < 2 || decoded.Count < 2)
                 {
                     LastError = "Das Bild enthält keine Animation";
                     return null;
                 }
 
-                int stride = (int)Math.Ceiling(total / 90.0);   // höchstens etwa 90 Bilder im Speicher
-                int width = Math.Max(1, Math.Min(maxWidth, image.Width));
                 var animator = new GifAnimator();
-                int pendingDelay = 0;
-
-                for (int i = 0; i < total; i++)
+                foreach (var (frame, delay) in decoded)
                 {
-                    pendingDelay += ReadDelayMs(image.Frames[i].Metadata, extension);
-                    if (i % stride != 0) continue;
-
-                    using var single = image.Frames.CloneFrame(i);
-                    using var stream = new MemoryStream();
-                    single.Save(stream, new SixLabors.ImageSharp.Formats.Png.PngEncoder());
-                    stream.Position = 0;
-
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.StreamSource = stream;
-                    bitmap.DecodePixelWidth = width;
-                    bitmap.EndInit();
-                    bitmap.Freeze();
-
-                    animator.frames.Add(bitmap);
-                    animator.delays.Add(pendingDelay);
-                    pendingDelay = 0;
+                    animator.frames.Add(frame);
+                    animator.delays.Add(delay);
                 }
 
-                return animator.frames.Count > 1 ? animator : null;
+                return animator;
             }
             catch (Exception ex)
             {
