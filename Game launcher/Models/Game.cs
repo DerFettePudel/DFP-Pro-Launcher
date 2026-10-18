@@ -4,9 +4,9 @@ namespace Game_launcher.Models
 {
     public class Game
     {
-        public string Title { get; set; }
-        public string ExecutablePath { get; set; }
-        public string Publisher { get; set; }
-        public ImageSource Icon { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string ExecutablePath { get; set; } = string.Empty;
+        public string Publisher { get; set; } = string.Empty;
+        public ImageSource? Icon { get; set; }
     }
 }

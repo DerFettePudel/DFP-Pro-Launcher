@@ -414,6 +414,7 @@ namespace Game_launcher
             if (trayIcon != null) trayIcon.Visible = false;
             overlayWindow?.Close();
             Close();
+            FlushSettings();
             System.Windows.Application.Current.Shutdown();
         }
 
@@ -3061,7 +3062,7 @@ namespace Game_launcher
                 {
                     foreach (var (process, label) in StoreLaunchers)
                     {
-                        if (System.Diagnostics.Process.GetProcessesByName(process).Length == 0) continue;
+                        if (!IsProcessRunning(process)) continue;
                         return new DownloadState { Name = label, Store = label, Speed = nicSpeed };
                     }
                 }

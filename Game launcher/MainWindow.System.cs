@@ -1911,7 +1911,7 @@ namespace Game_launcher
         {
             try
             {
-                return Process.GetProcessesByName("HWiNFO64").Length > 0 || Process.GetProcessesByName("HWiNFO32").Length > 0;
+                return IsProcessRunning("HWiNFO64") || IsProcessRunning("HWiNFO32");
             }
             catch
             {
@@ -2377,6 +2377,7 @@ namespace Game_launcher
                 string? exe = Environment.ProcessPath;
                 if (string.IsNullOrEmpty(exe)) return;
 
+                FlushSettings();   // die neue Instanz liest die Datei sofort
                 Process.Start(new ProcessStartInfo(exe, "--restart") { UseShellExecute = true, Verb = "runas" });
                 ExitApplication();
             }

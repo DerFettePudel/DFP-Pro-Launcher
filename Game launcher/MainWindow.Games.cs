@@ -7802,11 +7802,22 @@ namespace Game_launcher
                 activeDownloads = current;
                 if (previous == null) return;   // erster Durchlauf: nur merken
 
+                bool anyDone = false;
                 foreach (var (manifest, info) in previous)
                 {
                     if (current.ContainsKey(manifest)) continue;
                     bool done = await Task.Run(() => IsDownloadComplete(info.Store, info.Manifest));
-                    if (done) NotifyDownloadDone(info.Name, info.Store);
+                    if (!done) continue;
+                    anyDone = true;
+                    NotifyDownloadDone(info.Name, info.Store);
+                }
+
+                // Das neue Spiel soll sofort in der Bibliothek stehen, nicht erst beim nächsten Scan
+                if (anyDone && !isScanning && !controllerMode && !silentRescan)
+                {
+                    silentRescan = true;
+                    try { await LoadInstalledGamesAsync(); }
+                    finally { silentRescan = false; }
                 }
             }
             catch { }

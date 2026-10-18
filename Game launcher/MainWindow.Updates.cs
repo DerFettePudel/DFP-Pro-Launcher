@@ -412,6 +412,7 @@ namespace Game_launcher
         {
             try
             {
+                FlushSettings();
                 if (!File.Exists(SettingsFilePath) || new FileInfo(SettingsFilePath).Length < 20) return null;
 
                 // Nur eine gültige Datei sichern, damit keine defekte Fassung die gute ersetzt
@@ -1007,7 +1008,7 @@ namespace Game_launcher
 
                         busy = false;
                         dialog.DialogResult = true;
-                        Dispatcher.BeginInvoke(new Action(ExitApplication), DispatcherPriority.Background);
+                        _ = Dispatcher.BeginInvoke(new Action(ExitApplication), DispatcherPriority.Background);
                     }
                     catch (OperationCanceledException)
                     {
@@ -1125,6 +1126,7 @@ namespace Game_launcher
                 SaveSettings();
                 await Task.Run(() =>
                 {
+                    FlushSettings();
                     Directory.CreateDirectory(System.IO.Path.Combine(root, "Einstellungen"));
                     if (File.Exists(SettingsFilePath))
                         File.Copy(SettingsFilePath, System.IO.Path.Combine(root, "Einstellungen", "settings.json"), true);

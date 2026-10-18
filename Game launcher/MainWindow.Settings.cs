@@ -196,18 +196,58 @@ namespace Game_launcher
             // Nach einem Import wartet die neue Datei auf den Neustart und darf nicht mehr überschrieben werden
             if (settingsSaveBlocked) return;
 
+            string json;
             try
             {
-                Directory.CreateDirectory(SettingsDir);
-                lock (settings.SteamIds)
+                lock (settings.SteamIds) json = JsonSerializer.Serialize(settings, JsonOptions);
+            }
+            catch
+            {
+                return;
+            }
+
+            // Schreiben erst kurz nach der letzten Änderung und im Hintergrund: Schieberegler und
+            // Klickfolgen lösen sonst viele Schreibvorgänge auf dem Oberflächen-Thread aus
+            lock (settingsWriteLock)
+            {
+                if (pendingSettingsJson == null && json == lastWrittenSettingsJson) return;   // nichts geändert
+                pendingSettingsJson = json;
+
+                if (settingsWriteTimer == null)
                 {
-                    string json = JsonSerializer.Serialize(settings, JsonOptions);
+                    settingsWriteTimer = new System.Threading.Timer(_ => FlushSettings());
+                    AppDomain.CurrentDomain.ProcessExit += (s, e) => FlushSettings();
+                    var app = System.Windows.Application.Current;
+                    if (app != null) app.SessionEnding += (s, e) => FlushSettings();
+                }
+                settingsWriteTimer.Change(400, System.Threading.Timeout.Infinite);
+            }
+        }
+
+        private static readonly object settingsWriteLock = new();
+        private static System.Threading.Timer? settingsWriteTimer;
+        private static string? pendingSettingsJson;
+        private static string? lastWrittenSettingsJson;
+
+        /// <summary>Schreibt eine wartende Änderung sofort. Vor allem, was die Datei liest oder kopiert, und beim Beenden aufrufen.</summary>
+        private static void FlushSettings()
+        {
+            lock (settingsWriteLock)
+            {
+                string? json = pendingSettingsJson;
+                if (json == null) return;
+
+                try
+                {
+                    Directory.CreateDirectory(SettingsDir);
                     string temp = SettingsFilePath + ".tmp";
                     File.WriteAllText(temp, json);
                     File.Move(temp, SettingsFilePath, true);
+                    lastWrittenSettingsJson = json;
+                    pendingSettingsJson = null;
                 }
+                catch { }   // bleibt wartend und wird beim nächsten Speichern erneut versucht
             }
-            catch { }
         }
 
         private void PopulateControlsFromSettings()
@@ -1166,11 +1206,15 @@ namespace Game_launcher
 
                 Directory.CreateDirectory(SettingsDir);
                 string temp = SettingsFilePath + ".tmp";
-                File.WriteAllText(temp, JsonSerializer.Serialize(import.Settings, JsonOptions));
-                File.Move(temp, SettingsFilePath, true);
+                lock (settingsWriteLock)
+                {
+                    File.WriteAllText(temp, JsonSerializer.Serialize(import.Settings, JsonOptions));
+                    File.Move(temp, SettingsFilePath, true);
 
-                // Ab jetzt nichts mehr speichern, sonst würde der alte Stand beim Beenden die neue Datei überschreiben
-                settingsSaveBlocked = true;
+                    // Ab jetzt nichts mehr speichern, sonst würde der alte Stand beim Beenden die neue Datei überschreiben
+                    settingsSaveBlocked = true;
+                    pendingSettingsJson = null;
+                }
             }
             catch (Exception ex)
             {
@@ -1188,6 +1232,7 @@ namespace Game_launcher
                 string? exe = Environment.ProcessPath;
                 if (string.IsNullOrEmpty(exe)) throw new InvalidOperationException();
 
+                FlushSettings();   // die neue Instanz liest die Datei sofort
                 Process.Start(new ProcessStartInfo(exe, "--restart") { UseShellExecute = true });
                 ExitApplication();
             }
