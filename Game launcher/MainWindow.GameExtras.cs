@@ -181,7 +181,7 @@ namespace Game_launcher
         // ───────────────────────────── Discord-Status ─────────────────────────────
 
         // Application ID der Discord-Anwendung „DFP Pro Launcher“ (discord.com/developers). Leer = Funktion ausgeblendet.
-        private const string DiscordApplicationId = "";
+        private const string DiscordApplicationId = "1561422669688217750";
 
         private DiscordPresence? discordPresence;
 
