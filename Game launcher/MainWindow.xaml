@@ -3332,6 +3332,17 @@
                                             <Button Content="Standard-Begleitprogramme wählen ..." Margin="0,0,10,10" Click="BtnPickCompanions_Click"/>
                                         </WrapPanel>
                                     </StackPanel>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Begleitprogramme nach dem Spiel schließen" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Schließt nur Programme, die der Launcher für das Spiel gestartet hat. Was vorher schon lief, bleibt offen." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkCloseCompanions" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
                                 </StackPanel>
                             </Border>
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="games" Visibility="Collapsed">

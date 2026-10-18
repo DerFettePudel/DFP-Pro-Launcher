@@ -111,6 +111,7 @@ namespace Game_launcher
         public bool AutoBackupSaves { get; set; } = true;
         public int BackupCount { get; set; }
         public List<string> DefaultCompanions { get; set; } = new();
+        public bool CloseCompanionsAfterGame { get; set; }
         public Dictionary<string, string> Achievements { get; set; } = new();
         public bool NightOwl { get; set; }
         public bool InitialScanDone { get; set; }

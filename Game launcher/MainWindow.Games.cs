@@ -2231,6 +2231,7 @@ namespace Game_launcher
                             _ = DeactivateGamingProfileAsync();
                             RestoreClosedApps();
                             OnProfileGameEnded();
+                            OnAllGamesEnded();
                         }
                     }
                     else
@@ -3382,15 +3383,19 @@ namespace Game_launcher
 
         // ───────────────────────────── Startoptionen & Begleitprogramme ─────────────────────────────
 
+        private static string AppProcessName(AppEntry app)
+        {
+            string processName = System.IO.Path.GetFileNameWithoutExtension(app.ExePath);
+            var match = Regex.Match(app.Arguments ?? string.Empty, @"--processStart\s+(\S+)", RegexOptions.IgnoreCase);
+            if (match.Success) processName = System.IO.Path.GetFileNameWithoutExtension(match.Groups[1].Value);
+            return processName;
+        }
+
         private static bool IsAppRunning(AppEntry app)
         {
             try
             {
-                string processName = System.IO.Path.GetFileNameWithoutExtension(app.ExePath);
-                var match = Regex.Match(app.Arguments ?? string.Empty, @"--processStart\s+(\S+)", RegexOptions.IgnoreCase);
-                if (match.Success) processName = System.IO.Path.GetFileNameWithoutExtension(match.Groups[1].Value);
-
-                var processes = Process.GetProcessesByName(processName);
+                var processes = Process.GetProcessesByName(AppProcessName(app));
                 bool running = processes.Length > 0;
                 foreach (var process in processes) process.Dispose();
                 return running;
@@ -3414,6 +3419,7 @@ namespace Game_launcher
                 var app = cachedApps.FirstOrDefault(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase));
                 if (app == null || IsAppRunning(app)) continue;
                 LaunchApp(app);
+                startedCompanions.Add(AppProcessName(app));   // nur selbst gestartete später wieder schließen
             }
         }
 

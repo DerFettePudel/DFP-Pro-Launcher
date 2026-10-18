@@ -461,7 +461,7 @@ namespace Game_launcher
             ReadExtra11Settings();
             ReadExtra12Settings();
             ReadExtra14Settings();
-
+            ReadGameExtrasSettings();
         }
 
         private void PopulateExtraSettings()
@@ -471,6 +471,7 @@ namespace Game_launcher
             ChkDeals.IsChecked = settings.ShowDeals;
             ChkStorageWarn.IsChecked = settings.StorageWarning;
             ChkAutoBackup.IsChecked = settings.AutoBackupSaves;
+            PopulateGameExtrasSettings();
             PopulateComfortSettings();
             PopulateExtra3Settings();
             PopulateExtra4Settings();
