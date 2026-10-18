@@ -656,6 +656,7 @@ namespace Game_launcher
             if (!ConfirmBeforeLaunch(game)) return;
 
             PlayLaunchSound();
+            ApplyGameDisplay(game);
             try
             {
                 if (!string.IsNullOrEmpty(game.LaunchUri))
@@ -1174,6 +1175,8 @@ namespace Game_launcher
                 game.ProfileMode = state.ProfileMode ?? "global";
                 game.CloseMode = state.CloseMode ?? "global";
                 game.ModPath = state.ModPath ?? string.Empty;
+                game.DisplayMode = state.DisplayMode ?? string.Empty;
+                game.HdrMode = state.HdrMode ?? string.Empty;
             }
         }
 
@@ -1204,6 +1207,8 @@ namespace Game_launcher
             state.ProfileMode = game.ProfileMode;
             state.CloseMode = game.CloseMode;
             state.ModPath = game.ModPath;
+            state.DisplayMode = game.DisplayMode;
+            state.HdrMode = game.HdrMode;
         }
 
         private void SaveGameState(GameItem game)
@@ -3543,6 +3548,9 @@ namespace Game_launcher
                 wrap.Children.Add(new TextBlock { Text = "Keine Anwendungen erkannt.", Foreground = BrushSubtle });
             panel.Children.Add(wrap);
 
+            string displayMode = game.DisplayMode, hdrMode = game.HdrMode;
+            AddDisplayOptions(panel, () => displayMode, v => displayMode = v, () => hdrMode, v => hdrMode = v);
+
             var buttons = new StackPanel
             {
                 Orientation = System.Windows.Controls.Orientation.Horizontal,
@@ -3556,6 +3564,8 @@ namespace Game_launcher
                 game.LaunchArgs = args.Text.Trim();
                 game.RunAsAdmin = admin.IsChecked == true;
                 game.CompanionApps = boxes.Where(p => p.Value.IsChecked == true).Select(p => p.Key).ToList();
+                game.DisplayMode = displayMode;
+                game.HdrMode = hdrMode;
                 SaveGameState(game);
                 dialog.DialogResult = true;
             };

@@ -2281,6 +2281,14 @@ UPDATE || UPDATE || 更新 || ACTUALIZACIÓN || MISE À JOUR || ATUALIZAÇÃO ||
 Für dieses Spiel wartet ein Update in Steam. || An update for this game is waiting in Steam. || 此游戏在 Steam 中有待安装的更新。 || Hay una actualización pendiente para este juego en Steam. || Une mise à jour de ce jeu attend dans Steam. || Há uma atualização pendente para este jogo na Steam. || Для этой игры в Steam ожидает обновление. || このゲームの更新が Steam で待機しています。
 Dashboard passend zum letzten Spiel einfärben || Tint the dashboard to match your last game || 按最近玩的游戏为仪表盘着色 || Colorear el panel según tu último juego || Teinter le tableau de bord selon ton dernier jeu || Colorir o painel conforme seu último jogo || Окрашивать панель под последнюю игру || ダッシュボードを最後のゲームに合わせて色付け
 Ein sanfter Farbverlauf aus dem Cover des zuletzt gespielten Spiels liegt hinter dem Dashboard. || A soft gradient taken from the cover of your last played game sits behind the dashboard. || 仪表盘背后会显示取自最近所玩游戏封面的柔和渐变。 || Detrás del panel aparece un degradado suave tomado de la portada de tu último juego. || Un dégradé doux tiré de la jaquette de ton dernier jeu s'affiche derrière le tableau de bord. || Um degradê suave tirado da capa do último jogo fica atrás do painel. || За панелью появляется мягкий градиент из обложки последней игры. || 最後に遊んだゲームのカバーから取った柔らかいグラデーションをダッシュボードの背景に表示します。
+Auflösung nicht möglich || Resolution not possible || 无法设置分辨率 || Resolución no posible || Résolution impossible || Resolução não possível || Разрешение недоступно || 解像度を設定できません
+Der Bildschirm unterstützt {#0} × {#1} bei {#2} Hz nicht. || The display does not support {0} × {1} at {2} Hz. || 显示器不支持 {0} × {1} @ {2} Hz。 || La pantalla no admite {0} × {1} a {2} Hz. || L'écran ne prend pas en charge {0} × {1} à {2} Hz. || A tela não suporta {0} × {1} a {2} Hz. || Экран не поддерживает {0} × {1} при {2} Гц. || ディスプレイは {0} × {1}・{2} Hz に対応していません。
+Bildschirm beim Spielstart || Display when the game starts || 游戏启动时的显示设置 || Pantalla al iniciar el juego || Écran au lancement du jeu || Tela ao iniciar o jogo || Экран при запуске игры || ゲーム起動時の画面
+Dein Hauptbildschirm unterstützt kein HDR. || Your main display does not support HDR. || 你的主显示器不支持 HDR。 || Tu pantalla principal no admite HDR. || Ton écran principal ne prend pas en charge le HDR. || Sua tela principal não suporta HDR. || Основной экран не поддерживает HDR. || メインディスプレイは HDR に対応していません。
+Auflösung nicht ändern || Don't change resolution || 不更改分辨率 || No cambiar la resolución || Ne pas changer la résolution || Não alterar a resolução || Не менять разрешение || 解像度を変更しない
+An || On || 开 || Activado || Activé || Ativado || Вкл. || オン
+nicht ändern || don't change || 不更改 || no cambiar || ne pas changer || não alterar || не менять || 変更しない
+aktuell || current || 当前 || actual || actuel || atual || текущее || 現在
 """;
     }
 }

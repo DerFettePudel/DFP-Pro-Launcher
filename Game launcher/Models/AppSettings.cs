@@ -113,6 +113,8 @@ namespace Game_launcher
         public List<string> DefaultCompanions { get; set; } = new();
         public bool CloseCompanionsAfterGame { get; set; }
         public bool DashboardCoverTint { get; set; } = true;
+        public bool DisplayChangedByLauncher { get; set; }   // falls der Launcher abstürzt: beim nächsten Start zurückstellen
+        public int HdrRestore { get; set; } = -1;            // -1 nichts, 0 HDR war aus, 1 HDR war an
         public Dictionary<string, string> Achievements { get; set; } = new();
         public bool NightOwl { get; set; }
         public bool InitialScanDone { get; set; }

@@ -37,7 +37,7 @@ namespace Game_launcher
             if (CoverTint == null) return;
 
             var last = settings.DashboardCoverTint && ViewDashboard.Visibility == Visibility.Visible
-                ? allGames.Where(g => !g.Hidden && g.LastPlayed.HasValue && HasCover(g)).OrderByDescending(g => g.LastPlayed).FirstOrDefault()
+                ? allGames.Where(g => !g.Hidden && g.LastPlayed.HasValue).OrderByDescending(g => g.LastPlayed).Take(5).FirstOrDefault(HasCover)
                 : null;
             if (last == null)
             {
@@ -151,10 +151,151 @@ namespace Game_launcher
             }
         }
 
+        private System.Windows.Threading.DispatcherTimer? displayWatchTimer;
+        private DateTime displayChangedAt = DateTime.MinValue;
+
+        private void InitGameExtras()
+        {
+            // Ist der Launcher abgestürzt, während Auflösung oder HDR für ein Spiel umgestellt waren: zurückstellen
+            if (settings.DisplayChangedByLauncher || settings.HdrRestore >= 0) RestoreGameDisplay();
+
+            if (System.Windows.Application.Current is { } app) app.Exit += (s, e) => RestoreGameDisplay();
+        }
+
         /// <summary>Kein Spiel läuft mehr: aufräumen, was für die Spiele gestartet oder umgestellt wurde.</summary>
         private void OnAllGamesEnded()
         {
             CloseStartedCompanions();
+            RestoreGameDisplay();
+        }
+
+        // ───────────────────────────── Auflösung und HDR pro Spiel ─────────────────────────────
+
+        private void ApplyGameDisplay(GameItem game)
+        {
+            bool changed = false;
+
+            if (DisplayModes.Mode.Parse(game.DisplayMode) is { } wanted && DisplayModes.Current() != wanted)
+            {
+                if (DisplayModes.Apply(wanted))
+                {
+                    settings.DisplayChangedByLauncher = true;
+                    changed = true;
+                }
+                else
+                {
+                    ShowToast("🖥", Loc.T("Auflösung nicht möglich"), Loc.T($"Der Bildschirm unterstützt {wanted.Width} × {wanted.Height} bei {wanted.Hz} Hz nicht."), 6);
+                }
+            }
+
+            if (game.HdrMode is "on" or "off" && DisplayModes.HdrEnabled() is bool hdrNow)
+            {
+                bool want = game.HdrMode == "on";
+                if (hdrNow != want && DisplayModes.SetHdr(want))
+                {
+                    if (settings.HdrRestore < 0) settings.HdrRestore = hdrNow ? 1 : 0;   // nur den ursprünglichen Zustand merken
+                    changed = true;
+                }
+            }
+
+            if (!changed) return;
+            SaveSettings();
+            displayChangedAt = DateTime.Now;
+
+            // Wird das Spiel nie als laufend erkannt (Spielzeit-Erfassung aus, Spiel startet nicht), trotzdem zurückstellen
+            displayWatchTimer ??= new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+            displayWatchTimer.Tick -= DisplayWatchTick;
+            displayWatchTimer.Tick += DisplayWatchTick;
+            displayWatchTimer.Start();
+        }
+
+        private void DisplayWatchTick(object? sender, EventArgs e)
+        {
+            if (!settings.DisplayChangedByLauncher && settings.HdrRestore < 0)
+            {
+                displayWatchTimer?.Stop();
+                return;
+            }
+            if (activeSessions.Count == 0 && (DateTime.Now - displayChangedAt).TotalMinutes >= 3) RestoreGameDisplay();
+        }
+
+        private void RestoreGameDisplay()
+        {
+            displayWatchTimer?.Stop();
+            if (!settings.DisplayChangedByLauncher && settings.HdrRestore < 0) return;
+
+            try
+            {
+                if (settings.DisplayChangedByLauncher) DisplayModes.Reset();
+                if (settings.HdrRestore >= 0) DisplayModes.SetHdr(settings.HdrRestore == 1);
+            }
+            catch { }
+
+            settings.DisplayChangedByLauncher = false;
+            settings.HdrRestore = -1;
+            SaveSettings();
+        }
+
+        /// <summary>Abschnitt „Bildschirm beim Spielstart“ für den Dialog mit den Startoptionen.</summary>
+        private void AddDisplayOptions(System.Windows.Controls.Panel panel, Func<string> getMode, Action<string> setMode, Func<string> getHdr, Action<string> setHdr)
+        {
+            panel.Children.Add(new System.Windows.Controls.TextBlock { Text = Loc.T("Bildschirm beim Spielstart"), Foreground = BrushSubtle, Margin = new Thickness(0, 0, 0, 8) });
+
+            var row = new System.Windows.Controls.WrapPanel { Margin = new Thickness(0, 0, 0, 18) };
+            var modeButton = new System.Windows.Controls.Button { Margin = new Thickness(0, 0, 10, 0) };
+            var hdrButton = new System.Windows.Controls.Button();
+            row.Children.Add(modeButton);
+            row.Children.Add(hdrButton);
+            panel.Children.Add(row);
+
+            bool? hdrSupported = DisplayModes.HdrEnabled();
+            hdrButton.IsEnabled = hdrSupported != null;
+            if (hdrSupported == null) hdrButton.ToolTip = Loc.T("Dein Hauptbildschirm unterstützt kein HDR.");
+
+            void Refresh()
+            {
+                modeButton.Content = (DisplayModes.Mode.Parse(getMode()) is { } m
+                    ? $"🖥 {m.Width} × {m.Height} · {m.Hz} Hz"
+                    : "🖥 " + Loc.T("Auflösung nicht ändern")) + " ▾";
+                hdrButton.Content = "HDR: " + Loc.T(getHdr() switch { "on" => "An", "off" => "Aus", _ => "nicht ändern" }) + " ▾";
+            }
+
+            modeButton.Click += (s, e) =>
+            {
+                var menu = CreateMenu();
+                void Add(string header, string value)
+                {
+                    var item = new System.Windows.Controls.MenuItem { Header = header, IsCheckable = true, IsChecked = getMode() == value };
+                    item.Click += (s2, e2) => { setMode(value); Refresh(); };
+                    menu.Items.Add(item);
+                }
+
+                Add(Loc.T("Auflösung nicht ändern"), string.Empty);
+                var current = DisplayModes.Current();
+                foreach (var mode in DisplayModes.All().Take(40))
+                    Add($"{mode.Width} × {mode.Height} · {mode.Hz} Hz" + (mode == current ? "  (" + Loc.T("aktuell") + ")" : string.Empty), mode.ToString());
+
+                menu.PlacementTarget = modeButton;
+                menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                menu.MaxHeight = 420;
+                menu.IsOpen = true;
+            };
+
+            hdrButton.Click += (s, e) =>
+            {
+                var menu = CreateMenu();
+                foreach (var (label, value) in new[] { ("nicht ändern", ""), ("An", "on"), ("Aus", "off") })
+                {
+                    var item = new System.Windows.Controls.MenuItem { Header = Loc.T(label), IsCheckable = true, IsChecked = getHdr() == value };
+                    item.Click += (s2, e2) => { setHdr(value); Refresh(); };
+                    menu.Items.Add(item);
+                }
+                menu.PlacementTarget = hdrButton;
+                menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                menu.IsOpen = true;
+            };
+
+            Refresh();
         }
 
         private void CloseStartedCompanions()

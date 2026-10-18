@@ -77,6 +77,8 @@ namespace Game_launcher
         public string ProfileMode { get; set; } = "global";
         public string CloseMode { get; set; } = "global";
         public string ModPath { get; set; } = string.Empty;
+        public string DisplayMode { get; set; } = string.Empty;     // "1920x1080@144", leer = nicht umstellen
+        public string HdrMode { get; set; } = string.Empty;         // on, off, leer = nicht umstellen
         public bool UpdatePending { get; set; }                     // Steam meldet ein ausstehendes Update (nur zur Laufzeit)
     }
 
@@ -101,6 +103,8 @@ namespace Game_launcher
         public string ProfileMode { get; set; } = "global";
         public string CloseMode { get; set; } = "global";
         public string ModPath { get; set; } = string.Empty;
+        public string DisplayMode { get; set; } = string.Empty;     // "1920x1080@144", leer = nicht umstellen
+        public string HdrMode { get; set; } = string.Empty;         // on, off, leer = nicht umstellen
     }
 
     public class ManualGame
