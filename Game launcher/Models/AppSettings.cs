@@ -270,7 +270,13 @@ namespace Game_launcher
         public bool DiscordOnEnd { get; set; } = true;
         public bool DiscordSendName { get; set; } = true;
         public List<string> DashboardOrder { get; set; } = new();
-        public List<string> DashboardHidden { get; set; } = new() { "goal", "backlog", "wishlist", "quick" };
+        public List<string> DashboardHidden { get; set; } = new() { "goal", "backlog", "wishlist", "quick", "friends", "achievements" };
+        public bool DashboardSteamWidgetsAdded { get; set; }
+
+        // Handy-Fernbedienung (kleiner Webserver im Heimnetz)
+        public bool RemoteEnabled { get; set; }
+        public int RemotePort { get; set; } = 48731;
+        public string RemoteTokenProtected { get; set; } = string.Empty;
 
         // OBS-Steuerung (OBS WebSocket v5)
         public bool ObsEnabled { get; set; }

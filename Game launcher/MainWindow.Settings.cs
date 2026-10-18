@@ -2617,7 +2617,7 @@ namespace Game_launcher
                     settings.HiddenSections = new List<string>
                         { "stats", "deals", "backlog", "gallery", "apps", "links", "wishlist", "downloads", "storage", "optimization", "tools" };
                     settings.DashboardHidden = new List<string>
-                        { "hero", "clock", "stats", "favorites", "goal", "backlog", "wishlist", "quick", "actions" };
+                        { "hero", "clock", "stats", "favorites", "goal", "backlog", "wishlist", "quick", "actions", "friends", "achievements" };
                     break;
 
                 case "tidy":
@@ -2625,7 +2625,7 @@ namespace Game_launcher
                     settings.ShowCardSource = false;
                     settings.HoverGlow = false;
                     settings.HiddenSections = new List<string> { "deals", "gallery", "downloads", "storage", "optimization", "tools" };
-                    settings.DashboardHidden = new List<string> { "clock", "stats", "goal", "backlog", "wishlist", "quick" };
+                    settings.DashboardHidden = new List<string> { "clock", "stats", "goal", "backlog", "wishlist", "quick", "friends", "achievements" };
                     break;
 
                 case "info":
@@ -2644,7 +2644,7 @@ namespace Game_launcher
                     settings.RecentCount = 5;
                     settings.DashboardOrder = new List<string>
                         { "stats", "recent", "goal", "backlog", "hero", "clock", "favorites", "wishlist", "quick", "actions" };
-                    settings.DashboardHidden = new List<string> { "hero", "clock", "favorites", "wishlist", "quick", "actions" };
+                    settings.DashboardHidden = new List<string> { "hero", "clock", "favorites", "wishlist", "quick", "actions", "friends", "achievements" };
                     break;
 
                 case "couch":
@@ -2657,7 +2657,7 @@ namespace Game_launcher
                     settings.SidebarWidth = 290;
                     settings.ControllerSupport = true;
                     settings.HiddenSections = new List<string> { "stats", "deals", "gallery", "apps", "downloads", "storage", "optimization", "tools" };
-                    settings.DashboardHidden = new List<string> { "clock", "stats", "goal", "backlog", "wishlist", "quick" };
+                    settings.DashboardHidden = new List<string> { "clock", "stats", "goal", "backlog", "wishlist", "quick", "friends", "achievements" };
                     break;
             }
         }

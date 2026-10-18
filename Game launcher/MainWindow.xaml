@@ -3832,6 +3832,27 @@
                             </Border>
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="control" Visibility="Collapsed">
                                 <StackPanel>
+                                    <TextBlock Text="Handy-Fernbedienung" Style="{StaticResource SectionTitle}"/>
+                                    <Grid Margin="0,0,0,14">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Handy-Fernbedienung einschalten" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Steuere den Launcher vom Sofa aus mit dem Handy-Browser: Spiele starten und beenden, Lautstärke, PC sperren, Energie sparen und Ausschalten. Funktioniert nur im Heimnetz und nur mit dem geheimen Schlüssel aus dem QR-Code." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkRemote" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
+                                    <TextBlock x:Name="TxtRemoteStatus" Foreground="#6B7280" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                    <WrapPanel>
+                                        <Button x:Name="BtnRemoteQr" Content="QR-Code anzeigen" Margin="0,0,10,10" Background="{DynamicResource AccentBrush}" Click="BtnRemoteQr_Click"/>
+                                        <Button Content="Neuen Schlüssel erzeugen" Margin="0,0,10,10" Click="BtnRemoteNewKey_Click"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+                            <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="control" Visibility="Collapsed">
+                                <StackPanel>
                                     <TextBlock Text="Tastenkürzel" Style="{StaticResource SectionTitle}"/>
                                     <TextBlock Foreground="#D1D5DB" LineHeight="24" Text="Strg + K   Suche und Schnellstart&#10;Strg + F   Spiele durchsuchen&#10;Strg + R   Spiele neu scannen&#10;Strg + 1 bis 9   Bereiche öffnen&#10;Strg + ,   Einstellungen&#10;F11   Controller-Modus&#10;Esc   Controller-Modus oder Suche schließen"/>
                                 </StackPanel>

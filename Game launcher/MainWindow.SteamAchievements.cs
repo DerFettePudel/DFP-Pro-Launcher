@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -285,7 +285,11 @@ namespace Game_launcher
             settings.SteamApiKeyProtected = SecretStore.Protect(PwdSteamKey.Password.Trim());
             settings.SteamId64 = TxtSteamId.Text.Trim();
             achievementCache.Clear();
+            friendsLoaded = progressLoaded = DateTime.MinValue;
+            friendsData = null;
+            progressData = null;
             SaveSettings();
+            RefreshDashboard();
             TxtSteamKeyStatus.Foreground = MakeBrush("#34D399");
             TxtSteamKeyStatus.Text = Loc.T("Gespeichert.");
         }

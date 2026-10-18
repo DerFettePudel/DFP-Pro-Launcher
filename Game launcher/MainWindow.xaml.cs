@@ -970,10 +970,12 @@ namespace Game_launcher
             ("backlog", "📋", "Als Nächstes spielen"),
             ("wishlist", "💝", "Wunschliste"),
             ("quick", "🔗", "Schnellzugriff"),
+            ("friends", "👥", "Steam-Freunde"),
+            ("achievements", "🏆", "Fast geschafft (Steam-Erfolge)"),
             ("actions", "⚡", "Schnellaktionen")
         };
 
-        private static readonly string[] DefaultDashHidden = { "goal", "backlog", "wishlist", "quick" };
+        private static readonly string[] DefaultDashHidden = { "goal", "backlog", "wishlist", "quick", "friends", "achievements" };
 
         private void InitExtras8()
         {

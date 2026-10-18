@@ -1149,6 +1149,8 @@ namespace Game_launcher
             "backlog" => backlogWidget,
             "wishlist" => wishWidget,
             "quick" => quickWidget,
+            "friends" => friendsWidget,
+            "achievements" => achievementsWidget,
             _ => null
         };
 
@@ -1160,6 +1162,8 @@ namespace Game_launcher
             backlogWidget = new StackPanel();
             wishWidget = new StackPanel();
             quickWidget = new StackPanel();
+            friendsWidget = new StackPanel();
+            achievementsWidget = new StackPanel();
             ApplyStreamerMode();
         }
 
@@ -1198,6 +1202,8 @@ namespace Game_launcher
             FillBacklogWidget();
             FillWishWidget();
             FillQuickWidget();
+            FillFriendsWidget();
+            FillAchievementsWidget();
 
             // Erst nach dem Füllen steht fest, welche Widgets gerade leer sind (z. B. keine Favoriten)
             foreach (string key in order)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -169,6 +169,9 @@ namespace Game_launcher
             if (settings.DisplayChangedByLauncher || settings.HdrRestore >= 0) RestoreGameDisplay();
 
             if (System.Windows.Application.Current is { } app) app.Exit += (s, e) => RestoreGameDisplay();
+
+            InitSteamSocial();
+            InitRemote();
         }
 
         /// <summary>Kein Spiel läuft mehr: aufräumen, was für die Spiele gestartet oder umgestellt wurde.</summary>
@@ -176,6 +179,7 @@ namespace Game_launcher
         {
             CloseStartedCompanions();
             RestoreGameDisplay();
+            InvalidateSteamProgress();
         }
 
         // ───────────────────────────── Discord-Status ─────────────────────────────

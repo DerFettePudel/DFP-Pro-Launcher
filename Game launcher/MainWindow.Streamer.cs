@@ -482,7 +482,7 @@ namespace Game_launcher
                 }
             }
 
-            Censor(settings.StreamHideName, TxtSettingsUserName);
+            Censor(settings.StreamHideName, TxtSettingsUserName, friendsWidget);
             Censor(settings.StreamHideLocation, WeatherCard, TxtWeatherCity);
             Censor(settings.StreamHideStats, StatsGrid, goalWidget);
             Censor(settings.StreamHideRecent, HeroHost, RecentSection, FavSection);

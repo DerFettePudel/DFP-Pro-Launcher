@@ -480,6 +480,14 @@ namespace Game_launcher
                 _ = discordPresence.SetAsync("Test-Spiel", "über DFP Pro Launcher", DateTime.Now);
                 ShowToast("💬", "Entwickler", "Discord-Status gesetzt (Test-Spiel).", 4);
             });
+
+            Group("Handy und Steam-Widgets");
+            Dev("📱 Fernbedienung: Adresse und Status", () =>
+                Msg($"Läuft: {remoteServer is { Running: true }}\nPort: {remoteServer?.Port}\nAdresse: {RemoteAddress() ?? "keine"}\nHeimnetz-IP: {RemoteServer.LocalAddress() ?? "keine"}", "Entwickler"));
+            Dev("📱 Fernbedienung neu starten", () => StartRemote(true));
+            Dev("👥 Steam-Freunde jetzt neu laden", () => { friendsLoaded = DateTime.MinValue; _ = LoadFriendsAsync(false); });
+            Dev("🏆 „Fast geschafft“ jetzt neu laden", () => { progressLoaded = DateTime.MinValue; _ = LoadProgressAsync(); });
+            Dev("➕ Beide Steam-Widgets einblenden", () => { AddDashWidget("friends"); AddDashWidget("achievements"); });
         }
 #endif
 
