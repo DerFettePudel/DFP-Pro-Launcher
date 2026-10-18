@@ -39,12 +39,23 @@ namespace Game_launcher
 
         private void InitSystemMonitoring()
         {
-            cpuCounter = TryCreateCounter("Processor", "% Processor Time", "_Total");
-            cpuFreqCounter = TryCreateCounter("Processor Information", "% Processor Performance", "_Total");
-            ramCounter = TryCreateCounter("Memory", "Available MBytes");
+            // Windows-Leistungszähler anlegen dauert beim ersten Start mehrere Sekunden: im Hintergrund,
+            // bis dahin zeigen die Anzeigen 0 % (SampleMetrics kommt mit fehlenden Zählern zurecht)
+            Task.Run(() =>
+            {
+                var cpu = TryCreateCounter("Processor", "% Processor Time", "_Total");
+                var freq = TryCreateCounter("Processor Information", "% Processor Performance", "_Total");
+                var ram = TryCreateCounter("Memory", "Available MBytes");
+                try { cpu?.NextValue(); } catch { }
+                try { freq?.NextValue(); } catch { }
 
-            try { cpuCounter?.NextValue(); } catch { }
-            try { cpuFreqCounter?.NextValue(); } catch { }
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    cpuCounter = cpu;
+                    cpuFreqCounter = freq;
+                    ramCounter = ram;
+                }));
+            });
 
             try { totalRamMB = GC.GetGCMemoryInfo().TotalAvailableMemoryBytes / (1024.0 * 1024.0); }
             catch { totalRamMB = 0; }

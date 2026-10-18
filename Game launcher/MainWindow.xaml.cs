@@ -161,6 +161,7 @@ namespace Game_launcher
             // Nur eine Instanz: ein zweiter Start holt das bereits laufende Fenster nach vorn
             if (!AcquireSingleInstance()) Environment.Exit(0);
 
+            StartXboxPrefetch();
             ApplyRenderModeEarly();
             InitializeComponent();
             LoadSettings();

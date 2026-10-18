@@ -365,11 +365,17 @@ namespace Game_launcher
         }
 
         /// <summary>Findet Spiele der Xbox-App / des Microsoft Stores (Game Pass).</summary>
+        // PowerShell zu starten dauert etwa eine Sekunde: Die erste Abfrage beginnt schon im Konstruktor, parallel zum Aufbau der Oberfläche
+        private static Task<(int ExitCode, string Output)>? xboxPrefetch;
+
+        private static void StartXboxPrefetch() => xboxPrefetch ??= Task.Run(() => RunPowerShell(XboxScript, 60000));
+
         private static void ScanXboxGames(Dictionary<string, GameItem> found)
         {
             try
             {
-                var result = RunPowerShell(XboxScript, 60000);
+                var pending = System.Threading.Interlocked.Exchange(ref xboxPrefetch, null);
+                var result = pending != null ? pending.GetAwaiter().GetResult() : RunPowerShell(XboxScript, 60000);
                 int start = result.Output.IndexOf('[');
                 int end = result.Output.LastIndexOf(']');
                 if (start < 0 || end <= start) return;
