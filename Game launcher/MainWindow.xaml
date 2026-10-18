@@ -3718,6 +3718,17 @@
                                         </StackPanel>
                                         <CheckBox x:Name="ChkPadVibrate" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
                                     </Grid>
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Leiste „Weiterspielen“" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Zeigt im Controller-Modus oben deine letzten drei Spiele. Steuerkreuz hoch wählt die Leiste, A startet." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkPadContinue" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
                                     <StackPanel Margin="0,0,0,18">
                                         <TextBlock Text="Tempo beim Gedrückthalten" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
                                         <TextBlock Text="Wie schnell weitergeblättert wird, wenn du das Steuerkreuz gedrückt hältst." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,10"/>

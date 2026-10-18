@@ -384,6 +384,7 @@ namespace Game_launcher
 
             var layout = new Grid { Margin = new Thickness(60, 36, 60, 34) };
             layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });   // Weiterspielen
             layout.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
             layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -439,6 +440,22 @@ namespace Game_launcher
             top.Children.Add(status);
             layout.Children.Add(top);
 
+            // Weiterspielen: die letzten drei Spiele
+            padStripTiles = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Center };
+            padStripHost = new StackPanel { Margin = new Thickness(0, 22, 0, 0), Visibility = Visibility.Collapsed };
+            padStripHost.Children.Add(new TextBlock
+            {
+                Text = Loc.T("WEITERSPIELEN"),
+                FontSize = 14,
+                FontWeight = FontWeights.Bold,
+                Foreground = MakeBrush("#9CA3AF"),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 10)
+            });
+            padStripHost.Children.Add(padStripTiles);
+            Grid.SetRow(padStripHost, 1);
+            layout.Children.Add(padStripHost);
+
             // Mitte: Cover-Flow
             padFlow = new CoverFlowControl { ItemWidth = 250, ItemHeight = 375, Margin = new Thickness(0, 8, 0, 8) };
             padFlow.ItemFactory = index => CreateFlowCard(padItems[index], padFlow.ItemWidth, padFlow.ItemHeight);
@@ -453,7 +470,7 @@ namespace Game_launcher
                 padFlow.ItemWidth = Math.Round(height * 2.0 / 3.0);
                 padFlow.SetCount(padItems.Count, Math.Max(0, padFlow.SelectedIndex));
             };
-            Grid.SetRow(padFlow, 1);
+            Grid.SetRow(padFlow, 2);
             layout.Children.Add(padFlow);
 
             padEmpty = new TextBlock
@@ -465,7 +482,7 @@ namespace Game_launcher
                 VerticalAlignment = System.Windows.VerticalAlignment.Center,
                 Visibility = Visibility.Collapsed
             };
-            Grid.SetRow(padEmpty, 1);
+            Grid.SetRow(padEmpty, 2);
             layout.Children.Add(padEmpty);
 
             // Titel und Angaben
@@ -482,12 +499,12 @@ namespace Game_launcher
             padMeta = new TextBlock { FontSize = 18, Foreground = MakeBrush("#B4BCCB"), TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 6, 0, 0) };
             info.Children.Add(padTitle);
             info.Children.Add(padMeta);
-            Grid.SetRow(info, 2);
+            Grid.SetRow(info, 3);
             layout.Children.Add(info);
 
             // Tastenhinweise
             padHints = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, HorizontalAlignment = System.Windows.HorizontalAlignment.Center };
-            Grid.SetRow(padHints, 3);
+            Grid.SetRow(padHints, 4);
             layout.Children.Add(padHints);
 
             // Menü
@@ -621,7 +638,8 @@ namespace Game_launcher
                 padEmpty.Text = padSearch.Length > 0 ? Loc.T($"Keine Treffer für „{padSearch}“.") : Loc.T("Hier ist noch nichts.");
                 padEmpty.Visibility = padItems.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             }
-            OnPadSelectionChanged();
+            UpdatePadStripVisibility();
+            if (!padStripFocus) OnPadSelectionChanged();
         }
 
 
@@ -645,6 +663,182 @@ namespace Game_launcher
                 ToggleControllerMode();
                 LaunchApp(item.App);
             }
+        }
+
+        // ───────── Weiterspielen-Leiste ─────────
+
+        private StackPanel? padStripHost, padStripTiles;
+        private List<GameItem> padStripGames = new();
+        private bool padStripFocus;
+        private int padStripIndex;
+
+        private bool PadStripAvailable => padStripHost != null && padStripHost.Visibility == Visibility.Visible && padStripGames.Count > 0;
+
+        private void BuildPadStrip()
+        {
+            if (padStripHost == null || padStripTiles == null) return;
+
+            padStripGames = settings.PadContinueRow
+                ? allGames.Where(g => !g.Hidden && g.LastPlayed.HasValue).OrderByDescending(g => g.LastPlayed).Take(3).ToList()
+                : new List<GameItem>();
+
+            padStripTiles.Children.Clear();
+            for (int i = 0; i < padStripGames.Count; i++)
+            {
+                var game = padStripGames[i];
+                var item = PadItemFromGame(game);
+
+                var thumb = new Border
+                {
+                    Width = 56,
+                    Height = 84,
+                    CornerRadius = new CornerRadius(8),
+                    Background = BrushCardBg,
+                    ClipToBounds = true,
+                    Clip = new RectangleGeometry(new System.Windows.Rect(0, 0, 56, 84), 8, 8)
+                };
+                var picture = new System.Windows.Controls.Image { Stretch = Stretch.UniformToFill };
+                thumb.Child = picture;
+                BeginFlowPicture(item, (image, logo) =>
+                {
+                    picture.Source = image;
+                    picture.Stretch = logo ? Stretch.Uniform : Stretch.UniformToFill;
+                });
+
+                var texts = new StackPanel { Margin = new Thickness(14, 0, 0, 0), VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                texts.Children.Add(new TextBlock
+                {
+                    Text = game.Name,
+                    FontSize = 18,
+                    FontWeight = FontWeights.SemiBold,
+                    Foreground = System.Windows.Media.Brushes.White,
+                    TextTrimming = TextTrimming.CharacterEllipsis,
+                    MaxWidth = 210
+                });
+                texts.Children.Add(new TextBlock
+                {
+                    Text = Loc.T(FormatRelative(game.LastPlayed!.Value)),
+                    FontSize = 14,
+                    Foreground = MakeBrush("#9CA3AF"),
+                    Margin = new Thickness(0, 4, 0, 0)
+                });
+
+                var row = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
+                row.Children.Add(thumb);
+                row.Children.Add(texts);
+
+                var tile = new Border
+                {
+                    Width = 320,
+                    Padding = new Thickness(10),
+                    Margin = new Thickness(8, 0, 8, 0),
+                    CornerRadius = new CornerRadius(14),
+                    Background = MakeBrush("#1AFFFFFF"),
+                    BorderThickness = new Thickness(3),
+                    BorderBrush = System.Windows.Media.Brushes.Transparent,
+                    Cursor = System.Windows.Input.Cursors.Hand,
+                    Child = row
+                };
+                int index = i;
+                tile.MouseLeftButtonUp += (s, e) =>
+                {
+                    padStripIndex = index;
+                    LaunchPadStripItem();
+                };
+                padStripTiles.Children.Add(tile);
+            }
+
+            if (padStripIndex >= padStripGames.Count) padStripIndex = 0;
+            UpdatePadStripVisibility();
+        }
+
+        private void UpdatePadStripVisibility()
+        {
+            if (padStripHost == null) return;
+
+            // Bei einer Suche zählen nur die Treffer
+            bool show = padStripGames.Count > 0 && padSearch.Length == 0;
+            padStripHost.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            if (!show && padStripFocus) SetPadStripFocus(false);
+        }
+
+        private void SetPadStripFocus(bool focus)
+        {
+            padStripFocus = focus && PadStripAvailable;
+            if (padFlow != null) padFlow.Opacity = padStripFocus ? 0.45 : 1;
+            HighlightPadStrip();
+
+            if (padStripFocus) ShowPadStripInfo();
+            else OnPadSelectionChanged();   // Titel und Angaben wieder für den Cover-Flow
+        }
+
+        private void HighlightPadStrip()
+        {
+            if (padStripTiles == null) return;
+
+            for (int i = 0; i < padStripTiles.Children.Count; i++)
+            {
+                if (padStripTiles.Children[i] is not Border tile) continue;
+                bool selected = padStripFocus && i == padStripIndex;
+                if (selected) tile.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
+                else tile.BorderBrush = System.Windows.Media.Brushes.Transparent;
+                tile.Background = MakeBrush(selected ? "#33FFFFFF" : "#1AFFFFFF");
+            }
+        }
+
+        private void ShowPadStripInfo()
+        {
+            if (padTitle == null || padMeta == null || padStripIndex >= padStripGames.Count) return;
+
+            var game = padStripGames[padStripIndex];
+            padTitle.Text = game.Name;
+            padMeta.Text = BuildMetaText(game);
+        }
+
+        private void HandlePadStrip(PadButton pressed)
+        {
+            int before = padStripIndex;
+            if ((pressed & PadButton.Left) != 0) padStripIndex = Math.Max(0, padStripIndex - 1);
+            if ((pressed & PadButton.Right) != 0) padStripIndex = Math.Min(padStripGames.Count - 1, padStripIndex + 1);
+            if (padStripIndex != before)
+            {
+                HighlightPadStrip();
+                ShowPadStripInfo();
+                PlayUiSound("move");
+                PadRumble(PadRumbleShort);
+            }
+
+            if ((pressed & PadButton.Confirm) != 0)
+            {
+                LaunchPadStripItem();
+                return;
+            }
+            if ((pressed & (PadButton.Down | PadButton.Back)) != 0)
+            {
+                SetPadStripFocus(false);   // OnPadSelectionChanged spielt den Ton
+                return;
+            }
+            if ((pressed & (PadButton.PrevTab | PadButton.NextTab)) != 0)
+            {
+                SetPadStripFocus(false);
+                SetPadCategory(padCategory + ((pressed & PadButton.PrevTab) != 0 ? -1 : 1));
+                return;
+            }
+            if ((pressed & PadButton.Start) != 0) OpenPadStartMenu();
+        }
+
+        private void LaunchPadStripItem()
+        {
+            if (padStripIndex < 0 || padStripIndex >= padStripGames.Count) return;
+
+            var game = padStripGames[padStripIndex];
+            PadRumble(PadRumbleLong);
+            SetPadStripFocus(false);
+
+            // Wie im Cover-Flow: Controller-Modus verlassen und nach dem Spiel wieder öffnen
+            padResumeAfterGame = true;
+            ToggleControllerMode();
+            LaunchGame(game);
         }
 
         private void ResumePadAfterGame()
@@ -679,6 +873,9 @@ namespace Game_launcher
                 padCategory = allGames.Any(g => !g.Hidden && g.LastPlayed.HasValue) ? 1 : 0;
                 RefreshPadTabs();
                 RefreshPadHints();
+                padStripIndex = 0;
+                BuildPadStrip();
+                SetPadStripFocus(false);
                 RebuildPadItems();
 
                 padLayer!.BeginAnimation(UIElement.OpacityProperty, null);
@@ -700,6 +897,8 @@ namespace Game_launcher
             else
             {
                 ClosePadMenu();
+                padStripFocus = false;
+                if (padFlow != null) padFlow.Opacity = 1;
                 if (padKeyboardOpen) ClosePadKeyboard();
                 if (padVolumeOpen) ClosePadVolume();
                 padSearch = string.Empty;
@@ -863,6 +1062,20 @@ namespace Game_launcher
             }
 
             if (padFlow == null) return;
+
+            if (padStripFocus)
+            {
+                HandlePadStrip(pressed);
+                return;
+            }
+            if ((pressed & PadButton.Up) != 0 && PadStripAvailable)
+            {
+                // Steuerkreuz hoch führt in die Weiterspielen-Leiste, die Bereiche wechseln dann LB/RB
+                SetPadStripFocus(true);
+                PlayUiSound("move");
+                PadRumble(PadRumbleShort);
+                return;
+            }
 
             if ((pressed & PadButton.Left) != 0) padFlow.Move(-1);
             if ((pressed & PadButton.Right) != 0) padFlow.Move(1);
@@ -1137,6 +1350,7 @@ namespace Game_launcher
             settings.PadVibrate = ChkPadVibrate.IsChecked == true;
             settings.PadRepeat = ChipPadRepSlow.IsChecked == true ? 1 : ChipPadRepFast.IsChecked == true ? 3 : 2;
             settings.PadAutoStart = ChkPadAutoStart.IsChecked == true;
+            settings.PadContinueRow = ChkPadContinue.IsChecked == true;
         }
 
         private void PopulateExtra14Settings()
@@ -1151,6 +1365,7 @@ namespace Game_launcher
             ChipPadRepMid.IsChecked = settings.PadRepeat is not (1 or 3);
             ChipPadRepFast.IsChecked = settings.PadRepeat == 3;
             ChkPadAutoStart.IsChecked = settings.PadAutoStart;
+            ChkPadContinue.IsChecked = settings.PadContinueRow;
         }
 
         // ───────────────────────────── Controller: Abfrage im eigenen System.Threading.Thread ─────────────────────────────

@@ -2273,6 +2273,8 @@ Fanfare || Fanfare || 号角 || Fanfarria || Fanfare || Fanfarra || Фанфар
 Eigene Datei ... || Custom file ... || 自定义文件 ... || Archivo propio ... || Fichier personnel ... || Arquivo próprio ... || Свой файл ... || 独自のファイル ...
 WAV-Dateien || WAV files || WAV 文件 || Archivos WAV || Fichiers WAV || Arquivos WAV || Файлы WAV || WAV ファイル
 ▶ Probehören || ▶ Preview || ▶ 试听 || ▶ Escuchar || ▶ Écouter || ▶ Ouvir || ▶ Прослушать || ▶ 試聴
+Leiste „Weiterspielen“ || “Continue playing” row || “继续游戏”栏 || Fila «Seguir jugando» || Barre « Reprendre » || Faixa "Continuar jogando" || Панель «Продолжить игру» || 「続きから遊ぶ」バー
+Zeigt im Controller-Modus oben deine letzten drei Spiele. Steuerkreuz hoch wählt die Leiste, A startet. || Shows your last three games at the top in controller mode. D-pad up selects the row, A starts. || 在手柄模式顶部显示你最近玩的三款游戏。方向键上选择该栏，A 键启动。 || Muestra tus tres últimos juegos arriba en el modo mando. Cruceta arriba selecciona la fila, A inicia. || Affiche tes trois derniers jeux en haut en mode manette. Croix haut sélectionne la barre, A lance. || Mostra seus três últimos jogos no topo no modo controle. Direcional para cima seleciona a faixa, A inicia. || Показывает три последние игры вверху в режиме контроллера. Крестовина вверх выбирает панель, A запускает. || コントローラーモードの上部に最近の3本のゲームを表示します。十字キー上でバーを選び、A で起動します。
 """;
     }
 }

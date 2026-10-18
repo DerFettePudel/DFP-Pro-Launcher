@@ -194,6 +194,7 @@ namespace Game_launcher
         public string PadComboMode { get; set; } = "backstart";
         public bool PadComboInGame { get; set; }
         public bool PadVibrate { get; set; }
+        public bool PadContinueRow { get; set; } = true;
         public int PadRepeat { get; set; } = 2;
         public bool PadAutoStart { get; set; }
         public List<string> PadSeenLayouts { get; set; } = new();
