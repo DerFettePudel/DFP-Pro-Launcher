@@ -804,7 +804,8 @@ namespace Game_launcher
 
             string folder = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "DFPProLauncher_Update");
             Directory.CreateDirectory(folder);
-            string target = System.IO.Path.Combine(folder, $"DFP_Pro_Launcher_Setup_{info.Tag.TrimStart('v', 'V')}.exe");
+            string safeTag = Regex.Replace(info.Tag.TrimStart('v', 'V'), @"[^\w.\-]+", "_");   // Tags dürfen „/“ enthalten
+            string target = System.IO.Path.Combine(folder, $"DFP_Pro_Launcher_Setup_{safeTag}.exe");
 
             using var client = new System.Net.Http.HttpClient { Timeout = TimeSpan.FromMinutes(30) };
             client.DefaultRequestHeaders.UserAgent.ParseAdd("DFPProLauncher");
@@ -1001,6 +1002,7 @@ namespace Game_launcher
                         status.Text = Loc.T("Starte die Installation. Der Launcher schließt sich kurz und öffnet sich danach von selbst wieder.");
                         fill.Width = bar.ActualWidth;
                         SaveSettings();
+                        FlushSettings();   // sofort schreiben, sonst fehlt der letzte Stand in der Sicherung
                         await Task.Run(() => CreateSettingsBackup("update"));   // vor jedem Update sichern
                         await Task.Delay(1200);
 

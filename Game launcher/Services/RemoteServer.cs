@@ -117,6 +117,9 @@ namespace Game_launcher
                 try
                 {
                     client.ReceiveTimeout = client.SendTimeout = 10000;
+                    // ReceiveTimeout gilt nicht für ReadAsync: Hängende Verbindungen nach 10 s hart schließen
+                    using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                    using var closeOnTimeout = timeout.Token.Register(() => { try { client.Close(); } catch { } });
                     var remote = (client.Client.RemoteEndPoint as IPEndPoint)?.Address ?? IPAddress.None;
                     using var stream = client.GetStream();
                     if (!IsLocalAddress(remote))
