@@ -411,7 +411,7 @@ namespace Game_launcher
                         if (name.Length == 0 || found.ContainsKey(name)) continue;
 
                         string exeName = executable?.Attribute("Name")?.Value ?? string.Empty;
-                        string appId = executable?.Attribute("Id")?.Value ?? "Game";
+                        string appId = ReadXboxAppId(location) ?? executable?.Attribute("Id")?.Value ?? "Game";
                         string exePath = exeName.Length > 0 ? System.IO.Path.Combine(location, exeName) : string.Empty;
 
                         string fallbackCover = string.Empty;
@@ -444,6 +444,22 @@ namespace Game_launcher
                 }
             }
             catch { }
+        }
+
+        // Die Start-ID steht verlässlich nur in der appxmanifest.xml (Application Id); in der MicrosoftGame.config fehlt sie oft (z.B. Cyberpunk 2077: "cpLauncher")
+        private static string? ReadXboxAppId(string location)
+        {
+            try
+            {
+                string manifestPath = System.IO.Path.Combine(location, "appxmanifest.xml");
+                if (!File.Exists(manifestPath)) return null;
+
+                var application = System.Xml.Linq.XDocument.Load(manifestPath).Descendants()
+                    .FirstOrDefault(e => e.Name.LocalName == "Application" && e.Parent?.Name.LocalName == "Applications");
+                string? id = application?.Attribute("Id")?.Value;
+                return string.IsNullOrWhiteSpace(id) ? null : id;
+            }
+            catch { return null; }
         }
 
         // ───────────────────────────── Cover (immer in bester Auflösung) ─────────────────────────────
