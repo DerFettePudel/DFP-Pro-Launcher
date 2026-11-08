@@ -3849,6 +3849,29 @@
                                         <Button x:Name="BtnRemoteQr" Content="QR-Code anzeigen" Margin="0,0,10,10" Background="{DynamicResource AccentBrush}" Click="BtnRemoteQr_Click"/>
                                         <Button Content="Neuen Schlüssel erzeugen" Margin="0,0,10,10" Click="BtnRemoteNewKey_Click"/>
                                     </WrapPanel>
+
+                                    <TextBlock Text="Meldungen aufs Handy" Foreground="White" FontWeight="SemiBold" Margin="0,10,0,3"/>
+                                    <TextBlock Text="Erscheinen als Banner auf der geöffneten Fernbedienungs-Seite. Mit ntfy (unten) auch als echte Push-Meldung, wenn das Handy gesperrt ist." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <CheckBox x:Name="ChkPhoneDownload" Content="Download fertig" Margin="0,0,0,6" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    <CheckBox x:Name="ChkPhoneFriend" Content="Ein Steam-Freund startet ein Spiel, das du auch hast (braucht den Steam-API-Schlüssel)" Margin="0,0,0,6" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    <CheckBox x:Name="ChkPhoneBattery" Content="Controller-Akku wird leer" Margin="0,0,0,12" Checked="Option_Changed" Unchecked="Option_Changed"/>
+
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Push-Meldungen über die App ntfy" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Kostenlose App für Android und iPhone. Funktioniert auch bei gesperrtem Handy und unterwegs. Die kurzen Meldungen laufen über den Dienst ntfy.sh an einen geheimen Kanal, den nur du kennst." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkNtfy" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
+                                    <TextBlock x:Name="TxtNtfyStatus" Foreground="#6B7280" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                    <WrapPanel>
+                                        <Button x:Name="BtnNtfyPair" Content="Mit ntfy koppeln" Margin="0,0,10,10" Background="{DynamicResource AccentBrush}" Click="BtnNtfyPair_Click"/>
+                                        <Button x:Name="BtnPhoneTest" Content="Testmeldung senden" Margin="0,0,10,10" Click="BtnPhoneTest_Click"/>
+                                    </WrapPanel>
                                 </StackPanel>
                             </Border>
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16" Tag="control" Visibility="Collapsed">

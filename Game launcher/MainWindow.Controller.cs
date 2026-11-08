@@ -235,12 +235,36 @@ namespace Game_launcher
         private bool padBatteryPreview;
         private DateTime lastBatteryRead = DateTime.MinValue;
 
+        private int padBatteryPercent = -1;      // nur PlayStation-Controller liefern Prozent
+        private bool padBatteryCharging;
+        private bool psBatteryReading;
+
         private void TickPadBattery()
         {
             if (padBatteryPreview) return;
 
             if (padSlot < 0)
             {
+                // PlayStation-Controller (ohne Steam Input/DS4Windows): Akku aus den HID-Daten, im Hintergrund
+                if (padDescription.StartsWith("PlayStation", StringComparison.Ordinal))
+                {
+                    if (psBatteryReading || (DateTime.Now - lastBatteryRead).TotalSeconds < 15) return;
+                    lastBatteryRead = DateTime.Now;
+                    psBatteryReading = true;
+                    Task.Run(PlayStationBattery.Read).ContinueWith(task =>
+                    {
+                        var reading = task.Status == TaskStatus.RanToCompletion ? task.Result : null;
+                        Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            psBatteryReading = false;
+                            if (padBatteryPreview || padSlot >= 0) return;
+                            if (reading is { } r) SetPadBattery(PercentToLevel(r.Percent), r.Wired, r.Percent, r.Charging);
+                            else SetPadBattery(-1, false);
+                        }));
+                    });
+                    return;
+                }
+
                 if (padBatteryLevel != -1) SetPadBattery(-1, false);
                 return;
             }
@@ -266,26 +290,46 @@ namespace Game_launcher
             }
         }
 
-        private void SetPadBattery(int level, bool wired)
+        /// <summary>Prozent in die vier Stufen der Xbox-Controller (unter 35 % gilt als niedrig).</summary>
+        private static int PercentToLevel(int percent) => percent >= 65 ? 3 : percent >= 35 ? 2 : percent >= 15 ? 1 : 0;
+
+        private void SetPadBattery(int level, bool wired, int percent = -1, bool charging = false)
         {
-            bool wasLow = !padBatteryWired && (padBatteryLevel == 0 || padBatteryLevel == 1);
+            bool wasLow = !padBatteryWired && !padBatteryCharging && (padBatteryLevel == 0 || padBatteryLevel == 1);
             padBatteryLevel = level;
             padBatteryWired = wired;
+            padBatteryPercent = level >= 0 ? percent : -1;
+            padBatteryCharging = level >= 0 && charging;
             if (!wired && level >= 0) padLastWirelessLevel = level;
 
             UpdatePadBatteryUi();
             UpdatePadStatus();
 
-            bool isLow = !wired && (level == 0 || level == 1);
-            if (isLow && !wasLow && controllerMode && !padBatteryPreview)
-                ShowToast("🎮", "Controller-Akku niedrig", "Der Akku deines Controllers ist fast leer. Zeit zum Aufladen.", 8, null, true);
+            bool isLow = !wired && !charging && (level == 0 || level == 1);
+            if (isLow && !wasLow && !padBatteryPreview)
+            {
+                if (controllerMode)
+                    ShowToast("🎮", "Controller-Akku niedrig", "Der Akku deines Controllers ist fast leer. Zeit zum Aufladen.", 8, null, true);
+
+                // Aufs Handy auch mitten im Spiel, da sieht man den Launcher ja nicht
+                NotifyPhone("battery", "🎮", Loc.T("Controller-Akku niedrig"), percent >= 0
+                    ? Loc.T($"Noch {percent} % Akku. Zeit zum Aufladen.")
+                    : Loc.T("Der Akku deines Controllers ist fast leer. Zeit zum Aufladen."));
+            }
         }
+
+        /// <summary>„🔋 65 %“ (oder „⚡ 65 % · lädt“) für PlayStation-Controller, die Prozent liefern.</summary>
+        private string PercentText()
+            => (padBatteryCharging ? "⚡ " : padBatteryLevel <= 1 ? "🪫 " : "🔋 ") + padBatteryPercent + " %"
+               + (padBatteryCharging ? " · " + Loc.T("lädt") : string.Empty);
 
         private string PadBatteryLabel()
         {
             if (padBatteryLevel < 0) return string.Empty;
+            if (padBatteryWired && padBatteryPercent >= 0) return "🔌 " + Loc.T("Kabelgebunden an") + "  ·  " + PercentText();
             if (padBatteryWired)
                 return "🔌 " + Loc.T("Kabelgebunden an") + (padLastWirelessLevel >= 0 ? "  ·  " + BatteryText(padLastWirelessLevel) : string.Empty);
+            if (padBatteryPercent >= 0) return PercentText();
 
             return padBatteryLevel switch
             {
@@ -306,7 +350,7 @@ namespace Game_launcher
             if (!show) return;
 
             TxtPadBattery.Text = Loc.T("Akku") + ": " + PadBatteryLabel();
-            TxtPadBattery.Foreground = MakeBrush(padBatteryWired ? "#60A5FA" : padBatteryLevel switch
+            TxtPadBattery.Foreground = MakeBrush(padBatteryWired || padBatteryCharging ? "#60A5FA" : padBatteryLevel switch
             {
                 3 => "#34D399",
                 2 => "#A3E635",
@@ -320,6 +364,8 @@ namespace Game_launcher
             padBatteryPreview = true;
             padBatteryLevel = level;
             padBatteryWired = wired;
+            padBatteryPercent = -1;
+            padBatteryCharging = false;
 
             PadHintBar.Visibility = Visibility.Visible;
             if (!controllerMode) TxtPadHint.Text = Loc.T("Vorschau");
@@ -1580,7 +1626,12 @@ namespace Game_launcher
             }
 
             string text, color;
-            if (padBatteryWired)
+            if (padBatteryPercent >= 0 && padBatteryLevel >= 0)
+            {
+                text = (padBatteryWired ? "🔌 " + Loc.T("Kabelgebunden an") + "  ·  " : string.Empty) + Loc.T("Akku") + ": " + PercentText();
+                color = padBatteryWired || padBatteryCharging ? "#60A5FA" : BatteryColor(padBatteryLevel);
+            }
+            else if (padBatteryWired)
             {
                 text = "🔌 " + Loc.T("Kabelgebunden an");
                 if (padLastWirelessLevel >= 0) text += "  ·  " + BatteryText(padLastWirelessLevel) + " (" + Loc.T("zuletzt") + ")";

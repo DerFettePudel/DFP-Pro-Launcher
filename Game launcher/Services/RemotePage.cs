@@ -41,10 +41,21 @@ input[type=range] { width:100%; accent-color:var(--accent); height:32px; }
 .game.run::after { content:"▶"; position:absolute; top:6px; right:6px; background:var(--green); color:#000; border-radius:8px; padding:2px 6px; font-size:11px; }
 #msg { position:fixed; left:16px; right:16px; bottom:calc(16px + env(safe-area-inset-bottom)); background:#111827; border:1px solid var(--line); border-radius:12px; padding:12px 14px; display:none; }
 .hint { color:var(--sub); text-align:center; padding:40px 10px; }
+.pad { margin-left:auto; font-size:13px; font-weight:600; border:1px solid var(--line); border-radius:999px; padding:4px 10px; white-space:nowrap; display:none; }
+.pad.low { border-color:var(--red); animation:pulse 1.6s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow:0 0 0 4px rgba(239,68,68,.25); } }
+#notes { position:fixed; left:12px; right:12px; top:calc(12px + env(safe-area-inset-top)); z-index:10; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+.note { pointer-events:auto; display:flex; gap:12px; align-items:center; background:#1B2333; border:1px solid var(--accent); border-radius:14px; padding:12px 14px; box-shadow:0 8px 24px rgba(0,0,0,.5); animation:slide .25s ease-out; }
+.note .i { font-size:24px; }
+.note b { display:block; }
+.note span { color:var(--sub); font-size:14px; }
+@keyframes slide { from { transform:translateY(-20px); opacity:0; } }
+@media (prefers-reduced-motion: reduce) { .note, .pad.low { animation:none; } }
 </style>
 </head>
 <body>
-<header><span class="dot" id="dot"></span><b>DFP Pro Launcher</b></header>
+<header><span class="dot" id="dot"></span><b>DFP Pro Launcher</b><span class="pad" id="pad"></span></header>
+<div id="notes"></div>
 <div id="nokey" class="hint" style="display:none"></div>
 <div id="app" style="display:none">
   <div class="card">
@@ -135,17 +146,54 @@ function renderState() {
   $("vol").textContent = state.muted ? "🔇" : state.volume + " %";
   if (!sliding) $("volSlider").value = state.volume;
   $("mute").textContent = state.muted ? T("Ton an") : T("Stumm");
+  const pad = $("pad");
+  if (state.pad) {
+    pad.textContent = "🎮 " + state.pad.text; pad.title = T("Controller");
+    pad.style.color = state.pad.color; pad.classList.toggle("low", !!state.pad.low); pad.style.display = "inline-block";
+  } else pad.style.display = "none";
   const running = new Set(state.running.map(g => g.id));
   document.querySelectorAll(".game").forEach(el => el.classList.toggle("run", running.has(el.dataset.id)));
 }
 
 function fail(e) { if (String(e.message) !== "401") msg(T("Der PC antwortet nicht.")); }
 
+// Meldungen vom PC (Download fertig, Freund spielt, Controller-Akku). Gemerkt wird, was schon gezeigt wurde.
+let evBoot = null, evSince = 0;
+try { const s = JSON.parse(localStorage.getItem("dfpEvents") || "null"); if (s) { evBoot = s.boot; evSince = s.since | 0; } } catch (e) {}
+function saveEvents() { try { localStorage.setItem("dfpEvents", JSON.stringify({ boot: evBoot, since: evSince })); } catch (e) {} }
+
+function note(n) {
+  const box = document.createElement("div"); box.className = "note";
+  const i = document.createElement("div"); i.className = "i"; i.textContent = n.icon;
+  const t = document.createElement("div");
+  const b = document.createElement("b"); b.textContent = n.title;
+  const s = document.createElement("span"); s.textContent = n.text;
+  t.append(b, s); box.append(i, t);
+  box.onclick = () => box.remove();
+  $("notes").prepend(box);
+  while ($("notes").children.length > 3) $("notes").lastChild.remove();
+  setTimeout(() => box.remove(), 10000);
+}
+
+function handleEvents(ev) {
+  if (!ev) return;
+  if (ev.boot !== evBoot) {
+    // Erster Besuch: alte Meldungen nicht zeigen. Launcher neu gestartet: Zähler beginnt von vorn.
+    evSince = evBoot === null ? ev.last : 0; evBoot = ev.boot; saveEvents();
+    return;
+  }
+  let shown = false;
+  for (const n of ev.items) if (n.id > evSince) { note(n); shown = true; }
+  evSince = Math.max(evSince, ev.last); saveEvents();
+  if (shown) try { navigator.vibrate && navigator.vibrate([120, 60, 120]); } catch (e) {}
+}
+
 async function refresh() {
   if (!token || document.hidden) return;
   try {
-    state = await (await api("state")).json();
+    state = await (await api("state?since=" + evSince)).json();
     $("dot").className = "dot on";
+    handleEvents(state.events);
     renderState();
   } catch (e) { if (String(e.message) !== "401") $("dot").className = "dot"; }
 }

@@ -23,7 +23,7 @@ namespace Game_launcher
 
         private sealed class SteamFriend
         {
-            public string Name = string.Empty, Avatar = string.Empty, GameName = string.Empty, GameId = string.Empty;
+            public string Id = string.Empty, Name = string.Empty, Avatar = string.Empty, GameName = string.Empty, GameId = string.Empty;
             public int State;   // 0 offline, 1 online, 2 beschäftigt, 3 abwesend, 4 schlafend, 5/6 sucht
         }
 
@@ -64,10 +64,13 @@ namespace Game_launcher
             }
 
             // Freunde alle 2 Minuten neu laden, solange das Dashboard zu sehen ist
+            // oder die Handy-Meldung „Freund startet ein Spiel“ an ist (dann auch im Hintergrund)
             steamSocialTimer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(2) };
             steamSocialTimer.Tick += (s, e) =>
             {
-                if (ViewDashboard.IsVisible && WindowState != WindowState.Minimized && !DashOff("friends")) _ = LoadFriendsAsync(true);
+                bool widget = ViewDashboard.IsVisible && WindowState != WindowState.Minimized && !DashOff("friends");
+                bool phone = settings.PhoneNotifyFriend && PhoneNotifyActive;
+                if (widget || phone) _ = LoadFriendsAsync(true);
             };
             steamSocialTimer.Start();
         }
@@ -211,6 +214,7 @@ namespace Game_launcher
                         {
                             result.Add(new SteamFriend
                             {
+                                Id = GetJsonString(p, "steamid"),
                                 Name = GetJsonString(p, "personaname"),
                                 Avatar = GetJsonString(p, "avatarmedium"),
                                 GameName = GetJsonString(p, "gameextrainfo"),
@@ -224,6 +228,7 @@ namespace Game_launcher
 
                 friendsData = friends;
                 friendsError = string.Empty;
+                CheckFriendGameStarts(friends);
             }
             catch (Exception ex)
             {

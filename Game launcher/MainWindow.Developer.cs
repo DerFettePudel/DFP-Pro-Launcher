@@ -435,6 +435,19 @@ namespace Game_launcher
             Dev("🪫 Niedrig", () => PreviewPadBattery(1, false));
             Dev("🪫 Leer", () => PreviewPadBattery(0, false));
             Dev("🔌 Kabel", () => PreviewPadBattery(3, true));
+            Dev("🎮 PlayStation-Akku jetzt lesen", async () =>
+            {
+                var reading = await Task.Run(PlayStationBattery.Read);
+                Msg(reading is { } r
+                    ? $"{r.Percent} % · Kabel: {(r.Wired ? "ja" : "nein")} · lädt: {(r.Charging ? "ja" : "nein")}"
+                    : "Kein Akkustand. Kein PlayStation-Controller gefunden, oder er hängt per Bluetooth im einfachen Modus (Steam nicht offen).", "Entwickler");
+            });
+
+            Group("Meldungen aufs Handy");
+            Dev("✅ Download fertig", () => NotifyPhone("download", "✅", Loc.T("Download fertig"), Loc.T("„Test-Spiel“ ist fertig.") + " (Steam)"));
+            Dev("👥 Freund spielt", () => NotifyPhone("friend", "👥", Loc.T("Steam-Freund spielt"), Loc.T($"Testfreund spielt gerade {allGames.FirstOrDefault()?.Name ?? "Test-Spiel"}. Du hast das Spiel auch.")));
+            Dev("🪫 Controller-Akku", () => NotifyPhone("battery", "🎮", Loc.T("Controller-Akku niedrig"), Loc.T("Noch 15 % Akku. Zeit zum Aufladen.")));
+            Dev("👥 Freunde jetzt prüfen", () => _ = LoadFriendsAsync(false));
 
             Group("Dialoge und Meldungen");
             Dev("🔌 Ladekabel-Warnung", () =>

@@ -146,6 +146,7 @@ namespace Game_launcher
             if (string.IsNullOrWhiteSpace(settings.ObsHost)) settings.ObsHost = "localhost";
             if (settings.ObsPort is < 1 or > 65535) settings.ObsPort = 4455;
             settings.ObsPasswordProtected ??= string.Empty;
+            settings.NtfyTopicProtected ??= string.Empty;
             settings.ObsStreamerScenes ??= new List<string>();
             settings.Profiles ??= new List<SettingsProfile>();
             settings.Profiles.RemoveAll(p => p == null);

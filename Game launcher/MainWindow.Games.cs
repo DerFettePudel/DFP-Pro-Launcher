@@ -7904,9 +7904,12 @@ namespace Game_launcher
 
         private void NotifyDownloadDone(string name, string store)
         {
-            if (!settings.DownloadDoneNotify || AlertsMuted()) return;
+            if (!settings.DownloadDoneNotify) return;
 
             string text = Loc.T($"„{name}“ ist fertig.");
+            // Aufs Handy auch, wenn Meldungen im Launcher gerade stumm sind (Spiel läuft, Streamer-Modus)
+            NotifyPhone("download", "✅", Loc.T("Download fertig"), text + " (" + store + ")");
+            if (AlertsMuted()) return;
             if (IsVisible && WindowState != WindowState.Minimized)
             {
                 ShowToast("✅", Loc.T("Download fertig"), text + " (" + store + ")", 8, () => NavigateTo("games"));

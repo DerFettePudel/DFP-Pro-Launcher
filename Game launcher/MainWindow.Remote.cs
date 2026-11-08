@@ -31,8 +31,21 @@ namespace Game_launcher
             "PC in den Energiesparmodus schicken?", "PC jetzt herunterfahren?", "Es läuft noch ein Spiel.", "PC fährt herunter ...",
             "PC wird gesperrt.", "Der PC antwortet nicht.",
             "Der Schlüssel ist nicht mehr gültig. Bitte scanne den QR-Code im Launcher neu.",
-            "Scanne den QR-Code im Launcher: Einstellungen, Steuerung, Handy-Fernbedienung."
+            "Scanne den QR-Code im Launcher: Einstellungen, Steuerung, Handy-Fernbedienung.",
+            "Controller"
         };
+
+        /// <summary>Akku des Controllers für die Handy-Seite, null wenn unbekannt.</summary>
+        private object? RemotePadBattery()
+        {
+            if (padDescription.Length == 0 || padBatteryLevel < 0 || padBatteryPreview) return null;
+            return new
+            {
+                text = PadBatteryLabel(),
+                low = !padBatteryWired && padBatteryLevel <= 1,
+                color = padBatteryWired ? "#60A5FA" : BatteryColor(padBatteryLevel)
+            };
+        }
 
         private void InitRemote()
         {
@@ -42,6 +55,8 @@ namespace Game_launcher
 
         private void ReadRemoteSettings()
         {
+            ReadPhoneNotifySettings();
+
             bool before = settings.RemoteEnabled;
             settings.RemoteEnabled = ChkRemote.IsChecked == true;
             if (before == settings.RemoteEnabled) return;
@@ -53,6 +68,7 @@ namespace Game_launcher
         private void PopulateRemoteSettings()
         {
             ChkRemote.IsChecked = settings.RemoteEnabled;
+            PopulatePhoneNotifySettings();
             UpdateRemoteStatus();
         }
 
@@ -121,6 +137,7 @@ namespace Game_launcher
                 TxtRemoteStatus.Foreground = MakeBrush("#34D399");
             }
             BtnRemoteQr.IsEnabled = address != null;
+            UpdateNtfyStatus();
         }
 
         private string BuildRemotePage()
@@ -174,14 +191,18 @@ namespace Game_launcher
                 {
                     case "GET /api/state":
                     {
-                        var running = await Dispatcher.InvokeAsync(() => activeSessions.Keys
-                            .Select(g => new { id = RemoteGameId(g), name = g.Name }).ToList());
+                        var (running, pad) = await Dispatcher.InvokeAsync(() => (
+                            activeSessions.Keys.Select(g => new { id = RemoteGameId(g), name = g.Name }).ToList(),
+                            RemotePadBattery()));
+                        int.TryParse(RemoteServer.QueryValue(request.Query, "since"), out int since);
                         var volume = SystemVolume.Read();
                         return RemoteServer.Response.Json(JsonSerializer.Serialize(new
                         {
                             running,
                             volume = volume == null ? 0 : (int)Math.Round(volume.Value.Level * 100),
-                            muted = volume?.Muted ?? false
+                            muted = volume?.Muted ?? false,
+                            pad,
+                            events = PhoneEventsSince(since)
                         }));
                     }
 

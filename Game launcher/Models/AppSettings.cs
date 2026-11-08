@@ -278,6 +278,13 @@ namespace Game_launcher
         public int RemotePort { get; set; } = 48731;
         public string RemoteTokenProtected { get; set; } = string.Empty;
 
+        // Meldungen aufs Handy: als Banner auf der Fernbedienungs-Seite und auf Wunsch per ntfy (echte Push-Meldung)
+        public bool PhoneNotifyDownload { get; set; } = true;
+        public bool PhoneNotifyFriend { get; set; } = true;
+        public bool PhoneNotifyBattery { get; set; } = true;
+        public bool NtfyEnabled { get; set; }
+        public string NtfyTopicProtected { get; set; } = string.Empty;
+
         // OBS-Steuerung (OBS WebSocket v5)
         public bool ObsEnabled { get; set; }
         public string ObsHost { get; set; } = "localhost";
