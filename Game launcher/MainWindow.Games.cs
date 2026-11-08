@@ -1090,7 +1090,10 @@ namespace Game_launcher
         private readonly DispatcherTimer playTimer = new();
         private readonly Dictionary<GameItem, int> activeSessions = new();
         private readonly Dictionary<GameItem, DateTime> sessionStart = new();
+        // Tatsächlich gezählte Sekunden der laufenden Sitzung (ohne Energiesparmodus, anders als „jetzt minus Start“)
+        private readonly Dictionary<GameItem, double> sessionSeconds = new();
         private int playSaveCounter;
+        private bool playTickRunning;
         private bool profileActive;
         private string currentPowerPlanName = string.Empty;
         private bool loadingOptimizationToggles;
@@ -2202,6 +2205,9 @@ namespace Game_launcher
         {
             if (!settings.TrackPlaytime || allGames.Count == 0) return;
 
+            // Dauert die Prozessabfrage länger als 10 s (PC unter Volllast), nicht doppelt zählen
+            if (playTickRunning) return;
+            playTickRunning = true;
             List<string> running;
             try
             {
@@ -2210,6 +2216,10 @@ namespace Game_launcher
             catch
             {
                 return;
+            }
+            finally
+            {
+                playTickRunning = false;
             }
 
             var now = DateTime.Now;
@@ -2237,6 +2247,8 @@ namespace Game_launcher
 
                     game.PlaySeconds += 10;
                     game.LastPlayed = now;
+                    sessionSeconds.TryGetValue(game, out double counted);
+                    sessionSeconds[game] = counted + 10;
                     AddPlayLog(10);
                     AddYearPlay(game, 10);
                 }
@@ -2244,26 +2256,8 @@ namespace Game_launcher
                 {
                     if (missed + 1 >= 2)
                     {
-                        activeSessions.Remove(game);
-                        if (sessionStart.TryGetValue(game, out var startedAt)) RecordSession(game, now - startedAt);
-                        sessionStart.Remove(game);
-                        CopyStateToSettings(game);
+                        EndGameSession(game, true);
                         sessionEnded = true;
-                        sessionBreakCount.Remove(game);
-                        ShowSessionReport(game);
-                        CheckMilestones();
-                        ResumePadAfterGame();
-                        DiscordSessionEnded(game);
-                        RunRoutinesFor("gameend", game);
-                        if (settings.AutoBackupSaves && !string.IsNullOrEmpty(game.SavePath)) _ = BackupSavesAsync(game, true);
-
-                        if (activeSessions.Count == 0)
-                        {
-                            _ = DeactivateGamingProfileAsync();
-                            RestoreClosedApps();
-                            OnProfileGameEnded();
-                            OnAllGamesEnded();
-                        }
                     }
                     else
                     {
@@ -2301,6 +2295,48 @@ namespace Game_launcher
             }
             if (ViewStats.Visibility == Visibility.Visible && (sessionEnded || (anyRunning && playSaveCounter % 6 == 0)))
                 RefreshStats(false);
+        }
+
+        /// <summary>
+        /// Beendet die Sitzung eines Spiels. <paramref name="finished"/> = das Spiel wurde wirklich geschlossen
+        /// (Bericht, Meilensteine, Spielstand-Sicherung); false = es wird nur nicht mehr erfasst (Spielzeit-Ausnahme).
+        /// Ist danach kein Spiel mehr aktiv, wird alles zurückgestellt (Energiesparplan, Auflösung/HDR, Discord, Begleitprogramme).
+        /// </summary>
+        private void EndGameSession(GameItem game, bool finished)
+        {
+            if (!activeSessions.Remove(game)) return;
+
+            var played = TimeSpan.FromSeconds(sessionSeconds.TryGetValue(game, out double seconds) ? seconds : 0);
+            if (finished) RecordSession(game, played);
+            sessionStart.Remove(game);
+            sessionSeconds.Remove(game);
+            sessionBreakCount.Remove(game);
+            CopyStateToSettings(game);
+
+            if (finished)
+            {
+                ShowSessionReport(game, played);
+                CheckMilestones();
+                ResumePadAfterGame();
+            }
+            else
+            {
+                sessionStats.Remove(game);
+            }
+            DiscordSessionEnded(game);
+            if (finished)
+            {
+                RunRoutinesFor("gameend", game);
+                if (settings.AutoBackupSaves && !string.IsNullOrEmpty(game.SavePath)) _ = BackupSavesAsync(game, true);
+            }
+
+            if (activeSessions.Count == 0)
+            {
+                _ = DeactivateGamingProfileAsync();
+                RestoreClosedApps();
+                OnProfileGameEnded();
+                OnAllGamesEnded();
+            }
         }
 
         private async Task ActivateGamingProfileAsync()
@@ -4463,8 +4499,7 @@ namespace Game_launcher
             if (settings.TrackingIgnored.RemoveAll(n => string.Equals(n, game.Name, StringComparison.OrdinalIgnoreCase)) == 0)
                 settings.TrackingIgnored.Add(game.Name);
 
-            activeSessions.Remove(game);
-            sessionStart.Remove(game);
+            if (IsTrackingIgnored(game)) EndGameSession(game, false);
             SaveSettings();
             ApplyFilter();
             RefreshDashboard();
@@ -4479,11 +4514,7 @@ namespace Game_launcher
             if (chosen == null) return;
 
             settings.TrackingIgnored = chosen;
-            foreach (var game in allGames.Where(IsTrackingIgnored))
-            {
-                activeSessions.Remove(game);
-                sessionStart.Remove(game);
-            }
+            foreach (var game in allGames.Where(IsTrackingIgnored).ToList()) EndGameSession(game, false);
             SaveSettings();
             ApplyFilter();
             RefreshDashboard();
@@ -6212,14 +6243,13 @@ namespace Game_launcher
             }
         }
 
-        private void ShowSessionReport(GameItem game)
+        private void ShowSessionReport(GameItem game, TimeSpan duration)
         {
             if (!sessionStats.TryGetValue(game, out var stats)) return;
             sessionStats.Remove(game);
 
             if (!settings.SessionReport || stats.Samples < 30) return;
 
-            var duration = DateTime.Now - stats.Started;
             string time = $"{(int)duration.TotalHours}:{duration.Minutes:D2} {Loc.T("Std.")}";
             string max = Loc.T("max.");
 

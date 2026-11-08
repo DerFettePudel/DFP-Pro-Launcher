@@ -63,7 +63,7 @@ namespace Game_launcher
             string playerUrl = $"https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/?key={Uri.EscapeDataString(key)}&steamid={steamId}&appid={appId}";
             string globalUrl = $"https://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v2/?gameid={appId}";
 
-            var schemaTask = Http.GetStringAsync(schemaUrl);
+            var schemaTask = GetSteamStringAsync(schemaUrl);
             var playerTask = GetSteamStringAsync(playerUrl);
             var globalTask = GetSteamStringAsync(globalUrl);
             await Task.WhenAll(schemaTask, playerTask, globalTask);
@@ -138,7 +138,12 @@ namespace Game_launcher
             using var response = await Http.GetAsync(url);
             string body = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode && !body.TrimStart().StartsWith("{"))
+            {
+                // Ungültiger oder gesperrter Schlüssel: Steam antwortet mit einer HTML-Seite statt JSON
+                if (response.StatusCode is System.Net.HttpStatusCode.Forbidden or System.Net.HttpStatusCode.Unauthorized)
+                    throw new InvalidOperationException(Loc.T("Steam lehnt den Schlüssel ab."));
                 throw new InvalidOperationException(Loc.T($"Steam antwortet mit {(int)response.StatusCode}."));
+            }
             return body.TrimStart().StartsWith("{") ? body : "{}";
         }
 
