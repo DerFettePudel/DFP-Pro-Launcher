@@ -12,13 +12,49 @@
         <SolidColorBrush x:Key="AppBackgroundBrush" Color="#0F111A"/>
         <SolidColorBrush x:Key="AccentBrush" Color="#8B5CF6"/>
         <SolidColorBrush x:Key="SidebarBrush" Color="#0B0E16"/>
-        <SolidColorBrush x:Key="CardBrush" Color="#131722"/>
-        <SolidColorBrush x:Key="CardBorderBrush" Color="#1F2937"/>
-        <SolidColorBrush x:Key="SurfaceBrush" Color="#181D2A"/>
+        <SolidColorBrush x:Key="CardBrush" Color="#121621"/>
+        <SolidColorBrush x:Key="CardBorderBrush" Color="#1E2433"/>
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#171C28"/>
         <DropShadowEffect x:Key="TextShadow" ShadowDepth="0" BlurRadius="7" Opacity="0.95" Color="#000000"/>
         <SolidColorBrush x:Key="NavTextBrush" Color="#9CA3AF"/>
         <SolidColorBrush x:Key="NavActiveBrush" Color="#8B5CF6"/>
-        <SolidColorBrush x:Key="NavActiveBgBrush" Color="#1C2233"/>
+        <SolidColorBrush x:Key="NavActiveBgBrush" Color="#268B5CF6"/>
+
+        <!-- ========== Design-System „Nova“: Textfarben, Flächen, Kanten (Werte für OLED setzt ApplySurfaceBrushes) ========== -->
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#F3F4F8"/>
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#A1A8BB"/>
+        <SolidColorBrush x:Key="TextMutedBrush" Color="#6C7389"/>
+        <SolidColorBrush x:Key="TextFaintBrush" Color="#474D60"/>
+        <SolidColorBrush x:Key="ControlBrush" Color="#1A2030"/>
+        <SolidColorBrush x:Key="ControlHoverBrush" Color="#252C40"/>
+        <SolidColorBrush x:Key="ControlBorderBrush" Color="#262D40"/>
+        <SolidColorBrush x:Key="AccentSoftBrush" Color="#268B5CF6"/>
+        <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#A78BFA" Offset="0"/>
+            <GradientStop Color="#8B5CF6" Offset="0.55"/>
+            <GradientStop Color="#6D28D9" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="CardFillBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#151A26" Offset="0"/>
+            <GradientStop Color="#10131C" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="CardEdgeBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#2C3348" Offset="0"/>
+            <GradientStop Color="#181C29" Offset="0.45"/>
+            <GradientStop Color="#141824" Offset="1"/>
+        </LinearGradientBrush>
+        <!-- Glanzkante oben auf Knöpfen -->
+        <LinearGradientBrush x:Key="ButtonEdgeBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#24FFFFFF" Offset="0"/>
+            <GradientStop Color="#08FFFFFF" Offset="0.5"/>
+            <GradientStop Color="#00FFFFFF" Offset="1"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="ButtonSheenBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#0DFFFFFF" Offset="0"/>
+            <GradientStop Color="#00FFFFFF" Offset="0.6"/>
+        </LinearGradientBrush>
+        <FontFamily x:Key="DisplayFont">Segoe UI Variable Display, Segoe UI</FontFamily>
+        <FontFamily x:Key="IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
 
         <!-- Pinsel für das Logo -->
         <SolidColorBrush x:Key="BrandRingBrush" Color="#8B5CF6"/>
@@ -68,51 +104,78 @@
 
         <!-- ========== Basis-Styles ========== -->
         <Style x:Key="PageTitle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="28"/>
+            <Setter Property="FontFamily" Value="{DynamicResource DisplayFont}"/>
+            <Setter Property="FontSize" Value="32"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="Effect" Value="{StaticResource TextShadow}"/>
         </Style>
         <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{DynamicResource DisplayFont}"/>
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="Margin" Value="0,0,0,12"/>
         </Style>
+        <!-- Kleine Überschrift in Großbuchstaben (z. B. „UHRZEIT“) -->
+        <Style x:Key="EyebrowText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
         <Style x:Key="SubtleText" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#9CA3AF"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
         </Style>
         <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource CardBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource CardFillBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardEdgeBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="CornerRadius" Value="18"/>
             <Setter Property="Padding" Value="20"/>
         </Style>
 
-        <!-- Abgerundete Buttons mit Hover-Effekt (gilt für alle Buttons) -->
+        <!-- Knöpfe „Nova“: Glanzkante oben, sanftes Aufhellen beim Drüberfahren, leichtes Eindrücken beim Klicken (gilt für alle Buttons) -->
         <Style TargetType="Button">
-            <Setter Property="Background" Value="#374151"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="{DynamicResource ControlBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             <Setter Property="Padding" Value="14,8"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="9"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
+                        <Grid x:Name="root" RenderTransformOrigin="0.5,0.5" SnapsToDevicePixels="True">
+                            <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="10"/>
+                            <Border CornerRadius="10" Background="{StaticResource ButtonSheenBrush}" BorderBrush="{StaticResource ButtonEdgeBrush}" BorderThickness="1" IsHitTestVisible="False"/>
+                            <Border x:Name="hover" CornerRadius="10" Background="#FFFFFF" Opacity="0" IsHitTestVisible="False"/>
+                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                        </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="hover" Storyboard.TargetProperty="Opacity" To="0.09" Duration="0:0:0.12"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="hover" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Opacity" Value="0.7"/>
+                                <Setter TargetName="root" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.97" ScaleY="0.97"/>
+                                    </Setter.Value>
+                                </Setter>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="bd" Property="Opacity" Value="0.4"/>
+                                <Setter TargetName="root" Property="Opacity" Value="0.4"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -120,23 +183,32 @@
             </Setter>
         </Style>
 
-        <!-- Abgerundete Textfelder -->
+        <!-- Textfelder: feine Kante, beim Tippen leuchtet sie in der Akzentfarbe -->
         <Style TargetType="TextBox">
-            <Setter Property="Background" Value="#1F2937"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="{DynamicResource ControlBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBorderBrush}"/>
             <Setter Property="CaretBrush" Value="White"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Padding" Value="10,0"/>
             <Setter Property="MinHeight" Value="36"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="9" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <Border x:Name="box" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1"
+                                CornerRadius="10" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
                             <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="AcceptsReturn" Value="True">
                                 <Setter TargetName="PART_ContentHost" Property="VerticalAlignment" Value="Stretch"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="box" Property="BorderBrush" Value="#3A4259"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="box" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -146,21 +218,41 @@
 
         <!-- Passwortfelder wie die Textfelder -->
         <Style TargetType="PasswordBox">
-            <Setter Property="Background" Value="#1F2937"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="{DynamicResource ControlBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlBorderBrush}"/>
             <Setter Property="CaretBrush" Value="White"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Padding" Value="10,0"/>
             <Setter Property="MinHeight" Value="36"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="PasswordBox">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="9" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <Border x:Name="box" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1"
+                                CornerRadius="10" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
                             <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="box" Property="BorderBrush" Value="#3A4259"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="box" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <!-- Kleine Taste-Anzeige (z. B. „Strg+K“) -->
+        <Style x:Key="KeyCap" TargetType="Border">
+            <Setter Property="Background" Value="#14FFFFFF"/>
+            <Setter Property="BorderBrush" Value="#22FFFFFF"/>
+            <Setter Property="BorderThickness" Value="1,1,1,2"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="7,2"/>
         </Style>
 
         <!-- Navigation links -->
@@ -229,19 +321,51 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="border" Background="Transparent" CornerRadius="10" Padding="{TemplateBinding Padding}"
-                                BorderThickness="3,0,0,0" BorderBrush="Transparent">
-                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                        </Border>
+                        <!-- Aktiver Eintrag: getönte Fläche in der Akzentfarbe und ein leuchtender Strich, der beim Wechsel aufwächst.
+                             In der schwebenden Leiste (Tag="dock") sitzt der Strich unten mittig. -->
+                        <Grid Background="Transparent">
+                            <Border x:Name="border" Background="Transparent" CornerRadius="11" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            </Border>
+                            <Border x:Name="pill" Width="3" Height="18" CornerRadius="1.5" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                    Background="{DynamicResource NavActiveBrush}" Opacity="0" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+                                <Border.RenderTransform>
+                                    <ScaleTransform x:Name="pillScale" ScaleX="1" ScaleY="0.2"/>
+                                </Border.RenderTransform>
+                            </Border>
+                        </Grid>
                         <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="dock">
+                                <Setter TargetName="pill" Property="Width" Value="16"/>
+                                <Setter TargetName="pill" Property="Height" Value="3"/>
+                                <Setter TargetName="pill" Property="HorizontalAlignment" Value="Center"/>
+                                <Setter TargetName="pill" Property="VerticalAlignment" Value="Bottom"/>
+                                <Setter TargetName="pill" Property="Margin" Value="0,0,0,2"/>
+                            </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#161B28"/>
+                                <Setter TargetName="border" Property="Background" Value="#0DFFFFFF"/>
                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="border" Property="Background" Value="{DynamicResource NavActiveBgBrush}"/>
-                                <Setter TargetName="border" Property="BorderBrush" Value="{DynamicResource NavActiveBrush}"/>
+                                <Setter TargetName="pill" Property="Opacity" Value="1"/>
                                 <Setter Property="Foreground" Value="#FFFFFF"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="pillScale" Storyboard.TargetProperty="ScaleY" From="0.2" To="1" Duration="0:0:0.28">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <BackEase Amplitude="0.5" EasingMode="EaseOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="pillScale" Storyboard.TargetProperty="ScaleX" From="0.2" To="1" Duration="0:0:0.28">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <BackEase Amplitude="0.5" EasingMode="EaseOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -328,23 +452,24 @@
 
         <!-- Filter-Chips -->
         <Style x:Key="ChipStyle" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="#9CA3AF"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Margin" Value="0,0,8,8"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="chip" Background="#1F2937" CornerRadius="16" Padding="14,6">
+                        <Border x:Name="chip" Background="{DynamicResource ControlBrush}" BorderBrush="{DynamicResource ControlBorderBrush}" BorderThickness="1" CornerRadius="16" Padding="14,6">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="chip" Property="Background" Value="#2A3142"/>
+                                <Setter TargetName="chip" Property="Background" Value="{DynamicResource ControlHoverBrush}"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="chip" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="chip" Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
+                                <Setter TargetName="chip" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -531,8 +656,8 @@
                     <ControlTemplate TargetType="CheckBox">
                         <StackPanel Orientation="Horizontal" Background="Transparent">
                             <Grid Width="46" Height="26" VerticalAlignment="Center">
-                                <Border x:Name="Track" CornerRadius="13" Background="#374151" BorderBrush="#4B5563" BorderThickness="1"/>
-                                <Ellipse x:Name="Knob" Width="18" Height="18" Fill="White" HorizontalAlignment="Left" Margin="4,0,0,0">
+                                <Border x:Name="Track" CornerRadius="13" Background="{DynamicResource ControlHoverBrush}" BorderBrush="#363E55" BorderThickness="1"/>
+                                <Ellipse x:Name="Knob" Width="18" Height="18" Fill="#E8EAF2" HorizontalAlignment="Left" Margin="4,0,0,0">
                                     <Ellipse.RenderTransform>
                                         <TranslateTransform x:Name="KnobMove" X="0"/>
                                     </Ellipse.RenderTransform>
@@ -550,6 +675,7 @@
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Track" Property="Background" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Knob" Property="Fill" Value="White"/>
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
@@ -695,6 +821,7 @@
         <Image x:Name="BackgroundImage" Stretch="UniformToFill" Visibility="Collapsed" IsHitTestVisible="False"
            RenderOptions.BitmapScalingMode="HighQuality"/>
         <Border x:Name="BackgroundDim" Background="{DynamicResource AppBackgroundBrush}" Opacity="0.55" Visibility="Collapsed" IsHitTestVisible="False"/>
+        <Border x:Name="AmbientGlowLayer" Visibility="Collapsed" IsHitTestVisible="False"/>
         <Border x:Name="BackgroundGlow" Visibility="Collapsed" IsHitTestVisible="False"/>
         <Border x:Name="CoverTint" Visibility="Collapsed" Opacity="0" IsHitTestVisible="False"/>
 
@@ -705,7 +832,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- ================= SIDEBAR ================= -->
-            <Border x:Name="SidebarBorder" Grid.Column="0" Background="{DynamicResource SidebarBrush}" BorderBrush="#1F2937" BorderThickness="0,0,1,0">
+            <Border x:Name="SidebarBorder" Grid.Column="0" Background="{DynamicResource SidebarBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,0,1,0">
                 <Grid Margin="16,38,16,16">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -725,24 +852,59 @@
                         <Viewbox x:Name="BrandTextHost" Grid.Column="1" Stretch="Uniform" StretchDirection="DownOnly"
                              HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12,0,0,0">
                             <StackPanel x:Name="BrandText">
-                                <TextBlock x:Name="BrandTitle" Text="DFP PRO" Foreground="White" FontSize="20" FontWeight="ExtraBold"/>
+                                <TextBlock x:Name="BrandTitle" Text="DFP PRO" Foreground="White" FontSize="21" FontWeight="ExtraBold" FontFamily="{DynamicResource DisplayFont}"/>
                                 <TextBlock x:Name="BrandSubtitle" Text="LAUNCHER" Foreground="{DynamicResource AccentBrush}" FontSize="12" FontWeight="SemiBold"/>
                             </StackPanel>
                         </Viewbox>
                     </Grid>
 
-                    <!-- Benutzer -->
-                    <Border x:Name="UserCard" Grid.Row="1" Background="{DynamicResource CardBrush}" CornerRadius="12" Padding="14,10" Margin="0,0,0,16">
-                        <StackPanel>
-                            <TextBlock x:Name="TxtWelcomeGreeting" Text="Willkommen zurück" Foreground="#9CA3AF" FontSize="12"/>
-                            <TextBlock x:Name="TxtUserName" Text="Gamer" Foreground="White" FontWeight="Bold" FontSize="16" Margin="0,2,0,0"
-                                   TextTrimming="CharacterEllipsis"/>
-                            <Border x:Name="StreamBadge" Visibility="Collapsed" Margin="0,8,0,0" Padding="8,3" CornerRadius="8" Background="#33DC2626"
-                                Cursor="Hand" ToolTip="Klicken zum Ausschalten" HorizontalAlignment="Left" MouseLeftButtonUp="StreamBadge_Click">
-                                <TextBlock x:Name="TxtStreamBadge" Text="📡 Streamer-Modus" Foreground="#FCA5A5" FontSize="11" FontWeight="SemiBold"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
+                    <!-- Benutzer: Profil-Karte mit Avatar-Ring in der Akzentfarbe, darunter die Suche -->
+                    <StackPanel Grid.Row="1" Margin="0,0,0,14">
+                        <Border x:Name="UserCard" Style="{StaticResource CardStyle}" CornerRadius="14" Padding="12,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid Width="38" Height="38" Margin="0,0,12,0" VerticalAlignment="Center">
+                                    <Ellipse Fill="{DynamicResource AccentGradientBrush}"/>
+                                    <Ellipse Margin="2" Fill="{DynamicResource CardBrush}"/>
+                                    <TextBlock Text="&#xE7FC;" FontFamily="{DynamicResource IconFont}" FontSize="16" Foreground="{DynamicResource AccentBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Ellipse x:Name="UserOnlineDot" Width="11" Height="11" Fill="#34D399" Stroke="{DynamicResource SidebarBrush}" StrokeThickness="2"
+                                             HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-1,-1"/>
+                                </Grid>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock x:Name="TxtWelcomeGreeting" Text="Willkommen zurück" Foreground="{DynamicResource TextMutedBrush}" FontSize="11"/>
+                                    <TextBlock x:Name="TxtUserName" Text="Gamer" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="Bold" FontSize="15" Margin="0,1,0,0"
+                                           TextTrimming="CharacterEllipsis"/>
+                                    <Border x:Name="StreamBadge" Visibility="Collapsed" Margin="0,6,0,0" Padding="8,3" CornerRadius="8" Background="#33DC2626"
+                                        Cursor="Hand" ToolTip="Klicken zum Ausschalten" HorizontalAlignment="Left" MouseLeftButtonUp="StreamBadge_Click">
+                                        <TextBlock x:Name="TxtStreamBadge" Text="📡 Streamer-Modus" Foreground="#FCA5A5" FontSize="11" FontWeight="SemiBold"/>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!-- Suche: öffnet die Spotlight-Suche (Strg+K) -->
+                        <Border x:Name="SidebarSearch" Margin="0,10,0,0" Padding="12,0" Height="38" CornerRadius="11" Cursor="Hand"
+                                Background="{DynamicResource ControlBrush}" BorderBrush="{DynamicResource ControlBorderBrush}" BorderThickness="1"
+                                MouseLeftButtonUp="SidebarSearch_Click">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="&#xE721;" FontFamily="{DynamicResource IconFont}" FontSize="14" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="TxtSidebarSearch" Grid.Column="1" Text="Suchen ..." Foreground="{DynamicResource TextMutedBrush}" FontSize="13"
+                                           Margin="10,0,8,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                <Border x:Name="SidebarSearchKey" Grid.Column="2" Style="{StaticResource KeyCap}" VerticalAlignment="Center">
+                                    <TextBlock Text="Strg K" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" FontWeight="SemiBold"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
 
                     <!-- Navigation -->
                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
@@ -750,98 +912,98 @@
                             <StackPanel x:Name="NavPanel">
                                 <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" IsChecked="True" x:Name="NavDashboardBtn" Click="NavDashboard_Click">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🏠" Width="30" FontFamily="Segoe UI Emoji"/>
-                                        <TextBlock Text="Dashboard"/>
+                                        <TextBlock Text="&#xE80F;" Width="30" FontSize="16" FontFamily="{DynamicResource IconFont}" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
+                                        <TextBlock Text="Dashboard" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
                                 <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavGamesBtn" Click="NavGames_Click">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🎮" Width="30" FontFamily="Segoe UI Emoji"/>
-                                        <TextBlock Text="Spiele"/>
+                                        <TextBlock Text="&#xE7FC;" Width="30" FontSize="16" FontFamily="{DynamicResource IconFont}" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
+                                        <TextBlock Text="Spiele" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
                                 <RadioButton x:Name="NavStatsBtn" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Click="NavStats_Click">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="📈" Width="30" FontFamily="Segoe UI Emoji"/>
-                                        <TextBlock Text="Statistik"/>
+                                        <TextBlock Text="&#xE9D2;" Width="30" FontSize="16" FontFamily="{DynamicResource IconFont}" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
+                                        <TextBlock Text="Statistik" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
                                 <RadioButton x:Name="NavDealsBtn" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Click="NavDeals_Click">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🎁" Width="30" FontFamily="Segoe UI Emoji"/>
-                                        <TextBlock Text="Angebote"/>
+                                        <TextBlock Text="&#xE8EC;" Width="30" FontSize="16" FontFamily="{DynamicResource IconFont}" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
+                                        <TextBlock Text="Angebote" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
                                 <RadioButton x:Name="NavBacklogBtn" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Click="NavBacklog_Click">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="📋" Width="30" FontFamily="Segoe UI Emoji"/>
-                                        <TextBlock Text="Backlog"/>
+                                        <TextBlock Text="&#xE9D5;" Width="30" FontSize="16" FontFamily="{DynamicResource IconFont}" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
+                                        <TextBlock Text="Backlog" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
                                 <RadioButton x:Name="NavGalleryBtn" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Click="NavGallery_Click">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🖼" Width="30" FontFamily="Segoe UI Emoji"/>
-                                        <TextBlock Text="Galerie"/>
+                                        <TextBlock Text="&#xE8B9;" Width="30" FontSize="16" FontFamily="{DynamicResource IconFont}" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
+                                        <TextBlock Text="Galerie" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
                                 <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavAppsBtn" Click="NavApps_Click">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🧩" Width="30" FontFamily="Segoe UI Emoji"/>
-                                        <TextBlock Text="Anwendungen"/>
+                                        <TextBlock Text="&#xE71D;" Width="30" FontSize="16" FontFamily="{DynamicResource IconFont}" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
+                                        <TextBlock Text="Anwendungen" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
                                 <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavLinksBtn" Click="NavLinks_Click">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🔗" Width="30" FontFamily="Segoe UI Emoji"/>
-                                        <TextBlock Text="Schnellzugriff"/>
+                                        <TextBlock Text="&#xE71B;" Width="30" FontSize="16" FontFamily="{DynamicResource IconFont}" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
+                                        <TextBlock Text="Schnellzugriff" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
                                 <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavWishBtn" Click="NavWishlist_Click">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="💝" Width="30" FontFamily="Segoe UI Emoji"/>
-                                        <TextBlock Text="Wunschliste"/>
+                                        <TextBlock Text="&#xEB51;" Width="30" FontSize="16" FontFamily="{DynamicResource IconFont}" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
+                                        <TextBlock Text="Wunschliste" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
                                 <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavDownloadsBtn" Click="NavDownloads_Click">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="⬇" Width="30" FontFamily="Segoe UI Emoji"/>
-                                        <TextBlock Text="Downloads"/>
+                                        <TextBlock Text="&#xE896;" Width="30" FontSize="16" FontFamily="{DynamicResource IconFont}" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
+                                        <TextBlock Text="Downloads" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
                                 <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavSystemBtn" Click="NavSystem_Click">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="📊" Width="30" FontFamily="Segoe UI Emoji"/>
-                                        <TextBlock Text="Systemüberwachung"/>
+                                        <TextBlock Text="&#xE9D9;" Width="30" FontSize="16" FontFamily="{DynamicResource IconFont}" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
+                                        <TextBlock Text="Systemüberwachung" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
                                 <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavStorageBtn" Click="NavStorage_Click">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="💾" Width="30" FontFamily="Segoe UI Emoji"/>
-                                        <TextBlock Text="Speicher"/>
+                                        <TextBlock Text="&#xEDA2;" Width="30" FontSize="16" FontFamily="{DynamicResource IconFont}" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
+                                        <TextBlock Text="Speicher" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
                                 <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavOptimizationBtn" Click="NavOptimization_Click">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="⚡" Width="30" FontFamily="Segoe UI Emoji"/>
-                                        <TextBlock Text="Optimierung"/>
+                                        <TextBlock Text="&#xE945;" Width="30" FontSize="16" FontFamily="{DynamicResource IconFont}" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
+                                        <TextBlock Text="Optimierung" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
                                 <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavToolsBtn" Click="NavTools_Click">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="🛠" Width="30" FontFamily="Segoe UI Emoji"/>
-                                        <TextBlock Text="Tools"/>
+                                        <TextBlock Text="&#xE90F;" Width="30" FontSize="16" FontFamily="{DynamicResource IconFont}" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
+                                        <TextBlock Text="Tools" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
                                 <RadioButton x:Name="NavStreamerBtn" Style="{StaticResource NavButtonStyle}" GroupName="Nav" Click="NavStreamer_Click">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="📡" Width="30" FontFamily="Segoe UI Emoji"/>
-                                        <TextBlock Text="Streamer"/>
+                                        <TextBlock Text="&#xE93E;" Width="30" FontSize="16" FontFamily="{DynamicResource IconFont}" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
+                                        <TextBlock Text="Streamer" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
                                 <RadioButton Style="{StaticResource NavButtonStyle}" GroupName="Nav" x:Name="NavSettingsBtn" Click="NavSettings_Click">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="⚙" Width="30" FontFamily="Segoe UI Emoji"/>
-                                        <TextBlock Text="Einstellungen"/>
+                                        <TextBlock Text="&#xE713;" Width="30" FontSize="16" FontFamily="{DynamicResource IconFont}" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5"/>
+                                        <TextBlock Text="Einstellungen" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </RadioButton>
                             </StackPanel>
@@ -851,16 +1013,16 @@
 
                     <StackPanel Grid.Row="3" Orientation="Horizontal">
                         <Button x:Name="BtnSidebar" Content="«" ToolTip="Seitenleiste ein- oder ausklappen" Padding="14,6"
-                            Background="#161B28" Click="BtnSidebar_Click"/>
-                        <TextBlock x:Name="SidebarFooterText" Text="Strg+K  Suche" Foreground="#4B5563" FontSize="11"
+                            Background="{DynamicResource SurfaceBrush}" Click="BtnSidebar_Click"/>
+                        <TextBlock x:Name="SidebarFooterText" Text="F1  Tastenkürzel" Foreground="{DynamicResource TextMutedBrush}" FontSize="11"
                                VerticalAlignment="Center" Margin="12,0,0,0"/>
                     </StackPanel>
-                    <TextBlock x:Name="SidebarCredit" Grid.Row="4" Text="by Der_Fette_Pudel" Foreground="#4B5563" FontSize="11" Margin="4,8,0,0"/>
+                    <TextBlock x:Name="SidebarCredit" Grid.Row="4" Text="by Der_Fette_Pudel" Foreground="{DynamicResource TextFaintBrush}" FontSize="11" Margin="4,8,0,0"/>
                 </Grid>
             </Border>
 
             <!-- Dunkler Verlauf oben: macht Titel und Knöpfe auf hellen Hintergrundbildern lesbar -->
-            <Border x:Name="TopScrim" Grid.Column="1" Height="130" VerticalAlignment="Top" IsHitTestVisible="False" Panel.ZIndex="5" Visibility="Collapsed">
+            <Border x:Name="TopScrim" Grid.Column="1" Height="130" VerticalAlignment="Top" IsHitTestVisible="False" Panel.ZIndex="0" Visibility="Collapsed">
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                         <GradientStop Color="#B3000000" Offset="0"/>
@@ -879,7 +1041,7 @@
                     <StackPanel x:Name="DashStack" Margin="0,0,12,24">
                         <Grid Margin="0,0,0,24">
                             <StackPanel>
-                                <TextBlock x:Name="TxtGreeting" Text="Hallo" FontSize="30" FontWeight="Bold" Foreground="White" Effect="{StaticResource TextShadow}"/>
+                                <TextBlock x:Name="TxtGreeting" Text="Hallo" FontSize="34" FontWeight="Bold" FontFamily="{DynamicResource DisplayFont}" Foreground="White" Effect="{StaticResource TextShadow}"/>
                                 <TextBlock x:Name="TxtDate" Style="{StaticResource SubtleText}" FontSize="14" Margin="0,4,0,0" Effect="{StaticResource TextShadow}"/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
@@ -889,7 +1051,7 @@
                                             <TextBlock Text="⬇" FontWeight="Bold" Margin="0,0,8,0" Foreground="{DynamicResource AccentBrush}"/>
                                             <TextBlock x:Name="TxtDlName" Foreground="White" FontWeight="SemiBold" FontSize="12" MaxWidth="210" TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
-                                        <TextBlock x:Name="TxtDlInfo" Foreground="#9CA3AF" FontSize="11" Margin="0,2,0,7"/>
+                                        <TextBlock x:Name="TxtDlInfo" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="11" Margin="0,2,0,7"/>
                                         <Grid Height="3">
                                             <Border Background="#26FFFFFF" CornerRadius="1.5"/>
                                             <Border x:Name="DlFill" CornerRadius="1.5" Background="{DynamicResource AccentBrush}" RenderTransformOrigin="0,0.5">
@@ -900,11 +1062,14 @@
                                         </Grid>
                                     </StackPanel>
                                 </Border>
-                                <Border Style="{StaticResource CardStyle}" Padding="18,10">
+                                <Border Style="{StaticResource CardStyle}" Padding="16,10" CornerRadius="14">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock x:Name="TxtMiniCpu" Text="CPU --%" Foreground="#60A5FA" FontWeight="SemiBold" Margin="0,0,16,0"/>
-                                        <TextBlock x:Name="TxtMiniRam" Text="RAM --%" Foreground="#A78BFA" FontWeight="SemiBold" Margin="0,0,16,0"/>
-                                        <TextBlock x:Name="TxtMiniGpu" Text="GPU --%" Foreground="#34D399" FontWeight="SemiBold"/>
+                                        <Ellipse Width="7" Height="7" Fill="#60A5FA" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                                        <TextBlock x:Name="TxtMiniCpu" Text="CPU --%" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold" Margin="0,0,16,0"/>
+                                        <Ellipse Width="7" Height="7" Fill="#A78BFA" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                                        <TextBlock x:Name="TxtMiniRam" Text="RAM --%" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold" Margin="0,0,16,0"/>
+                                        <Ellipse Width="7" Height="7" Fill="#34D399" VerticalAlignment="Center" Margin="0,0,7,0"/>
+                                        <TextBlock x:Name="TxtMiniGpu" Text="GPU --%" Foreground="{DynamicResource TextPrimaryBrush}" FontWeight="SemiBold"/>
                                     </StackPanel>
                                 </Border>
                                 <Button x:Name="BtnDashEdit" Content="✏  Anpassen" Padding="14,9" Margin="10,0,0,0" VerticalAlignment="Center" Click="BtnDashEdit_Click"/>
@@ -928,7 +1093,7 @@
                                         <Button Content="✓  Fertig" Padding="20,8" Background="{DynamicResource AccentBrush}" Click="BtnDashEditDone_Click"/>
                                     </StackPanel>
                                 </Grid>
-                                <TextBlock x:Name="TxtDashAddTitle" Text="Widget hinzufügen" Foreground="#9CA3AF" FontSize="12" FontWeight="SemiBold" Margin="0,14,0,8"/>
+                                <TextBlock x:Name="TxtDashAddTitle" Text="Widget hinzufügen" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" FontWeight="SemiBold" Margin="0,14,0,8"/>
                                 <WrapPanel x:Name="DashAddPanel"/>
                             </StackPanel>
                         </Border>
@@ -944,10 +1109,10 @@
 
                             <Border x:Name="ClockCard" Style="{StaticResource CardStyle}" Margin="0,0,12,0">
                                 <StackPanel>
-                                    <TextBlock Text="UHRZEIT" Foreground="#9CA3AF" FontSize="12" FontWeight="SemiBold"/>
+                                    <TextBlock Text="UHRZEIT" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" FontWeight="SemiBold"/>
                                     <TextBlock x:Name="TxtClock" Text="--:--" FontSize="46" FontWeight="Bold" Foreground="White" Margin="0,4,0,0"/>
                                     <TextBlock x:Name="TxtClockDate" Style="{StaticResource SubtleText}"/>
-                                    <TextBlock x:Name="TxtClockWeek" Foreground="#6B7280" FontSize="12" Margin="0,2,0,0"/>
+                                    <TextBlock x:Name="TxtClockWeek" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" Margin="0,2,0,0"/>
                                 </StackPanel>
                             </Border>
 
@@ -960,13 +1125,13 @@
                                     <TextBlock x:Name="TxtWeatherIcon" Text="🌡" FontSize="56" FontFamily="Segoe UI Emoji" Foreground="White"
                                            VerticalAlignment="Center" Margin="0,0,18,0"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="WETTER" Foreground="#9CA3AF" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="WETTER" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" FontWeight="SemiBold"/>
                                         <TextBlock x:Name="TxtWeatherTemp" Text="--" FontSize="36" FontWeight="Bold" Foreground="White"/>
                                         <TextBlock x:Name="TxtWeatherDesc" Text="Wird geladen ..." Foreground="White" FontWeight="SemiBold"
                                                TextTrimming="CharacterEllipsis"/>
                                         <TextBlock x:Name="TxtWeatherDetails" Style="{StaticResource SubtleText}" FontSize="12"
                                                TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
-                                        <TextBlock x:Name="TxtWeatherRange" Foreground="#6B7280" FontSize="12" Margin="0,2,0,0"/>
+                                        <TextBlock x:Name="TxtWeatherRange" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Grid>
                             </Border>
@@ -974,36 +1139,56 @@
 
                         <UniformGrid x:Name="StatsGrid" Columns="4" Margin="0,0,0,28">
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,12,0">
-                                <StackPanel>
-                                    <TextBlock x:Name="TxtStatGames" Text="0" FontSize="32" FontWeight="Bold" Foreground="White"/>
-                                    <TextBlock Text="Spiele in der Bibliothek" Style="{StaticResource SubtleText}" Margin="0,2,0,0"/>
-                                </StackPanel>
+                                <Grid>
+                                    <StackPanel Margin="0,0,44,0">
+                                        <TextBlock x:Name="TxtStatGames" Text="0" FontSize="32" FontWeight="Bold" FontFamily="{DynamicResource DisplayFont}" Foreground="White"/>
+                                        <TextBlock Text="Spiele in der Bibliothek" Style="{StaticResource SubtleText}" Margin="0,2,0,0" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    <Border Width="38" Height="38" CornerRadius="12" Background="{DynamicResource AccentSoftBrush}" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                        <TextBlock Text="&#xE7FC;" FontFamily="{DynamicResource IconFont}" FontSize="17" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </Grid>
                             </Border>
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,12,0">
-                                <StackPanel>
-                                    <TextBlock x:Name="TxtStatFavs" Text="0" FontSize="32" FontWeight="Bold" Foreground="#FBBF24"/>
-                                    <TextBlock Text="Favoriten" Style="{StaticResource SubtleText}" Margin="0,2,0,0"/>
-                                </StackPanel>
+                                <Grid>
+                                    <StackPanel Margin="0,0,44,0">
+                                        <TextBlock x:Name="TxtStatFavs" Text="0" FontSize="32" FontWeight="Bold" FontFamily="{DynamicResource DisplayFont}" Foreground="#FBBF24"/>
+                                        <TextBlock Text="Favoriten" Style="{StaticResource SubtleText}" Margin="0,2,0,0" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    <Border Width="38" Height="38" CornerRadius="12" Background="#26FBBF24" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                        <TextBlock Text="&#xE735;" FontFamily="{DynamicResource IconFont}" FontSize="17" Foreground="#FBBF24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </Grid>
                             </Border>
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,12,0">
-                                <StackPanel>
-                                    <TextBlock x:Name="TxtStatPlaytime" Text="0 Min." FontSize="30" FontWeight="Bold" Foreground="#34D399"/>
-                                    <TextBlock Text="Gesamtspielzeit" Style="{StaticResource SubtleText}" Margin="0,2,0,0"/>
-                                </StackPanel>
+                                <Grid>
+                                    <StackPanel Margin="0,0,44,0">
+                                        <TextBlock x:Name="TxtStatPlaytime" Text="0 Min." FontSize="30" FontWeight="Bold" FontFamily="{DynamicResource DisplayFont}" Foreground="#34D399" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="Gesamtspielzeit" Style="{StaticResource SubtleText}" Margin="0,2,0,0" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    <Border Width="38" Height="38" CornerRadius="12" Background="#2634D399" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                        <TextBlock Text="&#xE916;" FontFamily="{DynamicResource IconFont}" FontSize="17" Foreground="#34D399" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </Grid>
                             </Border>
                             <Border Style="{StaticResource CardStyle}">
-                                <StackPanel>
-                                    <TextBlock x:Name="TxtStatLast" Text="–" FontSize="22" FontWeight="Bold" Foreground="White"
-                                           TextTrimming="CharacterEllipsis" Margin="0,8,0,6"/>
-                                    <TextBlock Text="Zuletzt gespielt" Style="{StaticResource SubtleText}"/>
-                                </StackPanel>
+                                <Grid>
+                                    <StackPanel Margin="0,0,44,0">
+                                        <TextBlock x:Name="TxtStatLast" Text="–" FontSize="22" FontWeight="Bold" FontFamily="{DynamicResource DisplayFont}" Foreground="White"
+                                               TextTrimming="CharacterEllipsis" Margin="0,8,0,6"/>
+                                        <TextBlock Text="Zuletzt gespielt" Style="{StaticResource SubtleText}" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    <Border Width="38" Height="38" CornerRadius="12" Background="#2660A5FA" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                        <TextBlock Text="&#xE81C;" FontFamily="{DynamicResource IconFont}" FontSize="17" Foreground="#60A5FA" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </Grid>
                             </Border>
                         </UniformGrid>
 
                         <StackPanel x:Name="RecentSection">
                             <TextBlock Text="Zuletzt gespielt" Style="{StaticResource SectionTitle}"/>
                             <TextBlock x:Name="TxtRecentEmpty" Text="Noch nichts gestartet. Starte ein Spiel über den Launcher, dann erscheint es hier."
-                                   Foreground="#6B7280" Margin="0,0,0,20"/>
+                                   Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,20"/>
                             <WrapPanel x:Name="RecentContainer" Margin="-12,0,0,12"/>
                         </StackPanel>
 
@@ -1066,9 +1251,9 @@
                             <RadioButton Content="Ubisoft" Tag="Ubisoft" GroupName="Filter" Style="{StaticResource ChipStyle}" Checked="Filter_Checked"/>
                             <RadioButton Content="Battle.net" Tag="Battle.net" GroupName="Filter" Style="{StaticResource ChipStyle}" Checked="Filter_Checked"/>
                             <RadioButton Content="Manuell" Tag="Manuell" GroupName="Filter" Style="{StaticResource ChipStyle}" Checked="Filter_Checked"/>
-                            <Button x:Name="BtnGenre" Content="🏷 Genre" Margin="0,0,8,8" Padding="14,6" Background="#1F2937" Foreground="#9CA3AF" FontSize="13" Click="BtnGenre_Click"/>
-                            <Button x:Name="BtnBulk" Content="☑ Auswahl bearbeiten" Margin="0,0,8,8" Padding="14,6" Background="#1F2937" Foreground="#9CA3AF" FontSize="13" Click="BtnBulk_Click" ToolTip="Tipp: Mit Strg+Klick markierst du mehrere Spiele direkt, ein Rechtsklick bearbeitet dann alle zusammen."/>
-                            <Button x:Name="BtnSmartList" Content="＋ Smarte Liste" Margin="0,0,8,8" Padding="14,6" Background="#1F2937" Foreground="#9CA3AF" FontSize="13" Click="BtnSmartList_Click"/>
+                            <Button x:Name="BtnGenre" Content="🏷 Genre" Margin="0,0,8,8" Padding="14,6" Background="{DynamicResource ControlBrush}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13" Click="BtnGenre_Click"/>
+                            <Button x:Name="BtnBulk" Content="☑ Auswahl bearbeiten" Margin="0,0,8,8" Padding="14,6" Background="{DynamicResource ControlBrush}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13" Click="BtnBulk_Click" ToolTip="Tipp: Mit Strg+Klick markierst du mehrere Spiele direkt, ein Rechtsklick bearbeitet dann alle zusammen."/>
+                            <Button x:Name="BtnSmartList" Content="＋ Smarte Liste" Margin="0,0,8,8" Padding="14,6" Background="{DynamicResource ControlBrush}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13" Click="BtnSmartList_Click"/>
                         </WrapPanel>
                     </StackPanel>
 
@@ -1112,19 +1297,19 @@
                         <UniformGrid Columns="3" Margin="0,0,0,12">
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,12,0">
                                 <StackPanel>
-                                    <TextBlock Text="GESAMTSPIELZEIT" Foreground="#9CA3AF" FontSize="12" FontWeight="SemiBold"/>
+                                    <TextBlock Text="GESAMTSPIELZEIT" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" FontWeight="SemiBold"/>
                                     <TextBlock x:Name="TxtStatsTotal" Text="0 Min." FontSize="26" FontWeight="Bold" Foreground="#34D399" Margin="0,8,0,0"/>
                                 </StackPanel>
                             </Border>
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,12,0">
                                 <StackPanel>
-                                    <TextBlock Text="LETZTE 7 TAGE" Foreground="#9CA3AF" FontSize="12" FontWeight="SemiBold"/>
+                                    <TextBlock Text="LETZTE 7 TAGE" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" FontWeight="SemiBold"/>
                                     <TextBlock x:Name="TxtStatsWeek" Text="0 Min." FontSize="26" FontWeight="Bold" Foreground="#60A5FA" Margin="0,8,0,0"/>
                                 </StackPanel>
                             </Border>
                             <Border Style="{StaticResource CardStyle}">
                                 <StackPanel>
-                                    <TextBlock Text="MEISTGESPIELT" Foreground="#9CA3AF" FontSize="12" FontWeight="SemiBold"/>
+                                    <TextBlock Text="MEISTGESPIELT" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" FontWeight="SemiBold"/>
                                     <TextBlock x:Name="TxtStatsTop" Text="–" FontSize="22" FontWeight="Bold" Foreground="White"
                                            TextTrimming="CharacterEllipsis" Margin="0,10,0,0"/>
                                 </StackPanel>
@@ -1160,7 +1345,7 @@
                             <StackPanel>
                                 <TextBlock Text="Meistgespielte Spiele" Style="{StaticResource SectionTitle}"/>
                                 <TextBlock x:Name="TxtStatsEmpty" Text="Noch keine Spielzeit erfasst. Starte ein Spiel, der Launcher misst die Zeit automatisch."
-                                       Foreground="#6B7280" TextWrapping="Wrap"/>
+                                       Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap"/>
                                 <ItemsControl x:Name="TopGamesList">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
@@ -1170,13 +1355,13 @@
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Text="{Binding Rank}" Foreground="#6B7280" FontWeight="Bold" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding Rank}" Foreground="{DynamicResource TextMutedBrush}" FontWeight="Bold" VerticalAlignment="Center"/>
                                                 <StackPanel Grid.Column="1" Margin="0,0,16,0">
                                                     <TextBlock Text="{Binding Name}" Foreground="White" TextTrimming="CharacterEllipsis"/>
                                                     <ProgressBar Style="{StaticResource SlimProgress}" Height="6" Margin="0,6,0,0"
                                                              Value="{Binding Percent, Mode=OneWay}" Foreground="{DynamicResource AccentBrush}"/>
                                                 </StackPanel>
-                                                <TextBlock Grid.Column="2" Text="{Binding TimeText}" Foreground="#9CA3AF" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding TimeText}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -1207,9 +1392,9 @@
                                                            VerticalAlignment="Top" Margin="0,0,14,0"/>
                                                     <StackPanel Grid.Column="1">
                                                         <TextBlock Text="{Binding Title}" Foreground="White" FontWeight="SemiBold"/>
-                                                        <TextBlock Text="{Binding Description}" Foreground="#9CA3AF" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,8"/>
+                                                        <TextBlock Text="{Binding Description}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,2,0,8"/>
                                                         <ProgressBar Style="{StaticResource SlimProgress}" Height="5" Value="{Binding Percent, Mode=OneWay}" Foreground="#FBBF24"/>
-                                                        <TextBlock Text="{Binding ProgressText}" Foreground="#6B7280" FontSize="11" Margin="0,4,0,0"/>
+                                                        <TextBlock Text="{Binding ProgressText}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" Margin="0,4,0,0"/>
                                                     </StackPanel>
                                                 </Grid>
                                             </Border>
@@ -1388,7 +1573,7 @@
                                 <TextBlock Text="🔍" Margin="12,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"
                                        FontFamily="Segoe UI Emoji" IsHitTestVisible="False"/>
                                 <TextBlock x:Name="AppSearchHint" Text="App suchen ..." Margin="38,0,0,0" VerticalAlignment="Center"
-                                       Foreground="#6B7280" IsHitTestVisible="False"/>
+                                       Foreground="{DynamicResource TextMutedBrush}" IsHitTestVisible="False"/>
                             </Grid>
                             <Button Content="🔄" ToolTip="Neu laden" Width="40" Height="38" Margin="0,0,8,0" Click="BtnRefreshApps_Click"/>
                             <Button Content="＋ App hinzufügen" Height="38" Background="{DynamicResource AccentBrush}" Click="BtnAddApp_Click"/>
@@ -1401,7 +1586,7 @@
                         <StackPanel>
                             <WrapPanel x:Name="AppsContainer"/>
                             <TextBlock x:Name="TxtAppsEmpty" Text="Keine Apps erkannt. Füge deine Programme mit „App hinzufügen“ selbst hinzu."
-                                   Foreground="#6B7280" Visibility="Collapsed"/>
+                                   Foreground="{DynamicResource TextMutedBrush}" Visibility="Collapsed"/>
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -1478,7 +1663,7 @@
 
                     <DataGrid x:Name="GridDownloads" Grid.Row="2" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
                           CanUserAddRows="False" GridLinesVisibility="None" HeadersVisibility="Column" RowHeight="36"
-                          Background="{DynamicResource CardBrush}" RowBackground="{DynamicResource CardBrush}" AlternatingRowBackground="#161B28"
+                          Background="{DynamicResource CardBrush}" RowBackground="{DynamicResource CardBrush}" AlternatingRowBackground="{DynamicResource SurfaceBrush}"
                           Foreground="White" BorderThickness="0" ColumnHeaderStyle="{StaticResource DarkGridHeader}"
                           MouseDoubleClick="GridDownloads_DoubleClick">
                         <DataGrid.Resources>
@@ -1505,14 +1690,14 @@
                             <!-- CPU -->
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,12,12">
                                 <StackPanel>
-                                    <TextBlock Text="PROZESSOR" Foreground="#9CA3AF" FontSize="12" FontWeight="SemiBold"/>
+                                    <TextBlock Text="PROZESSOR" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" FontWeight="SemiBold"/>
                                     <TextBlock x:Name="TxtCpuName" Foreground="White" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap" MaxHeight="38" Margin="0,6,0,0"/>
                                     <Grid Width="150" Height="150" Margin="0,14">
                                         <Ellipse Stroke="#1F2937" StrokeThickness="12"/>
                                         <Path x:Name="ArcCpu" Stroke="#60A5FA" StrokeThickness="12" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                             <TextBlock x:Name="TxtCpuPercent" Text="0%" FontSize="32" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
-                                            <TextBlock x:Name="TxtCpuSub" Text="CPU" FontSize="12" Foreground="#9CA3AF" HorizontalAlignment="Center"/>
+                                            <TextBlock x:Name="TxtCpuSub" Text="CPU" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
                                         </StackPanel>
                                     </Grid>
                                     <TextBlock x:Name="TxtCpuDetail" Foreground="#D1D5DB" FontSize="12" TextAlignment="Center" LineHeight="19" TextWrapping="Wrap" Margin="0,0,0,12"/>
@@ -1525,14 +1710,14 @@
                             <!-- RAM -->
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,12,12">
                                 <StackPanel>
-                                    <TextBlock Text="ARBEITSSPEICHER" Foreground="#9CA3AF" FontSize="12" FontWeight="SemiBold"/>
+                                    <TextBlock Text="ARBEITSSPEICHER" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" FontWeight="SemiBold"/>
                                     <TextBlock x:Name="TxtRamName" Foreground="White" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap" MaxHeight="38" Margin="0,6,0,0"/>
                                     <Grid Width="150" Height="150" Margin="0,14">
                                         <Ellipse Stroke="#1F2937" StrokeThickness="12"/>
                                         <Path x:Name="ArcRam" Stroke="#A78BFA" StrokeThickness="12" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                             <TextBlock x:Name="TxtRamPercent" Text="0%" FontSize="32" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
-                                            <TextBlock x:Name="TxtRamSub" Text="RAM" FontSize="12" Foreground="#9CA3AF" HorizontalAlignment="Center"/>
+                                            <TextBlock x:Name="TxtRamSub" Text="RAM" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
                                         </StackPanel>
                                     </Grid>
                                     <TextBlock x:Name="TxtRamDetail" Foreground="#D1D5DB" FontSize="12" TextAlignment="Center" LineHeight="19" TextWrapping="Wrap" Margin="0,0,0,12"/>
@@ -1545,14 +1730,14 @@
                             <!-- GPU -->
                             <Border Style="{StaticResource CardStyle}" Margin="0,0,0,12">
                                 <StackPanel>
-                                    <TextBlock Text="GRAFIKKARTE" Foreground="#9CA3AF" FontSize="12" FontWeight="SemiBold"/>
+                                    <TextBlock Text="GRAFIKKARTE" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" FontWeight="SemiBold"/>
                                     <TextBlock x:Name="TxtGpuName" Foreground="White" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap" MaxHeight="38" Margin="0,6,0,0"/>
                                     <Grid Width="150" Height="150" Margin="0,14">
                                         <Ellipse Stroke="#1F2937" StrokeThickness="12"/>
                                         <Path x:Name="ArcGpu" Stroke="#34D399" StrokeThickness="12" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                             <TextBlock x:Name="TxtGpuPercent" Text="0%" FontSize="32" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
-                                            <TextBlock x:Name="TxtGpuSub" Text="GPU" FontSize="12" Foreground="#9CA3AF" HorizontalAlignment="Center"/>
+                                            <TextBlock x:Name="TxtGpuSub" Text="GPU" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
                                         </StackPanel>
                                     </Grid>
                                     <TextBlock x:Name="TxtGpuDetail" Foreground="#D1D5DB" FontSize="12" TextAlignment="Center" LineHeight="19" TextWrapping="Wrap" Margin="0,0,0,12"/>
@@ -1604,7 +1789,7 @@
                                                 <TextBlock Text="{Binding Name}" Foreground="White" VerticalAlignment="Center"/>
                                                 <ProgressBar Grid.Column="1" Style="{StaticResource SlimProgress}" Height="8" Margin="8,0,16,0"
                                                          Value="{Binding Percent, Mode=OneWay}" Foreground="{Binding BarBrush}"/>
-                                                <TextBlock Grid.Column="2" Text="{Binding Text}" Foreground="#9CA3AF" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding Text}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -1636,7 +1821,7 @@
                                                                     <ColumnDefinition Width="180"/>
                                                                     <ColumnDefinition Width="*"/>
                                                                 </Grid.ColumnDefinitions>
-                                                                <TextBlock Text="{Binding Label}" Foreground="#9CA3AF" TextTrimming="CharacterEllipsis"/>
+                                                                <TextBlock Text="{Binding Label}" Foreground="{DynamicResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis"/>
                                                                 <TextBlock Grid.Column="1" Text="{Binding Value}" Foreground="White" TextWrapping="Wrap"/>
                                                             </Grid>
                                                         </DataTemplate>
@@ -1672,9 +1857,9 @@
                                         <StackPanel>
                                             <Grid>
                                                 <TextBlock Text="{Binding DriveName}" Foreground="White" FontWeight="Bold" FontSize="16"/>
-                                                <TextBlock Text="{Binding PercentText}" Foreground="#9CA3AF" HorizontalAlignment="Right"/>
+                                                <TextBlock Text="{Binding PercentText}" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Right"/>
                                             </Grid>
-                                            <TextBlock Text="{Binding InfoText}" Foreground="#9CA3AF" Margin="0,2,0,10"/>
+                                            <TextBlock Text="{Binding InfoText}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,10"/>
                                             <ProgressBar Style="{StaticResource SlimProgress}" Value="{Binding UsedPercent, Mode=OneWay}"
                                                      Foreground="{Binding BarBrush}"/>
                                         </StackPanel>
@@ -1699,7 +1884,7 @@
                                             <StackPanel Margin="0,0,0,12">
                                                 <Grid>
                                                     <TextBlock Text="{Binding Name}" Foreground="White" TextTrimming="CharacterEllipsis" Margin="0,0,100,0"/>
-                                                    <TextBlock Text="{Binding SizeText}" Foreground="#9CA3AF" HorizontalAlignment="Right"/>
+                                                    <TextBlock Text="{Binding SizeText}" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Right"/>
                                                 </Grid>
                                                 <ProgressBar Style="{StaticResource SlimProgress}" Height="6" Margin="0,5,0,0"
                                                          Value="{Binding Percent, Mode=OneWay}" Foreground="#60A5FA"/>
@@ -1731,7 +1916,7 @@
                                       StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                         <TextBlock x:Name="TxtGamingCheckScore" Text="0/4" FontSize="30" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
-                                        <TextBlock Text="erfüllt" FontSize="12" Foreground="#9CA3AF" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="erfüllt" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Grid>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -1952,7 +2137,7 @@
                                     <TextBlock Text="🎥  OBS" Style="{StaticResource SectionTitle}" Margin="0"/>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                                         <Ellipse x:Name="ObsStatusDot" Width="9" Height="9" Fill="#6B7280" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                        <TextBlock x:Name="TxtObsStatus" Text="Nicht verbunden" Foreground="#9CA3AF" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="TxtObsStatus" Text="Nicht verbunden" Foreground="{DynamicResource TextSecondaryBrush}" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Grid>
                                 <TextBlock x:Name="TxtObsHint" Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
@@ -2044,7 +2229,7 @@
                             <TextBox x:Name="TxtSettingsSearch" Height="40" Padding="40,0,10,0" TextChanged="TxtSettingsSearch_TextChanged"/>
                             <TextBlock Text="🔍" Margin="14,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" FontFamily="Segoe UI Emoji" IsHitTestVisible="False"/>
                             <TextBlock x:Name="SettingsSearchHint" Text="Einstellungen durchsuchen ..." Margin="40,0,0,0" VerticalAlignment="Center"
-                                   Foreground="#6B7280" IsHitTestVisible="False"/>
+                                   Foreground="{DynamicResource TextMutedBrush}" IsHitTestVisible="False"/>
                         </Grid>
                         <WrapPanel Margin="0,0,0,18">
                             <RadioButton x:Name="ChipCatGeneral" Content="Allgemein" Tag="general" GroupName="SetCat" Style="{StaticResource ChipStyle}" IsChecked="True" Checked="SettingsCategory_Checked"/>
@@ -2485,7 +2670,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Oberflächen-Zoom" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtScaleValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -2510,7 +2695,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Abdunklung des Hintergrundbilds" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtBgDimValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -2521,7 +2706,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Unschärfe des Hintergrundbilds" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtBgBlurValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -2561,6 +2746,17 @@
                                             <TextBlock Text="Ein ruhiger, animierter Farbverlauf in der Akzentfarbe hinter der Oberfläche." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                         </StackPanel>
                                         <CheckBox x:Name="ChkAnimBg" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Farbleuchten im Hintergrund" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Ein ruhiges Leuchten in der Akzentfarbe an den Rändern. Kostet keine Leistung, im OLED-Modus aus." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkAmbientGlow" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
                                     </Grid>
                                 </StackPanel>
                             </Border>
@@ -2620,7 +2816,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Größe der Spielkarten" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtCardSizeValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -2631,7 +2827,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Seitenverhältnis der Karten (Höhe im Verhältnis zur Breite)" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtAspectValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -2642,7 +2838,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Abstand der Spielkarten" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtSpacingValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -2653,7 +2849,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Rundung der Spielkarten" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtCornerValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -2664,7 +2860,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Zoom-Stärke beim Darüberfahren" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtZoomValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -2749,7 +2945,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Breite der Seitenleiste" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtSidebarWValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -2760,7 +2956,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Schriftgröße der Menüeinträge" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtNavFontValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -2771,7 +2967,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Höhe der Menüeinträge" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtNavPadValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -2809,7 +3005,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Größe des Logos" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtBrandLogoValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -2820,7 +3016,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Größe des Namens" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtBrandNameValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -2971,7 +3167,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Anzahl Spiele in „Zuletzt gespielt“ und „Favoriten“" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtRecentValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -3162,7 +3358,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Tageslimit" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtDailyLimitValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -3219,7 +3415,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Wochenziel (Spielzeit der letzten 7 Tage)" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtGoalValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -3230,7 +3426,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Pausen-Erinnerung während des Spielens" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtBreakValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -3248,7 +3444,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Durchsichtigkeit des Overlays" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtOvOpacityValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -3260,7 +3456,7 @@
                                     <StackPanel Margin="0,0,0,20">
                                         <Grid>
                                             <TextBlock Text="Größe des Overlays" Foreground="White" FontWeight="SemiBold"/>
-                                            <Border HorizontalAlignment="Right" Background="#1F2937" CornerRadius="8" Padding="10,3" MinWidth="72">
+                                            <Border HorizontalAlignment="Right" Background="{DynamicResource ControlBrush}" CornerRadius="8" Padding="10,3" MinWidth="72">
                                                 <TextBlock x:Name="TxtOvScaleValue" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontWeight="SemiBold"/>
                                             </Border>
                                         </Grid>
@@ -3844,7 +4040,7 @@
                                         </StackPanel>
                                         <CheckBox x:Name="ChkRemote" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
                                     </Grid>
-                                    <TextBlock x:Name="TxtRemoteStatus" Foreground="#6B7280" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                    <TextBlock x:Name="TxtRemoteStatus" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10"/>
                                     <WrapPanel>
                                         <Button x:Name="BtnRemoteQr" Content="QR-Code anzeigen" Margin="0,0,10,10" Background="{DynamicResource AccentBrush}" Click="BtnRemoteQr_Click"/>
                                         <Button Content="Neuen Schlüssel erzeugen" Margin="0,0,10,10" Click="BtnRemoteNewKey_Click"/>
@@ -3867,7 +4063,7 @@
                                         </StackPanel>
                                         <CheckBox x:Name="ChkNtfy" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
                                     </Grid>
-                                    <TextBlock x:Name="TxtNtfyStatus" Foreground="#6B7280" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                    <TextBlock x:Name="TxtNtfyStatus" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10"/>
                                     <WrapPanel>
                                         <Button x:Name="BtnNtfyPair" Content="Mit ntfy koppeln" Margin="0,0,10,10" Background="{DynamicResource AccentBrush}" Click="BtnNtfyPair_Click"/>
                                         <Button x:Name="BtnPhoneTest" Content="Testmeldung senden" Margin="0,0,10,10" Click="BtnPhoneTest_Click"/>
@@ -3886,7 +4082,7 @@
                                     <StackPanel Margin="0,0,0,10">
                                         <TextBlock Text="Fehlerprotokoll und Sicherungen" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
                                         <TextBlock Text="Bei Problemen hilft das Fehlerprotokoll. Der Launcher sichert deine Einstellungen jede Woche beim Start, vor jedem Update und vor jedem Import. Die letzten 5 Sicherungen bleiben erhalten, und bei einer beschädigten Datei wird automatisch die neueste geladen." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
-                                        <TextBlock x:Name="TxtLastBackup" Foreground="#9CA3AF" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                        <TextBlock x:Name="TxtLastBackup" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0"/>
                                         <WrapPanel Margin="0,10,0,0">
                                             <Button Content="Fehlerprotokoll öffnen" Margin="0,0,10,10" Click="BtnOpenLog_Click"/>
                                             <Button Content="Jetzt sichern" Margin="0,0,10,10" Click="BtnBackupSettingsNow_Click"/>
@@ -4331,7 +4527,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Border Padding="10,8" Background="#161B28" CornerRadius="13,13,0,0">
+                    <Border Padding="10,8" Background="{DynamicResource SurfaceBrush}" CornerRadius="13,13,0,0">
                         <Grid>
                             <StackPanel x:Name="MusicTabs" Orientation="Horizontal">
                                 <Button Content="Spotify" Tag="spotify" Padding="12,6" Margin="0,0,6,0" Click="MusicTab_Click"/>
@@ -4392,7 +4588,7 @@
                     <TextBox x:Name="TxtSpotlight" Height="48" FontSize="16"
                          TextChanged="TxtSpotlight_TextChanged" PreviewKeyDown="TxtSpotlight_PreviewKeyDown"/>
                     <StackPanel x:Name="SpotlightResults" Margin="0,10,0,0"/>
-                    <TextBlock Text="↑ ↓ auswählen   ·   Enter öffnen   ·   Esc schließen" Foreground="#6B7280" FontSize="11" Margin="6,10,0,0"/>
+                    <TextBlock Text="↑ ↓ auswählen   ·   Enter öffnen   ·   Esc schließen" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" Margin="6,10,0,0"/>
                 </StackPanel>
             </Border>
         </Grid>
@@ -4407,7 +4603,7 @@
                         <ScaleTransform x:Name="WelcomeLogoScale" ScaleX="0.6" ScaleY="0.6"/>
                     </ContentControl.RenderTransform>
                 </ContentControl>
-                <TextBlock x:Name="WelcomeGreeting" FontSize="20" Foreground="#9CA3AF" HorizontalAlignment="Center" Margin="0,28,0,0" Opacity="0"/>
+                <TextBlock x:Name="WelcomeGreeting" FontSize="20" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" Margin="0,28,0,0" Opacity="0"/>
                 <TextBlock x:Name="WelcomeName" FontSize="44" FontWeight="ExtraBold" Foreground="White" HorizontalAlignment="Center" Margin="0,2,0,0" Opacity="0">
                     <TextBlock.RenderTransform>
                         <TranslateTransform x:Name="WelcomeNameShift" Y="16"/>

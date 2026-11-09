@@ -79,6 +79,8 @@ namespace Game_launcher
         public bool SmoothMetrics { get; set; } = true;
         public bool HoverGlow { get; set; } = true;
         public bool AnimatedBackground { get; set; }
+        /// <summary>Design „Nova“: ruhiges Farbleuchten in der Akzentfarbe hinter der Oberfläche (ohne Animation).</summary>
+        public bool AmbientGlow { get; set; } = true;
 
         // Design
         public string BackgroundImagePath { get; set; } = string.Empty;

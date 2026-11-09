@@ -675,6 +675,7 @@ namespace Game_launcher
             Resources["AccentBrush"] = MakeBrush(settings.AccentColor, "#8B5CF6");
             if (System.Windows.Application.Current != null)   // für Rechtsklick-Menüs außerhalb des Fensters (zum Beispiel in Textfeldern)
                 System.Windows.Application.Current.Resources["AccentBrush"] = Resources["AccentBrush"];
+            ApplyAccentVariants(ParseColor(settings.AccentColor, "#8B5CF6"));
             Resources["SidebarBrush"] = MakeAlphaBrush(SidebarBaseColor(), translucent ? (byte)0xD2 : (byte)0xFF);
             ApplyNavBrushes();
 
@@ -733,6 +734,7 @@ namespace Game_launcher
 
         private void ApplyGlowBackground()
         {
+            ApplyAmbientGlow();
             if (!settings.AnimatedBackground)
             {
                 BackgroundGlow.Visibility = Visibility.Collapsed;
@@ -824,6 +826,14 @@ namespace Game_launcher
             BrandText.Visibility = textVisibility;
             BrandTextHost.Visibility = textVisibility;
             UserCard.Visibility = textVisibility;
+            // Eingeklappt bleibt von der Suche nur die Lupe übrig
+            TxtSidebarSearch.Visibility = textVisibility;
+            SidebarSearchKey.Visibility = textVisibility;
+            SidebarSearch.Padding = collapsed ? new Thickness(0) : new Thickness(12, 0, 12, 0);
+            if (SidebarSearch.Child is Grid searchGrid && searchGrid.Children[0] is TextBlock lens)
+                lens.HorizontalAlignment = collapsed ? System.Windows.HorizontalAlignment.Center : System.Windows.HorizontalAlignment.Left;
+            if (SidebarSearch.Child is Grid searchLayout)
+                searchLayout.ColumnDefinitions[0].Width = collapsed ? new GridLength(1, GridUnitType.Star) : GridLength.Auto;
             SidebarFooterText.Visibility = textVisibility;
             SidebarCredit.Visibility = textVisibility;
             ApplyBrand();
@@ -940,6 +950,7 @@ namespace Game_launcher
             ChkSmooth.IsChecked = settings.SmoothMetrics;
             ChkGlow.IsChecked = settings.HoverGlow;
             ChkAnimBg.IsChecked = settings.AnimatedBackground;
+            ChkAmbientGlow.IsChecked = settings.AmbientGlow;
             ChkGlass.IsChecked = settings.GlassEffect;
             ChkHero.IsChecked = settings.ShowHero;
 
@@ -970,6 +981,7 @@ namespace Game_launcher
             settings.SmoothMetrics = ChkSmooth.IsChecked == true;
             settings.HoverGlow = ChkGlow.IsChecked == true;
             settings.AnimatedBackground = ChkAnimBg.IsChecked == true;
+            settings.AmbientGlow = ChkAmbientGlow.IsChecked == true;
             settings.GlassEffect = ChkGlass.IsChecked == true;
             settings.ShowHero = ChkHero.IsChecked == true;
 
@@ -1590,14 +1602,48 @@ namespace Game_launcher
         {
             bool oled = settings.OledMode;
 
-            BrushCardBg = MakeBrush(oled ? "#0A0A0D" : "#131722");
-            BrushCardBorder = MakeBrush(oled ? "#1A1A20" : "#1F2937");
-            BrushFooter = MakeBrush(oled ? "#0F0F13" : "#181D2A");
-            BrushTileHover = MakeBrush(oled ? "#17171D" : "#1B2132");
+            BrushCardBg = MakeBrush(oled ? "#0A0A0D" : "#121621");
+            BrushCardBorder = MakeBrush(oled ? "#1A1A20" : "#1E2433");
+            BrushFooter = MakeBrush(oled ? "#0F0F13" : "#171C28");
+            BrushTileHover = MakeBrush(oled ? "#17171D" : "#1C2233");
 
             Resources["CardBrush"] = BrushCardBg;
             Resources["CardBorderBrush"] = BrushCardBorder;
             Resources["SurfaceBrush"] = BrushFooter;
+
+            // Design „Nova“: Karten mit leichtem Verlauf und hellerer Oberkante, Bedienelemente eine Stufe heller
+            Resources["CardFillBrush"] = Gradient(oled ? "#0C0C10" : "#151A26", oled ? "#08080B" : "#10131C");
+            Resources["CardEdgeBrush"] = Gradient(oled ? "#22222A" : "#2C3348", oled ? "#121216" : "#141824");
+            Resources["ControlBrush"] = MakeBrush(oled ? "#121216" : "#1A2030");
+            Resources["ControlHoverBrush"] = MakeBrush(oled ? "#1C1C22" : "#252C40");
+            Resources["ControlBorderBrush"] = MakeBrush(oled ? "#1E1E25" : "#262D40");
+
+            static LinearGradientBrush Gradient(string top, string bottom)
+            {
+                var brush = new LinearGradientBrush(ParseColor(top, "#151A26"), ParseColor(bottom, "#10131C"), 90);
+                brush.Freeze();
+                return brush;
+            }
+        }
+
+        /// <summary>Abgeleitete Akzent-Pinsel: zarte Tönung (aktive Chips, Navigation) und Verlauf (Avatar-Ring, Banner).</summary>
+        private void ApplyAccentVariants(System.Windows.Media.Color accent)
+        {
+            var soft = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x2A, accent.R, accent.G, accent.B));
+            soft.Freeze();
+            Resources["AccentSoftBrush"] = soft;
+
+            static byte Mix(byte value, byte target, double amount) => (byte)Math.Round(value + (target - value) * amount);
+            var light = System.Windows.Media.Color.FromRgb(Mix(accent.R, 255, 0.3), Mix(accent.G, 255, 0.3), Mix(accent.B, 255, 0.3));
+            var dark = System.Windows.Media.Color.FromRgb(Mix(accent.R, 0, 0.3), Mix(accent.G, 0, 0.3), Mix(accent.B, 0, 0.3));
+            var gradient = new LinearGradientBrush
+            {
+                StartPoint = new System.Windows.Point(0, 0),
+                EndPoint = new System.Windows.Point(1, 1),
+                GradientStops = { new GradientStop(light, 0), new GradientStop(accent, 0.55), new GradientStop(dark, 1) }
+            };
+            gradient.Freeze();
+            Resources["AccentGradientBrush"] = gradient;
         }
 
         private void RebuildStaticTiles()
@@ -3251,7 +3297,7 @@ namespace Game_launcher
             else
             {
                 Resources["NavActiveBrush"] = Resources["AccentBrush"];
-                Resources["NavActiveBgBrush"] = MakeBrush("#1C2233");
+                Resources["NavActiveBgBrush"] = MakeAlphaBrush(settings.AccentColor, 0x26);
             }
         }
 
@@ -3453,7 +3499,7 @@ namespace Game_launcher
         private static readonly (string Key, string Title, string[] Props)[] ProfileGroups =
         {
             ("design", "Farben und Design", new[] { "BackgroundColor", "AccentColor", "SidebarColor", "NavTextColor", "NavActiveColor", "GlassEffect",
-                "AnimatedBackground", "OledMode", "RgbAccent", "RgbSpeed", "UiScale", "CardWidth", "CardCorner", "CardSpacing", "CardAspect",
+                "AnimatedBackground", "AmbientGlow", "OledMode", "RgbAccent", "RgbSpeed", "UiScale", "CardWidth", "CardCorner", "CardSpacing", "CardAspect",
                 "CardLayout", "LibraryView", "HoverZoom", "HoverGlow" }),
             ("background", "Hintergrund", new[] { "BackgroundImagePath", "BgDim", "BgBlur" }),
             ("streamer", "Streamer-Modus", new[] { "StreamerMode", "StreamerAuto", "StreamHideName", "StreamHideLocation", "StreamHideStats",

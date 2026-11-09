@@ -240,14 +240,16 @@ namespace Game_launcher
             BitmapImage? cover = HasCover(game) ? GetCachedImage(EffectiveCover(game)) : null;
             var themeColor = ParseColor(settings.BackgroundColor, "#0F111A");
 
+            // Design „Nova“: Kino-Banner mit großem Hintergrundbild, Verlauf von links und unten, Infos als kleine Chips
             var hero = new Border
             {
-                Height = 240,
-                CornerRadius = new CornerRadius(18),
-                BorderBrush = BrushCardBorder,
+                Height = 290,
+                CornerRadius = new CornerRadius(22),
                 BorderThickness = new Thickness(1),
-                Background = BrushCardBg
+                Background = BrushCardBg,
+                ClipToBounds = true
             };
+            hero.SetResourceReference(Border.BorderBrushProperty, "CardEdgeBrush");
 
             var wide = GetHeroImage(game);
             if (wide == null) _ = EnsureHeroAsync(game);
@@ -258,7 +260,7 @@ namespace Game_launcher
                 {
                     Stretch = Stretch.UniformToFill,
                     AlignmentY = wide != null ? AlignmentY.Center : AlignmentY.Top,
-                    Opacity = 0.55
+                    Opacity = wide != null ? 0.8 : 0.5
                 };
             }
 
@@ -267,23 +269,42 @@ namespace Game_launcher
                 StartPoint = new System.Windows.Point(0, 0),
                 EndPoint = new System.Windows.Point(1, 0)
             };
-            shade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xF5, themeColor.R, themeColor.G, themeColor.B), 0.0));
-            shade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xB0, themeColor.R, themeColor.G, themeColor.B), 0.55));
-            shade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x30, themeColor.R, themeColor.G, themeColor.B), 1.0));
+            shade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xF2, themeColor.R, themeColor.G, themeColor.B), 0.0));
+            shade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xA8, themeColor.R, themeColor.G, themeColor.B), 0.5));
+            shade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x10, themeColor.R, themeColor.G, themeColor.B), 1.0));
 
-            var layout = new Grid { Background = shade };
+            var vignette = new LinearGradientBrush { StartPoint = new System.Windows.Point(0, 0), EndPoint = new System.Windows.Point(0, 1) };
+            vignette.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, 0, 0, 0), 0.45));
+            vignette.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x99, themeColor.R, themeColor.G, themeColor.B), 1.0));
+
+            var frame = new Grid { Background = shade };
+            frame.Children.Add(new Border { Background = vignette, IsHitTestVisible = false });
+
+            // Zarter Schimmer in der Akzentfarbe unten links
+            var accentColor = GetAccentColor();
+            var glow = new RadialGradientBrush { Center = new System.Windows.Point(0.1, 1.0), GradientOrigin = new System.Windows.Point(0.1, 1.0), RadiusX = 0.55, RadiusY = 0.9 };
+            glow.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x40, accentColor.R, accentColor.G, accentColor.B), 0));
+            glow.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, accentColor.R, accentColor.G, accentColor.B), 1));
+            frame.Children.Add(new Border { Background = glow, IsHitTestVisible = false });
+
+            var layout = new Grid();
             layout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            frame.Children.Add(layout);
 
             var poster = new Border
             {
-                Width = 126,
-                Height = 189,
-                Margin = new Thickness(26, 0, 24, 0),
-                CornerRadius = new CornerRadius(12),
+                Width = 150,
+                Height = 225,
+                Margin = new Thickness(30, 0, 28, 0),
+                CornerRadius = new CornerRadius(14),
                 Background = BrushCardBg,
+                BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF)),
+                BorderThickness = new Thickness(1),
                 VerticalAlignment = System.Windows.VerticalAlignment.Center
             };
+            if (!settings.PerformanceMode)
+                poster.Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 28, ShadowDepth = 8, Direction = 270, Opacity = 0.55, Color = Colors.Black };
             if (cover != null)
                 poster.Background = new ImageBrush(cover) { Stretch = Stretch.UniformToFill };
             else
@@ -298,46 +319,83 @@ namespace Game_launcher
                 };
             layout.Children.Add(poster);
 
-            var texts = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(0, 0, 26, 0) };
+            var texts = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(0, 0, 30, 0) };
             Grid.SetColumn(texts, 1);
 
-            var label = new TextBlock { Text = "WEITERSPIELEN", FontSize = 12, FontWeight = FontWeights.SemiBold };
-            label.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
-            texts.Children.Add(label);
+            // Kleine Marke „WEITERSPIELEN“ mit Punkt in der Akzentfarbe
+            var badge = new Border
+            {
+                CornerRadius = new CornerRadius(10),
+                Padding = new Thickness(10, 4, 12, 4),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                BorderThickness = new Thickness(1)
+            };
+            badge.SetResourceReference(Border.BackgroundProperty, "AccentSoftBrush");
+            badge.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
+            var badgeRow = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
+            var dot = new System.Windows.Shapes.Ellipse { Width = 7, Height = 7, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = System.Windows.VerticalAlignment.Center };
+            dot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "AccentBrush");
+            badgeRow.Children.Add(dot);
+            badgeRow.Children.Add(new TextBlock { Text = "WEITERSPIELEN", FontSize = 11, FontWeight = FontWeights.Bold, Foreground = System.Windows.Media.Brushes.White });
+            badge.Child = badgeRow;
+            texts.Children.Add(badge);
 
-            texts.Children.Add(new TextBlock
+            var title = new TextBlock
             {
                 Text = game.Name,
-                FontSize = 30,
+                FontSize = 40,
                 FontWeight = FontWeights.Bold,
                 Foreground = System.Windows.Media.Brushes.White,
                 TextTrimming = TextTrimming.CharacterEllipsis,
-                Margin = new Thickness(0, 4, 0, 4)
-            });
+                Margin = new Thickness(0, 10, 0, 10)
+            };
+            title.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
+            if (!settings.PerformanceMode && TryFindResource("TextShadow") is System.Windows.Media.Effects.Effect titleShadow) title.Effect = titleShadow;
+            texts.Children.Add(title);
 
-            var meta = new List<string> { game.Source };
-            if (game.PlaySeconds >= 60 && !SHide(settings.StreamHideStats)) meta.Add(FormatPlaytime(game.PlaySeconds) + " gespielt");
-            if (game.LastPlayed.HasValue) meta.Add("zuletzt " + FormatRelative(game.LastPlayed.Value));
-            texts.Children.Add(new TextBlock
+            // Infos als Chips: Plattform, Spielzeit, zuletzt gespielt
+            var chips = new WrapPanel { Margin = new Thickness(0, 0, 0, 20) };
+            void Chip(string glyph, string text)
             {
-                Text = string.Join("  ·  ", meta),
-                Foreground = MakeBrush("#D1D5DB"),
-                FontSize = 13,
-                Margin = new Thickness(0, 0, 0, 18)
-            });
+                var row = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
+                var icon = new TextBlock { Text = glyph, FontSize = 12, Foreground = MakeBrush("#D1D5DB"), VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(0, 0, 7, 0) };
+                icon.SetResourceReference(TextBlock.FontFamilyProperty, "IconFont");
+                row.Children.Add(icon);
+                row.Children.Add(new TextBlock { Text = text, FontSize = 12, Foreground = MakeBrush("#E5E7EB"), VerticalAlignment = System.Windows.VerticalAlignment.Center });
+                chips.Children.Add(new Border
+                {
+                    Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x59, 0x0B, 0x0D, 0x14)),
+                    BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x26, 0xFF, 0xFF, 0xFF)),
+                    BorderThickness = new Thickness(1),
+                    CornerRadius = new CornerRadius(9),
+                    Padding = new Thickness(10, 5, 11, 5),
+                    Margin = new Thickness(0, 0, 8, 6),
+                    Child = row
+                });
+            }
+            Chip("", game.Source);
+            if (game.PlaySeconds >= 60 && !SHide(settings.StreamHideStats)) Chip("", FormatPlaytime(game.PlaySeconds) + " gespielt");
+            if (game.LastPlayed.HasValue) Chip("", "zuletzt " + FormatRelative(game.LastPlayed.Value));
+            texts.Children.Add(chips);
 
             var buttons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
-            var play = new System.Windows.Controls.Button { Content = "▶  Weiterspielen", Padding = new Thickness(22, 11, 22, 11), Margin = new Thickness(0, 0, 10, 0) };
-            play.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+            var play = new System.Windows.Controls.Button { Content = "▶  Weiterspielen", FontSize = 14, Padding = new Thickness(28, 12, 28, 12), Margin = new Thickness(0, 0, 10, 0) };
+            play.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentGradientBrush");
             play.Click += (s, e) => LaunchGame(game);
-            var details = new System.Windows.Controls.Button { Content = "Details", Padding = new Thickness(18, 11, 18, 11) };
+            var details = new System.Windows.Controls.Button
+            {
+                Content = "Details",
+                FontSize = 14,
+                Padding = new Thickness(22, 12, 22, 12),
+                Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x33, 0xFF, 0xFF, 0xFF))
+            };
             details.Click += (s, e) => ShowGameDetails(game);
             buttons.Children.Add(play);
             buttons.Children.Add(details);
             texts.Children.Add(buttons);
             layout.Children.Add(texts);
 
-            hero.Child = layout;
+            hero.Child = frame;
             HeroHost.Content = hero;
 
             if (animate)
@@ -449,15 +507,26 @@ namespace Game_launcher
             content.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            content.Children.Add(new TextBlock
+            // Symbol in einer getönten Kachel (Design „Nova“)
+            var iconTile = new Border
             {
-                Text = icon,
-                FontSize = 26,
-                FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
-                Foreground = System.Windows.Media.Brushes.White,
+                Width = 42,
+                Height = 42,
+                CornerRadius = new CornerRadius(12),
                 VerticalAlignment = System.Windows.VerticalAlignment.Center,
-                Margin = new Thickness(0, 0, 14, 0)
-            });
+                Margin = new Thickness(0, 0, 14, 0),
+                Child = new TextBlock
+                {
+                    Text = icon,
+                    FontSize = 21,
+                    FontFamily = new System.Windows.Media.FontFamily("Segoe UI Emoji"),
+                    Foreground = System.Windows.Media.Brushes.White,
+                    HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
+                    VerticalAlignment = System.Windows.VerticalAlignment.Center
+                }
+            };
+            iconTile.SetResourceReference(Border.BackgroundProperty, "AccentSoftBrush");
+            content.Children.Add(iconTile);
 
             var texts = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center };
             Grid.SetColumn(texts, 1);
@@ -484,11 +553,10 @@ namespace Game_launcher
             var slide = new TranslateTransform(60, 0);
             var toast = new Border
             {
-                Background = MakeBrush("#F2161B28"),
-                BorderBrush = BrushCardBorder,
+                Background = MakeBrush("#F5121621"),
                 BorderThickness = new Thickness(1),
-                CornerRadius = new CornerRadius(14),
-                Padding = new Thickness(16, 12, 18, 12),
+                CornerRadius = new CornerRadius(16),
+                Padding = new Thickness(12, 12, 18, 12),
                 Margin = new Thickness(0, 10, 0, 0),
                 MinWidth = 300,
                 MaxWidth = 400,
@@ -498,6 +566,7 @@ namespace Game_launcher
                 Child = content
             };
 
+            toast.SetResourceReference(Border.BorderBrushProperty, "CardEdgeBrush");
             toast.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(220)));
             slide.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(60, 0, TimeSpan.FromMilliseconds(320))
             {
@@ -1144,6 +1213,7 @@ namespace Game_launcher
             "stats" => StatsGrid,
             "recent" => RecentSection,
             "favorites" => FavSection,
+            "daily" => dailyWidget,
             "actions" => ActionsSection,
             "goal" => goalWidget,
             "backlog" => backlogWidget,
@@ -1164,6 +1234,7 @@ namespace Game_launcher
             quickWidget = new StackPanel();
             friendsWidget = new StackPanel();
             achievementsWidget = new StackPanel();
+            dailyWidget = new StackPanel();
             ApplyStreamerMode();
         }
 
@@ -1204,6 +1275,7 @@ namespace Game_launcher
             FillQuickWidget();
             FillFriendsWidget();
             FillAchievementsWidget();
+            FillDailyWidget();
 
             // Erst nach dem Füllen steht fest, welche Widgets gerade leer sind (z. B. keine Favoriten)
             foreach (string key in order)

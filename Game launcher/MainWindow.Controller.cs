@@ -35,6 +35,8 @@ namespace Game_launcher
 
             bool ctrl = (System.Windows.Input.Keyboard.Modifiers & System.Windows.Input.ModifierKeys.Control) != 0;
 
+            if (HandleShortcutsOverlayKey(e)) return;
+
             if (ctrl && e.Key == System.Windows.Input.Key.K)
             {
                 OpenSpotlight();

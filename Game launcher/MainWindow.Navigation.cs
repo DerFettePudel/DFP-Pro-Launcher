@@ -1224,6 +1224,7 @@ namespace Game_launcher
             {
                 AttachNavIconHover(item);
                 var icon = NavIcon(item);
+                item.Tag = bottom ? "dock" : null;   // Leuchtstrich unten statt links (siehe NavButtonStyle)
                 if (bottom)
                 {
                     item.Margin = new Thickness(3, 0, 3, 0);

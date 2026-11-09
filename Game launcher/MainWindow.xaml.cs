@@ -112,12 +112,12 @@ namespace Game_launcher
         };
 
         // Farben (einmal erzeugt und eingefroren)
-        private static SolidColorBrush BrushCardBg = MakeBrush("#131722");
-        private static SolidColorBrush BrushCardBorder = MakeBrush("#1F2937");
-        private static SolidColorBrush BrushFooter = MakeBrush("#181D2A");
-        private static SolidColorBrush BrushTileHover = MakeBrush("#1B2132");
-        private static readonly SolidColorBrush BrushPlaceholder = MakeBrush("#374151");
-        private static readonly SolidColorBrush BrushSubtle = MakeBrush("#6B7280");
+        private static SolidColorBrush BrushCardBg = MakeBrush("#121621");
+        private static SolidColorBrush BrushCardBorder = MakeBrush("#1E2433");
+        private static SolidColorBrush BrushFooter = MakeBrush("#171C28");
+        private static SolidColorBrush BrushTileHover = MakeBrush("#1C2233");
+        private static readonly SolidColorBrush BrushPlaceholder = MakeBrush("#353C52");
+        private static readonly SolidColorBrush BrushSubtle = MakeBrush("#7A8199");
         private static readonly SolidColorBrush BrushOverlay = MakeBrush("#99000000");
         private static readonly SolidColorBrush BrushGold = MakeBrush("#FBBF24");
         private static readonly SolidColorBrush BrushAmber = MakeBrush("#F59E0B");
@@ -662,7 +662,7 @@ namespace Game_launcher
             IsVisibleChanged += (s, e) => UpdateTimersForVisibility();
 
             SidebarFooterText.Cursor = System.Windows.Input.Cursors.Hand;
-            SidebarFooterText.MouseLeftButtonUp += (s, e) => ShowAbout();
+            SidebarFooterText.MouseLeftButtonUp += (s, e) => ToggleShortcutsOverlay();
         }
 
         private static void ApplyRenderModeEarly()
@@ -966,6 +966,7 @@ namespace Game_launcher
             ("stats", "📈", "Statistik-Kacheln"),
             ("recent", "🕘", "Zuletzt gespielt"),
             ("favorites", "★", "Favoriten"),
+            ("daily", "✨", "Spiel des Tages"),
             ("goal", "🎯", "Wochenziel"),
             ("backlog", "📋", "Als Nächstes spielen"),
             ("wishlist", "💝", "Wunschliste"),
