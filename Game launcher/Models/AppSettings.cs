@@ -165,6 +165,7 @@ namespace Game_launcher
         public string BrandNameColor { get; set; } = "white";
         public string BrandName { get; set; } = "DFP PRO";
         public string BrandSubtitle { get; set; } = "LAUNCHER";
+        public string BrandUnlockKey { get; set; } = string.Empty;   // Freischaltung für eigenen Namen (abgeleiteter Schlüssel, siehe MainWindow.BrandLock.cs)
         public int NavFontSize { get; set; } = 14;
         public int NavItemPadding { get; set; } = 8;
         public List<QuickLink> QuickLinks { get; set; } = new();

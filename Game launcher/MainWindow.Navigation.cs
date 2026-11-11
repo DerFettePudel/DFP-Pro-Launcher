@@ -200,7 +200,7 @@ namespace Game_launcher
                 entries.Add(new SpotlightEntry { Icon = icon, Title = title, Subtitle = subtitle, Action = action, Score = score + bonus });
             }
 
-            if (query.StartsWith("/", StringComparison.Ordinal) && AddEggCommands(query, entries))
+            if (query.StartsWith("/", StringComparison.Ordinal) && (AddCodeCommand(query, entries) || AddEggCommands(query, entries)))
             {
                 spotlightEntries.Clear();
                 spotlightEntries.AddRange(entries);

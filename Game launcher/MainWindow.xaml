@@ -3071,11 +3071,11 @@
                                     </StackPanel>
                                     <StackPanel Margin="0,0,0,18">
                                         <TextBlock Text="Eigener Text" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                        <TextBlock Text="Ändere den Namen und den Untertitel neben dem Logo." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        <TextBlock x:Name="TxtBrandTextHint" Text="Ändere den Namen und den Untertitel neben dem Logo." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                         <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                                             <TextBox x:Name="TxtBrandName" Width="170" Height="38" MaxLength="20"/>
                                             <TextBox x:Name="TxtBrandSub" Width="170" Height="38" MaxLength="20" Margin="10,0,0,0"/>
-                                            <Button Content="Übernehmen" Margin="10,0,0,0" Padding="18,0" Background="{DynamicResource AccentBrush}" Click="BtnApplyBrandText_Click"/>
+                                            <Button x:Name="BtnApplyBrandText" Content="Übernehmen" Margin="10,0,0,0" Padding="18,0" Background="{DynamicResource AccentBrush}" Click="BtnApplyBrandText_Click"/>
                                         </StackPanel>
                                     </StackPanel>
                                     <StackPanel Margin="0,0,0,10">

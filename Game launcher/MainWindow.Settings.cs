@@ -89,6 +89,8 @@ namespace Game_launcher
             settings.SidebarWidth = Math.Clamp(settings.SidebarWidth, 200, 340);
             if (settings.SidebarPosition is not ("left" or "right" or "bottom")) settings.SidebarPosition = "left";
             settings.BrandLogoImage ??= string.Empty;
+            settings.BrandUnlockKey ??= string.Empty;
+            EnforceBrandLock();
             if (settings.BrandLogoShape is not ("circle" or "rounded" or "square")) settings.BrandLogoShape = "circle";
             settings.BackgroundSourcePath ??= string.Empty;
             settings.NavFontSize = Math.Clamp(settings.NavFontSize, 11, 20);
@@ -1769,6 +1771,7 @@ namespace Game_launcher
         private void ApplyBrand()
         {
             if (BrandLogo == null) return;
+            EnforceBrandLock();
             ApplyBrandImage();
 
             string design = BrandDesigns.ContainsKey(settings.BrandDesign) ? settings.BrandDesign : "original";
@@ -1847,6 +1850,7 @@ namespace Game_launcher
 
         private void BtnApplyBrandText_Click(object sender, RoutedEventArgs e)
         {
+            if (!BrandTextUnlocked) return;
             settings.BrandName = TxtBrandName.Text.Trim();
             settings.BrandSubtitle = TxtBrandSub.Text.Trim();
             SaveSettings();
@@ -1949,8 +1953,7 @@ namespace Game_launcher
             ChipNameAccent.IsChecked = settings.BrandNameColor == "accent";
             ChipNameGold.IsChecked = settings.BrandNameColor == "gold";
 
-            TxtBrandName.Text = settings.BrandName;
-            TxtBrandSub.Text = settings.BrandSubtitle;
+            UpdateBrandLockUi();   // füllt auch die Namensfelder
             TxtSgdbKey.Text = settings.SteamGridDbKey;
         }
 

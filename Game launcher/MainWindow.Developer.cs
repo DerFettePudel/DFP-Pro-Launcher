@@ -510,6 +510,15 @@ namespace Game_launcher
             });
             Dev("🎮 Lichtstreifen: Controller-Modus an/aus", ToggleControllerMode);
 
+            Group("Name und Untertitel");
+            Dev("🔒 Freischaltung zurücknehmen (wieder sperren)", DevRelockBrand);
+            Dev("🔑 Code-Eingabe öffnen (/code …)", () =>
+            {
+                OpenSpotlight();
+                TxtSpotlight.Text = "/code ";
+                TxtSpotlight.CaretIndex = TxtSpotlight.Text.Length;
+            });
+
             Group("Arbeitsspeicher");
             Dev("🧹 RAM jetzt freigeben (wie im Hintergrund)", async () =>
             {
