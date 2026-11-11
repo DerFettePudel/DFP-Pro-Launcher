@@ -190,15 +190,18 @@
             <Setter Property="BorderBrush" Value="{DynamicResource ControlBorderBrush}"/>
             <Setter Property="CaretBrush" Value="White"/>
             <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="Padding" Value="10,0"/>
+            <!-- WPF rückt den Text selbst um Padding ein; die Vorlage darf es nicht noch einmal anwenden (sonst doppelter Abstand) -->
+            <Setter Property="Padding" Value="18,0"/>
             <Setter Property="MinHeight" Value="36"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Border x:Name="box" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1"
-                                CornerRadius="10" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
-                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
+                                CornerRadius="10" SnapsToDevicePixels="True">
+                            <!-- Einzeilig: Text und Cursor senkrecht mittig (wie Hinweistexte, die über dem Feld liegen) -->
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="AcceptsReturn" Value="True">

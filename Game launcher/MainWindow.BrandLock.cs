@@ -53,25 +53,43 @@ namespace Game_launcher
             return true;
         }
 
+        private bool IsBrandCode(string code) => Sha256Hex("dfp-brand|" + NormalizeCode(code)) == BrandCodeHash;
+
+        /// <summary>
+        /// Wird bei jeder Eingabe in der Suche geprüft: Steht dort der richtige Code (mit oder ohne „/code“),
+        /// wird sofort freigeschaltet, ohne Enter. Ein falscher Code löst hier nichts aus.
+        /// </summary>
+        private bool TryRedeemCodeFromSearch(string text)
+        {
+            string value = text.Trim();
+            if (value.StartsWith("/code", StringComparison.OrdinalIgnoreCase)) value = value.Substring(5);
+            value = value.Trim();
+            if (value.Length < 8 || !IsBrandCode(value)) return false;
+
+            CloseSpotlight();
+            RedeemCode(value);
+            return true;
+        }
+
         private void RedeemCode(string code)
         {
-            code = NormalizeCode(code);
-            if (Sha256Hex("dfp-brand|" + code) != BrandCodeHash)
+            // Bestätigungen immer zeigen (important), auch wenn Meldungen gerade stumm sind
+            if (!IsBrandCode(code))
             {
-                ShowToast("🔑", Loc.T("Code ungültig"), Loc.T("Dieser Code passt nicht."), 5);
+                ShowToast("🔑", Loc.T("Code ungültig"), Loc.T("Dieser Code passt nicht."), 5, null, true);
                 return;
             }
 
             if (BrandTextUnlocked)
             {
-                ShowToast("🔑", Loc.T("Schon freigeschaltet"), Loc.T("Name und Untertitel kannst du bereits ändern."), 5);
+                ShowToast("🔑", Loc.T("Schon freigeschaltet"), Loc.T("Name und Untertitel kannst du bereits ändern."), 5, null, true);
                 return;
             }
 
-            settings.BrandUnlockKey = Sha256Hex("dfp-brand-unlock|" + code);
+            settings.BrandUnlockKey = Sha256Hex("dfp-brand-unlock|" + NormalizeCode(code));
             SaveSettings();
             UpdateBrandLockUi();
-            ShowToast("🔓", Loc.T("Freigeschaltet"), Loc.T("Name und Untertitel kannst du jetzt unter Einstellungen → Logo und Name ändern."), 8);
+            ShowToast("🔓", Loc.T("Freigeschaltet"), Loc.T("Name und Untertitel kannst du jetzt unter Einstellungen → Logo und Name ändern."), 8, null, true);
         }
 
         /// <summary>Felder für eigenen Namen nur mit Freischaltung bedienbar.</summary>

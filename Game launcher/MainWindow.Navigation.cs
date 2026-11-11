@@ -373,6 +373,7 @@ namespace Game_launcher
         private void TxtSpotlight_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (SpotlightLayer.Visibility != Visibility.Visible) return;
+            if (TryRedeemCodeFromSearch(TxtSpotlight.Text)) return;   // Freischalt-Code: sofort, ohne Enter
 
             // Geheime Namen werden nie vorgeschlagen und lösen nur beim vollständigen Eintippen aus
             if (TryPlayEggFromSearch(TxtSpotlight.Text))
