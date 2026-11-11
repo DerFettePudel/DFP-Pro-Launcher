@@ -720,7 +720,13 @@ namespace Game_launcher
             SaveGameState(game);
             CheckAchievements(false);
 
-            if (settings.MinimizeOnLaunch) WindowState = WindowState.Minimized;
+            // Mit Start-Animation erst minimieren, wenn sie fertig ist (das Spiel startet trotzdem sofort)
+            bool animated = ShowLaunchAnimation(game);
+            if (settings.MinimizeOnLaunch)
+            {
+                if (animated) launchOverlayMinimize = true;
+                else WindowState = WindowState.Minimized;
+            }
 
             Dispatcher.BeginInvoke(new Action(() =>
             {
@@ -2237,6 +2243,7 @@ namespace Game_launcher
                     if (isNew)
                     {
                         sessionStart[game] = now;
+                        OnLaunchAnimationGameDetected(game);
                         DiscordSessionStarted(game);
                         RunRoutinesFor("gamestart", game);
                         if (game.Status == "backlog") game.Status = "playing";
@@ -2799,7 +2806,9 @@ namespace Game_launcher
 
         private void SetStatus(GameItem game, string status)
         {
+            bool completed = status == "done" && game.Status != "done";
             game.Status = status;
+            if (completed) ShowCompletedStamp(game);
             SaveGameState(game);
             RefreshBoard();
             ApplyFilter();
@@ -2945,6 +2954,7 @@ namespace Game_launcher
                 if (game == null) continue;
                 game.Status = status;
                 CopyStateToSettings(game);
+                if (status == "done" && chosen.Count == 1) ShowCompletedStamp(game);
             }
 
             SaveSettings();
@@ -6946,6 +6956,10 @@ namespace Game_launcher
             var frame = new Border { CornerRadius = new CornerRadius(radius), BorderThickness = new Thickness(4), Opacity = 0 };
             frame.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
             surface.Children.Add(frame);
+
+            var streak = CreateFlowStreak(width, height);
+            frame.Tag = streak;
+            surface.Children.Add(streak);
 
             BeginFlowPicture(item, (picture, logo) =>
             {

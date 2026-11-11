@@ -1156,9 +1156,11 @@ namespace Game_launcher
 
 
 
-        private static void FlowFocus(FrameworkElement element, double amount)
+        private void FlowFocus(FrameworkElement element, double amount)
         {
-            if (element is Border { Tag: Border frame }) frame.Opacity = amount;
+            if (element is not Border { Tag: Border frame }) return;
+            frame.Opacity = amount;
+            if (frame.Tag is System.Windows.Shapes.Rectangle streak) FlowStreakFocus(streak, amount);
         }
 
         // ═════════════════════════════ Runde 22 ═════════════════════════════

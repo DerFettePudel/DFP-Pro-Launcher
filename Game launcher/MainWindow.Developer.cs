@@ -494,6 +494,22 @@ namespace Game_launcher
                 ShowToast("💬", "Entwickler", "Discord-Status gesetzt (Test-Spiel).", 4);
             });
 
+            Group("Animationen");
+            Dev("🚀 Start-Animation (ohne Spiel, erkannt nach 2,5 s)", () =>
+            {
+                var game = allGames.FirstOrDefault(g => !g.Hidden);
+                if (game == null || !ShowLaunchAnimation(game)) { Msg("Keine Animation: Seitenanimationen aus, Leistungsmodus an oder kein Spiel vorhanden.", "Entwickler"); return; }
+                var detect = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(2500) };
+                detect.Tick += (s, e) => { detect.Stop(); OnLaunchAnimationGameDetected(game); };
+                detect.Start();
+            });
+            Dev("✅ Stempel „Durchgespielt“", () =>
+            {
+                var game = allGames.FirstOrDefault(g => !g.Hidden);
+                if (game != null) ShowCompletedStamp(game);
+            });
+            Dev("🎮 Lichtstreifen: Controller-Modus an/aus", ToggleControllerMode);
+
             Group("Arbeitsspeicher");
             Dev("🧹 RAM jetzt freigeben (wie im Hintergrund)", async () =>
             {
