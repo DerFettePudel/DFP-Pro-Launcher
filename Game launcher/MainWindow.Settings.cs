@@ -1845,8 +1845,6 @@ namespace Game_launcher
             NavDockBrandText.Visibility = BrandTitle.Visibility;
         }
 
-        private void NavDockBrand_Click(object sender, System.Windows.Input.MouseButtonEventArgs e) => NavigateTo("dashboard");
-
         private void BtnApplyBrandText_Click(object sender, RoutedEventArgs e)
         {
             settings.BrandName = TxtBrandName.Text.Trim();
