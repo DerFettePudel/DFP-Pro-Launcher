@@ -3760,6 +3760,17 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Arbeitsspeicher freigeben, solange der Launcher im Hintergrund ist" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Minimiert oder im Infobereich gibt der Launcher nach wenigen Sekunden fast seinen ganzen RAM an Windows zurück. Beim Öffnen ist alles sofort wieder da." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkTrimMemory" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
                                             <TextBlock Text="Animierte Cover (GIF) immer abspielen, sonst nur beim Darüberfahren" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
                                             <TextBlock Text="Aus ist schonender: GIFs laufen nur, wenn du mit der Maus auf der Karte bist." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                         </StackPanel>

@@ -494,6 +494,13 @@ namespace Game_launcher
                 ShowToast("💬", "Entwickler", "Discord-Status gesetzt (Test-Spiel).", 4);
             });
 
+            Group("Arbeitsspeicher");
+            Dev("🧹 RAM jetzt freigeben (wie im Hintergrund)", async () =>
+            {
+                var (before, after) = await TrimMemoryAsync();
+                Msg($"Vorher: {before / 1048576} MB\nNachher: {after / 1048576} MB\n\nHinweis: Sobald das Fenster sichtbar ist, lädt Windows benutzte Teile sofort wieder nach.", "Entwickler");
+            });
+
             Group("Handy und Steam-Widgets");
             Dev("📱 Fernbedienung: Adresse und Status", () =>
                 Msg($"Läuft: {remoteServer is { Running: true }}\nPort: {remoteServer?.Port}\nAdresse: {RemoteAddress() ?? "keine"}\nHeimnetz-IP: {RemoteServer.LocalAddress() ?? "keine"}", "Entwickler"));

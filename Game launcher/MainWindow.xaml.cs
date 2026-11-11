@@ -660,6 +660,7 @@ namespace Game_launcher
 
             StateChanged += (s, e) => UpdateTimersForVisibility();
             IsVisibleChanged += (s, e) => UpdateTimersForVisibility();
+            InitMemorySaver();
 
             SidebarFooterText.Cursor = System.Windows.Input.Cursors.Hand;
             SidebarFooterText.MouseLeftButtonUp += (s, e) => ToggleShortcutsOverlay();

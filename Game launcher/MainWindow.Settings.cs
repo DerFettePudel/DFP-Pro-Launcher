@@ -1695,6 +1695,7 @@ namespace Game_launcher
             settings.PerformanceMode = ChkPerf.IsChecked == true;
             settings.SoftwareRendering = ChkSoftware.IsChecked == true;
             settings.PauseWhenMinimized = ChkPauseMin.IsChecked == true;
+            settings.TrimMemoryInBackground = ChkTrimMemory.IsChecked == true;
             settings.AlwaysPlayGifs = ChkGifAlways.IsChecked == true;
 
             settings.ControllerLayout = ChipPadXbox.IsChecked == true ? "xbox"
@@ -1714,6 +1715,7 @@ namespace Game_launcher
             ChkPerf.IsChecked = settings.PerformanceMode;
             ChkSoftware.IsChecked = settings.SoftwareRendering;
             ChkPauseMin.IsChecked = settings.PauseWhenMinimized;
+            ChkTrimMemory.IsChecked = settings.TrimMemoryInBackground;
             ChkGifAlways.IsChecked = settings.AlwaysPlayGifs;
 
             ChipPadAuto.IsChecked = settings.ControllerLayout is not ("xbox" or "ps" or "nintendo");
