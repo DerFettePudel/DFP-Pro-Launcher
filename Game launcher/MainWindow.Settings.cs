@@ -1592,6 +1592,7 @@ namespace Game_launcher
                 if (!ringTimer.IsEnabled) ringTimer.Start();
                 if (!clockTimer.IsEnabled) clockTimer.Start();
             }
+            UpdateRgbAccent();
         }
 
         // ───────────────────────────── OLED-Modus ─────────────────────────────
@@ -3354,14 +3355,29 @@ namespace Game_launcher
         {
             if (!RgbActive)
             {
-                if (rgbTimer != null && rgbTimer.IsEnabled)
+                if (rgbTimer != null && (rgbTimer.IsEnabled || rgbPausedHidden))
                 {
                     rgbTimer.Stop();
+                    rgbPausedHidden = false;
+                    // Alle Akzent-Varianten wieder auf die eigene Farbe
                     Resources["AccentBrush"] = MakeBrush(settings.AccentColor, "#8B5CF6");
-                    if (string.IsNullOrWhiteSpace(settings.NavActiveColor)) Resources["NavActiveBrush"] = Resources["AccentBrush"];
+                    if (System.Windows.Application.Current != null)
+                        System.Windows.Application.Current.Resources["AccentBrush"] = Resources["AccentBrush"];
+                    ApplyAccentVariants(ParseColor(settings.AccentColor, "#8B5CF6"));
+                    ApplyNavBrushes();
+                    if (BackgroundGlow != null) ApplyGlowBackground();   // enthält auch das Farbleuchten
                 }
                 return;
             }
+
+            // Minimiert läuft der Farbwechsel nicht (sieht niemand, kostet nur Leistung)
+            if (LauncherInBackground && rgbTimer != null)
+            {
+                rgbTimer.Stop();
+                rgbPausedHidden = true;
+                return;
+            }
+            rgbPausedHidden = false;
 
             if (rgbTimer == null)
             {
@@ -3376,11 +3392,36 @@ namespace Game_launcher
             double step = settings.RgbSpeed switch { 1 => 1.5, 3 => 6.0, _ => 3.0 };
             rgbHue = (rgbHue + step) % 360;
 
-            var brush = new SolidColorBrush(HslColor(rgbHue, 0.85, 0.6));
+            var color = HslColor(rgbHue, 0.85, 0.6);
+            var brush = new SolidColorBrush(color);
             brush.Freeze();
             Resources["AccentBrush"] = brush;
-            if (string.IsNullOrWhiteSpace(settings.NavActiveColor)) Resources["NavActiveBrush"] = brush;
+            if (System.Windows.Application.Current != null)
+                System.Windows.Application.Current.Resources["AccentBrush"] = brush;
+
+            // Design „Nova“: auch Tönung (Chips, Symbole), Verlauf (Spielen-Knöpfe, Avatar-Ring) und die Navigation mitfärben.
+            // Im RGB-Modus gilt das auch, wenn eine eigene Farbe für den aktiven Reiter gewählt ist.
+            ApplyAccentVariants(color);
+            Resources["NavActiveBrush"] = brush;
+            var navBg = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x30, color.R, color.G, color.B));
+            navBg.Freeze();
+            Resources["NavActiveBgBrush"] = navBg;
+
+            // Das große Farbleuchten seltener neu zeichnen, es wechselt ohnehin nur langsam
+            if (++rgbGlowCounter % 4 == 0)
+            {
+                ApplyAmbientGlow();
+                // Bewegter Hintergrund: nur die Farben tauschen, die Bewegung läuft weiter
+                if (BackgroundGlow?.Background is RadialGradientBrush { IsFrozen: false } glow && glow.GradientStops.Count == 2)
+                {
+                    glow.GradientStops[0].Color = System.Windows.Media.Color.FromArgb(0x3C, color.R, color.G, color.B);
+                    glow.GradientStops[1].Color = System.Windows.Media.Color.FromArgb(0x00, color.R, color.G, color.B);
+                }
+            }
         }
+
+        private bool rgbPausedHidden;
+        private int rgbGlowCounter;
 
         private void UpdateRgbUi()
         {
