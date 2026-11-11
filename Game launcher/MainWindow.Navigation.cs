@@ -1211,7 +1211,7 @@ namespace Game_launcher
                     home.Children.Remove(NavPanel);
                 }
                 NavPanel.Orientation = System.Windows.Controls.Orientation.Horizontal;
-                NavDockPanel.Children.Insert(0, NavPanel);
+                NavDockPanel.Children.Insert(NavDockPanel.Children.IndexOf(NavDockBrandDivider) + 1, NavPanel);   // hinter Logo und Name
             }
             else if (!bottom && ReferenceEquals(NavPanel.Parent, NavDockPanel) && navPanelHome != null)
             {
@@ -1243,6 +1243,7 @@ namespace Game_launcher
                 : null;
             NavDock.MaxWidth = Math.Max(320, RootGrid.ActualWidth - 40);
             if (DockStreamBadge != null) DockStreamBadge.Visibility = StreamerOn ? Visibility.Visible : Visibility.Collapsed;
+            UpdateDockBrand();
 
             // Beim Wechsel nach unten schwebt die Leiste von unten herein
             if (bottom && appliedNavPosition != "bottom" && animate && settings.PageAnimations)

@@ -2937,6 +2937,17 @@
                                             <RadioButton x:Name="ChipNavBottom" Content="Unten (schwebend)" Tag="bottom" GroupName="NavPosition" Style="{StaticResource ChipStyle}" Checked="NavPosition_Checked"/>
                                         </WrapPanel>
                                     </StackPanel>
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Logo und Name in der schwebenden Leiste anzeigen" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Gilt, wenn die Leiste unten ist. Logo, Name und Untertitel übernehmen deine Einstellungen unter „Logo und Name“. Ein Klick darauf öffnet das Dashboard." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkDockBrand" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
                                     <StackPanel Margin="0,0,0,18">
                                         <TextBlock Text="Sichtbare Bereiche und Reihenfolge" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
                                         <TextBlock Text="Mit dem Schalter blendest du einen Bereich aus, mit den Pfeilen verschiebst du ihn. Das geht auch per Rechtsklick auf die Seitenleiste. Einstellungen bleibt immer sichtbar." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
@@ -4562,6 +4573,16 @@
                 CornerRadius="26" Background="{DynamicResource SidebarBrush}" BorderBrush="#33FFFFFF" BorderThickness="1">
                 <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
                     <StackPanel x:Name="NavDockPanel" Orientation="Horizontal">
+                        <!-- Logo und Name (wie in der Seitenleiste), Klick öffnet das Dashboard -->
+                        <StackPanel x:Name="NavDockBrand" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,2,0" Cursor="Hand"
+                                    Background="Transparent" MouseLeftButtonUp="NavDockBrand_Click">
+                            <ContentControl x:Name="NavDockLogo" Width="38" Height="38" VerticalAlignment="Center"/>
+                            <StackPanel x:Name="NavDockBrandText" Margin="10,0,4,0" VerticalAlignment="Center">
+                                <TextBlock x:Name="NavDockBrandTitle" Text="DFP PRO" Foreground="White" FontSize="15" FontWeight="ExtraBold" FontFamily="{DynamicResource DisplayFont}"/>
+                                <TextBlock x:Name="NavDockBrandSub" Text="LAUNCHER" Foreground="{DynamicResource AccentBrush}" FontSize="10" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Border x:Name="NavDockBrandDivider" Width="1" Height="34" Margin="10,0,6,0" Background="#33FFFFFF" VerticalAlignment="Center"/>
                         <Border x:Name="NavDockDivider" Width="1" Height="34" Margin="8,0" Background="#33FFFFFF" VerticalAlignment="Center" Visibility="Collapsed"/>
                         <StackPanel x:Name="NavDockExtras" Orientation="Horizontal" VerticalAlignment="Center"/>
                         <Border x:Name="DockStreamBadge" Visibility="Collapsed" Margin="8,0,4,0" Padding="10,6" CornerRadius="14" Background="#33DC2626"

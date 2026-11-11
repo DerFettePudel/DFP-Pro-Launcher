@@ -1697,6 +1697,12 @@ namespace Game_launcher
             settings.SoftwareRendering = ChkSoftware.IsChecked == true;
             settings.PauseWhenMinimized = ChkPauseMin.IsChecked == true;
             settings.TrimMemoryInBackground = ChkTrimMemory.IsChecked == true;
+            bool dockBrand = ChkDockBrand.IsChecked == true;
+            if (dockBrand != settings.DockShowBrand)
+            {
+                settings.DockShowBrand = dockBrand;
+                UpdateDockBrand();
+            }
             settings.AlwaysPlayGifs = ChkGifAlways.IsChecked == true;
 
             settings.ControllerLayout = ChipPadXbox.IsChecked == true ? "xbox"
@@ -1717,6 +1723,7 @@ namespace Game_launcher
             ChkSoftware.IsChecked = settings.SoftwareRendering;
             ChkPauseMin.IsChecked = settings.PauseWhenMinimized;
             ChkTrimMemory.IsChecked = settings.TrimMemoryInBackground;
+            ChkDockBrand.IsChecked = settings.DockShowBrand;
             ChkGifAlways.IsChecked = settings.AlwaysPlayGifs;
 
             ChipPadAuto.IsChecked = settings.ControllerLayout is not ("xbox" or "ps" or "nintendo");
@@ -1809,7 +1816,36 @@ namespace Game_launcher
                     BrandTitle.Foreground = System.Windows.Media.Brushes.White;
                     break;
             }
+            UpdateDockBrand();
         }
+
+        /// <summary>Logo und Name in der schwebenden Leiste unten: übernimmt Bild, Text und Farbe aus der Seitenleiste.</summary>
+        private void UpdateDockBrand()
+        {
+            if (NavDockBrand == null || BrandTitle == null) return;
+
+            bool show = settings.DockShowBrand;
+            NavDockBrand.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            NavDockBrandDivider.Visibility = NavDockBrand.Visibility;
+            if (!show) return;
+
+            // Eigenes Bild in gleicher Form wie oben, sonst das Pudel-Logo (die Ressource ist nicht geteilt, jede Abfrage liefert ein neues)
+            if (HasBrandImage && BrandLogo.Content is Border { Background: ImageBrush image } custom)
+                NavDockLogo.Content = new Border { CornerRadius = custom.CornerRadius, Background = image };
+            else if (NavDockLogo.Content is not Viewbox)
+                NavDockLogo.Content = FindResource("DfpLogo");
+
+            NavDockBrandTitle.Text = BrandTitle.Text;
+            NavDockBrandTitle.Visibility = BrandTitle.Visibility;
+            if (settings.BrandNameColor == "accent") NavDockBrandTitle.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
+            else NavDockBrandTitle.Foreground = BrandTitle.Foreground;
+
+            NavDockBrandSub.Text = BrandSubtitle.Text;
+            NavDockBrandSub.Visibility = BrandSubtitle.Visibility;
+            NavDockBrandText.Visibility = BrandTitle.Visibility;
+        }
+
+        private void NavDockBrand_Click(object sender, System.Windows.Input.MouseButtonEventArgs e) => NavigateTo("dashboard");
 
         private void BtnApplyBrandText_Click(object sender, RoutedEventArgs e)
         {

@@ -147,7 +147,8 @@ namespace Game_launcher
         public bool PerformanceMode { get; set; }
         public bool SoftwareRendering { get; set; }
         public bool PauseWhenMinimized { get; set; } = true;
-        public bool TrimMemoryInBackground { get; set; } = true;   // Arbeitsspeicher freigeben, solange minimiert oder im Infobereich
+        public bool TrimMemoryInBackground { get; set; } = true;
+        public bool DockShowBrand { get; set; } = true;   // Logo und Name in der schwebenden Leiste unten   // Arbeitsspeicher freigeben, solange minimiert oder im Infobereich
         public bool AlwaysPlayGifs { get; set; }
         public string ControllerLayout { get; set; } = "auto";
 
