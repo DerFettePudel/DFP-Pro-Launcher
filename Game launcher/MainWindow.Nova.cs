@@ -170,7 +170,9 @@ namespace Game_launcher
                 (new[] { "F11" }, "Controller-Modus ein oder aus"),
                 (new[] { "F1" }, "Diese Übersicht ein- oder ausblenden"),
                 (new[] { "← →", "Enter" }, "Cover-Ansicht: blättern und Spiel starten"),
-                (new[] { "Esc" }, "Suche oder Übersicht schließen")
+                (new[] { "Esc" }, "Suche oder Übersicht schließen"),
+                (new[] { "Alt", "←" }, "Zurück zur vorherigen Seite (auch Maus-Seitentaste)"),
+                (new[] { "Alt", "→" }, "Wieder vor (auch vordere Maus-Seitentaste)")
             };
 
             var grid = new System.Windows.Controls.Primitives.UniformGrid { Columns = 2 };

@@ -82,6 +82,7 @@ namespace Game_launcher
                 view.Visibility = Visibility.Collapsed;
 
             activeView.Visibility = Visibility.Visible;
+            RecordNavigation(activeView);   // für Zurück / Vor (MainWindow.History.cs)
             AnimateIn(activeView);
             UpdateCoverTint();
             if (ErrorHooksReady) WriteSessionMarker(activeView.Name);
