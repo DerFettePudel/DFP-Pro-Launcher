@@ -175,6 +175,13 @@ namespace Game_launcher
                 list.Source ??= string.Empty;
             }
             settings.GameSizes ??= new Dictionary<string, GameSizeEntry>(StringComparer.OrdinalIgnoreCase);
+            // „Automatisch neu scannen“ (alt, beim Zurückkehren) ist in „Neue Spiele automatisch erkennen“ aufgegangen:
+            // Wer die alte Option ausgeschaltet hatte, bekommt auch die neue aus
+            if (!settings.AutoDetectMigrated)
+            {
+                if (!settings.AutoRescan) settings.AutoDetectGames = false;
+                settings.AutoDetectMigrated = true;
+            }
             settings.GameFolders ??= new List<string>();
             settings.GameFolders.RemoveAll(string.IsNullOrWhiteSpace);
             settings.LauncherChips?.RemoveAll(string.IsNullOrWhiteSpace);   // null bleibt null: automatische Auswahl
@@ -1512,14 +1519,13 @@ namespace Game_launcher
         private void ReadComfortSettings()
         {
             settings.CloseAppsEnabled = ChkCloseApps.IsChecked == true;
-            settings.AutoRescan = ChkAutoRescan.IsChecked == true;
             settings.GlobalHotkey = ChkHotkey.IsChecked == true;
         }
 
         private void PopulateComfortSettings()
         {
             ChkCloseApps.IsChecked = settings.CloseAppsEnabled;
-            ChkAutoRescan.IsChecked = settings.AutoRescan;
+            ChkAutoDetectGames.IsChecked = settings.AutoDetectGames;
             ChkHotkey.IsChecked = settings.GlobalHotkey;
             PopulateLanguageChips();
         }

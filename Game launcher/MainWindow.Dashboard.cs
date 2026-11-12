@@ -442,6 +442,10 @@ namespace Game_launcher
 
         private void HideToTray()
         {
+            // Ohne Symbol im Infobereich wäre der Launcher unsichtbar und nicht mehr erreichbar (z. B. „Beim Schließen
+            // nachfragen“ → Ja, während „Symbol immer anzeigen“ aus ist): solange er versteckt ist, Symbol zeigen
+            if (trayIcon == null) return;
+            trayIcon.Visible = true;
             Hide();
 
             if (!trayHintShown && trayIcon != null)
@@ -454,8 +458,10 @@ namespace Game_launcher
         private void ShowFromTray()
         {
             Show();
-            if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+            // Wieder so, wie es vor dem Minimieren war (maximiert bleibt maximiert)
+            if (WindowState == WindowState.Minimized) WindowState = lastShownState;
             Activate();
+            if (trayIcon != null) trayIcon.Visible = settings.ShowTrayIcon || settings.MinimizeToTray;
         }
 
         private void ExitApplication()

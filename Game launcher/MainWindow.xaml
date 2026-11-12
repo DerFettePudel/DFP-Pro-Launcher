@@ -2538,10 +2538,10 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
-                                            <TextBlock Text="Bibliothek automatisch aktualisieren, wenn du zum Launcher zurückkehrst" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                            <TextBlock Text="Neu installierte Spiele erscheinen von selbst. Es wird höchstens alle 10 Minuten geprüft." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                            <TextBlock Text="Neue Spiele automatisch erkennen" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Schaut alle 20 Sekunden nach, ob bei einem Launcher ein Spiel dazugekommen oder weggefallen ist, und aktualisiert die Bibliothek ohne „Neu scannen“. Während eines Spiels wird gewartet." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                         </StackPanel>
-                                        <CheckBox x:Name="ChkAutoRescan" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                        <CheckBox x:Name="ChkAutoDetectGames" Grid.Column="1" VerticalAlignment="Center" Checked="ChkAutoDetectGames_Changed" Unchecked="ChkAutoDetectGames_Changed"/>
                                     </Grid>
                                 </StackPanel>
                             </Border>
@@ -3124,17 +3124,6 @@
                                             <TextBlock Text="Sagt Bescheid, sobald Steam oder Epic Games ein Spiel fertig geladen hat, auch wenn der Launcher im Hintergrund läuft. Im Streamer-Modus bleibt die Meldung stumm, wenn Meldungen dort stumm geschaltet sind." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                         </StackPanel>
                                         <CheckBox x:Name="ChkDownloadDone" Grid.Column="1" VerticalAlignment="Center" Checked="ChkDownloadDone_Changed" Unchecked="ChkDownloadDone_Changed"/>
-                                    </Grid>
-                                    <Grid Margin="0,0,0,16">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
-                                            <TextBlock Text="Neue Spiele automatisch erkennen" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                            <TextBlock Text="Schaut alle 20 Sekunden nach, ob bei einem Launcher ein Spiel dazugekommen oder weggefallen ist, und aktualisiert die Bibliothek ohne „Neu scannen“. Während eines Spiels wird gewartet." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
-                                        </StackPanel>
-                                        <CheckBox x:Name="ChkAutoDetectGames" Grid.Column="1" VerticalAlignment="Center" Checked="ChkAutoDetectGames_Changed" Unchecked="ChkAutoDetectGames_Changed"/>
                                     </Grid>
                                     <StackPanel x:Name="DashWidgetPanel" Margin="0,0,0,8"/>
                                     <Button Content="Standard wiederherstellen" HorizontalAlignment="Left" Margin="0,4,0,0" Click="BtnResetWidgets_Click"/>

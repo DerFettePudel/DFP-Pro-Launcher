@@ -72,25 +72,11 @@ namespace Game_launcher
 
         private async void OnWindowActivated(object? sender, EventArgs e)
         {
-            if (!settings.AutoRescan || isScanning || controllerMode || silentRescan) return;
-            if ((DateTime.Now - lastScan).TotalMinutes < 10) return;
-
+            // Früher: eigener Scan höchstens alle 10 Minuten. Jetzt macht das „Neue Spiele automatisch erkennen“
+            // (MainWindow.Launchers.cs); beim Zurückkehren wird nur sofort einmal nachgesehen statt erst nach 20 Sekunden.
+            if (!settings.AutoDetectGames || isScanning || controllerMode || silentRescan) return;
             lastScan = DateTime.Now;
-            var before = allGames.Select(g => g.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-            silentRescan = true;
-            try
-            {
-                await LoadInstalledGamesAsync();
-            }
-            finally
-            {
-                silentRescan = false;
-            }
-
-            var added = allGames.Where(g => !before.Contains(g.Name)).Select(g => g.Name).ToList();
-            if (added.Count > 0)
-                ShowToast("🎮", "Neue Spiele gefunden", string.Join(", ", added.Take(3)), 6);
+            await CheckForNewGamesAsync();
         }
 
         // ───────────────────────────── Globaler Hotkey (Strg+Alt+D) ─────────────────────────────

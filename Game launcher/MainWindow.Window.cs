@@ -275,6 +275,9 @@ namespace Game_launcher
                 Deactivated += (s, e) => Dispatcher.BeginInvoke(new Action(UpdateTaskbarPeek), System.Windows.Threading.DispatcherPriority.Background);
             }
 
+            // Auch hier (nicht nur bei Zustandswechseln): nach dem Controller-Modus läuft der Wechsel als Zwischenschritt
+            if (!windowTransition) ApplyFullscreenFrame();
+
             bool active = FullscreenActive();
             if (active) taskbarPeekTimer.Start();
             else
@@ -338,11 +341,19 @@ namespace Game_launcher
         private const double ContentBottomMargin = 104; // Platz für die Leiste unter dem Inhalt
         private double dockTaskbarLift;                 // so weit ragt die Taskleiste gerade ins Fenster (in WPF-Einheiten)
         private bool dockLiftHooked;
+        private WindowState lastShownState = WindowState.Normal;
 
         private void InitDockTaskbarLift()
         {
             if (dockLiftHooked) return;
             dockLiftHooked = true;
+
+            // Für ShowFromTray: Zustand vor dem Minimieren merken
+            lastShownState = WindowState == WindowState.Maximized ? WindowState.Maximized : WindowState.Normal;
+            StateChanged += (s, e) =>
+            {
+                if (WindowState != WindowState.Minimized && !controllerMode) lastShownState = WindowState;
+            };
 
             LocationChanged += (s, e) => UpdateDockTaskbarLift();
             SizeChanged += (s, e) => UpdateDockTaskbarLift();

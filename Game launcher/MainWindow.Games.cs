@@ -1322,9 +1322,10 @@ namespace Game_launcher
 
         private string BuildMetaText(GameItem game)
         {
-            if (game.PlaySeconds >= 60 && !SHide(settings.StreamHideStats)) return $"{game.Source}  ·  {FormatPlaytime(game.PlaySeconds)}";
-            if (game.LastPlayed.HasValue) return $"{game.Source}  ·  {FormatRelative(game.LastPlayed.Value)}";
-            return game.Source;
+            string source = Loc.T(game.Source);   // „Manuell“ und „Spiele-Ordner“ übersetzen, Launcher-Namen bleiben
+            if (game.PlaySeconds >= 60 && !SHide(settings.StreamHideStats)) return $"{source}  ·  {FormatPlaytime(game.PlaySeconds)}";
+            if (game.LastPlayed.HasValue) return $"{source}  ·  {Loc.T(FormatRelative(game.LastPlayed.Value))}";
+            return source;
         }
 
         private System.Windows.Controls.ContextMenu BuildGameMenu(GameItem game)

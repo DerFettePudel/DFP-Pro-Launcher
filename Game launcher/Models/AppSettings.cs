@@ -325,7 +325,8 @@ namespace Game_launcher
         // Launcher: Filter-Chips oben auf der Spiele-Seite (null = automatisch die wichtigsten), eigene Spiele-Ordner, neue Spiele erkennen
         public List<string>? LauncherChips { get; set; }
         public List<string> GameFolders { get; set; } = new();
-        public bool AutoDetectGames { get; set; } = true;
+        public bool AutoDetectGames { get; set; } = true;       // ersetzt AutoRescan (bleibt nur zum Übernehmen alter Einstellungen)
+        public bool AutoDetectMigrated { get; set; }
 
         // Fehlerbericht und Beta-Kanal
         public bool ErrorReports { get; set; } = true;

@@ -73,7 +73,8 @@ namespace Game_launcher
             if (settings.LauncherChips != null)
                 return new HashSet<string>(settings.LauncherChips, StringComparer.OrdinalIgnoreCase);
 
-            return new HashSet<string>(MainLaunchers.Where(counts.ContainsKey), StringComparer.OrdinalIgnoreCase);
+            // Eigene Spiele-Ordner hat der Nutzer selbst angelegt: die gehören dann auch automatisch nach oben
+            return new HashSet<string>(MainLaunchers.Append(FolderSource).Where(counts.ContainsKey), StringComparer.OrdinalIgnoreCase);
         }
 
         private void BuildLauncherChips()
