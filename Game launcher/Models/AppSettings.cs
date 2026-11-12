@@ -328,6 +328,9 @@ namespace Game_launcher
         public bool AutoDetectGames { get; set; } = true;       // ersetzt AutoRescan (bleibt nur zum Übernehmen alter Einstellungen)
         public bool AutoDetectMigrated { get; set; }
 
+        // Design-Thema: "nova" (Thema 1) oder "brutal" (Thema 2); gilt ab dem nächsten Start
+        public string UiTheme { get; set; } = "nova";
+
         // Fehlerbericht und Beta-Kanal
         public bool ErrorReports { get; set; } = true;
         public bool BetaUpdates { get; set; }

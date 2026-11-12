@@ -25,7 +25,7 @@ namespace Game_launcher
         private void ApplyAmbientGlow()
         {
             if (AmbientGlowLayer == null) return;
-            if (!settings.AmbientGlow || settings.OledMode)
+            if (!settings.AmbientGlow || settings.OledMode || IsBrutal)
             {
                 AmbientGlowLayer.Child = null;
                 AmbientGlowLayer.Visibility = Visibility.Collapsed;

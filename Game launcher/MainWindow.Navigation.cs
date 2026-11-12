@@ -502,6 +502,7 @@ namespace Game_launcher
             if (ChkAutoDetectGames != null) ChkAutoDetectGames.IsChecked = settings.AutoDetectGames;
             PopulateReportAndBeta();
             PopulateNavPosition();
+            BuildUiThemeChoice();
             if (ChkHideTaskbar != null) ChkHideTaskbar.IsChecked = settings.TaskbarHideMaximized;
             PopulateBrandImage();
         }
@@ -811,8 +812,12 @@ namespace Game_launcher
         private ColumnDefinition? colContent;
         private string appliedNavPosition = string.Empty;
 
-        private string NavPosition => settings.SidebarPosition is "right" or "bottom" ? settings.SidebarPosition : "left";
+        // Thema 2 „Brutal“ hat die Navigation immer oben als Kopfleiste (deine Wahl für Thema 1 bleibt gespeichert)
+        private string NavPosition => IsBrutal ? "top" : settings.SidebarPosition is "right" or "bottom" ? settings.SidebarPosition : "left";
         private bool IsBottomNav => NavPosition == "bottom";
+        private bool IsTopNav => NavPosition == "top";
+        /// <summary>Navigation in einer waagerechten Leiste (unten schwebend oder oben als Kopfleiste) statt in der Seitenleiste.</summary>
+        private bool IsDockNav => IsBottomNav || IsTopNav;
 
         private void InitExtras22()
         {
@@ -821,7 +826,9 @@ namespace Game_launcher
             NavDock.ContextMenuOpening += (s, e) => NavDock.ContextMenu = BuildDockMenu();
 
             // Breite der schwebenden Leiste an das Fenster anpassen (sie verkleinert sich bei schmalen Fenstern)
-            RootGrid.SizeChanged += (s, e) => NavDock.MaxWidth = Math.Max(320, RootGrid.ActualWidth - 40);
+            RootGrid.SizeChanged += (s, e) => NavDock.MaxWidth = IsTopNav ? double.PositiveInfinity : Math.Max(320, RootGrid.ActualWidth - 40);
+            // Kopfleiste oben (Thema 2): Inhalt beginnt direkt darunter, auch wenn sich ihre Höhe ändert
+            NavDock.SizeChanged += (s, e) => { if (IsTopNav) ContentArea.Margin = TopNavContentMargin(); };
 
             DockStreamBadge.ToolTip = MakeNavToolTip(Loc.T("Streamer-Modus ist an. Klicken zum Ausschalten"), true);
             System.Windows.Controls.ToolTipService.SetInitialShowDelay(DockStreamBadge, 120);
@@ -837,10 +844,11 @@ namespace Game_launcher
             {
                 // Mittig über dem Symbol, mit etwas Luft für das beim Drüberfahren angehobene Symbol
                 tip.Placement = System.Windows.Controls.Primitives.PlacementMode.Custom;
+                bool below = IsTopNav;   // Kopfleiste oben: Hinweis darunter
                 tip.CustomPopupPlacementCallback = (popupSize, targetSize, offset) => new[]
                 {
                     new System.Windows.Controls.Primitives.CustomPopupPlacement(
-                        new System.Windows.Point((targetSize.Width - popupSize.Width) / 2, -popupSize.Height - 6),
+                        new System.Windows.Point((targetSize.Width - popupSize.Width) / 2, below ? targetSize.Height + 6 : -popupSize.Height - 6),
                         System.Windows.Controls.Primitives.PopupPrimaryAxis.Horizontal)
                 };
             }
@@ -885,7 +893,7 @@ namespace Game_launcher
             NavDockExtras.Children.Clear();
             dockPlayIcon = dockPauseIcon = null;
 
-            if (IsBottomNav)
+            if (IsDockNav)
             {
                 if (settings.QuickButtonsEnabled)
                 {
@@ -1179,7 +1187,8 @@ namespace Game_launcher
 
             string position = NavPosition;
             bool right = position == "right";
-            bool bottom = position == "bottom";
+            bool top = position == "top";
+            bool bottom = position == "bottom" || top;   // „unten“ und „oben“ nutzen beide die waagerechte Leiste
 
             // Spalten: Seitenleiste links oder rechts
             colContent ??= RootGrid.ColumnDefinitions.FirstOrDefault(c => !ReferenceEquals(c, ColSidebar));
@@ -1208,9 +1217,11 @@ namespace Game_launcher
             // Unten: Seitenleiste aus, Navigation wandert in die schwebende Leiste
             SidebarBorder.Visibility = bottom ? Visibility.Collapsed : Visibility.Visible;
             NavDock.Visibility = bottom ? Visibility.Visible : Visibility.Collapsed;
-            ContentArea.Margin = bottom ? new Thickness(28, 42, 28, ContentBottomMargin + dockTaskbarLift)   // Anheben über die Taskleiste: UpdateDockTaskbarLift
+            ContentArea.Margin = top ? TopNavContentMargin()
+                               : bottom ? new Thickness(28, 42, 28, ContentBottomMargin + dockTaskbarLift)   // Anheben über die Taskleiste: UpdateDockTaskbarLift
                                : right ? new Thickness(16, 42, 28, 16)
                                : new Thickness(28, 42, 16, 16);
+            ApplyDockShape(top);
 
             if (bottom && !ReferenceEquals(NavPanel.Parent, NavDockPanel))
             {
@@ -1248,15 +1259,15 @@ namespace Game_launcher
             }
 
             // Schatten nur ohne Leistungsmodus
-            NavDock.Effect = bottom && !settings.PerformanceMode
+            NavDock.Effect = bottom && !top && !settings.PerformanceMode
                 ? new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 30, ShadowDepth = 6, Direction = 270, Opacity = 0.45, Color = Colors.Black }
                 : null;
-            NavDock.MaxWidth = Math.Max(320, RootGrid.ActualWidth - 40);
+            NavDock.MaxWidth = top ? double.PositiveInfinity : Math.Max(320, RootGrid.ActualWidth - 40);
             if (DockStreamBadge != null) DockStreamBadge.Visibility = StreamerOn ? Visibility.Visible : Visibility.Collapsed;
             UpdateDockBrand();
 
             // Beim Wechsel nach unten schwebt die Leiste von unten herein
-            if (bottom && appliedNavPosition != "bottom" && animate && settings.PageAnimations)
+            if (bottom && !top && appliedNavPosition != "bottom" && animate && settings.PageAnimations)
             {
                 var slide = new TranslateTransform(0, 70);
                 NavDock.RenderTransform = slide;
@@ -1304,7 +1315,7 @@ namespace Game_launcher
                 return;
             }
 
-            bool dock = IsBottomNav;
+            bool dock = IsDockNav;
             double target = hover ? (dock ? 1.45 : 1.28) : 1.0;
             var grow = new DoubleAnimation(target, TimeSpan.FromMilliseconds(hover ? 420 : 200))
             {
@@ -1315,7 +1326,7 @@ namespace Game_launcher
             scale.BeginAnimation(ScaleTransform.ScaleXProperty, grow);
             scale.BeginAnimation(ScaleTransform.ScaleYProperty, grow);
 
-            lift.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(hover && dock ? -8 : 0, TimeSpan.FromMilliseconds(220))
+            lift.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(hover && IsBottomNav ? -8 : 0, TimeSpan.FromMilliseconds(220))
             {
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             });
@@ -1344,9 +1355,16 @@ namespace Game_launcher
             isLoadingSettings = true;
             try
             {
-                ChipNavLeft.IsChecked = NavPosition == "left";
-                ChipNavRight.IsChecked = NavPosition == "right";
-                ChipNavBottom.IsChecked = NavPosition == "bottom";
+                // Thema 2 hat die Navigation fest oben: Auswahl zeigt deine Wahl für Thema 1 und ist gesperrt
+                string own = settings.SidebarPosition is "right" or "bottom" ? settings.SidebarPosition : "left";
+                ChipNavLeft.IsChecked = own == "left";
+                ChipNavRight.IsChecked = own == "right";
+                ChipNavBottom.IsChecked = own == "bottom";
+                foreach (var chip in new[] { ChipNavLeft, ChipNavRight, ChipNavBottom })
+                {
+                    chip.IsEnabled = !IsBrutal;
+                    chip.ToolTip = IsBrutal ? Loc.T("In Thema 2 sitzt die Navigation immer oben. Diese Wahl gilt für Thema 1.") : null;
+                }
             }
             finally
             {

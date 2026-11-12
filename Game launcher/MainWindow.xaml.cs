@@ -165,7 +165,7 @@ namespace Game_launcher
             StartXboxPrefetch();
             ApplyRenderModeEarly();
             InitializeComponent();
-            LoadSettings();
+            LoadSettings();            // setzt dabei auch das Design-Thema (ApplyUiThemeAtStartup)
             InitLanguage();
             RestoreWindowBounds();
             InitSystemMonitoring();

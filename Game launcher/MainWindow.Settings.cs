@@ -182,6 +182,7 @@ namespace Game_launcher
                 if (!settings.AutoRescan) settings.AutoDetectGames = false;
                 settings.AutoDetectMigrated = true;
             }
+            if (settings.UiTheme is not ("nova" or "brutal")) settings.UiTheme = "nova";
             settings.GameFolders ??= new List<string>();
             settings.GameFolders.RemoveAll(string.IsNullOrWhiteSpace);
             settings.LauncherChips?.RemoveAll(string.IsNullOrWhiteSpace);   // null bleibt null: automatische Auswahl
@@ -199,6 +200,7 @@ namespace Game_launcher
                 if (!IsValidPadMapping(settings.PadMappings[layoutKey])) settings.PadMappings.Remove(layoutKey);
             }
 
+            ApplyUiThemeAtStartup();   // Thema 2: Bausteine ersetzen, bevor die Einstellungsseite gebaut wird (nur beim ersten Laden)
             ApplyTheme();
             UpdateUserNameDisplay();
             PopulateControlsFromSettings();
@@ -671,13 +673,14 @@ namespace Game_launcher
 
         private static bool SupportsGlass() => Environment.OSVersion.Version.Build >= 22621;
 
+        // Thema 2 hat bewusst kein Hintergrundbild (Raster statt Foto); dein Bild bleibt gespeichert und kommt mit Thema 1 zurück
         private bool HasBackgroundImage()
-            => !string.IsNullOrEmpty(settings.BackgroundImagePath) && File.Exists(settings.BackgroundImagePath);
+            => !IsBrutal && !string.IsNullOrEmpty(settings.BackgroundImagePath) && File.Exists(settings.BackgroundImagePath);
 
         private void ApplyTheme()
         {
             ApplySurfaceBrushes();
-            bool glass = settings.GlassEffect && SupportsGlass();
+            bool glass = settings.GlassEffect && SupportsGlass() && !IsBrutal;
             bool translucent = glass || HasBackgroundImage();
             if (TopScrim != null) TopScrim.Visibility = translucent ? Visibility.Visible : Visibility.Collapsed;
 
@@ -693,6 +696,7 @@ namespace Game_launcher
 
             if (BackgroundGlow != null) ApplyGlowBackground();
             UpdateRgbAccent();
+            ApplyBrutalTokens();   // Thema 2: eigene Flächen und Kanten statt der von Thema 1 (MainWindow.Theme.cs)
         }
 
         private void ApplyAppearance()
@@ -747,7 +751,7 @@ namespace Game_launcher
         private void ApplyGlowBackground()
         {
             ApplyAmbientGlow();
-            if (!settings.AnimatedBackground)
+            if (!settings.AnimatedBackground || IsBrutal)
             {
                 BackgroundGlow.Visibility = Visibility.Collapsed;
                 BackgroundGlow.Background = null;
@@ -804,7 +808,7 @@ namespace Game_launcher
                 int noBorder = unchecked((int)0xFFFFFFFE);                              // Windows 11: keinen hellen Fensterrand zeichnen
                 NativeFeatures.DwmSetWindowAttribute(hwnd, 34, ref noBorder, sizeof(int));
 
-                bool glass = settings.GlassEffect && SupportsGlass();
+                bool glass = settings.GlassEffect && SupportsGlass() && !IsBrutal;
                 int backdrop = glass ? 2 : 1; // 2 = Mica, 1 = aus
                 NativeFeatures.DwmSetWindowAttribute(hwnd, 38, ref backdrop, sizeof(int));
 
@@ -816,10 +820,16 @@ namespace Game_launcher
                         : WindowBackdropColor();
                 }
 
-                var margins = glass
-                    ? new NativeFeatures.Margins { Left = -1, Right = -1, Top = -1, Bottom = -1 }
-                    : new NativeFeatures.Margins();
-                NativeFeatures.DwmExtendFrameIntoClientArea(hwnd, ref margins);
+                // Im Vollbild mit „Taskleiste ausblenden“ hat ApplyFullscreenFrame den Rahmen schon erweitert: nicht zurücksetzen,
+                // sonst erkennt Windows das Fenster nicht mehr als Vollbild und die Taskleiste kommt wieder davor
+                bool fullscreenFrame = settings.TaskbarHideMaximized && !controllerMode && WindowState == WindowState.Maximized;
+                if (glass || !fullscreenFrame)
+                {
+                    var margins = glass
+                        ? new NativeFeatures.Margins { Left = -1, Right = -1, Top = -1, Bottom = -1 }
+                        : new NativeFeatures.Margins();
+                    NativeFeatures.DwmExtendFrameIntoClientArea(hwnd, ref margins);
+                }
             }
             catch { }
         }
@@ -829,7 +839,7 @@ namespace Game_launcher
             ApplySidebarPosition(animate);
 
             bool collapsed = settings.SidebarCollapsed;
-            bool bottomNav = IsBottomNav;
+            bool bottomNav = IsDockNav;
             double target = controllerMode || bottomNav ? 0 : collapsed ? 90 : settings.SidebarWidth;
             var textVisibility = collapsed ? Visibility.Collapsed : Visibility.Visible;
             bool iconsOnly = collapsed || bottomNav;   // unten: nur Symbole, der Name steht im Hinweis

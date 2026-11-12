@@ -18,6 +18,12 @@
 		<Content Include="DFP_Pro_Launcher.ico" />
 	</ItemGroup>
 
+	<!-- Thema 2 „Brutal“: wird beim Start als Text gelesen (Akzentfarbe eingesetzt) und nicht als normale WPF-Seite übersetzt -->
+	<ItemGroup>
+		<Page Remove="Themes\Brutal.xaml" />
+		<EmbeddedResource Include="Themes\Brutal.xaml" LogicalName="Game_launcher.Themes.Brutal.xaml" />
+	</ItemGroup>
+
 	<!-- Der GitHub-Workflow setzt UpdateRepository (Benutzer/Repository). Lokale Testversionen suchen deshalb keine Updates. -->
 	<ItemGroup Condition="'$(UpdateRepository)' != ''">
 		<AssemblyMetadata Include="UpdateRepository" Value="$(UpdateRepository)" />

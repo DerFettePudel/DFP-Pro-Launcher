@@ -1498,9 +1498,11 @@ namespace Game_launcher
         private Border CreateGameCard(GameItem game, double width, int animIndex = -1)
         {
             double height = Math.Round(width * settings.CardAspect / 100.0);
-            double radius = settings.CardCorner;
+            bool brutal = IsBrutal;   // Thema 2: eckig, dicker Rahmen, beim Drüberfahren hochspringen mit hartem Schatten
+            double radius = brutal ? 0 : settings.CardCorner;
             double zoom = settings.HoverZoom / 100.0;
             var scale = new ScaleTransform(1.0, 1.0);
+            var lift = new TranslateTransform();
 
             // Äußerer Rahmen: trägt Zoom, Leuchtrand und Rechtsklick-Menü
             var outer = new Border
@@ -1511,7 +1513,9 @@ namespace Game_launcher
                 CornerRadius = new CornerRadius(radius),
                 Cursor = System.Windows.Input.Cursors.Hand,
                 RenderTransformOrigin = new System.Windows.Point(0.5, 0.5),
-                RenderTransform = scale,
+                RenderTransform = brutal ? new TransformGroup { Children = { scale, lift } } : scale,
+                BorderThickness = new Thickness(brutal ? 2 : 0),
+                BorderBrush = brutal ? MakeBrush(PaperColor) : null,
                 ContextMenu = BuildGameMenu(game),
                 ToolTip = !string.IsNullOrEmpty(game.InstallDir) ? game.InstallDir
                         : !string.IsNullOrEmpty(game.ExecutablePath) ? game.ExecutablePath
@@ -1646,15 +1650,17 @@ namespace Game_launcher
             var footerPanel = new StackPanel();
             if (settings.ShowCardNames)
             {
-                footerPanel.Children.Add(new TextBlock
+                var nameText = new TextBlock
                 {
-                    Text = game.Name,
+                    Text = brutal ? game.Name.ToUpper(Loc.Culture) : game.Name,
                     Foreground = System.Windows.Media.Brushes.White,
-                    FontWeight = FontWeights.SemiBold,
-                    FontSize = 13,
-                    TextAlignment = TextAlignment.Center,
+                    FontWeight = brutal ? FontWeights.Bold : FontWeights.SemiBold,
+                    FontSize = brutal ? 15 : 13,
+                    TextAlignment = brutal ? TextAlignment.Left : TextAlignment.Center,
                     TextTrimming = TextTrimming.CharacterEllipsis
-                });
+                };
+                if (brutal) nameText.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
+                footerPanel.Children.Add(nameText);
             }
             if (settings.ShowCardSource)
             {
@@ -1663,17 +1669,19 @@ namespace Game_launcher
                     Text = BuildMetaText(game),
                     Foreground = CardMetaBrush,
                     FontSize = 11,
-                    TextAlignment = TextAlignment.Center,
+                    TextAlignment = brutal ? TextAlignment.Left : TextAlignment.Center,
                     TextTrimming = TextTrimming.CharacterEllipsis,
                     Margin = new Thickness(0, settings.ShowCardNames ? 2 : 0, 0, 0)
                 });
             }
 
-            // Die Fußzeile liegt als weicher Verlauf auf dem unteren Rand des Covers
+            // Die Fußzeile liegt als weicher Verlauf auf dem unteren Rand des Covers (Thema 2: schwarzes Etikett mit harter Kante)
             var footer = new Border
             {
-                Background = CardFooterScrim,
-                Padding = new Thickness(10, 30, 10, 9),
+                Background = brutal ? MakeBrush("#0B0B0B") : CardFooterScrim,
+                BorderBrush = brutal ? MakeBrush(PaperColor) : null,
+                BorderThickness = new Thickness(0, brutal ? 2 : 0, 0, 0),
+                Padding = brutal ? new Thickness(10, 7, 10, 7) : new Thickness(10, 30, 10, 9),
                 Child = footerPanel,
                 Visibility = footerPanel.Children.Count > 0 ? Visibility.Visible : Visibility.Collapsed
             };
@@ -1688,12 +1696,23 @@ namespace Game_launcher
             // ── Hover ──
             outer.MouseEnter += (s, e) =>
             {
-                if (settings.HoverAnimations)
+                if (brutal)
+                {
+                    // Thema 2: Karte springt schräg hoch, darunter ein harter Schatten in der Akzentfarbe
+                    if (settings.HoverAnimations)
+                    {
+                        lift.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(-6, TimeSpan.FromMilliseconds(90)));
+                        lift.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(-6, TimeSpan.FromMilliseconds(90)));
+                    }
+                    if (!settings.PerformanceMode)
+                        outer.Effect = new System.Windows.Media.Effects.DropShadowEffect { Color = GetAccentColor(), BlurRadius = 0, ShadowDepth = 9, Direction = 315, Opacity = 1 };
+                }
+                else if (settings.HoverAnimations)
                 {
                     scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(zoom, TimeSpan.FromMilliseconds(150)));
                     scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(zoom, TimeSpan.FromMilliseconds(150)));
                 }
-                if (settings.HoverGlow)
+                if (settings.HoverGlow && !brutal)
                 {
                     outer.Effect = new System.Windows.Media.Effects.DropShadowEffect
                     {
@@ -1710,7 +1729,12 @@ namespace Game_launcher
 
             outer.MouseLeave += (s, e) =>
             {
-                if (settings.HoverAnimations)
+                if (brutal)
+                {
+                    lift.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(120)));
+                    lift.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(0, TimeSpan.FromMilliseconds(120)));
+                }
+                else if (settings.HoverAnimations)
                 {
                     scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(1.0, TimeSpan.FromMilliseconds(150)));
                     scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(1.0, TimeSpan.FromMilliseconds(150)));

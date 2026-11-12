@@ -238,18 +238,23 @@ namespace Game_launcher
 
             HeroHost.Visibility = Visibility.Visible;
             BitmapImage? cover = HasCover(game) ? GetCachedImage(EffectiveCover(game)) : null;
-            var themeColor = ParseColor(settings.BackgroundColor, "#0F111A");
+            bool brutal = IsBrutal;
+            // Thema 2: Verläufe in Schwarz statt in der Hintergrundfarbe von Thema 1
+            var themeColor = brutal ? System.Windows.Media.Color.FromRgb(0x0B, 0x0B, 0x0B) : ParseColor(settings.BackgroundColor, "#0F111A");
 
             // Design „Nova“: Kino-Banner mit großem Hintergrundbild, Verlauf von links und unten, Infos als kleine Chips
+            // (Thema 2: eckig, dicker heller Rahmen, harter Schatten)
             var hero = new Border
             {
                 Height = 290,
-                CornerRadius = new CornerRadius(22),
-                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(brutal ? 0 : 22),
+                BorderThickness = new Thickness(brutal ? 2 : 1),
                 Background = BrushCardBg,
-                ClipToBounds = true
+                ClipToBounds = !brutal,   // der harte Schatten liegt außerhalb
+                Margin = brutal ? new Thickness(0, 0, 8, 8) : new Thickness(0)
             };
             hero.SetResourceReference(Border.BorderBrushProperty, "CardEdgeBrush");
+            if (brutal && !settings.PerformanceMode) hero.SetResourceReference(UIElement.EffectProperty, "HardShadow");
 
             var wide = GetHeroImage(game);
             if (wide == null) _ = EnsureHeroAsync(game);
@@ -285,7 +290,7 @@ namespace Game_launcher
             var glow = new RadialGradientBrush { Center = new System.Windows.Point(0.1, 1.0), GradientOrigin = new System.Windows.Point(0.1, 1.0), RadiusX = 0.55, RadiusY = 0.9 };
             glow.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x40, accentColor.R, accentColor.G, accentColor.B), 0));
             glow.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, accentColor.R, accentColor.G, accentColor.B), 1));
-            frame.Children.Add(new Border { Background = glow, IsHitTestVisible = false });
+            if (!brutal) frame.Children.Add(new Border { Background = glow, IsHitTestVisible = false });
 
             var layout = new Grid();
             layout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -2052,7 +2057,7 @@ namespace Game_launcher
 
             // Schwebende Leiste unten: Schnellstart und Musik stehen dort als Symbole
             RenderDockExtras();
-            if (IsBottomNav)
+            if (IsDockNav)
             {
                 SidebarExtras.Visibility = Visibility.Collapsed;
                 return;
@@ -2371,7 +2376,7 @@ namespace Game_launcher
             }
 
             // Schwebende Leiste: Rahmen auf das Logo des laufenden Dienstes setzen
-            if (IsBottomNav) RenderDockExtras();
+            if (IsDockNav) RenderDockExtras();
         }
 
         private async Task EnsureMusicViewAsync()
