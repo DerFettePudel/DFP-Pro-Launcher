@@ -219,6 +219,7 @@ namespace Game_launcher
             InitExtras22();
             InitExtras23();
             InitGameExtras();
+            InitLaunchers();
 
             isLoadingSettings = false;
             RefreshDashboard();

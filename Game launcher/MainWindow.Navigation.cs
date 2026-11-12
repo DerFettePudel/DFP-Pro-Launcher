@@ -491,6 +491,7 @@ namespace Game_launcher
             PopulateStreamerExtras();
             PopulateControllerExtras();
             if (ChkDownloadDone != null) ChkDownloadDone.IsChecked = settings.DownloadDoneNotify;
+            if (ChkAutoDetectGames != null) ChkAutoDetectGames.IsChecked = settings.AutoDetectGames;
             PopulateReportAndBeta();
             PopulateNavPosition();
             if (ChkHideTaskbar != null) ChkHideTaskbar.IsChecked = settings.TaskbarHideMaximized;

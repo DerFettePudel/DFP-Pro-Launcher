@@ -535,6 +535,8 @@ namespace Game_launcher
             Dev("➕ Beide Steam-Widgets einblenden", () => { AddDashWidget("friends"); AddDashWidget("achievements"); });
             Dev("⌨ Tastenkürzel-Übersicht (F1)", () => ToggleShortcutsOverlay());
             Dev("✨ Spiel des Tages neu würfeln", () => { AddDashWidget("daily"); RerollDailyPick(); });
+
+            AddLauncherDevButtons(Group, Dev);
         }
 #endif
 

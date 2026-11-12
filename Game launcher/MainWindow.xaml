@@ -1245,15 +1245,8 @@
                             <RadioButton Content="🆕 Neu" Tag="new" GroupName="Filter" Style="{StaticResource ChipStyle}" Checked="Filter_Checked"/>
                             <RadioButton Content="🎲 Ungespielt" Tag="unplayed" GroupName="Filter" Style="{StaticResource ChipStyle}" Checked="Filter_Checked"/>
                             <RadioButton Content="🙈 Versteckt" Tag="hidden" GroupName="Filter" Style="{StaticResource ChipStyle}" Checked="Filter_Checked"/>
-                            <RadioButton Content="Steam" Tag="Steam" GroupName="Filter" Style="{StaticResource ChipStyle}" Checked="Filter_Checked"/>
-                            <RadioButton Content="Epic Games" Tag="Epic Games" GroupName="Filter" Style="{StaticResource ChipStyle}" Checked="Filter_Checked"/>
-                            <RadioButton Content="Xbox" Tag="Xbox" GroupName="Filter" Style="{StaticResource ChipStyle}" Checked="Filter_Checked"/>
-                            <RadioButton Content="Rockstar" Tag="Rockstar" GroupName="Filter" Style="{StaticResource ChipStyle}" Checked="Filter_Checked"/>
-                            <RadioButton Content="GOG" Tag="GOG" GroupName="Filter" Style="{StaticResource ChipStyle}" Checked="Filter_Checked"/>
-                            <RadioButton Content="EA" Tag="EA" GroupName="Filter" Style="{StaticResource ChipStyle}" Checked="Filter_Checked"/>
-                            <RadioButton Content="Ubisoft" Tag="Ubisoft" GroupName="Filter" Style="{StaticResource ChipStyle}" Checked="Filter_Checked"/>
-                            <RadioButton Content="Battle.net" Tag="Battle.net" GroupName="Filter" Style="{StaticResource ChipStyle}" Checked="Filter_Checked"/>
-                            <RadioButton Content="Manuell" Tag="Manuell" GroupName="Filter" Style="{StaticResource ChipStyle}" Checked="Filter_Checked"/>
+                            <!-- Die Launcher-Chips (Steam, Xbox ...) setzt BuildLauncherChips direkt vor diesen Knopf -->
+                            <Button x:Name="BtnLaunchers" Content="＋ Launcher" Margin="0,0,8,8" Padding="14,6" Background="{DynamicResource ControlBrush}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13" Click="BtnLaunchers_Click" ToolTip="Wähle, welche Launcher hier oben als Filter stehen, und füge eigene Spiele-Ordner hinzu."/>
                             <Button x:Name="BtnGenre" Content="🏷 Genre" Margin="0,0,8,8" Padding="14,6" Background="{DynamicResource ControlBrush}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13" Click="BtnGenre_Click"/>
                             <Button x:Name="BtnBulk" Content="☑ Auswahl bearbeiten" Margin="0,0,8,8" Padding="14,6" Background="{DynamicResource ControlBrush}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13" Click="BtnBulk_Click" ToolTip="Tipp: Mit Strg+Klick markierst du mehrere Spiele direkt, ein Rechtsklick bearbeitet dann alle zusammen."/>
                             <Button x:Name="BtnSmartList" Content="＋ Smarte Liste" Margin="0,0,8,8" Padding="14,6" Background="{DynamicResource ControlBrush}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13" Click="BtnSmartList_Click"/>
@@ -1878,8 +1871,12 @@
                                         <TextBlock Text="Speicherbedarf der Spiele" Style="{StaticResource SectionTitle}" Margin="0,0,0,2"/>
                                         <TextBlock x:Name="TxtGameSizesInfo" Text="Berechnet, wie viel Platz jedes Spiel belegt." Style="{StaticResource SubtleText}" FontSize="12"/>
                                     </StackPanel>
-                                    <Button x:Name="BtnCalcGameSizes" Content="Berechnen" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                        Background="{DynamicResource AccentBrush}" Click="BtnCalcGameSizes_Click"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                        <Button Content="🧹  Platz schaffen" Margin="0,0,10,0" Click="BtnSpaceAssistant_Click"
+                                            ToolTip="Zeigt die größten und am längsten nicht gespielten Spiele und deinstalliert die markierten."/>
+                                        <Button x:Name="BtnCalcGameSizes" Content="Berechnen"
+                                            Background="{DynamicResource AccentBrush}" Click="BtnCalcGameSizes_Click"/>
+                                    </StackPanel>
                                 </Grid>
                                 <ItemsControl x:Name="GameSizesControl" Margin="0,10,0,0">
                                     <ItemsControl.ItemTemplate>
@@ -3126,6 +3123,17 @@
                                             <TextBlock Text="Sagt Bescheid, sobald Steam oder Epic Games ein Spiel fertig geladen hat, auch wenn der Launcher im Hintergrund läuft. Im Streamer-Modus bleibt die Meldung stumm, wenn Meldungen dort stumm geschaltet sind." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                         </StackPanel>
                                         <CheckBox x:Name="ChkDownloadDone" Grid.Column="1" VerticalAlignment="Center" Checked="ChkDownloadDone_Changed" Unchecked="ChkDownloadDone_Changed"/>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Neue Spiele automatisch erkennen" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Schaut alle 20 Sekunden nach, ob bei einem Launcher ein Spiel dazugekommen oder weggefallen ist, und aktualisiert die Bibliothek ohne „Neu scannen“. Während eines Spiels wird gewartet." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkAutoDetectGames" Grid.Column="1" VerticalAlignment="Center" Checked="ChkAutoDetectGames_Changed" Unchecked="ChkAutoDetectGames_Changed"/>
                                     </Grid>
                                     <StackPanel x:Name="DashWidgetPanel" Margin="0,0,0,8"/>
                                     <Button Content="Standard wiederherstellen" HorizontalAlignment="Left" Margin="0,4,0,0" Click="BtnResetWidgets_Click"/>

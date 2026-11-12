@@ -33,6 +33,7 @@ namespace Game_launcher
             try
             {
                 var manualGames = settings.ManualGames.ToList();
+                var gameFolders = settings.GameFolders.ToList();
 
                 games = await Task.Run(() =>
                 {
@@ -46,6 +47,11 @@ namespace Game_launcher
                     ScanEaGames(found);
                     ScanUbisoftGames(found);
                     ScanBattleNetGames(found);
+                    ScanRegistryLaunchers(found);
+                    ScanItchGames(found);
+                    ScanHeroicGames(found);
+                    ScanHumbleGames(found);
+                    ScanGameFolders(found, gameFolders);
 
                     foreach (var manual in manualGames)
                     {
@@ -71,8 +77,10 @@ namespace Game_launcher
 
             ApplyGameStates(games);
             allGames = games;
+            libraryFingerprint = null;   // „Neue Spiele erkennen“ merkt sich den Stand nach diesem Scan neu
 
             playCardEntrance = !silentRescan;
+            BuildLauncherChips();
             ApplyFilter();
             RefreshDashboard();
 
@@ -189,6 +197,10 @@ namespace Game_launcher
                             string installDir = System.IO.Path.Combine(library, "common", dirMatch.Groups[1].Value);
                             if (!Directory.Exists(installDir) || found.ContainsKey(gameName)) continue;
 
+                            // 4 = vollständig installiert: Spiele, die gerade zum ersten Mal geladen werden, erst nach dem Download zeigen
+                            long stateFlags = ReadAcfNumber(text, "StateFlags");
+                            if (stateFlags != 0 && (stateFlags & 4) == 0) continue;
+
                             string appId = idMatch.Groups[1].Value;
                             string exePath = FindMainExe(installDir);
 
@@ -292,6 +304,7 @@ namespace Game_launcher
                         string catalogId = GetJsonString(root, "CatalogItemId");
 
                         if (gameName == "" || launchExe == "" || installDir == "" || found.ContainsKey(gameName)) continue;
+                        if (root.TryGetProperty("bIsIncompleteInstall", out var incomplete) && incomplete.ValueKind == JsonValueKind.True) continue;
 
                         string fullExePath = System.IO.Path.Combine(installDir, launchExe);
                         if (!File.Exists(fullExePath)) continue;
@@ -677,7 +690,7 @@ namespace Game_launcher
             {
                 if (!string.IsNullOrEmpty(game.LaunchUri))
                 {
-                    Process.Start(new ProcessStartInfo(game.LaunchUri) { UseShellExecute = true });
+                    Process.Start(new ProcessStartInfo(game.LaunchUri) { UseShellExecute = true, Arguments = game.LaunchUriArgs });
                 }
                 else if (File.Exists(game.ExecutablePath))
                 {
@@ -809,11 +822,18 @@ namespace Game_launcher
             return null;
         }
 
-        private async void UninstallGame(GameItem game)
+        private async void UninstallGame(GameItem game) => await UninstallGameAsync(game, false);
+
+        /// <summary>Startet die Deinstallation. Mit <paramref name="bulk"/> (Platz schaffen) ohne eigene Rückfrage und ohne Hinweis pro Spiel.
+        /// Gibt zurück, ob die Deinstallation gestartet wurde.</summary>
+        private async Task<bool> UninstallGameAsync(GameItem game, bool bulk)
         {
-            var answer = Msg($"„{game.Name}“ wirklich deinstallieren?\n\nDas Spiel wird von deinem PC entfernt.",
-                "Deinstallieren", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            if (answer != MessageBoxResult.Yes) return;
+            if (!bulk)
+            {
+                var answer = Msg($"„{game.Name}“ wirklich deinstallieren?\n\nDas Spiel wird von deinem PC entfernt.",
+                    "Deinstallieren", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (answer != MessageBoxResult.Yes) return false;
+            }
 
             // Vorsichtshalber den Spielstand sichern, bevor das Spiel entfernt wird
             if (!string.IsNullOrEmpty(game.SavePath)) await BackupSavesAsync(game, true);
@@ -824,8 +844,8 @@ namespace Game_launcher
                 if (game.Source == "Steam" && game.AppId.Length > 0)
                 {
                     OpenShell($"steam://uninstall/{game.AppId}");
-                    Msg("Steam öffnet jetzt die Deinstallation.\nKlicke danach auf „Neu scannen“, um die Liste zu aktualisieren.");
-                    return;
+                    if (!bulk) Msg("Steam öffnet jetzt die Deinstallation.\nKlicke danach auf „Neu scannen“, um die Liste zu aktualisieren.");
+                    return true;
                 }
 
                 // Xbox / Microsoft Store: Paket entfernen
@@ -839,15 +859,14 @@ namespace Game_launcher
                         allGames.Remove(game);
                         ApplyFilter();
                         RefreshDashboard();
-                        Msg($"„{game.Name}“ wurde deinstalliert.");
+                        if (!bulk) Msg($"„{game.Name}“ wurde deinstalliert.");
+                        return true;
                     }
-                    else
-                    {
-                        Msg("Die automatische Deinstallation hat nicht funktioniert.\nWindows öffnet jetzt die App-Verwaltung.",
-                            "Deinstallieren", MessageBoxButton.OK, MessageBoxImage.Warning);
-                        OpenShell("ms-settings:appsfeatures");
-                    }
-                    return;
+
+                    Msg($"„{game.Name}“\n\n" + Loc.T("Die automatische Deinstallation hat nicht funktioniert.\nWindows öffnet jetzt die App-Verwaltung."),
+                        "Deinstallieren", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    OpenShell("ms-settings:appsfeatures");
+                    return false;
                 }
 
                 // Alle anderen: Deinstallationsprogramm aus der Windows-Programmliste
@@ -856,18 +875,18 @@ namespace Game_launcher
                 {
                     var (file, args) = SplitCommand(command);
                     Process.Start(new ProcessStartInfo(file, args) { UseShellExecute = true });
-                    Msg("Das Deinstallationsprogramm wurde gestartet.\nKlicke danach auf „Neu scannen“, um die Liste zu aktualisieren.");
-                    return;
+                    if (!bulk) Msg("Das Deinstallationsprogramm wurde gestartet.\nKlicke danach auf „Neu scannen“, um die Liste zu aktualisieren.");
+                    return true;
                 }
 
                 if (game.Source == "Epic Games")
                 {
                     OpenShell("com.epicgames.launcher://");
-                    Msg("Epic Games erlaubt keine Deinstallation von außen.\nDer Epic Games Launcher wurde geöffnet: Bibliothek → Spiel → ⋯ → Deinstallieren.");
-                    return;
+                    Msg($"„{game.Name}“\n\n" + Loc.T("Epic Games erlaubt keine Deinstallation von außen.\nDer Epic Games Launcher wurde geöffnet: Bibliothek → Spiel → ⋯ → Deinstallieren."));
+                    return false;
                 }
 
-                Msg("Für dieses Spiel wurde kein Deinstallationsprogramm gefunden.\nWindows öffnet jetzt die App-Verwaltung.",
+                Msg($"„{game.Name}“\n\n" + Loc.T("Für dieses Spiel wurde kein Deinstallationsprogramm gefunden.\nWindows öffnet jetzt die App-Verwaltung."),
                     "Deinstallieren", MessageBoxButton.OK, MessageBoxImage.Warning);
                 OpenShell("ms-settings:appsfeatures");
             }
@@ -879,6 +898,7 @@ namespace Game_launcher
             {
                 Msg($"Deinstallation fehlgeschlagen:\n{ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            return false;
         }
 
         private static void AddMenuItem(System.Windows.Controls.ContextMenu menu, string header, Action action)
@@ -1356,6 +1376,8 @@ namespace Game_launcher
             AddMenuItem(menu, "🧩  Mod-Ordner festlegen ...", () => PickModFolder(game));
             if (!string.IsNullOrEmpty(game.ModPath))
                 AddMenuItem(menu, "↺  Mod-Ordner zurücksetzen", () => ResetModFolder(game));
+            if (CanRepair(game))
+                AddMenuItem(menu, "🛠  Spieldateien reparieren ...", () => RepairGame(game));
             AddMenuItem(menu, "🗑  Deinstallieren ...", () => UninstallGame(game));
             if (game.Source == "Manuell")
                 AddMenuItem(menu, "✖  Aus Liste entfernen", () => RemoveManualGame(game));

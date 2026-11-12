@@ -756,8 +756,12 @@ namespace Game_launcher
 
                     if (free < 15 || percent < 8)
                     {
+                        // Liegen dort Spiele, führt der Knopf direkt zu „Platz schaffen“ für dieses Laufwerk
+                        string root = drive.Name;
+                        bool hasGames = allGames.Any(g => !string.IsNullOrEmpty(g.InstallDir) && string.Equals(DriveOf(g), root, StringComparison.OrdinalIgnoreCase));
                         ShowBanner("storage:" + drive.Name, "⚠", $"Auf {drive.Name} sind nur noch {free:F1} GB frei ({percent:F0} %).",
-                            "Speicher ansehen", () => NavigateTo("storage"));
+                            hasGames ? Loc.T("Platz schaffen") : "Speicher ansehen",
+                            hasGames ? () => ShowSpaceAssistant(root) : () => NavigateTo("storage"));
                         return;
                     }
                 }

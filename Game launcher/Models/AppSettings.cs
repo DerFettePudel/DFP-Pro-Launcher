@@ -322,6 +322,11 @@ namespace Game_launcher
         public DateTime? YearStatsSince { get; set; }
         public bool DownloadDoneNotify { get; set; } = true;
 
+        // Launcher: Filter-Chips oben auf der Spiele-Seite (null = automatisch die wichtigsten), eigene Spiele-Ordner, neue Spiele erkennen
+        public List<string>? LauncherChips { get; set; }
+        public List<string> GameFolders { get; set; } = new();
+        public bool AutoDetectGames { get; set; } = true;
+
         // Fehlerbericht und Beta-Kanal
         public bool ErrorReports { get; set; } = true;
         public bool BetaUpdates { get; set; }

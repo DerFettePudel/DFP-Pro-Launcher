@@ -175,6 +175,9 @@ namespace Game_launcher
                 list.Source ??= string.Empty;
             }
             settings.GameSizes ??= new Dictionary<string, GameSizeEntry>(StringComparer.OrdinalIgnoreCase);
+            settings.GameFolders ??= new List<string>();
+            settings.GameFolders.RemoveAll(string.IsNullOrWhiteSpace);
+            settings.LauncherChips?.RemoveAll(string.IsNullOrWhiteSpace);   // null bleibt null: automatische Auswahl
             settings.YearStats ??= new Dictionary<string, YearStat>();
             foreach (var stat in settings.YearStats.Values.Where(v => v != null))
             {

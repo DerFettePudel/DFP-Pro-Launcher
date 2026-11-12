@@ -51,6 +51,7 @@ namespace Game_launcher
         public string ExecutablePath { get; set; } = string.Empty;
         public string InstallDir { get; set; } = string.Empty;
         public string? LaunchUri { get; set; }
+        public string LaunchUriArgs { get; set; } = string.Empty;   // Startparameter für LaunchUri (z. B. Riot Client: --launch-product=…)
         public string Source { get; set; } = "Manuell";
         public string AppId { get; set; } = string.Empty;            // Steam-AppID
         public string PackageFullName { get; set; } = string.Empty;  // Xbox-Paketname (zum Deinstallieren)
