@@ -127,6 +127,7 @@ namespace Game_launcher
 
         private void NavigateTo(string key)
         {
+            if (HandleConsoleNavigation(key)) return;   // Thema 2: Dashboard = START, Spiele = BIBLIOTHEK
             var args = new RoutedEventArgs();
 
             switch (key)

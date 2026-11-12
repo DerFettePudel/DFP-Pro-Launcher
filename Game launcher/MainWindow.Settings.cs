@@ -2613,6 +2613,7 @@ namespace Game_launcher
 
         private void RefreshDashboard(bool animate = false)
         {
+            RequestConsoleRefresh();   // Thema 2: Start und Bibliothek der Konsolen-Oberfläche mit aktualisieren
             RefreshDashboardCore(animate);
             ApplyDashboardLayout();
             UpdateCoverTint();

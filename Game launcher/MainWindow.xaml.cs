@@ -223,6 +223,7 @@ namespace Game_launcher
             InitLaunchers();
             InitNavHistory();
             InitDockTaskbarLift();
+            InitConsole();   // Thema 2: Konsolen-Oberfläche (MainWindow.Console.cs)
 
             isLoadingSettings = false;
             RefreshDashboard();

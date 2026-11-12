@@ -86,6 +86,7 @@ namespace Game_launcher
                 CloseSpotlight();
                 return;
             }
+            if (ConsoleBack()) return;   // Thema 2: von den Spiel-Details zurück
             NavigateHistory(true);
         }
 

@@ -212,12 +212,8 @@ namespace Game_launcher
 
         private const double TitleBarHeight = 34;   // eigene Fensterleiste mit Minimieren/Maximieren/Schließen
 
-        /// <summary>Inhalt beginnt unter Fensterleiste und Kopfleiste.</summary>
-        private Thickness TopNavContentMargin()
-        {
-            double header = NavDock != null && NavDock.ActualHeight > 0 ? NavDock.ActualHeight : 64;
-            return new Thickness(28, TitleBarHeight + header + 26, 28, 20);
-        }
+        /// <summary>Inhalt beginnt unter Fensterleiste und der Kopfleiste der Konsolen-Oberfläche (76 hoch).</summary>
+        private Thickness TopNavContentMargin() => new(64, TitleBarHeight + 76 + 28, 64, 24);
 
         /// <summary>Form der waagerechten Leiste: oben als durchgehende Kopfleiste, unten als schwebende Pille.</summary>
         private void ApplyDockShape(bool top)
@@ -225,6 +221,13 @@ namespace Game_launcher
             if (NavDock == null) return;
 
             NavDock.BeginAnimation(FrameworkElement.MarginProperty, null);   // Anheben über die Taskleiste gilt nur unten
+            // Thema 2: Die Konsolen-Oberfläche hat ihre eigene Kopfleiste (START / BIBLIOTHEK / MEHR), die alte Leiste bleibt verborgen
+            if (top && IsConsole)
+            {
+                NavDock.Visibility = Visibility.Collapsed;
+                dockTaskbarLift = 0;
+                return;
+            }
             if (top)
             {
                 dockTaskbarLift = 0;
@@ -261,7 +264,7 @@ namespace Game_launcher
             foreach (var (id, title, text) in new[]
             {
                 ("nova", "Thema 1 · Nova", "Weich und rund, Glas und Leuchten, dein Hintergrundbild."),
-                ("brutal", "Thema 2 · Brutal", "Eckig und flach: dicke Rahmen, harte Schatten in deiner Akzentfarbe, Raster statt Hintergrundbild, Navigation oben.")
+                ("brutal", "Thema 2 · Konsole", "Ganz anderer Aufbau: Das Spiel füllt den Bildschirm, Karussell und Reihen statt Kartenraster, eigene Detailseite, oben nur Start, Bibliothek und Mehr.")
             })
             {
                 string theme = id;
