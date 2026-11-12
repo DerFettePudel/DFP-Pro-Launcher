@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -124,7 +124,8 @@ namespace Game_launcher
                 var info = new MonitorInfo { Size = Interop.Marshal.SizeOf<MonitorInfo>() };
                 if (monitor == IntPtr.Zero || !GetMonitorInfo(monitor, ref info)) return IntPtr.Zero;
 
-                bool full = controllerMode;   // Taskleiste ausblenden läuft über „automatisch ausblenden“, dann ist der Arbeitsbereich ohnehin der ganze Bildschirm
+                // Vollbild (ganzer Bildschirm): Windows legt die Taskleiste dann von selbst dahinter, solange der Launcher vorne ist
+                bool full = controllerMode || settings.TaskbarHideMaximized;
                 var area = full ? info.Monitor : info.Work;
 
                 var mmi = Interop.Marshal.PtrToStructure<MinMaxInfo>(lParam);
@@ -208,34 +209,122 @@ namespace Game_launcher
         }
 
         /// <summary>
-        /// Ist der Launcher maximiert und die Option an, schaltet er in Windows „Taskleiste automatisch ausblenden“ ein:
-        /// Das Fenster nutzt den ganzen Bildschirm, die Taskleiste erscheint, wenn die Maus an den Rand fährt.
-        /// Beim Verkleinern, Minimieren oder Beenden stellt er die eigene Einstellung des Nutzers wieder her.
+        /// „Taskleiste im Vollbild ausblenden“ ändert keine Windows-Einstellung mehr: Der maximierte Launcher deckt den ganzen
+        /// Bildschirm ab (MaximizeHook, ApplyFullscreenFrame); Windows verdeckt die Taskleiste dann nur, solange der Launcher vorne ist.
+        /// Auf dem Desktop und in anderen Programmen bleibt sie, wie du sie in Windows eingestellt hast.
+        /// Früher hat der Launcher dafür „automatisch ausblenden“ in Windows eingeschaltet: Das wird hier einmalig zurückgestellt.
         /// </summary>
         private void UpdateFullscreenState()
         {
-            // Während eines Zwischenschritts nicht umschalten: Sonst schaltet „Normal“ die Taskleiste ein, „Maximiert“ wieder aus,
-            // die Größe passt nie und das Fenster springt endlos (Fehler nach dem Verlassen des Controller-Modus)
             if (windowTransition) return;
-
-            // Im Controller-Modus bleibt der Zustand, wie er ist: Das Vollbild deckt die Taskleiste ohnehin ab
-            bool want = settings.TaskbarHideMaximized && IsVisible && (controllerMode ? taskbarAutoHideByUs : WindowState == WindowState.Maximized);
 
             try
             {
-                if (want && !taskbarAutoHideByUs)
+                if (taskbarAutoHideByUs || settings.TaskbarAutoHideByLauncher) RestoreTaskbar();
+            }
+            catch { }
+
+            ApplyFullscreenFrame();
+            UpdateTaskbarPeek();
+        }
+
+        /// <summary>
+        /// Mit der eigenen Fensterleiste (WindowChrome) erkennt Windows 11 das maximierte Fenster sonst nicht als Vollbild
+        /// und lässt die Taskleiste davor. Mit GlassFrameThickness = -1 klappt es: Dann verdeckt Windows die Taskleiste,
+        /// solange der Launcher vorne ist, und zeigt sie sofort wieder, wenn du in ein anderes Programm wechselst.
+        /// Nur im maximierten Zustand mit eingeschalteter Option, sonst bleibt die Leiste wie gehabt.
+        /// </summary>
+        private void ApplyFullscreenFrame()
+        {
+            try
+            {
+                if (System.Windows.Shell.WindowChrome.GetWindowChrome(this) is not { } chrome) return;
+                bool full = settings.TaskbarHideMaximized && !controllerMode && WindowState == WindowState.Maximized;
+                var wanted = new Thickness(full ? -1 : 0);
+                if (chrome.GlassFrameThickness == wanted) return;
+
+                var copy = (System.Windows.Shell.WindowChrome)chrome.Clone();
+                copy.GlassFrameThickness = wanted;
+                System.Windows.Shell.WindowChrome.SetWindowChrome(this, copy);
+            }
+            catch { }
+        }
+
+        // ───────── Maus an den Rand der Taskleiste: Taskleiste kurz hervorholen (wie bei „automatisch ausblenden“) ─────────
+
+        private readonly System.Windows.Threading.DispatcherTimer taskbarPeekTimer = new() { Interval = TimeSpan.FromMilliseconds(120) };
+        private DateTime taskbarEdgeSince = DateTime.MaxValue;
+        private bool taskbarPeekHooked;
+
+        private const uint AbmGetTaskbarPos = 5;
+
+        private bool FullscreenActive()
+            => settings.TaskbarHideMaximized && !controllerMode && IsVisible && WindowState == WindowState.Maximized
+               && (IsActive || OwnedWindows.Cast<Window>().Any(w => w.IsActive));   // eigene Dialoge zählen mit
+
+        private void UpdateTaskbarPeek()
+        {
+            if (!taskbarPeekHooked)
+            {
+                taskbarPeekHooked = true;
+                taskbarPeekTimer.Tick += (s, e) => CheckTaskbarPeek();
+                Activated += (s, e) => UpdateTaskbarPeek();
+                // Kurz warten: Öffnet sich ein eigener Dialog, ist er erst einen Moment später aktiv
+                Deactivated += (s, e) => Dispatcher.BeginInvoke(new Action(UpdateTaskbarPeek), System.Windows.Threading.DispatcherPriority.Background);
+            }
+
+            bool active = FullscreenActive();
+            if (active) taskbarPeekTimer.Start();
+            else
+            {
+                taskbarPeekTimer.Stop();
+                taskbarEdgeSince = DateTime.MaxValue;
+            }
+        }
+
+        private void CheckTaskbarPeek()
+        {
+            if (!FullscreenActive())
+            {
+                UpdateTaskbarPeek();
+                return;
+            }
+
+            try
+            {
+                var data = TaskbarData();
+                if (data.Window == IntPtr.Zero || SHAppBarMessage(AbmGetTaskbarPos, ref data) == UIntPtr.Zero || !GetCursorPos(out var cursor)) return;
+
+                // Liegt die Taskleiste auf dem Bildschirm des Launchers, und steht die Maus ganz an ihrem Rand?
+                var handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+                IntPtr monitor = MonitorFromWindow(handle, MonitorDefaultToNearest);
+                var info = new MonitorInfo { Size = Interop.Marshal.SizeOf<MonitorInfo>() };
+                if (!GetMonitorInfo(monitor, ref info)) return;
+
+                var r = data.Rect;
+                var m = info.Monitor;
+                bool sameMonitor = r.Left >= m.Left - 2 && r.Right <= m.Right + 2 && r.Top >= m.Top - 2 && r.Bottom <= m.Bottom + 2;
+                bool inside = cursor.X >= m.Left && cursor.X < m.Right && cursor.Y >= m.Top && cursor.Y < m.Bottom;
+                bool atEdge = data.Edge switch
                 {
-                    if ((GetTaskbarState() & AbsAutoHide) != 0) return;   // hatte der Nutzer schon selbst so eingestellt
-                    SetTaskbarAutoHide(true);
-                    taskbarAutoHideByUs = true;
-                    settings.TaskbarAutoHideByLauncher = true;   // falls der Launcher abstürzt: beim nächsten Start zurückstellen
-                    SaveSettings();
-                    _ = RefitMaximizedAsync();
-                }
-                else if (!want && taskbarAutoHideByUs)
+                    0 => cursor.X <= m.Left + 1,     // links
+                    1 => cursor.Y <= m.Top + 1,      // oben
+                    2 => cursor.X >= m.Right - 2,    // rechts
+                    _ => cursor.Y >= m.Bottom - 2    // unten
+                };
+
+                if (!sameMonitor || !inside || !atEdge)
                 {
-                    RestoreTaskbar();
+                    taskbarEdgeSince = DateTime.MaxValue;
+                    return;
                 }
+
+                if (taskbarEdgeSince == DateTime.MaxValue) taskbarEdgeSince = DateTime.Now;
+                if ((DateTime.Now - taskbarEdgeSince).TotalMilliseconds < 250) return;   // kurz verweilen, damit es nicht aus Versehen passiert
+
+                // Taskleiste nach vorne holen; ein Klick zurück in den Launcher legt sie wieder dahinter
+                taskbarEdgeSince = DateTime.MaxValue;
+                NativeFeatures.SetForegroundWindow(data.Window);
             }
             catch { }
         }
@@ -356,6 +445,7 @@ namespace Game_launcher
             settings.TaskbarHideMaximized = ChkHideTaskbar.IsChecked == true;
             SaveSettings();
             UpdateFullscreenState();
+            ReapplyMaximize();   // neue Größe sofort: ganzer Bildschirm oder Arbeitsbereich
         }
 
         /// <summary>Ein schon maximiertes Fenster neu maximieren, damit die neue Größe gilt.</summary>

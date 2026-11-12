@@ -2506,7 +2506,7 @@
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
                                             <TextBlock Text="Taskleiste im Vollbild ausblenden" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                            <TextBlock Text="Ist der Launcher maximiert, nutzt er den ganzen Bildschirm. Die Windows-Taskleiste erscheint, sobald die Maus an den Rand fährt, an dem sie sonst steht." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                            <TextBlock Text="Ist der Launcher maximiert und im Vordergrund, nutzt er den ganzen Bildschirm. Die Taskleiste erscheint, sobald die Maus kurz an ihrem Rand bleibt. Auf dem Desktop und in anderen Programmen bleibt sie, wie sie ist, die Windows-Einstellung wird nicht verändert." Style="{StaticResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                         </StackPanel>
                                         <CheckBox x:Name="ChkHideTaskbar" Grid.Column="1" VerticalAlignment="Center" Checked="ChkHideTaskbar_Changed" Unchecked="ChkHideTaskbar_Changed"/>
                                     </Grid>
