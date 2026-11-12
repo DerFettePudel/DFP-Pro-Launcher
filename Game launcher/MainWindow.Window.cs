@@ -116,6 +116,8 @@ namespace Game_launcher
                 if (WindowStyle != WindowStyle.None) WindowStyle = WindowStyle.None;
                 return IntPtr.Zero;
             }
+            // Taskleiste verschoben, vergrößert oder anders eingestellt: schwebende Leiste neu ausrichten
+            if (msg == WmSettingChange) Dispatcher.BeginInvoke(new Action(UpdateDockTaskbarLift), System.Windows.Threading.DispatcherPriority.Background);
             if (msg != WmGetMinMaxInfo) return IntPtr.Zero;
 
             try
@@ -327,6 +329,86 @@ namespace Game_launcher
                 NativeFeatures.SetForegroundWindow(data.Window);
             }
             catch { }
+        }
+
+        // ───────── Schwebende Leiste unten: nie unter der Taskleiste ─────────
+
+        private const int WmSettingChange = 0x001A;
+        private const double DockBaseMargin = 18;      // Abstand der Leiste zum Fensterrand (wie in MainWindow.xaml)
+        private const double ContentBottomMargin = 104; // Platz für die Leiste unter dem Inhalt
+        private double dockTaskbarLift;                 // so weit ragt die Taskleiste gerade ins Fenster (in WPF-Einheiten)
+        private bool dockLiftHooked;
+
+        private void InitDockTaskbarLift()
+        {
+            if (dockLiftHooked) return;
+            dockLiftHooked = true;
+
+            LocationChanged += (s, e) => UpdateDockTaskbarLift();
+            SizeChanged += (s, e) => UpdateDockTaskbarLift();
+            StateChanged += (s, e) => UpdateDockTaskbarLift();
+            IsVisibleChanged += (s, e) => UpdateDockTaskbarLift();
+            Activated += (s, e) => UpdateDockTaskbarLift();
+            // Nach dem Wechsel in ein anderes Fenster (oder zur hervorgeholten Taskleiste) kurz warten, bis Windows sie zeigt
+            Deactivated += (s, e) => Dispatcher.BeginInvoke(new Action(UpdateDockTaskbarLift), System.Windows.Threading.DispatcherPriority.Background);
+            Loaded += (s, e) => UpdateDockTaskbarLift();
+        }
+
+        /// <summary>
+        /// Wie weit liegt die Taskleiste gerade über dem unteren Fensterrand? 0, wenn sie nicht unten ist, das Fenster nicht
+        /// berührt, im Vollbild hinter dem Launcher liegt oder du sie in Windows selbst automatisch ausblenden lässt.
+        /// </summary>
+        private double TaskbarOverlap()
+        {
+            if (!IsBottomNav || !IsVisible || WindowState == WindowState.Minimized || controllerMode) return 0;
+            if (FullscreenActive()) return 0;   // Vollbild und vorne: Windows legt die Taskleiste dahinter
+
+            try
+            {
+                var data = TaskbarData();
+                if (data.Window == IntPtr.Zero || SHAppBarMessage(AbmGetTaskbarPos, ref data) == UIntPtr.Zero) return 0;
+                if (data.Edge != 3) return 0;                              // Taskleiste nicht unten
+                if ((GetTaskbarState() & AbsAutoHide) != 0) return 0;      // eigene Windows-Einstellung: fährt nur kurz hoch
+
+                var handle = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+                if (handle == IntPtr.Zero || !NativeExtras.GetWindowRect(handle, out var window)) return 0;
+
+                var bar = data.Rect;
+                bool horizontal = window.Right > bar.Left && window.Left < bar.Right;
+                int overlap = Math.Min(window.Bottom, bar.Bottom) - Math.Max(window.Top, bar.Top);
+                if (!horizontal || overlap <= 0 || window.Bottom <= bar.Top) return 0;
+
+                return overlap / VisualTreeHelper.GetDpi(this).DpiScaleY;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        private void UpdateDockTaskbarLift()
+        {
+            if (NavDock == null || ContentArea == null) return;
+
+            double lift = Math.Round(TaskbarOverlap());
+            if (Math.Abs(lift - dockTaskbarLift) < 1) return;
+            dockTaskbarLift = lift;
+
+            var target = new Thickness(0, 0, 0, DockBaseMargin + lift);
+            if (settings.PageAnimations && !settings.PerformanceMode)
+            {
+                NavDock.BeginAnimation(FrameworkElement.MarginProperty, new ThicknessAnimation(target, TimeSpan.FromMilliseconds(220))
+                {
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                });
+            }
+            else
+            {
+                NavDock.BeginAnimation(FrameworkElement.MarginProperty, null);
+                NavDock.Margin = target;
+            }
+
+            if (IsBottomNav) ContentArea.Margin = new Thickness(28, 42, 28, ContentBottomMargin + lift);
         }
 
         private void RestoreTaskbar()

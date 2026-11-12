@@ -1208,7 +1208,7 @@ namespace Game_launcher
             // Unten: Seitenleiste aus, Navigation wandert in die schwebende Leiste
             SidebarBorder.Visibility = bottom ? Visibility.Collapsed : Visibility.Visible;
             NavDock.Visibility = bottom ? Visibility.Visible : Visibility.Collapsed;
-            ContentArea.Margin = bottom ? new Thickness(28, 42, 28, 104)
+            ContentArea.Margin = bottom ? new Thickness(28, 42, 28, ContentBottomMargin + dockTaskbarLift)   // Anheben über die Taskleiste: UpdateDockTaskbarLift
                                : right ? new Thickness(16, 42, 28, 16)
                                : new Thickness(28, 42, 16, 16);
 
@@ -1271,6 +1271,7 @@ namespace Game_launcher
             bool changed = appliedNavPosition != position;
             appliedNavPosition = position;
             if (changed && SidebarExtras != null) RenderSidebarExtras();
+            UpdateDockTaskbarLift();
         }
 
         private static TextBlock? NavIcon(System.Windows.Controls.RadioButton item)

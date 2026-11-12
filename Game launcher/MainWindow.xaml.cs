@@ -222,6 +222,7 @@ namespace Game_launcher
             InitGameExtras();
             InitLaunchers();
             InitNavHistory();
+            InitDockTaskbarLift();
 
             isLoadingSettings = false;
             RefreshDashboard();
