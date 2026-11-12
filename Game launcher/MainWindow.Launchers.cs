@@ -40,6 +40,7 @@ namespace Game_launcher
         private void InitLaunchers()
         {
             BuildLauncherChips();
+            _ = DownloadMissingLauncherLogosAsync();
 
             newGamesTimer.Tick += async (s, e) => await CheckForNewGamesAsync();
             newGamesTimer.Start();
@@ -122,21 +123,40 @@ namespace Game_launcher
             }
         }
 
-        /// <summary>Symbol des Launchers (aus seiner .exe) und Name nebeneinander.</summary>
-        private FrameworkElement LauncherLabel(string source, double iconSize)
+        /// <summary>Logo des Launchers und Name nebeneinander (mit <paramref name="suffix"/> leiser dahinter, z. B. die Anzahl im Menü).</summary>
+        private FrameworkElement LauncherLabel(string source, double iconSize, string? suffix = null)
         {
             var row = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
             var icon = GetLauncherIcon(source);
             if (icon != null)
             {
-                row.Children.Add(new System.Windows.Controls.Image
+                var image = new System.Windows.Controls.Image
                 {
                     Source = icon,
                     Width = iconSize,
                     Height = iconSize,
-                    Margin = new Thickness(0, 0, 7, 0),
                     VerticalAlignment = System.Windows.VerticalAlignment.Center
-                });
+                };
+                System.Windows.Media.RenderOptions.SetBitmapScalingMode(image, System.Windows.Media.BitmapScalingMode.HighQuality);
+
+                // Dunkle Logos (EA, Ubisoft, Plarium) wären auf dem dunklen Design kaum zu sehen: kleine helle Kachel dahinter
+                if (webLogos.Contains(source) && DarkLogos.Contains(source))
+                {
+                    row.Children.Add(new Border
+                    {
+                        Child = image,
+                        Background = MakeBrush("#E8FFFFFF"),
+                        CornerRadius = new CornerRadius(4),
+                        Padding = new Thickness(1),
+                        Margin = new Thickness(0, 0, 7, 0),
+                        VerticalAlignment = System.Windows.VerticalAlignment.Center
+                    });
+                }
+                else
+                {
+                    image.Margin = new Thickness(0, 0, 7, 0);
+                    row.Children.Add(image);
+                }
             }
             else
             {
@@ -151,9 +171,45 @@ namespace Game_launcher
                 row.Children.Add(glyph);
             }
             row.Children.Add(new TextBlock { Text = Loc.T(source), VerticalAlignment = System.Windows.VerticalAlignment.Center });
+            if (!string.IsNullOrEmpty(suffix))
+            {
+                var extra = new TextBlock { Text = "  ·  " + suffix, VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                extra.SetResourceReference(TextBlock.ForegroundProperty, "TextMutedBrush");
+                row.Children.Add(extra);
+            }
             return row;
         }
 
+        /// <summary>Webseite je Launcher: Von dort kommt das Logo, wenn der Launcher nicht installiert ist.</summary>
+        private static readonly Dictionary<string, string> LauncherDomains = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Steam"] = "store.steampowered.com",
+            ["Epic Games"] = "store.epicgames.com",
+            ["Xbox"] = "xbox.com",
+            ["EA"] = "ea.com",
+            ["Ubisoft"] = "ubisoft.com",
+            ["GOG"] = "gog.com",
+            ["Battle.net"] = "battle.net",
+            ["Rockstar"] = "rockstargames.com",
+            ["Amazon Games"] = "amazongames.com",
+            ["Riot Games"] = "riotgames.com",
+            ["itch.io"] = "itch.io",
+            ["Heroic"] = "heroicgameslauncher.com",
+            ["Humble"] = "humblebundle.com",
+            ["Legacy Games"] = "legacygames.com",
+            ["Wargaming"] = "wargaming.net",
+            ["HoYoPlay"] = "hoyoverse.com",
+            ["Plarium Play"] = "plarium.com",
+            ["Big Fish"] = "bigfishgames.com"
+        };
+
+        private static readonly HashSet<string> DarkLogos = new(StringComparer.OrdinalIgnoreCase) { "EA", "Ubisoft", "Plarium Play" };
+        private readonly HashSet<string> webLogos = new(StringComparer.OrdinalIgnoreCase);   // Logos, die von der Webseite stammen (nicht aus der .exe)
+
+        private static string LauncherLogoFile(string source)
+            => System.IO.Path.Combine(LauncherLogosDir, string.Concat(source.Where(char.IsLetterOrDigit)).ToLowerInvariant() + ".png");
+
+        /// <summary>Logo: erst aus der installierten .exe, sonst das gespeicherte Logo von der Webseite.</summary>
         private ImageSource? GetLauncherIcon(string source)
         {
             if (launcherIcons.TryGetValue(source, out var cached)) return cached;
@@ -163,11 +219,70 @@ namespace Game_launcher
             {
                 string? exe = LauncherExePath(source);
                 if (exe != null) icon = ExtractIcon(exe);
+
+                string file = LauncherLogoFile(source);
+                if (icon == null && LauncherDomains.ContainsKey(source) && File.Exists(file))
+                {
+                    var image = new System.Windows.Media.Imaging.BitmapImage();
+                    image.BeginInit();
+                    image.UriSource = new Uri(file);
+                    image.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                    image.EndInit();
+                    image.Freeze();
+                    icon = image;
+                    webLogos.Add(source);
+                }
             }
             catch { }
 
             launcherIcons[source] = icon;
             return icon;
+        }
+
+        private bool launcherLogosLoading;
+
+        /// <summary>Lädt einmalig die Logos der Launcher, die nicht installiert sind, und speichert sie (danach auch offline da).</summary>
+        private async Task DownloadMissingLauncherLogosAsync()
+        {
+            if (launcherLogosLoading || !settings.OnlineFeatures) return;
+
+            var missing = LauncherDomains.Keys.Where(s => GetLauncherIcon(s) == null).ToList();
+            if (missing.Count == 0) return;
+
+            launcherLogosLoading = true;
+            bool any = false;
+            try
+            {
+                Directory.CreateDirectory(LauncherLogosDir);
+                foreach (string source in missing)
+                {
+                    try
+                    {
+                        byte[] bytes = await Http.GetByteArrayAsync("https://www.google.com/s2/favicons?domain=" + LauncherDomains[source] + "&sz=64");
+                        // Ohne eigenes Logo liefert der Dienst nur eine kleine Weltkugel: dann lieber das Ersatzsymbol behalten
+                        bool usable = await Task.Run(() =>
+                        {
+                            using var stream = new MemoryStream(bytes);
+                            var frame = System.Windows.Media.Imaging.BitmapDecoder.Create(stream,
+                                System.Windows.Media.Imaging.BitmapCreateOptions.None, System.Windows.Media.Imaging.BitmapCacheOption.OnLoad).Frames[0];
+                            return frame.PixelWidth >= 32;
+                        });
+                        if (!usable) continue;
+
+                        await File.WriteAllBytesAsync(LauncherLogoFile(source), bytes);
+                        launcherIcons.Remove(source);
+                        any = true;
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+            finally
+            {
+                launcherLogosLoading = false;
+            }
+
+            if (any) BuildLauncherChips();
         }
 
         /// <summary>Wo die .exe des Launchers liegt (für Symbol und „Launcher öffnen“). Null, wenn nicht gefunden.</summary>
@@ -192,6 +307,8 @@ namespace Game_launcher
                     if (!string.IsNullOrEmpty(steam)) candidates.Add(System.IO.Path.Combine(steam, "steam.exe"));
                     break;
                 case "Epic Games":
+                    candidates.Add(System.IO.Path.Combine(pf, "Epic Games", "Launcher", "Portal", "Binaries", "Win64", "EpicGamesLauncher.exe"));
+                    candidates.Add(System.IO.Path.Combine(pf, "Epic Games", "Launcher", "Portal", "Binaries", "Win32", "EpicGamesLauncher.exe"));
                     candidates.Add(System.IO.Path.Combine(pf86, "Epic Games", "Launcher", "Portal", "Binaries", "Win64", "EpicGamesLauncher.exe"));
                     candidates.Add(System.IO.Path.Combine(pf86, "Epic Games", "Launcher", "Portal", "Binaries", "Win32", "EpicGamesLauncher.exe"));
                     break;
@@ -296,14 +413,12 @@ namespace Game_launcher
 
                 var item = new System.Windows.Controls.MenuItem
                 {
-                    Header = Loc.T(launcher) + "  ·  " + (count > 0 ? GamesText(count) : Loc.T("keine Spiele")),
+                    Header = LauncherLabel(launcher, 16, count > 0 ? GamesText(count) : Loc.T("keine Spiele")),
                     IsCheckable = true,
                     IsChecked = shown.Contains(launcher),
                     StaysOpenOnClick = true,
                     Opacity = count > 0 ? 1.0 : 0.55
                 };
-                var icon = GetLauncherIcon(launcher);
-                if (icon != null) item.Icon = new System.Windows.Controls.Image { Source = icon, Width = 16, Height = 16 };
                 item.Click += (s, args) => SetLauncherChip(launcher, item.IsChecked);
                 menu.Items.Add(item);
             }

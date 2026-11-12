@@ -68,6 +68,7 @@ namespace Game_launcher
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Game_launcher");
         private static readonly string SettingsFilePath = System.IO.Path.Combine(SettingsDir, "settings.json");
         private static readonly string CoversDir = System.IO.Path.Combine(SettingsDir, "covers");
+        private static readonly string LauncherLogosDir = System.IO.Path.Combine(SettingsDir, "launcher-logos");
         private static readonly string LogDir = System.IO.Path.Combine(SettingsDir, "logs");
         private static readonly string SettingsBackupDir = System.IO.Path.Combine(SettingsDir, "settings_backups");
         private static readonly string PendingReportPath = System.IO.Path.Combine(LogDir, "fehlerbericht_offen.txt");
