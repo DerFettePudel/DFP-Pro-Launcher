@@ -13,21 +13,23 @@ namespace Game_launcher
 {
     public partial class MainWindow
     {
-        // ───────────────────────────── Thema 2: Konsolen-Oberfläche ─────────────────────────────
+        // ───────────────────────────── Thema 2: Konsolen-Oberfläche im Cyber-Stil ─────────────────────────────
         //
-        // Eigener Aufbau für Maus und Tastatur: oben nur START / BIBLIOTHEK / MEHR, das gewählte Spiel füllt den Bildschirm,
-        // darunter ein Karussell (Start) bzw. waagerechte Reihen (Bibliothek), dazu eine eigene Detailseite.
-        // Alle anderen Seiten (Einstellungen, System, Statistik ...) öffnen sich über MEHR im Stil von Thema 2.
+        // Kopfleiste: START und BIBLIOTHEK (eigene Ansichten) plus der komplette Inhalt der schwebenden Leiste aus Thema 1
+        // (Logo, alle Bereiche als Symbole inkl. Dashboard, Schnellstart, Musik) – so gelten Reihenfolge, ausgeblendete Bereiche,
+        // Logo- und Farbeinstellungen auch hier. START: Spiel bildschirmfüllend + Karussell. BIBLIOTHEK: Reihen (oder als Raster
+        // die normale Spiele-Seite mit allen Filtern). Eigene Detailseite pro Spiel. Alle Bereiche öffnen sich unter der Kopfleiste.
 
         private bool IsConsole => IsBrutal;
 
         private Grid? consoleStage;        // Hintergrund + aktuelle Ansicht (Start, Bibliothek, Details)
-        private Grid? consoleBar;          // Kopfleiste mit den Reitern
+        private Grid? consoleBar;          // Kopfleiste
         private Border? consoleBarBack;
-        private Grid? consoleView;         // Inhalt der Bühne
+        private Grid? consoleBarNavHost;   // hier hängt der Inhalt der schwebenden Leiste
+        private Grid? consoleView;
         private System.Windows.Controls.Image? consoleBackA, consoleBackB;
         private bool consoleBackAFront = true;
-        private Border? consoleDim;        // zusätzliche Abdunklung in der Bibliothek
+        private Border? consoleDim;
         private string consoleMode = "home";   // home | library | detail | page
         private string consoleReturnMode = "home";
         private GameItem? consoleFocus;
@@ -38,13 +40,16 @@ namespace Game_launcher
         private TextBlock? consoleClock;
         private string consoleSearch = string.Empty;
         private ScrollViewer? consoleLibraryScroll;
+        private StackPanel? consoleRowsHost;
         private bool consoleNavigating;
         private readonly DispatcherTimer consoleRefreshTimer = new() { Interval = TimeSpan.FromMilliseconds(350) };
         private readonly DispatcherTimer consoleHoverTimer = new() { Interval = TimeSpan.FromMilliseconds(110) };
         private GameItem? consolePendingHover;
 
-        private static readonly SolidColorBrush ConsoleInk = MakeBrush("#0B0B0B");
-        private static readonly SolidColorBrush ConsoleMuted = MakeBrush("#9A9890");
+        private static readonly System.Windows.Media.Color ConsoleBase = System.Windows.Media.Color.FromRgb(0x06, 0x08, 0x0D);
+        private static readonly SolidColorBrush ConsoleInk = MakeBrush("#06080D");
+        private static readonly SolidColorBrush ConsoleMuted = MakeBrush("#8494AB");
+        private static readonly SolidColorBrush ConsoleCyan = MakeBrush("#22D3EE");
 
         private void InitConsole()
         {
@@ -52,6 +57,7 @@ namespace Game_launcher
 
             BuildConsoleStage();
             BuildConsoleBar();
+            AttachDockToConsoleBar();
 
             consoleRefreshTimer.Tick += (s, e) => { consoleRefreshTimer.Stop(); RefreshConsole(); };
             consoleHoverTimer.Tick += (s, e) =>
@@ -66,11 +72,11 @@ namespace Game_launcher
             clockTimer.Start();
             UpdateConsoleClock();
 
+            // Startseite aus den Einstellungen: „Spiele“ = Bibliothek, sonst START
             if (settings.StartPage == "games") ShowConsoleLibrary();
             else ShowConsoleHome();
         }
 
-        /// <summary>Nach Scan, Cover-Download oder Spielstart (gesammelt, damit es nicht flackert).</summary>
         private void RequestConsoleRefresh()
         {
             if (!IsConsole || consoleStage == null) return;
@@ -95,14 +101,14 @@ namespace Game_launcher
             }
         }
 
-        // ───────── Gerüst: Hintergrund, Bühne, Kopfleiste ─────────
+        // ───────── Gerüst ─────────
 
         private void BuildConsoleStage()
         {
             consoleStage = new Grid { Background = ConsoleInk, ClipToBounds = true };
             System.Windows.Controls.Panel.SetZIndex(consoleStage, 25);
 
-            // Beide Bilder (für das Überblenden) in einem eigenen Behälter ganz unten, damit Abdunklung und Inhalt darüber liegen
+            // Beide Bilder (für das Überblenden) in einem eigenen Behälter ganz unten
             consoleBackA = NewBackdropImage();
             consoleBackB = NewBackdropImage();
             var backdropHost = new Grid { IsHitTestVisible = false };
@@ -110,21 +116,25 @@ namespace Game_launcher
             backdropHost.Children.Add(consoleBackB);
             consoleStage.Children.Add(backdropHost);
 
-            // Abdunkeln von links (dort steht der Text) und von unten (dort liegen die Cover)
-            var fromLeft = new LinearGradientBrush { StartPoint = new System.Windows.Point(0, 0), EndPoint = new System.Windows.Point(1, 0) };
-            fromLeft.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xF0, 0x0B, 0x0B, 0x0B), 0.0));
-            fromLeft.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x99, 0x0B, 0x0B, 0x0B), 0.45));
-            fromLeft.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x22, 0x0B, 0x0B, 0x0B), 1.0));
-            consoleStage.Children.Add(new Border { Background = fromLeft, IsHitTestVisible = false });
+            Border Shade(System.Windows.Point start, System.Windows.Point end, params (byte Alpha, double Offset)[] stops)
+            {
+                var brush = new LinearGradientBrush { StartPoint = start, EndPoint = end };
+                foreach (var (alpha, offset) in stops)
+                    brush.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(alpha, ConsoleBase.R, ConsoleBase.G, ConsoleBase.B), offset));
+                return new Border { Background = brush, IsHitTestVisible = false };
+            }
 
-            var fromBottom = new LinearGradientBrush { StartPoint = new System.Windows.Point(0, 0), EndPoint = new System.Windows.Point(0, 1) };
-            fromBottom.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x99, 0x0B, 0x0B, 0x0B), 0.0));
-            fromBottom.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, 0x0B, 0x0B, 0x0B), 0.22));
-            fromBottom.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, 0x0B, 0x0B, 0x0B), 0.5));
-            fromBottom.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xF5, 0x0B, 0x0B, 0x0B), 1.0));
-            consoleStage.Children.Add(new Border { Background = fromBottom, IsHitTestVisible = false });
+            consoleStage.Children.Add(Shade(new System.Windows.Point(0, 0), new System.Windows.Point(1, 0), (0xF2, 0), (0x99, 0.45), (0x1A, 1)));
+            consoleStage.Children.Add(Shade(new System.Windows.Point(0, 0), new System.Windows.Point(0, 1), (0xCC, 0), (0x00, 0.22), (0x00, 0.5), (0xF7, 1)));
 
-            consoleDim = new Border { Background = MakeBrush("#B80B0B0B"), IsHitTestVisible = false, Visibility = Visibility.Collapsed };
+            // Neonschein unten links in der Akzentfarbe (dezent)
+            var accent = GetAccentColor();
+            var glow = new RadialGradientBrush { Center = new System.Windows.Point(0.05, 1.0), GradientOrigin = new System.Windows.Point(0.05, 1.0), RadiusX = 0.6, RadiusY = 0.7 };
+            glow.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x33, accent.R, accent.G, accent.B), 0));
+            glow.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, accent.R, accent.G, accent.B), 1));
+            consoleStage.Children.Add(new Border { Background = glow, IsHitTestVisible = false });
+
+            consoleDim = new Border { Background = MakeBrush("#B306080D"), IsHitTestVisible = false, Visibility = Visibility.Collapsed };
             consoleStage.Children.Add(consoleDim);
 
             consoleView = new Grid();
@@ -148,100 +158,68 @@ namespace Game_launcher
             consoleBarBack = new Border { IsHitTestVisible = false };
             consoleBar.Children.Add(consoleBarBack);
 
-            var row = new Grid { Margin = new Thickness(64, 0, 64, 0) };
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            var row = new Grid { Margin = new Thickness(40, 0, 40, 0) };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });                       // START / BIBLIOTHEK
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });  // Leisten-Inhalt (Logo, Bereiche ...)
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });                       // Suche, Uhr
             consoleBar.Children.Add(row);
 
-            // Marke
-            var brand = new TextBlock
-            {
-                Text = (string.IsNullOrWhiteSpace(settings.BrandName) ? "DFP PRO" : settings.BrandName).ToUpper(Loc.Culture),
-                FontSize = 26,
-                FontWeight = FontWeights.Bold,
-                Foreground = System.Windows.Media.Brushes.White,
-                VerticalAlignment = System.Windows.VerticalAlignment.Center,
-                Margin = new Thickness(0, 0, 56, 0)
-            };
-            brand.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
-            row.Children.Add(brand);
-
-            // Reiter
-            var tabs = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, VerticalAlignment = System.Windows.VerticalAlignment.Stretch };
-            Grid.SetColumn(tabs, 1);
+            var tabs = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
             tabs.Children.Add(ConsoleTab("home", "Start", ShowConsoleHome));
             tabs.Children.Add(ConsoleTab("library", "Bibliothek", ShowConsoleLibrary));
-            tabs.Children.Add(ConsoleTab("page", "Mehr", () => OpenConsoleMoreMenu()));
             row.Children.Add(tabs);
 
-            // Rechts: Suche, Uhr, Einstellungen
+            consoleBarNavHost = new Grid { VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(12, 0, 12, 0) };
+            Grid.SetColumn(consoleBarNavHost, 1);
+            row.Children.Add(consoleBarNavHost);
+
             var right = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, VerticalAlignment = System.Windows.VerticalAlignment.Center };
-            Grid.SetColumn(right, 3);
-            right.Children.Add(ConsoleIconButton("", Loc.T("Suche (Strg+K)"), OpenSpotlight));
-            consoleClock = new TextBlock
-            {
-                FontSize = 22,
-                FontWeight = FontWeights.SemiBold,
-                Foreground = System.Windows.Media.Brushes.White,
-                VerticalAlignment = System.Windows.VerticalAlignment.Center,
-                Margin = new Thickness(22, 0, 22, 0)
-            };
+            Grid.SetColumn(right, 2);
+            var search = ConsoleButton("", false, OpenSpotlight, 16);
+            if (search.Content is TextBlock lens) lens.SetResourceReference(TextBlock.FontFamilyProperty, "IconFont");
+            search.ToolTip = Loc.T("Suche (Strg+K)");
+            right.Children.Add(search);
+            consoleClock = new TextBlock { FontSize = 22, FontWeight = FontWeights.SemiBold, Foreground = System.Windows.Media.Brushes.White, VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(14, 0, 0, 0) };
             consoleClock.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
             right.Children.Add(consoleClock);
-            right.Children.Add(ConsoleIconButton("", Loc.T("Einstellungen"), () => ShowConsolePage("settings")));
             row.Children.Add(right);
 
             WindowRoot.Children.Add(consoleBar);
         }
 
+        /// <summary>Den Inhalt der schwebenden Leiste (Logo, Bereiche, Schnellstart, Musik) in die Kopfleiste hängen.</summary>
+        private void AttachDockToConsoleBar()
+        {
+            if (consoleBarNavHost == null || NavDockPanel == null) return;
+            if (ReferenceEquals(NavDockPanel.Parent, consoleBarNavHost.Children.OfType<Viewbox>().FirstOrDefault())) return;
+
+            if (NavDockPanel.Parent is Viewbox oldBox) oldBox.Child = null;
+            else if (NavDockPanel.Parent is System.Windows.Controls.Panel oldPanel) oldPanel.Children.Remove(NavDockPanel);
+
+            var box = new Viewbox { Stretch = Stretch.Uniform, StretchDirection = StretchDirection.DownOnly, HorizontalAlignment = System.Windows.HorizontalAlignment.Center, Child = NavDockPanel, MaxHeight = 60 };
+            consoleBarNavHost.Children.Clear();
+            consoleBarNavHost.Children.Add(box);
+        }
+
         private Border ConsoleTab(string mode, string title, Action open)
         {
-            var text = new TextBlock
-            {
-                Text = Loc.T(title).ToUpper(Loc.Culture),
-                FontSize = 19,
-                FontWeight = FontWeights.Bold,
-                Foreground = ConsoleMuted,
-                VerticalAlignment = System.Windows.VerticalAlignment.Center
-            };
+            var text = new TextBlock { Text = Loc.T(title).ToUpper(Loc.Culture), FontSize = 18, FontWeight = FontWeights.Bold, Foreground = ConsoleMuted, VerticalAlignment = System.Windows.VerticalAlignment.Center };
             text.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
 
-            var underline = new Border { Height = 4, VerticalAlignment = System.Windows.VerticalAlignment.Bottom, Margin = new Thickness(0, 0, 0, 14), Opacity = 0 };
+            var underline = new Border { Height = 3, CornerRadius = new CornerRadius(1.5), VerticalAlignment = System.Windows.VerticalAlignment.Bottom, Margin = new Thickness(0, 0, 0, 16), Opacity = 0 };
             underline.SetResourceReference(Border.BackgroundProperty, "AccentBrush");
+            if (!settings.PerformanceMode) underline.SetResourceReference(UIElement.EffectProperty, "NeonGlow");
 
             var grid = new Grid();
             grid.Children.Add(text);
             grid.Children.Add(underline);
 
-            var tab = new Border { Child = grid, Padding = new Thickness(0, 0, 0, 0), Margin = new Thickness(0, 0, 34, 0), Background = System.Windows.Media.Brushes.Transparent, Cursor = System.Windows.Input.Cursors.Hand, Tag = (text, underline) };
-            tab.MouseEnter += (s, e) => { if (consoleMode != mode && !(mode == "page" && consoleMode == "page")) text.Foreground = System.Windows.Media.Brushes.White; };
+            var tab = new Border { Child = grid, Margin = new Thickness(0, 0, 30, 0), Background = System.Windows.Media.Brushes.Transparent, Cursor = System.Windows.Input.Cursors.Hand, Tag = (text, underline) };
+            tab.MouseEnter += (s, e) => text.Foreground = System.Windows.Media.Brushes.White;
             tab.MouseLeave += (s, e) => UpdateConsoleTabs();
             tab.MouseLeftButtonUp += (s, e) => open();
             consoleTabs[mode] = tab;
             return tab;
-        }
-
-        private Border ConsoleIconButton(string glyph, string tip, Action click)
-        {
-            var icon = new TextBlock { Text = glyph, FontSize = 20, Foreground = System.Windows.Media.Brushes.White, HorizontalAlignment = System.Windows.HorizontalAlignment.Center, VerticalAlignment = System.Windows.VerticalAlignment.Center };
-            icon.SetResourceReference(TextBlock.FontFamilyProperty, "IconFont");
-            var button = new Border
-            {
-                Width = 44,
-                Height = 44,
-                Child = icon,
-                Background = System.Windows.Media.Brushes.Transparent,
-                BorderBrush = MakeBrush("#55FFFFFF"),
-                BorderThickness = new Thickness(2),
-                Cursor = System.Windows.Input.Cursors.Hand,
-                ToolTip = tip
-            };
-            button.MouseEnter += (s, e) => button.BorderBrush = System.Windows.Media.Brushes.White;
-            button.MouseLeave += (s, e) => button.BorderBrush = MakeBrush("#55FFFFFF");
-            button.MouseLeftButtonUp += (s, e) => click();
-            return button;
         }
 
         private void UpdateConsoleTabs()
@@ -249,26 +227,35 @@ namespace Game_launcher
             foreach (var (mode, tab) in consoleTabs)
             {
                 if (tab.Tag is not ValueTuple<TextBlock, Border> parts) continue;
-                bool active = consoleMode == mode || (mode == "library" && consoleMode == "detail" && consoleReturnMode == "library")
-                                                  || (mode == "home" && consoleMode == "detail" && consoleReturnMode == "home");
+                bool active = consoleMode == mode || (consoleMode == "detail" && consoleReturnMode == mode);
                 parts.Item1.Foreground = active ? System.Windows.Media.Brushes.White : ConsoleMuted;
                 parts.Item2.Opacity = active ? 1 : 0;
             }
 
-            // Auf den übrigen Seiten bekommt die Kopfleiste eine feste Fläche, sonst liegt sie frei über dem Bild
-            if (consoleBarBack != null)
+            // In START und BIBLIOTHEK ist kein Bereich der Leiste ausgewählt
+            if (consoleMode != "page" && NavPanel != null)
+                foreach (var item in NavPanel.Children.OfType<System.Windows.Controls.RadioButton>()) item.IsChecked = false;
+
+            if (consoleBarBack == null) return;
+            if (consoleMode == "page")
             {
-                if (consoleMode == "page")
-                {
-                    consoleBarBack.Background = ConsoleInk;
-                    consoleBarBack.BorderBrush = MakeBrush(PaperColor);
-                    consoleBarBack.BorderThickness = new Thickness(0, 0, 0, 2);
-                }
-                else
-                {
-                    consoleBarBack.Background = System.Windows.Media.Brushes.Transparent;
-                    consoleBarBack.BorderThickness = new Thickness(0);
-                }
+                // Auf den Bereichs-Seiten: feste Fläche mit Neonlinie unten
+                consoleBarBack.SetResourceReference(Border.BackgroundProperty, "SidebarBrush");
+                var line = new LinearGradientBrush { StartPoint = new System.Windows.Point(0, 0), EndPoint = new System.Windows.Point(1, 0) };
+                var accent = GetAccentColor();
+                line.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xAA, accent.R, accent.G, accent.B), 0));
+                line.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x22, 0x30, 0x3F, 0x5A), 0.5));
+                line.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x88, 0x22, 0xD3, 0xEE), 1));
+                consoleBarBack.BorderBrush = line;
+                consoleBarBack.BorderThickness = new Thickness(0, 0, 0, 1);
+            }
+            else
+            {
+                var fade = new LinearGradientBrush { StartPoint = new System.Windows.Point(0, 0), EndPoint = new System.Windows.Point(0, 1) };
+                fade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xB3, ConsoleBase.R, ConsoleBase.G, ConsoleBase.B), 0));
+                fade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, ConsoleBase.R, ConsoleBase.G, ConsoleBase.B), 1));
+                consoleBarBack.Background = fade;
+                consoleBarBack.BorderThickness = new Thickness(0);
             }
         }
 
@@ -277,30 +264,12 @@ namespace Game_launcher
             if (consoleClock != null) consoleClock.Text = DateTime.Now.ToString(settings.Clock24h ? "HH:mm" : "h:mm tt", Loc.Culture);
         }
 
-        /// <summary>MEHR: alle übrigen Bereiche als Menü direkt unter dem Reiter.</summary>
-        private void OpenConsoleMoreMenu()
-        {
-            var menu = CreateMenu();
-            foreach (var (icon, title, key) in PageEntries)
-            {
-                if (key is "dashboard" or "games") continue;   // die sind START und BIBLIOTHEK
-                string target = key;
-                AddMenuItem(menu, icon + "  " + Loc.T(title), () => ShowConsolePage(target));
-            }
-            if (consoleTabs.TryGetValue("page", out var tab))
-            {
-                menu.PlacementTarget = tab;
-                menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
-            }
-            menu.IsOpen = true;
-        }
-
-        // ───────── Umschalten zwischen den Ansichten ─────────
+        // ───────── Umschalten ─────────
 
         private void SetConsoleMode(string mode)
         {
             if (consoleStage == null) return;
-            if (mode != "detail" && mode != "page") consoleReturnMode = mode;
+            if (mode is "home" or "library") consoleReturnMode = mode;
             consoleMode = mode;
 
             consoleStage.Visibility = mode == "page" ? Visibility.Collapsed : Visibility.Visible;
@@ -327,7 +296,7 @@ namespace Game_launcher
             BuildConsoleDetail(game);
         }
 
-        /// <summary>Eine der übrigen Seiten (Einstellungen, System ...) unter der Kopfleiste öffnen.</summary>
+        /// <summary>Einen Bereich (Dashboard, Einstellungen, Spiele als Raster ...) unter der Kopfleiste öffnen.</summary>
         private void ShowConsolePage(string key)
         {
             SetConsoleMode("page");
@@ -336,20 +305,21 @@ namespace Game_launcher
             finally { consoleNavigating = false; }
         }
 
-        /// <summary>
-        /// Wird am Anfang von NavigateTo aufgerufen: Andere Stellen im Launcher wollen „Dashboard“ oder „Spiele“ öffnen,
-        /// in Thema 2 sind das START und BIBLIOTHEK. Gibt true zurück, wenn NavigateTo nichts mehr tun muss.
-        /// </summary>
+        /// <summary>Aus ShowView: Ein Bereich wird geöffnet (Symbol in der Kopfleiste, Suche, Meldung ...) → Seite unter der Kopfleiste zeigen.</summary>
+        private void OnConsoleShowView()
+        {
+            if (!IsConsole || consoleStage == null || consoleMode == "page") return;
+            SetConsoleMode("page");
+        }
+
+        /// <summary>Am Anfang von NavigateTo: „Spiele“ von außen (Meldungen, Suche) öffnet in Thema 2 die BIBLIOTHEK.</summary>
         private bool HandleConsoleNavigation(string key)
         {
             if (!IsConsole || consoleNavigating || consoleStage == null) return false;
-            if (key == "dashboard") { ShowConsoleHome(); return true; }
             if (key == "games") { ShowConsoleLibrary(); return true; }
-            SetConsoleMode("page");
             return false;
         }
 
-        /// <summary>Zurück (Maus-Seitentaste, Esc in den Details): von den Details zur vorigen Ansicht.</summary>
         private bool ConsoleBack()
         {
             if (!IsConsole || consoleMode != "detail") return false;
@@ -382,12 +352,11 @@ namespace Game_launcher
             if (front.Source == image && image != null) return;
 
             back.Source = image;
-            // Hochkant-Cover als Hintergrund: weich gezeichnet, damit es nicht pixelig wirkt
-            back.Effect = !wide && image != null && !settings.PerformanceMode ? new System.Windows.Media.Effects.BlurEffect { Radius = 36 } : null;
-            back.Margin = wide ? new Thickness(0) : new Thickness(-60);
+            back.Effect = !wide && image != null && !settings.PerformanceMode ? new System.Windows.Media.Effects.BlurEffect { Radius = 40 } : null;
+            back.Margin = wide ? new Thickness(0) : new Thickness(-70);
 
             var duration = TimeSpan.FromMilliseconds(settings.PageAnimations && !settings.PerformanceMode ? 380 : 1);
-            back.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(image == null ? 0 : wide ? 1 : 0.7, duration));
+            back.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(image == null ? 0 : wide ? 1 : 0.6, duration));
             front.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, duration));
             System.Windows.Controls.Panel.SetZIndex(back, 1);
             System.Windows.Controls.Panel.SetZIndex(front, 0);
@@ -400,13 +369,15 @@ namespace Game_launcher
             if (consoleFocus == game && GetHeroImage(game) != null) SetConsoleBackdrop(game);
         }
 
-        // ───────── Bausteine: Cover-Kachel, Knöpfe ─────────
+        // ───────── Bausteine ─────────
 
         private const double ConsoleTileWidth = 160, ConsoleTileHeight = 240;
+        private const double ConsoleTileRadius = 10;
 
         private Border ConsoleCoverTile(GameItem game, double width, double height)
         {
-            var image = new Grid { Background = MakeBrush("#161616") };
+            double inner = ConsoleTileRadius - 2;
+            var image = new Grid { Background = MakeBrush("#0E121B"), Clip = new RectangleGeometry(new Rect(0, 0, width - 4, height - 4), inner, inner) };
             var cover = HasCover(game) ? GetCachedImage(EffectiveCover(game)) : null;
             if (cover != null)
             {
@@ -417,56 +388,42 @@ namespace Game_launcher
             }
             else
             {
-                var letter = new TextBlock
-                {
-                    Text = game.Name.ToUpper(Loc.Culture),
-                    FontSize = 22,
-                    FontWeight = FontWeights.Bold,
-                    Foreground = System.Windows.Media.Brushes.White,
-                    TextWrapping = TextWrapping.Wrap,
-                    TextAlignment = TextAlignment.Center,
-                    VerticalAlignment = System.Windows.VerticalAlignment.Center,
-                    Margin = new Thickness(12)
-                };
-                letter.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
-                image.Children.Add(letter);
+                var name = new TextBlock { Text = game.Name, FontSize = 20, FontWeight = FontWeights.Bold, Foreground = System.Windows.Media.Brushes.White, TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.Center, VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(12) };
+                name.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
+                image.Children.Add(name);
             }
 
             if (game.IsFavorite)
-            {
-                image.Children.Add(new TextBlock
-                {
-                    Text = "★",
-                    FontSize = 16,
-                    Foreground = MakeBrush("#FACC15"),
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
-                    VerticalAlignment = System.Windows.VerticalAlignment.Top,
-                    Margin = new Thickness(0, 6, 8, 0)
-                });
-            }
+                image.Children.Add(new TextBlock { Text = "★", FontSize = 16, Foreground = MakeBrush("#FACC15"), HorizontalAlignment = System.Windows.HorizontalAlignment.Right, VerticalAlignment = System.Windows.VerticalAlignment.Top, Margin = new Thickness(0, 6, 9, 0) });
 
-            var tile = new Border
+            return new Border
             {
                 Width = width,
                 Height = height,
                 Child = image,
-                BorderThickness = new Thickness(4),
-                BorderBrush = System.Windows.Media.Brushes.Transparent,
+                CornerRadius = new CornerRadius(ConsoleTileRadius),
+                BorderThickness = new Thickness(2),
+                BorderBrush = MakeBrush("#22FFFFFF"),
                 Cursor = System.Windows.Input.Cursors.Hand,
                 RenderTransform = new TranslateTransform(),
                 ContextMenu = BuildGameMenu(game),
                 ToolTip = game.Name
             };
-            return tile;
         }
 
-        private static void MarkConsoleTile(Border tile, bool focused, bool animate)
+        private void MarkConsoleTile(Border tile, bool focused, bool animate)
         {
-            tile.BorderBrush = focused ? System.Windows.Media.Brushes.White : System.Windows.Media.Brushes.Transparent;
+            if (focused) tile.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
+            else tile.BorderBrush = MakeBrush("#22FFFFFF");
+
+            if (focused && !settings.PerformanceMode) tile.SetResourceReference(UIElement.EffectProperty, "NeonGlow");
+            else tile.Effect = null;
+
             if (tile.RenderTransform is TranslateTransform move)
             {
-                double target = focused ? -14 : 0;
-                if (animate) move.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(target, TimeSpan.FromMilliseconds(140)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
+                double target = focused ? -12 : 0;
+                if (animate && settings.HoverAnimations)
+                    move.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(target, TimeSpan.FromMilliseconds(150)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
                 else
                 {
                     move.BeginAnimation(TranslateTransform.YProperty, null);
@@ -475,49 +432,25 @@ namespace Game_launcher
             }
         }
 
-        /// <summary>Großer Knopf: gefüllt (Akzent) oder nur mit hellem Rahmen.</summary>
-        private Border ConsoleButton(string text, bool primary, Action click, double fontSize = 18)
+        /// <summary>Knopf im Stil von Thema 2 (schräg, Neonkante): primär = in der Akzentfarbe.</summary>
+        private System.Windows.Controls.Button ConsoleButton(string text, bool primary, Action click, double fontSize = 16)
         {
-            var label = new TextBlock
-            {
-                Text = text,
-                FontSize = fontSize,
-                FontWeight = FontWeights.Bold,
-                Foreground = primary ? MakeBrush(InkFor(GetAccentColor())) : System.Windows.Media.Brushes.White,
-                HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
-                VerticalAlignment = System.Windows.VerticalAlignment.Center
-            };
+            var label = new TextBlock { Text = text, FontSize = fontSize, FontWeight = FontWeights.Bold, VerticalAlignment = System.Windows.VerticalAlignment.Center };
             label.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
 
-            var button = new Border
+            var button = new System.Windows.Controls.Button
             {
-                Child = label,
-                Padding = primary ? new Thickness(34, 12, 34, 12) : new Thickness(22, 12, 22, 12),
-                Margin = new Thickness(0, 0, 14, 0),
-                BorderThickness = new Thickness(2),
-                BorderBrush = primary ? System.Windows.Media.Brushes.White : MakeBrush("#88FFFFFF"),
-                Background = primary ? null : MakeBrush("#330B0B0B"),
-                Cursor = System.Windows.Input.Cursors.Hand,
-                RenderTransform = new TranslateTransform()
+                Content = label,
+                Padding = primary ? new Thickness(30, 11, 30, 11) : new Thickness(20, 11, 20, 11),
+                Margin = new Thickness(0, 0, 10, 0),
+                Foreground = primary ? MakeBrush(InkFor(GetAccentColor())) : System.Windows.Media.Brushes.White
             };
-            if (primary) button.SetResourceReference(Border.BackgroundProperty, "AccentBrush");
-
-            button.MouseEnter += (s, e) =>
+            if (primary)
             {
-                if (!primary) button.BorderBrush = System.Windows.Media.Brushes.White;
-                if (button.RenderTransform is TranslateTransform t) { t.X = -2; t.Y = -2; }
-            };
-            button.MouseLeave += (s, e) =>
-            {
-                if (!primary) button.BorderBrush = MakeBrush("#88FFFFFF");
-                if (button.RenderTransform is TranslateTransform t) { t.X = 0; t.Y = 0; }
-            };
-            button.MouseLeftButtonDown += (s, e) => { if (button.RenderTransform is TranslateTransform t) { t.X = 2; t.Y = 2; } };
-            button.MouseLeftButtonUp += (s, e) =>
-            {
-                if (button.RenderTransform is TranslateTransform t) { t.X = 0; t.Y = 0; }
-                click();
-            };
+                button.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
+                button.SetResourceReference(System.Windows.Controls.Control.BorderBrushProperty, "AccentBrush");
+            }
+            button.Click += (s, e) => click();
             return button;
         }
 
@@ -530,22 +463,21 @@ namespace Game_launcher
                 FontWeight = FontWeights.Bold,
                 Foreground = System.Windows.Media.Brushes.White,
                 TextTrimming = TextTrimming.CharacterEllipsis,
-                LineHeight = size * 0.95,
+                LineHeight = size * 1.02,
                 LineStackingStrategy = LineStackingStrategy.BlockLineHeight
             };
             title.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
+            if (!settings.PerformanceMode && size >= 40) title.SetResourceReference(UIElement.EffectProperty, "TitleGlow");
             return title;
         }
 
         private TextBlock ConsoleEyebrow(string text)
         {
-            var eyebrow = new TextBlock { Text = text, FontSize = 13, FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 8) };
+            var eyebrow = new TextBlock { Text = text, FontSize = 13, FontWeight = FontWeights.Bold, Margin = new Thickness(0, 0, 0, 8), Foreground = ConsoleCyan };
             eyebrow.SetResourceReference(TextBlock.FontFamilyProperty, "MonoFont");
-            eyebrow.SetResourceReference(TextBlock.ForegroundProperty, "AccentBrush");
             return eyebrow;
         }
 
-        /// <summary>„18 Std. gespielt · zuletzt gestern · Steam“ (Spielzeit im Streamer-Modus verborgen).</summary>
         private string ConsoleMeta(GameItem game)
         {
             var parts = new List<string>();
@@ -558,7 +490,7 @@ namespace Game_launcher
         // ───────── START ─────────
 
         private TextBlock? consoleHomeTitle, consoleHomeMeta, consoleHomeEyebrow;
-        private Border? consoleHomeFav;
+        private System.Windows.Controls.Button? consoleHomeFav;
 
         private void BuildConsoleHome()
         {
@@ -581,7 +513,7 @@ namespace Game_launcher
 
             if (row.Count == 0)
             {
-                var empty = ConsoleTitle(Loc.T("Noch keine Spiele gefunden.").ToUpper(Loc.Culture), 48);
+                var empty = ConsoleTitle(Loc.T("Noch keine Spiele gefunden."), 44);
                 empty.Margin = new Thickness(64, 0, 64, 0);
                 empty.VerticalAlignment = System.Windows.VerticalAlignment.Center;
                 layout.Children.Add(empty);
@@ -589,39 +521,39 @@ namespace Game_launcher
                 return;
             }
 
-            // Infos zum gewählten Spiel
-            var info = new StackPanel { Margin = new Thickness(64, 0, 64, 34), MaxWidth = 1200, HorizontalAlignment = System.Windows.HorizontalAlignment.Left };
+            var info = new StackPanel { Margin = new Thickness(64, 0, 64, 30), MaxWidth = 1200, HorizontalAlignment = System.Windows.HorizontalAlignment.Left };
             Grid.SetRow(info, 1);
             consoleHomeEyebrow = ConsoleEyebrow(string.Empty);
-            consoleHomeTitle = ConsoleTitle(string.Empty, 92);
-            consoleHomeMeta = new TextBlock { FontSize = 18, Foreground = MakeBrush("#D6D4CC"), Margin = new Thickness(0, 10, 0, 26) };
+            consoleHomeTitle = ConsoleTitle(string.Empty, 68);
+            consoleHomeMeta = new TextBlock { FontSize = 17, Foreground = MakeBrush("#C9D4E3"), Margin = new Thickness(0, 10, 0, 24) };
             info.Children.Add(consoleHomeEyebrow);
             info.Children.Add(consoleHomeTitle);
             info.Children.Add(consoleHomeMeta);
 
-            var buttons = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
-            buttons.Children.Add(ConsoleButton("▶  " + Loc.T("Spielen").ToUpper(Loc.Culture), true, () => { if (consoleFocus != null) LaunchGame(consoleFocus); }, 20));
+            var buttons = new WrapPanel();
+            buttons.Children.Add(ConsoleButton("▶  " + Loc.T("Spielen").ToUpper(Loc.Culture), true, () => { if (consoleFocus != null) LaunchGame(consoleFocus); }, 18));
             buttons.Children.Add(ConsoleButton(Loc.T("Details").ToUpper(Loc.Culture), false, () => { if (consoleFocus != null) ShowConsoleDetail(consoleFocus); }));
-            consoleHomeFav = ConsoleButton("☆", false, () =>
+            consoleHomeFav = ConsoleButton("☆", false, () => { if (consoleFocus != null) ToggleFavorite(consoleFocus); }, 18);
+            buttons.Children.Add(consoleHomeFav);
+            buttons.Children.Add(ConsoleButton("⋯", false, () =>
             {
                 if (consoleFocus == null) return;
-                ToggleFavorite(consoleFocus);
-            }, 20);
-            buttons.Children.Add(consoleHomeFav);
+                var menu = BuildGameMenu(consoleFocus);
+                menu.IsOpen = true;
+            }, 18));
             info.Children.Add(buttons);
             layout.Children.Add(info);
 
-            // Karussell
-            var strip = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(64, 18, 64, 56) };
+            var strip = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(64, 18, 64, 52) };
             foreach (var item in row)
             {
                 var game = item;
                 var tile = ConsoleCoverTile(game, ConsoleTileWidth, ConsoleTileHeight);
-                tile.Margin = new Thickness(0, 0, 20, 0);
+                tile.Margin = new Thickness(0, 0, 18, 0);
                 tile.MouseEnter += (s, e) => { consolePendingHover = game; consoleHoverTimer.Stop(); consoleHoverTimer.Start(); };
                 tile.MouseLeftButtonDown += (s, e) =>
                 {
-                    if (e.ClickCount >= 2) LaunchGame(game);
+                    if (e.ClickCount >= 2) LaunchGame(game);   // Doppelklick startet, ein Klick wählt aus
                     else FocusConsoleGame(game, false);
                 };
                 strip.Children.Add(tile);
@@ -632,14 +564,7 @@ namespace Game_launcher
             all.VerticalAlignment = System.Windows.VerticalAlignment.Center;
             strip.Children.Add(all);
 
-            var scroller = new ScrollViewer
-            {
-                Content = strip,
-                HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden,
-                VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
-                Padding = new Thickness(0, 16, 0, 0)
-            };
-            // Mausrad blättert waagerecht durch das Karussell
+            var scroller = new ScrollViewer { Content = strip, HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled, Padding = new Thickness(0, 18, 0, 0) };
             scroller.PreviewMouseWheel += (s, e) =>
             {
                 scroller.ScrollToHorizontalOffset(scroller.HorizontalOffset - e.Delta);
@@ -648,7 +573,7 @@ namespace Game_launcher
             Grid.SetRow(scroller, 2);
             layout.Children.Add(scroller);
 
-            var keep = consoleFocus != null ? row.IndexOf(consoleFocus) : -1;
+            int keep = consoleFocus != null ? row.IndexOf(consoleFocus) : -1;
             consoleHomeIndex = keep >= 0 ? keep : 0;
             FocusConsoleGame(row[consoleHomeIndex], false, false);
         }
@@ -657,26 +582,24 @@ namespace Game_launcher
         {
             consoleFocus = game;
             SetConsoleBackdrop(game);
+            if (consoleMode != "home") return;
 
-            if (consoleMode == "home")
+            for (int i = 0; i < consoleHomeTiles.Count; i++)
             {
-                for (int i = 0; i < consoleHomeTiles.Count; i++)
-                {
-                    bool focused = consoleHomeTiles[i].Game == game;
-                    if (focused) consoleHomeIndex = i;
-                    MarkConsoleTile(consoleHomeTiles[i].Tile, focused, animate);
-                    if (focused && bringIntoView) consoleHomeTiles[i].Tile.BringIntoView();
-                }
+                bool focused = consoleHomeTiles[i].Game == game;
+                if (focused) consoleHomeIndex = i;
+                MarkConsoleTile(consoleHomeTiles[i].Tile, focused, animate);
+                if (focused && bringIntoView) consoleHomeTiles[i].Tile.BringIntoView();
+            }
 
-                if (consoleHomeTitle != null) consoleHomeTitle.Text = game.Name.ToUpper(Loc.Culture);
-                if (consoleHomeMeta != null) consoleHomeMeta.Text = ConsoleMeta(game);
-                if (consoleHomeEyebrow != null)
-                    consoleHomeEyebrow.Text = (game.LastPlayed.HasValue ? Loc.T("Weiterspielen") : Loc.T("Aus deiner Bibliothek")).ToUpper(Loc.Culture);
-                if (consoleHomeFav?.Child is TextBlock star)
-                {
-                    star.Text = game.IsFavorite ? "★" : "☆";
-                    star.Foreground = game.IsFavorite ? MakeBrush("#FACC15") : System.Windows.Media.Brushes.White;
-                }
+            if (consoleHomeTitle != null) consoleHomeTitle.Text = game.Name;
+            if (consoleHomeMeta != null) consoleHomeMeta.Text = ConsoleMeta(game);
+            if (consoleHomeEyebrow != null)
+                consoleHomeEyebrow.Text = "// " + (game.LastPlayed.HasValue ? Loc.T("Weiterspielen") : Loc.T("Aus deiner Bibliothek")).ToUpper(Loc.Culture);
+            if (consoleHomeFav?.Content is TextBlock star)
+            {
+                star.Text = game.IsFavorite ? "★" : "☆";
+                star.Foreground = game.IsFavorite ? MakeBrush("#FACC15") : System.Windows.Media.Brushes.White;
             }
         }
 
@@ -690,26 +613,19 @@ namespace Game_launcher
             var games = VisibleGames.ToList();
             var page = new StackPanel { Margin = new Thickness(64, TitleBarHeight + 96, 64, 40) };
 
-            // Kopf: Titel, Anzahl, Suche
-            var head = new Grid { Margin = new Thickness(0, 0, 0, 26) };
+            var head = new Grid { Margin = new Thickness(0, 0, 0, 24) };
             head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             var titles = new StackPanel();
-            titles.Children.Add(ConsoleEyebrow(GamesText(games.Count).ToUpper(Loc.Culture)));
-            titles.Children.Add(ConsoleTitle(Loc.T("Bibliothek").ToUpper(Loc.Culture), 72));
+            titles.Children.Add(ConsoleEyebrow("// " + GamesText(games.Count).ToUpper(Loc.Culture)));
+            titles.Children.Add(ConsoleTitle(Loc.T("Bibliothek"), 56));
             head.Children.Add(titles);
 
-            var searchHost = new Grid { Width = 380, VerticalAlignment = System.Windows.VerticalAlignment.Bottom, Margin = new Thickness(0, 0, 0, 8) };
-            var search = new System.Windows.Controls.TextBox { Text = consoleSearch, Height = 46, FontSize = 16 };
-            var hint = new TextBlock
-            {
-                Text = Loc.T("Spiel suchen ..."),
-                Foreground = ConsoleMuted,
-                IsHitTestVisible = false,
-                VerticalAlignment = System.Windows.VerticalAlignment.Center,
-                Margin = new Thickness(18, 0, 0, 0),
-                Visibility = consoleSearch.Length == 0 ? Visibility.Visible : Visibility.Collapsed
-            };
+            // Rechts: Suche und Umschalten auf die volle Spiele-Seite (alle Filter, Sammlungen, smarte Listen, Sortierung)
+            var tools = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, VerticalAlignment = System.Windows.VerticalAlignment.Bottom, Margin = new Thickness(0, 0, 0, 6) };
+            var searchHost = new Grid { Width = 360, Margin = new Thickness(0, 0, 14, 0) };
+            var search = new System.Windows.Controls.TextBox { Text = consoleSearch, Height = 44, FontSize = 15 };
+            var hint = new TextBlock { Text = Loc.T("Spiel suchen ..."), Foreground = ConsoleMuted, IsHitTestVisible = false, VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(18, 0, 0, 0), Visibility = consoleSearch.Length == 0 ? Visibility.Visible : Visibility.Collapsed };
             search.TextChanged += (s, e) =>
             {
                 consoleSearch = search.Text;
@@ -718,8 +634,12 @@ namespace Game_launcher
             };
             searchHost.Children.Add(search);
             searchHost.Children.Add(hint);
-            Grid.SetColumn(searchHost, 1);
-            head.Children.Add(searchHost);
+            tools.Children.Add(searchHost);
+            var grid = ConsoleButton("▦  " + Loc.T("Raster-Ansicht").ToUpper(Loc.Culture), false, () => ShowConsolePage("games"));
+            grid.ToolTip = Loc.T("Die volle Spiele-Seite mit allen Filtern, Sammlungen, smarten Listen und der Sortierung");
+            tools.Children.Add(grid);
+            Grid.SetColumn(tools, 1);
+            head.Children.Add(tools);
             page.Children.Add(head);
 
             consoleRowsHost = new StackPanel();
@@ -736,26 +656,22 @@ namespace Game_launcher
                 Dispatcher.BeginInvoke(new Action(() => { search.Focus(); search.CaretIndex = search.Text.Length; }), DispatcherPriority.Input);
         }
 
-        private StackPanel? consoleRowsHost;
-
         private void RebuildConsoleRows()
         {
             if (consoleRowsHost == null) return;
             consoleRowsHost.Children.Clear();
             var games = VisibleGames.ToList();
 
-            // Mit Suche: alle Treffer als Raster (schlaue Suche, auch „steam:“ oder „gta“)
             if (consoleSearch.Trim().Length > 0)
             {
                 var parsed = ParseSearch(consoleSearch.Trim());
                 var hits = games.Select(g => (Game: g, Score: GameSearchScore(g, parsed))).Where(h => h.Score >= 0)
                     .OrderByDescending(h => h.Score).ThenBy(h => h.Game.Name, StringComparer.CurrentCultureIgnoreCase).Select(h => h.Game).ToList();
                 consoleRowsHost.Children.Add(ConsoleRowTitle(Loc.T("Treffer"), hits.Count, null));
-                var grid = new WrapPanel();
-                foreach (var game in hits) grid.Children.Add(ConsoleLibraryTile(game, new Thickness(0, 0, 20, 24)));
-                if (hits.Count == 0)
-                    grid.Children.Add(new TextBlock { Text = Loc.T("Keine Treffer."), Foreground = ConsoleMuted, FontSize = 18 });
-                consoleRowsHost.Children.Add(grid);
+                var wrap = new WrapPanel { Margin = new Thickness(0, 16, 0, 0) };
+                foreach (var game in hits) wrap.Children.Add(ConsoleLibraryTile(game, new Thickness(0, 0, 18, 24)));
+                if (hits.Count == 0) wrap.Children.Add(new TextBlock { Text = Loc.T("Keine Treffer."), Foreground = ConsoleMuted, FontSize = 18 });
+                consoleRowsHost.Children.Add(wrap);
                 return;
             }
 
@@ -764,28 +680,15 @@ namespace Game_launcher
                 var list = items.ToList();
                 if (list.Count == 0) return;
 
-                var strip = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(0, 16, 0, 8) };
-                foreach (var game in list) strip.Children.Add(ConsoleLibraryTile(game, new Thickness(0, 0, 20, 0)));
-                var scroller = new ScrollViewer
-                {
-                    Content = strip,
-                    HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden,
-                    VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
-                    Margin = new Thickness(0, 0, 0, 34)
-                };
+                var strip = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(0, 18, 0, 8) };
+                foreach (var game in list) strip.Children.Add(ConsoleLibraryTile(game, new Thickness(0, 0, 18, 0)));
+                var scroller = new ScrollViewer { Content = strip, HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled, Margin = new Thickness(0, 0, 0, 30) };
                 // Umschalt + Mausrad blättert die Reihe, das normale Mausrad scrollt die Seite
                 scroller.PreviewMouseWheel += (s, e) =>
                 {
-                    if (Keyboard.Modifiers == ModifierKeys.Shift)
-                    {
-                        scroller.ScrollToHorizontalOffset(scroller.HorizontalOffset - e.Delta);
-                        e.Handled = true;
-                    }
-                    else
-                    {
-                        e.Handled = true;
-                        consoleLibraryScroll?.ScrollToVerticalOffset(consoleLibraryScroll.VerticalOffset - e.Delta);
-                    }
+                    e.Handled = true;
+                    if (Keyboard.Modifiers == ModifierKeys.Shift) scroller.ScrollToHorizontalOffset(scroller.HorizontalOffset - e.Delta);
+                    else consoleLibraryScroll?.ScrollToVerticalOffset(consoleLibraryScroll.VerticalOffset - e.Delta);
                 };
                 consoleRowsHost.Children.Add(ConsoleRowTitle(title, list.Count, scroller));
                 consoleRowsHost.Children.Add(scroller);
@@ -793,6 +696,10 @@ namespace Game_launcher
 
             Row(Loc.T("Zuletzt gespielt"), games.Where(g => g.LastPlayed.HasValue).OrderByDescending(g => g.LastPlayed).Take(20));
             Row(Loc.T("Favoriten"), games.Where(g => g.IsFavorite).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase));
+
+            // Eigene Sammlungen als eigene Reihen
+            foreach (string collection in settings.CollectionNames)
+                Row("📁 " + collection, games.Where(g => g.Collections.Contains(collection)).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase));
 
             var counts = games.GroupBy(g => g.Source, StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
             foreach (string source in OrderLaunchers(counts.Keys))
@@ -808,20 +715,23 @@ namespace Game_launcher
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
             var text = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, VerticalAlignment = System.Windows.VerticalAlignment.Bottom };
-            text.Children.Add(ConsoleTitle(title.ToUpper(Loc.Culture), 30));
-            var number = new TextBlock { Text = count.ToString(Loc.Culture), FontSize = 14, Foreground = ConsoleMuted, Margin = new Thickness(12, 0, 0, 5), VerticalAlignment = System.Windows.VerticalAlignment.Bottom };
+            text.Children.Add(ConsoleTitle(title, 24));
+            var number = new TextBlock { Text = count.ToString(Loc.Culture), FontSize = 13, Foreground = ConsoleCyan, Margin = new Thickness(12, 0, 0, 4), VerticalAlignment = System.Windows.VerticalAlignment.Bottom };
             number.SetResourceReference(TextBlock.FontFamilyProperty, "MonoFont");
             text.Children.Add(number);
             row.Children.Add(text);
 
             if (pager != null)
             {
-                // ‹ › blättert eine Reihe weiter (ohne Mausrad-Trick)
                 var arrows = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
-                arrows.Children.Add(ConsoleIconButton("", Loc.T("Zurück"), () => pager.ScrollToHorizontalOffset(pager.HorizontalOffset - pager.ViewportWidth * 0.8)));
-                var next = ConsoleIconButton("", Loc.T("Weiter"), () => pager.ScrollToHorizontalOffset(pager.HorizontalOffset + pager.ViewportWidth * 0.8));
-                next.Margin = new Thickness(10, 0, 0, 0);
-                arrows.Children.Add(next);
+                var back = ConsoleButton("", false, () => pager.ScrollToHorizontalOffset(pager.HorizontalOffset - pager.ViewportWidth * 0.8), 13);
+                var next = ConsoleButton("", false, () => pager.ScrollToHorizontalOffset(pager.HorizontalOffset + pager.ViewportWidth * 0.8), 13);
+                foreach (var b in new[] { back, next })
+                {
+                    if (b.Content is TextBlock glyph) glyph.SetResourceReference(TextBlock.FontFamilyProperty, "IconFont");
+                    b.Padding = new Thickness(14, 8, 14, 8);
+                    arrows.Children.Add(b);
+                }
                 Grid.SetColumn(arrows, 1);
                 row.Children.Add(arrows);
             }
@@ -853,34 +763,37 @@ namespace Game_launcher
             consoleFocus = game;
             SetConsoleBackdrop(game);
 
-            var layout = new Grid { Margin = new Thickness(64, TitleBarHeight + 120, 64, 56) };
+            var layout = new Grid { Margin = new Thickness(64, TitleBarHeight + 110, 64, 50) };
             layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             layout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             consoleView.Children.Add(layout);
 
             var left = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Bottom, Margin = new Thickness(0, 0, 48, 0) };
-            left.Children.Add(ConsoleEyebrow(Loc.T(game.Source).ToUpper(Loc.Culture)));
-            var title = ConsoleTitle(game.Name.ToUpper(Loc.Culture), 96);
+            left.Children.Add(ConsoleEyebrow("// " + Loc.T(game.Source).ToUpper(Loc.Culture)));
+            var title = ConsoleTitle(game.Name, 72);
             title.TextWrapping = TextWrapping.Wrap;
             title.TextTrimming = TextTrimming.None;
             left.Children.Add(title);
 
-            // Große Zahlen
-            var stats = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(0, 30, 0, 30) };
+            var stats = new WrapPanel { Margin = new Thickness(0, 28, 0, 26) };
             void Stat(string label, string value)
             {
-                var block = new StackPanel { Margin = new Thickness(0, 0, 56, 0) };
-                var number = ConsoleTitle(value, 46);
-                block.Children.Add(number);
-                var caption = new TextBlock { Text = label.ToUpper(Loc.Culture), FontSize = 12, Foreground = ConsoleMuted, Margin = new Thickness(0, 4, 0, 0) };
+                var block = new Border { Margin = new Thickness(0, 0, 14, 10), Padding = new Thickness(18, 10, 22, 10), CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1) };
+                block.SetResourceReference(Border.BackgroundProperty, "CardFillBrush");
+                block.SetResourceReference(Border.BorderBrushProperty, "CardEdgeBrush");
+                var stack = new StackPanel();
+                stack.Children.Add(ConsoleTitle(value, 30));
+                var caption = new TextBlock { Text = label.ToUpper(Loc.Culture), FontSize = 11, Foreground = ConsoleCyan, Margin = new Thickness(0, 2, 0, 0) };
                 caption.SetResourceReference(TextBlock.FontFamilyProperty, "MonoFont");
-                block.Children.Add(caption);
+                stack.Children.Add(caption);
+                block.Child = stack;
                 stats.Children.Add(block);
             }
             if (!SHide(settings.StreamHideStats)) Stat(Loc.T("Spielzeit"), game.PlaySeconds >= 60 ? FormatPlaytime(game.PlaySeconds) : "—");
             Stat(Loc.T("zuletzt gespielt"), game.LastPlayed.HasValue ? Loc.T(FormatRelative(game.LastPlayed.Value)) : Loc.T("nie"));
             Stat(Loc.T("Starts"), game.LaunchCount.ToString(Loc.Culture));
             if (game.Rating > 0) Stat(Loc.T("Bewertung"), new string('★', Math.Clamp(game.Rating, 1, 5)));
+            if (KnownGameSize(game) is long bytes && bytes > 0) Stat(Loc.T("Größe"), FormatBytes(bytes));
             left.Children.Add(stats);
 
             if (!string.IsNullOrWhiteSpace(game.Notes))
@@ -888,46 +801,45 @@ namespace Game_launcher
                 left.Children.Add(new TextBlock
                 {
                     Text = game.Notes.Trim(),
-                    FontSize = 16,
-                    Foreground = MakeBrush("#D6D4CC"),
+                    FontSize = 15,
+                    Foreground = MakeBrush("#C9D4E3"),
                     TextWrapping = TextWrapping.Wrap,
-                    MaxHeight = 72,
+                    MaxHeight = 66,
                     TextTrimming = TextTrimming.WordEllipsis,
                     MaxWidth = 900,
                     HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
-                    Margin = new Thickness(0, 0, 0, 26)
+                    Margin = new Thickness(0, 0, 0, 22)
                 });
             }
 
+            // Alle wichtigen Aktionen direkt anklickbar, der Rest im ⋯-Menü
             var actions = new WrapPanel();
-            actions.Children.Add(ConsoleButton("▶  " + Loc.T("Spielen").ToUpper(Loc.Culture), true, () => LaunchGame(game), 20));
-            actions.Children.Add(ConsoleButton(game.IsFavorite ? "★  " + Loc.T("Favorit").ToUpper(Loc.Culture) : "☆  " + Loc.T("Favorit").ToUpper(Loc.Culture), false, () =>
-            {
-                ToggleFavorite(game);
-                BuildConsoleDetail(game);
-            }));
+            actions.Children.Add(ConsoleButton("▶  " + Loc.T("Spielen").ToUpper(Loc.Culture), true, () => LaunchGame(game), 18));
+            actions.Children.Add(ConsoleButton((game.IsFavorite ? "★  " : "☆  ") + Loc.T("Favorit").ToUpper(Loc.Culture), false, () => { ToggleFavorite(game); BuildConsoleDetail(game); }));
+            actions.Children.Add(ConsoleButton("📝  " + Loc.T("Details").ToUpper(Loc.Culture), false, () => ShowGameDetails(game)));
             if (!string.IsNullOrEmpty(game.InstallDir) || System.IO.File.Exists(game.ExecutablePath))
-                actions.Children.Add(ConsoleButton(Loc.T("Ordner").ToUpper(Loc.Culture), false, () => OpenGameLocation(game)));
+                actions.Children.Add(ConsoleButton("📂  " + Loc.T("Ordner").ToUpper(Loc.Culture), false, () => OpenGameLocation(game)));
+            actions.Children.Add(ConsoleButton("💾  " + Loc.T("Jetzt sichern").ToUpper(Loc.Culture), false, () => _ = BackupNowAsync(game)));
+            if (game.Source == "Steam" && game.AppId.Length > 0)
+                actions.Children.Add(ConsoleButton("🏆  " + Loc.T("Erfolge").ToUpper(Loc.Culture), false, () => _ = ShowSteamAchievementsAsync(game)));
             if (CanRepair(game))
-                actions.Children.Add(ConsoleButton(Loc.T("Reparieren").ToUpper(Loc.Culture), false, () => RepairGame(game)));
-            Border? more = null;
+                actions.Children.Add(ConsoleButton("🛠  " + Loc.T("Reparieren").ToUpper(Loc.Culture), false, () => RepairGame(game)));
+            System.Windows.Controls.Button? more = null;
             more = ConsoleButton("⋯", false, () =>
             {
                 var menu = BuildGameMenu(game);
                 menu.PlacementTarget = more;
                 menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Top;
                 menu.IsOpen = true;
-            }, 20);
+            }, 18);
             actions.Children.Add(more);
             actions.Children.Add(ConsoleButton("←  " + Loc.T("Zurück").ToUpper(Loc.Culture), false, () => ConsoleBack()));
             left.Children.Add(actions);
             layout.Children.Add(left);
 
-            // Rechts: großes Cover mit hartem Schatten
             var cover = ConsoleCoverTile(game, 300, 450);
-            cover.BorderBrush = System.Windows.Media.Brushes.White;
+            cover.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
             cover.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
-            cover.Margin = new Thickness(0, 0, 10, 10);
             if (!settings.PerformanceMode) cover.SetResourceReference(UIElement.EffectProperty, "HardShadow");
             Grid.SetColumn(cover, 1);
             layout.Children.Add(cover);
@@ -938,7 +850,7 @@ namespace Game_launcher
         private void OnConsoleKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (!IsConsole || controllerMode || consoleStage?.Visibility != Visibility.Visible) return;
-            if (Keyboard.FocusedElement is System.Windows.Controls.TextBox) return;   // beim Tippen in der Suche nicht stören
+            if (Keyboard.FocusedElement is System.Windows.Controls.TextBox) return;
             if (SpotlightLayer.Visibility == Visibility.Visible) return;
 
             if (consoleMode == "home" && consoleHomeTiles.Count > 0)

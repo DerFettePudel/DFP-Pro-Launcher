@@ -475,6 +475,7 @@ namespace Game_launcher
 
         private void ShowStartPage()
         {
+            if (IsConsole) return;   // Thema 2 wählt seine Startansicht selbst (InitConsole)
             if (settings.StartPage != "games") return;
 
             ShowView(ViewGames);
@@ -673,14 +674,13 @@ namespace Game_launcher
 
         private static bool SupportsGlass() => Environment.OSVersion.Version.Build >= 22621;
 
-        // Thema 2 hat bewusst kein Hintergrundbild (Raster statt Foto); dein Bild bleibt gespeichert und kommt mit Thema 1 zurück
         private bool HasBackgroundImage()
-            => !IsBrutal && !string.IsNullOrEmpty(settings.BackgroundImagePath) && File.Exists(settings.BackgroundImagePath);
+            => !string.IsNullOrEmpty(settings.BackgroundImagePath) && File.Exists(settings.BackgroundImagePath);
 
         private void ApplyTheme()
         {
             ApplySurfaceBrushes();
-            bool glass = settings.GlassEffect && SupportsGlass() && !IsBrutal;
+            bool glass = settings.GlassEffect && SupportsGlass();
             bool translucent = glass || HasBackgroundImage();
             if (TopScrim != null) TopScrim.Visibility = translucent ? Visibility.Visible : Visibility.Collapsed;
 
@@ -751,7 +751,7 @@ namespace Game_launcher
         private void ApplyGlowBackground()
         {
             ApplyAmbientGlow();
-            if (!settings.AnimatedBackground || IsBrutal)
+            if (!settings.AnimatedBackground)
             {
                 BackgroundGlow.Visibility = Visibility.Collapsed;
                 BackgroundGlow.Background = null;
@@ -808,7 +808,7 @@ namespace Game_launcher
                 int noBorder = unchecked((int)0xFFFFFFFE);                              // Windows 11: keinen hellen Fensterrand zeichnen
                 NativeFeatures.DwmSetWindowAttribute(hwnd, 34, ref noBorder, sizeof(int));
 
-                bool glass = settings.GlassEffect && SupportsGlass() && !IsBrutal;
+                bool glass = settings.GlassEffect && SupportsGlass();
                 int backdrop = glass ? 2 : 1; // 2 = Mica, 1 = aus
                 NativeFeatures.DwmSetWindowAttribute(hwnd, 38, ref backdrop, sizeof(int));
 

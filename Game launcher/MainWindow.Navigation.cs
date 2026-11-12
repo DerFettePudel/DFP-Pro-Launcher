@@ -83,6 +83,7 @@ namespace Game_launcher
 
             activeView.Visibility = Visibility.Visible;
             RecordNavigation(activeView);   // für Zurück / Vor (MainWindow.History.cs)
+            OnConsoleShowView();            // Thema 2: Bereich unter der Kopfleiste zeigen (statt START/BIBLIOTHEK)
             AnimateIn(activeView);
             UpdateCoverTint();
             if (ErrorHooksReady) WriteSessionMarker(activeView.Name);

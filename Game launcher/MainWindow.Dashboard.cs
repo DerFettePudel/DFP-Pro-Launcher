@@ -243,18 +243,16 @@ namespace Game_launcher
             var themeColor = brutal ? System.Windows.Media.Color.FromRgb(0x0B, 0x0B, 0x0B) : ParseColor(settings.BackgroundColor, "#0F111A");
 
             // Design „Nova“: Kino-Banner mit großem Hintergrundbild, Verlauf von links und unten, Infos als kleine Chips
-            // (Thema 2: eckig, dicker heller Rahmen, harter Schatten)
+            // (Thema 2: Neonkante und weiches Leuchten in der Akzentfarbe)
             var hero = new Border
             {
                 Height = 290,
-                CornerRadius = new CornerRadius(brutal ? 0 : 22),
-                BorderThickness = new Thickness(brutal ? 2 : 1),
+                CornerRadius = new CornerRadius(brutal ? 16 : 22),
+                BorderThickness = new Thickness(1),
                 Background = BrushCardBg,
-                ClipToBounds = !brutal,   // der harte Schatten liegt außerhalb
-                Margin = brutal ? new Thickness(0, 0, 8, 8) : new Thickness(0)
+                ClipToBounds = true
             };
             hero.SetResourceReference(Border.BorderBrushProperty, "CardEdgeBrush");
-            if (brutal && !settings.PerformanceMode) hero.SetResourceReference(UIElement.EffectProperty, "HardShadow");
 
             var wide = GetHeroImage(game);
             if (wide == null) _ = EnsureHeroAsync(game);
@@ -401,7 +399,17 @@ namespace Game_launcher
             layout.Children.Add(texts);
 
             hero.Child = frame;
-            HeroHost.Content = hero;
+            // Thema 2: weiches Neonleuchten auf einer Hülle (das Banner selbst schneidet an seiner Rundung ab)
+            if (brutal && !settings.PerformanceMode)
+            {
+                var glowHost = new Border { Child = hero, Margin = new Thickness(6) };
+                glowHost.SetResourceReference(UIElement.EffectProperty, "HardShadow");
+                HeroHost.Content = glowHost;
+            }
+            else
+            {
+                HeroHost.Content = hero;
+            }
 
             if (animate)
             {

@@ -18,10 +18,19 @@
 		<Content Include="DFP_Pro_Launcher.ico" />
 	</ItemGroup>
 
-	<!-- Thema 2 „Brutal“: wird beim Start als Text gelesen (Akzentfarbe eingesetzt) und nicht als normale WPF-Seite übersetzt -->
+	<!-- Thema 2 „Cyber“: wird beim Start als Text gelesen (Akzentfarbe eingesetzt) und nicht als normale WPF-Seite übersetzt -->
 	<ItemGroup>
-		<Page Remove="Themes\Brutal.xaml" />
-		<EmbeddedResource Include="Themes\Brutal.xaml" LogicalName="Game_launcher.Themes.Brutal.xaml" />
+		<Page Remove="Themes\Cyber.xaml" />
+		<EmbeddedResource Include="Themes\Cyber.xaml" LogicalName="Game_launcher.Themes.Cyber.xaml" />
+	</ItemGroup>
+
+	<!-- Schrift „Chakra Petch“ für Überschriften in Thema 2 (SIL Open Font License 1.1, Lizenz liegt bei) -->
+	<ItemGroup>
+		<Resource Include="Fonts\*.ttf" />
+		<Content Include="Fonts\OFL.txt">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Link>Lizenzen\ChakraPetch-OFL.txt</Link>
+		</Content>
 	</ItemGroup>
 
 	<!-- Der GitHub-Workflow setzt UpdateRepository (Benutzer/Repository). Lokale Testversionen suchen deshalb keine Updates. -->
