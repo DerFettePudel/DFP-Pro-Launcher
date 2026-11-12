@@ -952,12 +952,27 @@ namespace Game_launcher
                 query = query.Where(g => GameHasGenre(g, genreFilter));
 
             string text = TxtSearch.Text == SearchPlaceholder ? string.Empty : TxtSearch.Text.Trim();
+            Dictionary<GameItem, int>? searchScores = null;
             if (text.Length > 0)
-                query = query.Where(g => g.Name.Contains(text, StringComparison.OrdinalIgnoreCase));
+            {
+                // Schlaue Suche: Abkürzungen, Tippfehler, Filter wie „steam:“ (MainWindow.Search.cs)
+                var search = ParseSearch(text);
+                var scores = new Dictionary<GameItem, int>();
+                searchScores = scores;
+                query = query.Where(g =>
+                {
+                    int score = GameSearchScore(g, search);
+                    if (score < 0) return false;
+                    scores[g] = score;
+                    return true;
+                });
+            }
 
             var sorted = SortGames(query);
             if (settings.FavoritesFirst) sorted = sorted.OrderByDescending(g => g.IsFavorite);
             var visible = sorted.ToList();
+            // Beim Suchen stehen die besten Treffer oben, sonst gilt die gewählte Sortierung
+            if (searchScores != null) visible = visible.OrderByDescending(g => searchScores.TryGetValue(g, out int s) ? s : 0).ToList();
 
             BtnSort.Content = $"Sortierung: {SortLabels[Math.Clamp(settings.SortMode, 0, SortLabels.Length - 1)]}";
             TxtGameCount.Text = visible.Count == baseCount
@@ -1319,7 +1334,13 @@ namespace Game_launcher
             AddMenuItem(menu, "▶  Spielen", () => LaunchGame(game));
             AddMenuItem(menu, game.IsFavorite ? "★  Aus Favoriten entfernen" : "☆  Zu Favoriten hinzufügen", () => ToggleFavorite(game));
             AddMenuItem(menu, "📝  Details, Bewertung und Notizen ...", () => ShowGameDetails(game));
+            if (game.Source == "Steam" && game.AppId.Length > 0)
+                AddMenuItem(menu, "🏆  Steam-Erfolge ...", () => _ = ShowSteamAchievementsAsync(game));
+            if (!string.IsNullOrEmpty(game.InstallDir) || File.Exists(game.ExecutablePath))
+                AddMenuItem(menu, "📂  Speicherort öffnen", () => OpenGameLocation(game));
+            menu.Items.Add(new System.Windows.Controls.Separator());
 
+            // ── Ordnen und Verwalten (Untermenüs) ──
             var collections = new System.Windows.Controls.MenuItem { Header = Loc.T("📁  Sammlungen") };
             foreach (string name in settings.CollectionNames)
             {
@@ -1356,26 +1377,35 @@ namespace Game_launcher
             AddSubItem(saves, "Spielstand-Ordner festlegen ...", () => ChooseSavePath(game));
             menu.Items.Add(saves);
 
-            AddMenuItem(menu, "⚙  Startoptionen und Begleitprogramme ...", () => ShowLaunchOptions(game));
-            if (game.Source == "Steam" && game.AppId.Length > 0)
-                AddMenuItem(menu, "🏆  Steam-Erfolge ...", () => _ = ShowSteamAchievementsAsync(game));
-
-            if (!string.IsNullOrEmpty(game.InstallDir) || File.Exists(game.ExecutablePath))
-                AddMenuItem(menu, "📂  Speicherort öffnen", () => OpenGameLocation(game));
-            AddMenuItem(menu, "🖼  Eigenes Cover festlegen ...", () => ChooseCustomCover(game));
+            var cover = new System.Windows.Controls.MenuItem { Header = Loc.T("🖼  Cover") };
+            AddSubItem(cover, "🖼  Eigenes Cover festlegen ...", () => ChooseCustomCover(game));
             if (!string.IsNullOrEmpty(game.CustomCover))
-                AddMenuItem(menu, "↺  Cover zurücksetzen", () => ResetCustomCover(game));
-            AddMenuItem(menu, game.Hidden ? "👁  Wieder anzeigen" : "🙈  Verstecken", () => ToggleHidden(game));
-            AddMenuItem(menu, IsTrackingIgnored(game) && !BuiltInIgnored.Any(p => game.Name.Contains(p, StringComparison.OrdinalIgnoreCase)) && game.AppId != "431960"
+                AddSubItem(cover, "↺  Cover zurücksetzen", () => ResetCustomCover(game));
+            menu.Items.Add(cover);
+
+            var playtime = new System.Windows.Controls.MenuItem { Header = Loc.T("⏱  Spielzeit") };
+            AddSubItem(playtime, "⏱  Spielzeit bearbeiten ...", () => EditPlaytime(game));
+            AddSubItem(playtime, IsTrackingIgnored(game) && !BuiltInIgnored.Any(p => game.Name.Contains(p, StringComparison.OrdinalIgnoreCase)) && game.AppId != "431960"
                 ? "⏱  Spielzeit wieder erfassen" : "⏱  Spielzeit nicht erfassen", () => ToggleTrackingIgnored(game));
-            AddMenuItem(menu, "⏱  Spielzeit bearbeiten ...", () => EditPlaytime(game));
-            AddMenuItem(menu, "💶  Kaufpreis eintragen ...", () => EditPrice(game));
-            AddMenuItem(menu, "⚙  Spielprofil ...", () => ShowGameProfile(game));
+            menu.Items.Add(playtime);
+
+            var mods = new System.Windows.Controls.MenuItem { Header = Loc.T("🧩  Mods") };
             if (modFolders.TryGetValue(game.Name, out var modFolderPath))
-                AddMenuItem(menu, "🧩  Mod-Ordner öffnen", () => OpenShell(modFolderPath));
-            AddMenuItem(menu, "🧩  Mod-Ordner festlegen ...", () => PickModFolder(game));
+                AddSubItem(mods, "🧩  Mod-Ordner öffnen", () => OpenShell(modFolderPath));
+            AddSubItem(mods, "🧩  Mod-Ordner festlegen ...", () => PickModFolder(game));
             if (!string.IsNullOrEmpty(game.ModPath))
-                AddMenuItem(menu, "↺  Mod-Ordner zurücksetzen", () => ResetModFolder(game));
+                AddSubItem(mods, "↺  Mod-Ordner zurücksetzen", () => ResetModFolder(game));
+            menu.Items.Add(mods);
+
+            var gameSettings = new System.Windows.Controls.MenuItem { Header = Loc.T("⚙  Einstellungen für dieses Spiel") };
+            AddSubItem(gameSettings, "⚙  Startoptionen und Begleitprogramme ...", () => ShowLaunchOptions(game));
+            AddSubItem(gameSettings, "⚙  Spielprofil ...", () => ShowGameProfile(game));
+            AddSubItem(gameSettings, "💶  Kaufpreis eintragen ...", () => EditPrice(game));
+            menu.Items.Add(gameSettings);
+
+            // ── Verstecken, Reparieren, Entfernen ──
+            menu.Items.Add(new System.Windows.Controls.Separator());
+            AddMenuItem(menu, game.Hidden ? "👁  Wieder anzeigen" : "🙈  Verstecken", () => ToggleHidden(game));
             if (CanRepair(game))
                 AddMenuItem(menu, "🛠  Spieldateien reparieren ...", () => RepairGame(game));
             AddMenuItem(menu, "🗑  Deinstallieren ...", () => UninstallGame(game));

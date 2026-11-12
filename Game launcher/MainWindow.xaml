@@ -1233,6 +1233,7 @@
                     <StackPanel Grid.Row="1">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                             <TextBox x:Name="TxtSearch" Text="Spiel suchen..." Width="260" Height="38"
+                                 ToolTip="Abkürzungen wie „gta“ oder „rdr2“ gehen, kleine Tippfehler auch. Mit steam:, xbox:, epic:, fav:, neu: oder ungespielt: filterst du direkt."
                                  TextChanged="TxtSearch_TextChanged" PreviewKeyDown="TxtSearch_PreviewKeyDown" GotFocus="TxtSearch_GotFocus" LostFocus="TxtSearch_LostFocus"/>
                             <Button Content="＋ Spiel hinzufügen" Margin="12,0,0,0" Background="{DynamicResource AccentBrush}" Click="BtnAddGame_Click"/>
                             <Button Content="Neu scannen" Margin="10,0,0,0" Click="BtnRescanGames_Click"/>

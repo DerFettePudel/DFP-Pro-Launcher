@@ -223,10 +223,17 @@ namespace Game_launcher
             }
             else
             {
+                // Spiele mit der schlauen Suche (Abkürzungen, Tippfehler, „steam:“ …), sonst wie bisher
+                var gameSearch = ParseSearch(query);
                 foreach (var game in VisibleGames)
                 {
                     var target = game;
-                    Add("🎮", target.Name, "Spiel  ·  " + target.Source, () => LaunchGame(target), target.LastPlayed.HasValue ? 25 : 20);
+                    int bonus = target.LastPlayed.HasValue ? 25 : 20;
+                    int smart = GameSearchScore(target, gameSearch);
+                    int simple = gameSearch.Filters.Count == 0 ? ScoreMatch(target.Name, query) : -1;
+                    int score = Math.Max(smart, simple);
+                    if (score < 0) continue;
+                    entries.Add(new SpotlightEntry { Icon = "🎮", Title = target.Name, Subtitle = "Spiel  ·  " + target.Source, Action = () => LaunchGame(target), Score = score + bonus });
                 }
                 foreach (var app in cachedApps)
                 {
