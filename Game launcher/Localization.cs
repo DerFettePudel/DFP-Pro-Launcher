@@ -2537,6 +2537,15 @@ Am längsten nicht gespielt || Longest unplayed || 最久未玩 || Más tiempo s
 Für {#0} Spiele wurde die Deinstallation gestartet. || Uninstall started for {0} games. || 已为 {0} 个游戏启动卸载。 || Se inició la desinstalación de {0} juegos. || La désinstallation a été lancée pour {0} jeux. || A desinstalação foi iniciada para {0} jogos. || Удаление запущено для игр: {0}. || {0}本のゲームのアンインストールを開始しました。
 Bestätige sie bitte in den Fenstern der Launcher. Die Bibliothek aktualisiert sich danach von selbst. || Please confirm them in the launcher windows. The library updates itself afterwards. || 请在各启动器的窗口中确认。之后游戏库会自动更新。 || Confírmalas en las ventanas de los launchers. Después la biblioteca se actualiza sola. || Confirme-les dans les fenêtres des launchers. La bibliothèque se met ensuite à jour toute seule. || Confirme nas janelas dos launchers. Depois a biblioteca se atualiza sozinha. || Подтверди их в окнах лаунчеров. Затем библиотека обновится сама. || 各ランチャーのウィンドウで確認してください。その後ライブラリは自動で更新されます。
 Bestätige sie bitte in den Fenstern der Launcher und klicke danach auf „Neu scannen“. || Please confirm them in the launcher windows and then click "Rescan". || 请在各启动器的窗口中确认，然后点击"重新扫描"。 || Confírmalas en las ventanas de los launchers y luego haz clic en «Volver a escanear». || Confirme-les dans les fenêtres des launchers, puis clique sur « Réanalyser ». || Confirme nas janelas dos launchers e depois clique em "Examinar novamente". || Подтверди их в окнах лаунчеров и затем нажми «Пересканировать». || 各ランチャーのウィンドウで確認し、その後「再スキャン」をクリックしてください。
+Oben (Kopfleiste) || Top (header bar) || 顶部(标题栏) || Arriba (barra superior) || En haut (barre d'en-tête) || No topo (barra superior) || Сверху (верхняя панель) || 上(ヘッダーバー)
+Launcher || Launchers || 启动器 || Launchers || Launchers || Launchers || Лаунчеры || ランチャー
+Diese Woche || This week || 本周 || Esta semana || Cette semaine || Esta semana || На этой неделе || 今週
+{#0} Tage in Folge || {0} days in a row || 连续 {0} 天 || {0} días seguidos || {0} jours d'affilée || {0} dias seguidos || {0} дн. подряд || {0}日連続
+Gratis bei Epic Games || Free on Epic Games || Epic Games 免费 || Gratis en Epic Games || Gratuit sur Epic Games || Grátis na Epic Games || Бесплатно в Epic Games || Epic Gamesで無料
+1 Update bereit || 1 update ready || 1 个更新可用 || 1 actualización lista || 1 mise à jour prête || 1 atualização pronta || 1 обновление готово || アップデート1件あり
+{#0} Updates bereit || {0} updates ready || {0} 个更新可用 || {0} actualizaciones listas || {0} mises à jour prêtes || {0} atualizações prontas || Готово обновлений: {0} || アップデート{0}件あり
+Deine Spiele || Your games || 你的游戏 || Tus juegos || Tes jeux || Seus jogos || Твои игры || あなたのゲーム
+Klick auf ein Logo zeigt alle Spiele dieses Launchers || Click a logo to see all games from that launcher || 点击标志即可查看该启动器的所有游戏 || Haz clic en un logo para ver todos los juegos de ese launcher || Clique sur un logo pour voir tous les jeux de ce launcher || Clique em um logo para ver todos os jogos desse launcher || Нажми на логотип, чтобы увидеть все игры этого лаунчера || ロゴをクリックすると、そのランチャーのゲームをすべて表示します
 """;
     }
 }

@@ -58,6 +58,9 @@ namespace Game_launcher
             BuildConsoleStage();
             BuildConsoleBar();
             AttachDockToConsoleBar();
+            BuildConsoleSideTabs();
+            InitCyber();
+            ApplyConsoleNavLayout();
 
             consoleRefreshTimer.Tick += (s, e) => { consoleRefreshTimer.Stop(); RefreshConsole(); };
             consoleHoverTimer.Tick += (s, e) =>
@@ -91,9 +94,17 @@ namespace Game_launcher
             {
                 case "home": BuildConsoleHome(); break;
                 case "library":
+                    // Während die Launcher-Präsentation einfliegt, nicht neu aufbauen (sonst bricht die Animation ab)
+                    if (DateTime.Now < consolePresentingUntil)
+                    {
+                        RequestConsoleRefresh();
+                        break;
+                    }
                     double offset = consoleLibraryScroll?.VerticalOffset ?? 0;
+                    double presentOffset = consolePresentScroll?.VerticalOffset ?? 0;
                     BuildConsoleLibrary();
                     consoleLibraryScroll?.ScrollToVerticalOffset(offset);
+                    consolePresentScroll?.ScrollToVerticalOffset(presentOffset);
                     break;
                 case "detail":
                     if (consoleDetailGame != null) BuildConsoleDetail(consoleDetailGame);
@@ -140,7 +151,78 @@ namespace Game_launcher
             consoleView = new Grid();
             consoleStage.Children.Add(consoleView);
 
-            WindowRoot.Children.Add(consoleStage);
+            // In der Inhalts-Spalte: Bei der Seitenleiste links/rechts bleibt sie sichtbar, oben ist die Spalte 0 breit
+            RootGrid.Children.Add(consoleStage);
+            Grid.SetColumn(consoleStage, NavPosition == "right" ? 0 : 1);
+        }
+
+        /// <summary>Abstand von oben: Fensterleiste plus Kopfleiste (nur wenn die Navigation oben sitzt).</summary>
+        private double ConsoleTopInset => IsTopNav ? TitleBarHeight + 76 : TitleBarHeight;
+
+        // ───────── Navigation links/rechts: START und BIBLIOTHEK oben in der Seitenleiste ─────────
+
+        private StackPanel? consoleSideTabs;
+        private System.Windows.Controls.RadioButton? consoleSideHome, consoleSideLibrary;
+
+        private void BuildConsoleSideTabs()
+        {
+            if (NavPanel == null) return;
+            var home = ReferenceEquals(NavPanel.Parent, NavDockPanel) ? navPanelHome : NavPanel.Parent as System.Windows.Controls.Panel;
+            if (home == null) return;
+
+            System.Windows.Controls.RadioButton Item(string glyph, string title, Action open)
+            {
+                var icon = new TextBlock { Text = glyph, Width = 30, FontSize = 16, VerticalAlignment = System.Windows.VerticalAlignment.Center, RenderTransformOrigin = new System.Windows.Point(0.5, 0.5) };
+                icon.SetResourceReference(TextBlock.FontFamilyProperty, "IconFont");
+                var label = new TextBlock { Text = Loc.T(title).ToUpper(Loc.Culture), VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                var item = new System.Windows.Controls.RadioButton { GroupName = "Nav", Content = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Children = { icon, label } } };
+                item.SetResourceReference(StyleProperty, "NavButtonStyle");
+                item.Click += (s, e) => open();
+                AttachNavIconHover(item);
+                return item;
+            }
+
+            consoleSideHome = Item("", "Start", ShowConsoleHome);
+            consoleSideLibrary = Item("", "Bibliothek", OpenConsoleLibraryOverview);
+
+            var line = new Border { Height = 1, Margin = new Thickness(6, 10, 6, 10), IsHitTestVisible = false };
+            var accent = GetAccentColor();
+            var fade = new LinearGradientBrush { StartPoint = new System.Windows.Point(0, 0), EndPoint = new System.Windows.Point(1, 0) };
+            fade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xAA, accent.R, accent.G, accent.B), 0));
+            fade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x66, 0x22, 0xD3, 0xEE), 0.6));
+            fade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, 0x22, 0xD3, 0xEE), 1));
+            line.Background = fade;
+
+            consoleSideTabs = new StackPanel { Children = { consoleSideHome, consoleSideLibrary, line } };
+            home.Children.Insert(0, consoleSideTabs);
+            if (!ReferenceEquals(NavPanel.Parent, home)) navPanelHomeIndex = home.Children.IndexOf(consoleSideTabs) + 1;
+        }
+
+        /// <summary>Nach jedem Anordnen der Navigation: Kopfleiste oder Seitenleiste, Bühne in der richtigen Spalte.</summary>
+        private void ApplyConsoleNavLayout()
+        {
+            if (!IsConsole || consoleStage == null) return;
+
+            bool top = IsTopNav;
+            if (consoleBar != null) consoleBar.Visibility = top ? Visibility.Visible : Visibility.Collapsed;
+            Grid.SetColumn(consoleStage, NavPosition == "right" ? 0 : 1);
+            if (top) AttachDockToConsoleBar();
+
+            if (consoleSideTabs != null)
+            {
+                consoleSideTabs.Visibility = top ? Visibility.Collapsed : Visibility.Visible;
+                bool compact = settings.SidebarCollapsed;
+                foreach (var item in new[] { consoleSideHome, consoleSideLibrary })
+                {
+                    if (item?.Content is not StackPanel { Children.Count: > 1 } panel) continue;
+                    panel.Children[1].Visibility = compact ? Visibility.Collapsed : Visibility.Visible;
+                    item.ToolTip = compact && panel.Children[1] is TextBlock label ? MakeNavToolTip(label.Text, false) : null;
+                }
+            }
+
+            ApplyCyberSidebarEdge();
+            UpdateConsoleTabs();
+            RefreshConsole();
         }
 
         private System.Windows.Controls.Image NewBackdropImage()
@@ -166,7 +248,7 @@ namespace Game_launcher
 
             var tabs = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
             tabs.Children.Add(ConsoleTab("home", "Start", ShowConsoleHome));
-            tabs.Children.Add(ConsoleTab("library", "Bibliothek", ShowConsoleLibrary));
+            tabs.Children.Add(ConsoleTab("library", "Bibliothek", OpenConsoleLibraryOverview));
             row.Children.Add(tabs);
 
             consoleBarNavHost = new Grid { VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(12, 0, 12, 0) };
@@ -236,6 +318,11 @@ namespace Game_launcher
             if (consoleMode != "page" && NavPanel != null)
                 foreach (var item in NavPanel.Children.OfType<System.Windows.Controls.RadioButton>()) item.IsChecked = false;
 
+            // Seitenleiste (links/rechts): START bzw. BIBLIOTHEK markieren
+            string side = consoleMode == "detail" ? consoleReturnMode : consoleMode;
+            if (consoleSideHome != null) consoleSideHome.IsChecked = side == "home";
+            if (consoleSideLibrary != null) consoleSideLibrary.IsChecked = side == "library";
+
             if (consoleBarBack == null) return;
             if (consoleMode == "page")
             {
@@ -259,9 +346,12 @@ namespace Game_launcher
             }
         }
 
+        private string ConsoleTimeText() => DateTime.Now.ToString(settings.Clock24h ? "HH:mm" : "h:mm tt", Loc.Culture);
+
         private void UpdateConsoleClock()
         {
-            if (consoleClock != null) consoleClock.Text = DateTime.Now.ToString(settings.Clock24h ? "HH:mm" : "h:mm tt", Loc.Culture);
+            if (consoleClock != null) consoleClock.Text = ConsoleTimeText();
+            if (consoleHudClock != null) consoleHudClock.Text = ConsoleTimeText();
         }
 
         // ───────── Umschalten ─────────
@@ -279,6 +369,7 @@ namespace Game_launcher
 
         private void ShowConsoleHome()
         {
+            consolePresentedLauncher = null;   // eine offene Launcher-Präsentation gilt nur innerhalb der Bibliothek
             SetConsoleMode("home");
             BuildConsoleHome();
         }
@@ -322,6 +413,11 @@ namespace Game_launcher
 
         private bool ConsoleBack()
         {
+            if (IsConsole && consoleMode == "library" && consolePresentedLauncher != null)
+            {
+                CloseConsoleLauncher();   // Präsentation eines Launchers schließen
+                return true;
+            }
             if (!IsConsole || consoleMode != "detail") return false;
             if (consoleReturnMode == "library") ShowConsoleLibrary();
             else ShowConsoleHome();
@@ -489,7 +585,8 @@ namespace Game_launcher
 
         // ───────── START ─────────
 
-        private TextBlock? consoleHomeTitle, consoleHomeMeta, consoleHomeEyebrow;
+        private TextBlock? consoleHomeTitle, consoleHomeEyebrow, consoleHomeNote, consoleHudClock;
+        private WrapPanel? consoleHomeChips;
         private System.Windows.Controls.Button? consoleHomeFav;
 
         private void BuildConsoleHome()
@@ -509,7 +606,19 @@ namespace Game_launcher
             layout.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
             layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            layout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             consoleView.Children.Add(layout);
+
+            // Rechts oben: Infotafel (Begrüßung, Datum, Woche, Bibliothek, Gratis-Spiele); bei schmalem Fenster ausgeblendet
+            consoleHudClock = null;
+            var hud = BuildConsoleHud();
+            hud.ClipToBounds = true;
+            Grid.SetColumn(hud, 1);
+            Grid.SetRowSpan(hud, 2);
+            layout.Children.Add(hud);
+            layout.SizeChanged += (s, e) => hud.Visibility = e.NewSize.Width >= 1180 ? Visibility.Visible : Visibility.Collapsed;
+            hud.Visibility = consoleView.ActualWidth == 0 || consoleView.ActualWidth >= 1180 ? Visibility.Visible : Visibility.Collapsed;
 
             if (row.Count == 0)
             {
@@ -521,14 +630,27 @@ namespace Game_launcher
                 return;
             }
 
-            var info = new StackPanel { Margin = new Thickness(64, 0, 64, 30), MaxWidth = 1200, HorizontalAlignment = System.Windows.HorizontalAlignment.Left };
+            var info = new StackPanel { Margin = new Thickness(64, 0, 40, 26), MaxWidth = 1200, HorizontalAlignment = System.Windows.HorizontalAlignment.Left };
             Grid.SetRow(info, 1);
             consoleHomeEyebrow = ConsoleEyebrow(string.Empty);
             consoleHomeTitle = ConsoleTitle(string.Empty, 68);
-            consoleHomeMeta = new TextBlock { FontSize = 17, Foreground = MakeBrush("#C9D4E3"), Margin = new Thickness(0, 10, 0, 24) };
+            consoleHomeChips = new WrapPanel { Margin = new Thickness(0, 14, 0, 6) };
+            consoleHomeNote = new TextBlock
+            {
+                FontSize = 15,
+                Foreground = MakeBrush("#C9D4E3"),
+                TextWrapping = TextWrapping.Wrap,
+                TextTrimming = TextTrimming.WordEllipsis,
+                MaxHeight = 44,
+                MaxWidth = 820,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                Margin = new Thickness(0, 4, 0, 0)
+            };
             info.Children.Add(consoleHomeEyebrow);
             info.Children.Add(consoleHomeTitle);
-            info.Children.Add(consoleHomeMeta);
+            info.Children.Add(consoleHomeChips);
+            info.Children.Add(consoleHomeNote);
+            info.Children.Add(new Border { Height = 18 });
 
             var buttons = new WrapPanel();
             buttons.Children.Add(ConsoleButton("▶  " + Loc.T("Spielen").ToUpper(Loc.Culture), true, () => { if (consoleFocus != null) LaunchGame(consoleFocus); }, 18));
@@ -570,8 +692,26 @@ namespace Game_launcher
                 scroller.ScrollToHorizontalOffset(scroller.HorizontalOffset - e.Delta);
                 e.Handled = true;
             };
-            Grid.SetRow(scroller, 2);
-            layout.Children.Add(scroller);
+
+            // Überschrift über dem Karussell mit feiner Neonlinie
+            var stripHead = new Grid { Margin = new Thickness(64, 0, 64, -8) };
+            stripHead.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            stripHead.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            var stripLabel = ConsoleEyebrow("// " + Loc.T("Deine Spiele").ToUpper(Loc.Culture) + "   " + row.Count.ToString(Loc.Culture));
+            stripLabel.Margin = new Thickness(0, 0, 16, 0);
+            stripHead.Children.Add(stripLabel);
+            var rule = ConsoleRule();
+            rule.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+            rule.Margin = new Thickness(0, 0, 0, 4);
+            Grid.SetColumn(rule, 1);
+            stripHead.Children.Add(rule);
+
+            var bottom = new StackPanel();
+            bottom.Children.Add(stripHead);
+            bottom.Children.Add(scroller);
+            Grid.SetRow(bottom, 2);
+            Grid.SetColumnSpan(bottom, 2);
+            layout.Children.Add(bottom);
 
             int keep = consoleFocus != null ? row.IndexOf(consoleFocus) : -1;
             consoleHomeIndex = keep >= 0 ? keep : 0;
@@ -593,7 +733,12 @@ namespace Game_launcher
             }
 
             if (consoleHomeTitle != null) consoleHomeTitle.Text = game.Name;
-            if (consoleHomeMeta != null) consoleHomeMeta.Text = ConsoleMeta(game);
+            if (consoleHomeChips != null) FillConsoleChips(consoleHomeChips, game);
+            if (consoleHomeNote != null)
+            {
+                consoleHomeNote.Text = string.IsNullOrWhiteSpace(game.Notes) ? string.Empty : game.Notes.Trim();
+                consoleHomeNote.Visibility = consoleHomeNote.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed;
+            }
             if (consoleHomeEyebrow != null)
                 consoleHomeEyebrow.Text = "// " + (game.LastPlayed.HasValue ? Loc.T("Weiterspielen") : Loc.T("Aus deiner Bibliothek")).ToUpper(Loc.Culture);
             if (consoleHomeFav?.Content is TextBlock star)
@@ -611,7 +756,7 @@ namespace Game_launcher
             consoleView.Children.Clear();
 
             var games = VisibleGames.ToList();
-            var page = new StackPanel { Margin = new Thickness(64, TitleBarHeight + 96, 64, 40) };
+            var page = new StackPanel { Margin = new Thickness(64, ConsoleTopInset + 20, 64, 40) };
 
             var head = new Grid { Margin = new Thickness(0, 0, 0, 24) };
             head.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -654,6 +799,15 @@ namespace Game_launcher
 
             if (consoleSearch.Length > 0)
                 Dispatcher.BeginInvoke(new Action(() => { search.Focus(); search.CaretIndex = search.Text.Length; }), DispatcherPriority.Input);
+
+            // War gerade ein Launcher geöffnet (z. B. zurück aus den Spiel-Details): ohne Einflug-Animation wieder zeigen
+            consolePresentScroll = null;
+            if (consolePresentedLauncher != null)
+            {
+                if (games.Any(g => string.Equals(g.Source, consolePresentedLauncher, StringComparison.OrdinalIgnoreCase)))
+                    PresentConsoleLauncher(consolePresentedLauncher, false);
+                else consolePresentedLauncher = null;
+            }
         }
 
         private void RebuildConsoleRows()
@@ -694,16 +848,26 @@ namespace Game_launcher
                 consoleRowsHost.Children.Add(scroller);
             }
 
+            // Launcher nicht mehr als einzelne Reihen, sondern als Logo-Leiste: Ein Klick präsentiert die Spiele des Launchers
+            var counts = games.Where(g => !string.IsNullOrEmpty(g.Source))
+                .GroupBy(g => g.Source, StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
+            if (counts.Count > 0)
+            {
+                consoleRowsHost.Children.Add(ConsoleRowTitle(Loc.T("Launcher"), counts.Count, null));
+                var hint = new TextBlock { Text = Loc.T("Klick auf ein Logo zeigt alle Spiele dieses Launchers"), FontSize = 13, Foreground = ConsoleMuted, Margin = new Thickness(0, 4, 0, 0) };
+                consoleRowsHost.Children.Add(hint);
+                var logos = new WrapPanel { Margin = new Thickness(0, 16, 0, 26) };
+                foreach (string source in OrderLaunchers(counts.Keys))
+                    logos.Children.Add(ConsoleLauncherTile(source, counts[source]));
+                consoleRowsHost.Children.Add(logos);
+            }
+
             Row(Loc.T("Zuletzt gespielt"), games.Where(g => g.LastPlayed.HasValue).OrderByDescending(g => g.LastPlayed).Take(20));
             Row(Loc.T("Favoriten"), games.Where(g => g.IsFavorite).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase));
 
             // Eigene Sammlungen als eigene Reihen
             foreach (string collection in settings.CollectionNames)
                 Row("📁 " + collection, games.Where(g => g.Collections.Contains(collection)).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase));
-
-            var counts = games.GroupBy(g => g.Source, StringComparer.OrdinalIgnoreCase).ToDictionary(g => g.Key, g => g.Count(), StringComparer.OrdinalIgnoreCase);
-            foreach (string source in OrderLaunchers(counts.Keys))
-                Row(Loc.T(source), games.Where(g => string.Equals(g.Source, source, StringComparison.OrdinalIgnoreCase)).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase));
 
             Row(Loc.T("Ungespielt"), games.Where(g => g.PlaySeconds < 60 && g.LaunchCount == 0).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase));
         }
@@ -763,7 +927,7 @@ namespace Game_launcher
             consoleFocus = game;
             SetConsoleBackdrop(game);
 
-            var layout = new Grid { Margin = new Thickness(64, TitleBarHeight + 110, 64, 50) };
+            var layout = new Grid { Margin = new Thickness(64, ConsoleTopInset + 34, 64, 50) };
             layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             layout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             consoleView.Children.Add(layout);
@@ -852,6 +1016,13 @@ namespace Game_launcher
             if (!IsConsole || controllerMode || consoleStage?.Visibility != Visibility.Visible) return;
             if (Keyboard.FocusedElement is System.Windows.Controls.TextBox) return;
             if (SpotlightLayer.Visibility == Visibility.Visible) return;
+
+            if (consoleMode == "library" && consolePresentedLauncher != null && e.Key is Key.Escape or Key.Back)
+            {
+                CloseConsoleLauncher();
+                e.Handled = true;
+                return;
+            }
 
             if (consoleMode == "home" && consoleHomeTiles.Count > 0)
             {

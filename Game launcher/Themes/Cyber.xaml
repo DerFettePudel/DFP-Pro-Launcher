@@ -238,10 +238,84 @@
         </Setter>
     </Style>
 
+    <!-- ========== Menüeinträge der Navigation (Seitenleiste links/rechts und Kopfleiste) ==========
+         Schrift Chakra Petch, aktiver Eintrag als schräge Fläche mit Neonkante und leuchtendem Strich.
+         In der Kopfleiste (Tag="dock") sitzt der Strich unten mittig. -->
+    <Style x:Key="NavButtonStyle" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource NavTextBrush}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource DisplayFont}"/>
+        <Setter Property="FontSize" Value="14.5"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Margin" Value="0,2"/>
+        <Setter Property="Padding" Value="12,8"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Grid Background="Transparent">
+                        <Border x:Name="plate" Background="Transparent" BorderBrush="Transparent" BorderThickness="1" CornerRadius="2" Margin="3,0"
+                                RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+                            <Border.RenderTransform>
+                                <SkewTransform AngleX="-10"/>
+                            </Border.RenderTransform>
+                        </Border>
+                        <Border x:Name="border" Background="Transparent" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="pill" Width="3" Height="20" CornerRadius="0" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                Background="{DynamicResource NavActiveBrush}" Opacity="0" RenderTransformOrigin="0.5,0.5" IsHitTestVisible="False">
+                            <Border.RenderTransform>
+                                <ScaleTransform x:Name="pillScale" ScaleX="1" ScaleY="0.2"/>
+                            </Border.RenderTransform>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Tag" Value="dock">
+                            <Setter TargetName="pill" Property="Width" Value="18"/>
+                            <Setter TargetName="pill" Property="Height" Value="3"/>
+                            <Setter TargetName="pill" Property="HorizontalAlignment" Value="Center"/>
+                            <Setter TargetName="pill" Property="VerticalAlignment" Value="Bottom"/>
+                            <Setter TargetName="pill" Property="Margin" Value="0,0,0,2"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="plate" Property="Background" Value="#1022D3EE"/>
+                            <Setter TargetName="plate" Property="BorderBrush" Value="#4022D3EE"/>
+                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="plate" Property="Background" Value="{DynamicResource NavActiveBgBrush}"/>
+                            <Setter TargetName="plate" Property="BorderBrush" Value="__ACCENT40__"/>
+                            <Setter TargetName="pill" Property="Opacity" Value="1"/>
+                            <Setter TargetName="pill" Property="Effect" Value="{StaticResource NeonGlow}"/>
+                            <Setter Property="Foreground" Value="#FFFFFF"/>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="pillScale" Storyboard.TargetProperty="ScaleY" From="0.2" To="1" Duration="0:0:0.28">
+                                            <DoubleAnimation.EasingFunction>
+                                                <BackEase Amplitude="0.5" EasingMode="EaseOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                        <DoubleAnimation Storyboard.TargetName="pillScale" Storyboard.TargetProperty="ScaleX" From="0.2" To="1" Duration="0:0:0.28">
+                                            <DoubleAnimation.EasingFunction>
+                                                <BackEase Amplitude="0.5" EasingMode="EaseOut"/>
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- ========== Hinweis-Blasen ========== -->
     <Style x:Key="DockToolTip" TargetType="ToolTip">
         <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="HasDropShadow" Value="False"/>
+        <Setter Property="FontFamily" Value="{DynamicResource DisplayFont}"/>
         <Setter Property="Foreground" Value="#E8F0F8"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
@@ -455,7 +529,8 @@
     <!-- ========== Rechtsklick-Menüs: dunkles Glas, Neonkante, Markierung mit Cyan-Strich ========== -->
     <Style x:Key="DarkContextMenu" TargetType="ContextMenu">
         <Setter Property="Foreground" Value="#E8F0F8"/>
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontFamily" Value="{DynamicResource DisplayFont}"/>
+        <Setter Property="FontSize" Value="13.5"/>
         <Setter Property="HasDropShadow" Value="False"/>
         <Setter Property="Template">
             <Setter.Value>

@@ -814,8 +814,10 @@ namespace Game_launcher
         private ColumnDefinition? colContent;
         private string appliedNavPosition = string.Empty;
 
-        // Thema 2 „Brutal“ hat die Navigation immer oben als Kopfleiste (deine Wahl für Thema 1 bleibt gespeichert)
-        private string NavPosition => IsBrutal ? "top" : settings.SidebarPosition is "right" or "bottom" ? settings.SidebarPosition : "left";
+        // Thema 2 hat eine eigene Wahl: oben als Kopfleiste oder links/rechts als Seitenleiste (die Wahl für Thema 1 bleibt getrennt gespeichert)
+        private string NavPosition => IsBrutal
+            ? (settings.ConsoleNavPosition is "left" or "right" ? settings.ConsoleNavPosition : "top")
+            : settings.SidebarPosition is "right" or "bottom" ? settings.SidebarPosition : "left";
         private bool IsBottomNav => NavPosition == "bottom";
         private bool IsTopNav => NavPosition == "top";
         /// <summary>Navigation in einer waagerechten Leiste (unten schwebend oder oben als Kopfleiste) statt in der Seitenleiste.</summary>
@@ -1285,6 +1287,7 @@ namespace Game_launcher
             appliedNavPosition = position;
             if (changed && SidebarExtras != null) RenderSidebarExtras();
             UpdateDockTaskbarLift();
+            ApplyConsoleNavLayout();
         }
 
         private static TextBlock? NavIcon(System.Windows.Controls.RadioButton item)
@@ -1357,16 +1360,14 @@ namespace Game_launcher
             isLoadingSettings = true;
             try
             {
-                // Thema 2 hat die Navigation fest oben: Auswahl zeigt deine Wahl für Thema 1 und ist gesperrt
-                string own = settings.SidebarPosition is "right" or "bottom" ? settings.SidebarPosition : "left";
+                // Thema 2: dritte Wahl ist „Oben“ (Kopfleiste) statt der schwebenden Leiste unten
+                string own = IsBrutal
+                    ? (settings.ConsoleNavPosition is "left" or "right" ? settings.ConsoleNavPosition : "bottom")
+                    : settings.SidebarPosition is "right" or "bottom" ? settings.SidebarPosition : "left";
                 ChipNavLeft.IsChecked = own == "left";
                 ChipNavRight.IsChecked = own == "right";
                 ChipNavBottom.IsChecked = own == "bottom";
-                foreach (var chip in new[] { ChipNavLeft, ChipNavRight, ChipNavBottom })
-                {
-                    chip.IsEnabled = !IsBrutal;
-                    chip.ToolTip = IsBrutal ? Loc.T("In Thema 2 sitzt die Navigation immer oben. Diese Wahl gilt für Thema 1.") : null;
-                }
+                if (IsBrutal) ChipNavBottom.Content = Loc.T("Oben (Kopfleiste)");
             }
             finally
             {
@@ -1377,6 +1378,15 @@ namespace Game_launcher
         private void NavPosition_Checked(object sender, RoutedEventArgs e)
         {
             if (isLoadingSettings || sender is not FrameworkElement { Tag: string position }) return;
+            if (IsBrutal)
+            {
+                string console = position == "bottom" ? "top" : position;
+                if (console == settings.ConsoleNavPosition) return;
+                settings.ConsoleNavPosition = console;
+                SaveSettings();
+                ApplySidebar(true);
+                return;
+            }
             if (position == settings.SidebarPosition) return;
 
             settings.SidebarPosition = position;

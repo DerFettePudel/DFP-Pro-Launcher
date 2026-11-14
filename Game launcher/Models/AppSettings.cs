@@ -330,6 +330,7 @@ namespace Game_launcher
 
         // Design-Thema: "nova" (Thema 1) oder "brutal" (Thema 2); gilt ab dem nächsten Start
         public string UiTheme { get; set; } = "nova";
+        public string ConsoleNavPosition { get; set; } = "top";   // Thema 2: top (Kopfleiste) | left | right (Seitenleiste)
 
         // Fehlerbericht und Beta-Kanal
         public bool ErrorReports { get; set; } = true;

@@ -1094,7 +1094,7 @@ namespace Game_launcher
             var root = new StackPanel { Margin = new Thickness(18) };
 
             var header = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 14) };
-            header.Children.Add(new ContentControl { Content = FindResource("DfpLogo"), Width = 40, Height = 40 });
+            header.Children.Add(new ContentControl { Content = BrandPoodle(), Width = 40, Height = 40 });
             var titles = new StackPanel { Margin = new Thickness(12, 0, 0, 0), VerticalAlignment = System.Windows.VerticalAlignment.Center };
             titles.Children.Add(new TextBlock { Text = "DFP Pro Launcher", Foreground = System.Windows.Media.Brushes.White, FontWeight = FontWeights.Bold, FontSize = 16 });
             titles.Children.Add(new TextBlock { Text = "by Der_Fette_Pudel", Foreground = BrushSubtle, FontSize = 11 });

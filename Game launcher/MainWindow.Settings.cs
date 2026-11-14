@@ -1854,8 +1854,8 @@ namespace Game_launcher
             // Eigenes Bild in gleicher Form wie oben, sonst das Pudel-Logo (die Ressource ist nicht geteilt, jede Abfrage liefert ein neues)
             if (HasBrandImage && BrandLogo.Content is Border { Background: ImageBrush image } custom)
                 NavDockLogo.Content = new Border { CornerRadius = custom.CornerRadius, Background = image };
-            else if (NavDockLogo.Content is not Viewbox)
-                NavDockLogo.Content = FindResource("DfpLogo");
+            else if (!IsThemePoodle(NavDockLogo.Content))
+                NavDockLogo.Content = BrandPoodle();
 
             NavDockBrandTitle.Text = BrandTitle.Text;
             NavDockBrandTitle.Visibility = BrandTitle.Visibility;
@@ -4371,7 +4371,7 @@ namespace Game_launcher
 
             if (!HasBrandImage)
             {
-                if (BrandLogo.Content is not Viewbox) BrandLogo.Content = FindResource("DfpLogo");
+                if (!IsThemePoodle(BrandLogo.Content)) BrandLogo.Content = BrandPoodle();   // Thema 2: Neon-Pudel
                 return;
             }
 
@@ -4395,7 +4395,7 @@ namespace Game_launcher
             }
             catch
             {
-                BrandLogo.Content = FindResource("DfpLogo");
+                BrandLogo.Content = BrandPoodle();
             }
         }
 

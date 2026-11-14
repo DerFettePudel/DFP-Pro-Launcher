@@ -111,6 +111,26 @@ namespace Game_launcher
                 TextWrapping = TextWrapping.Wrap
             });
 
+            if (IsBrutal)
+            {
+                Group("Thema 2 (Cyber)");
+                Dev("⚡ Glitch an Logo und Namen auslösen", GlitchBurst);
+                Dev("🎬 Launcher-Präsentation (erster Launcher)", () =>
+                {
+                    string? first = OrderLaunchers(VisibleGames.Select(g => g.Source).Where(s => !string.IsNullOrEmpty(s))).FirstOrDefault();
+                    if (first == null) return;
+                    ShowConsoleLibrary();
+                    PresentConsoleLauncher(first, true);
+                });
+                Dev("↔ Navigation: oben → links → rechts", () =>
+                {
+                    settings.ConsoleNavPosition = settings.ConsoleNavPosition switch { "top" => "left", "left" => "right", _ => "top" };
+                    SaveSettings();
+                    ApplySidebar(true);
+                    PopulateNavPosition();
+                });
+            }
+
             Group("Feiertage und besondere Tage");
             Dev("🎃 Halloween", PlayHalloween);
             Dev("🎄 Weihnachten", PlayChristmas);
