@@ -84,6 +84,7 @@ namespace Game_launcher
             activeView.Visibility = Visibility.Visible;
             RecordNavigation(activeView);   // für Zurück / Vor (MainWindow.History.cs)
             OnConsoleShowView();            // Thema 2: Bereich unter der Kopfleiste zeigen (statt START/BIBLIOTHEK)
+            ShowHoloPage(activeView);       // Thema 2: neu gebaute Holo-Seite darüber (MainWindow.Holo.cs)
             AnimateIn(activeView);
             UpdateCoverTint();
             if (ErrorHooksReady) WriteSessionMarker(activeView.Name);

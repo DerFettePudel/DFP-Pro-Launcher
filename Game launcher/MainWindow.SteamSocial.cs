@@ -242,6 +242,7 @@ namespace Game_launcher
             }
 
             FillFriendsWidget();
+            if (holoKey == "dashboard") RequestConsoleRefresh();
         }
 
         // ───────── Erfolge: Fast geschafft ─────────
@@ -443,6 +444,7 @@ namespace Game_launcher
             }
 
             FillAchievementsWidget();
+            if (holoKey == "dashboard") RequestConsoleRefresh();
         }
 
         /// <summary>Nach einer Spielsitzung sind neue Erfolge möglich: beim nächsten Anzeigen neu laden.</summary>

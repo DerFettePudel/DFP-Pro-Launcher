@@ -115,6 +115,11 @@ namespace Game_launcher
             {
                 Group("Thema 2 (Cyber)");
                 Dev("⚡ Glitch an Logo und Namen auslösen", GlitchBurst);
+                Dev("🛸 Holo-Dashboard öffnen und einfliegen lassen", () =>
+                {
+                    ShowConsolePage("dashboard");
+                    if (holoKey.Length > 0) BuildHoloPage(true);
+                });
                 Dev("🎬 Launcher-Präsentation (erster Launcher)", () =>
                 {
                     string? first = OrderLaunchers(VisibleGames.Select(g => g.Source).Where(s => !string.IsNullOrEmpty(s))).FirstOrDefault();

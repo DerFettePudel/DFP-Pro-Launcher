@@ -77,8 +77,7 @@ namespace Game_launcher
 
             // Startseite aus den Einstellungen: „Spiele“ = Bibliothek, sonst START
             if (settings.StartPage == "games") ShowConsoleLibrary();
-            else ShowConsoleHome();
-        }
+            else ShowConsoleHome();        }
 
         private void RequestConsoleRefresh()
         {
@@ -108,6 +107,9 @@ namespace Game_launcher
                     break;
                 case "detail":
                     if (consoleDetailGame != null) BuildConsoleDetail(consoleDetailGame);
+                    break;
+                case "page":
+                    RefreshHoloPage();
                     break;
             }
         }
@@ -206,6 +208,7 @@ namespace Game_launcher
             bool top = IsTopNav;
             if (consoleBar != null) consoleBar.Visibility = top ? Visibility.Visible : Visibility.Collapsed;
             Grid.SetColumn(consoleStage, NavPosition == "right" ? 0 : 1);
+            PlaceHoloHost();
             if (top) AttachDockToConsoleBar();
 
             if (consoleSideTabs != null)
@@ -352,6 +355,7 @@ namespace Game_launcher
         {
             if (consoleClock != null) consoleClock.Text = ConsoleTimeText();
             if (consoleHudClock != null) consoleHudClock.Text = ConsoleTimeText();
+            if (holoClock != null) holoClock.Text = ConsoleTimeText();
         }
 
         // ───────── Umschalten ─────────
@@ -363,6 +367,7 @@ namespace Game_launcher
             consoleMode = mode;
 
             consoleStage.Visibility = mode == "page" ? Visibility.Collapsed : Visibility.Visible;
+            if (mode != "page") HideHoloPage();
             if (consoleDim != null) consoleDim.Visibility = mode == "library" ? Visibility.Visible : Visibility.Collapsed;
             UpdateConsoleTabs();
         }

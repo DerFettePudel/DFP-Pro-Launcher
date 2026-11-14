@@ -64,6 +64,7 @@ namespace Game_launcher
             TxtWeatherDesc.Text = description;
             TxtWeatherDetails.Text = details;
             TxtWeatherRange.Text = range;
+            if (holoKey == "dashboard") RequestConsoleRefresh();   // Thema 2: Holo-Dashboard zeigt das Wetter mit
         }
 
         private async Task<(double Lat, double Lon, string Name)?> ResolveLocationAsync()

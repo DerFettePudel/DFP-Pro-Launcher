@@ -2545,6 +2545,16 @@ Gratis bei Epic Games || Free on Epic Games || Epic Games 免费 || Gratis en Ep
 Updates bereit || Updates ready || 可用更新 || Actualizaciones listas || Mises à jour prêtes || Atualizações prontas || Готовые обновления || アップデートあり
 Deine Spiele || Your games || 你的游戏 || Tus juegos || Tes jeux || Seus jogos || Твои игры || あなたのゲーム
 Klick auf ein Logo zeigt alle Spiele dieses Launchers || Click a logo to see all games from that launcher || 点击标志即可查看该启动器的所有游戏 || Haz clic en un logo para ver todos los juegos de ese launcher || Clique sur un logo pour voir tous les jeux de ce launcher || Clique em um logo para ver todos os jogos desse launcher || Нажми на логотип, чтобы увидеть все игры этого лаунчера || ロゴをクリックすると、そのランチャーのゲームをすべて表示します
+KW {#0} || Week {0} || 第 {0} 周 || Semana {0} || Semaine {0} || Semana {0} || Неделя {0} || 第{0}週
+Zufallsspiel || Random game || 随机游戏 || Juego aleatorio || Jeu au hasard || Jogo aleatório || Случайная игра || ランダムゲーム
+Spiel hinzufügen || Add game || 添加游戏 || Añadir juego || Ajouter un jeu || Adicionar jogo || Добавить игру || ゲームを追加
+Fokus || Focus || 焦点 || Enfoque || Focus || Foco || Фокус || フォーカス
+Zeit und Wetter || Time and weather || 时间与天气 || Hora y tiempo || Heure et météo || Hora e clima || Время и погода || 時刻と天気
+Uhr und Wetter sind in den Einstellungen ausgeschaltet. || Clock and weather are turned off in the settings. || 时钟和天气已在设置中关闭。 || El reloj y el tiempo están desactivados en los ajustes. || L'horloge et la météo sont désactivées dans les paramètres. || Relógio e clima estão desativados nas configurações. || Часы и погода отключены в настройках. || 時計と天気は設定でオフになっています。
+Woche || Week || 本周 || Semana || Semaine || Semana || Неделя || 週
+Ziel {#0} Std. || Goal {0} h || 目标 {0} 小时 || Objetivo {0} h || Objectif {0} h || Meta {0} h || Цель {0} ч || 目標 {0} 時間
+Fast geschafft || Almost there || 即将完成 || Casi lo tienes || Presque fini || Quase lá || Почти готово || あと少し
+Noch nichts gespielt. || Nothing played yet. || 还没有玩过任何游戏。 || Aún no has jugado nada. || Rien joué pour l'instant. || Nada jogado ainda. || Пока ничего не сыграно. || まだ何もプレイしていません。
 """;
     }
 }
