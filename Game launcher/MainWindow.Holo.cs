@@ -37,6 +37,7 @@ namespace Game_launcher
             if (view == ViewWishlist) return "wishlist";
             if (view == ViewDownloads) return "downloads";
             if (view == ViewSystem) return "system";
+            if (view == ViewStorage) return "storage";
             return null;
         }
 
@@ -135,6 +136,7 @@ namespace Game_launcher
                 "wishlist" => BuildHoloWishlist(),
                 "downloads" => BuildHoloDownloads(),
                 "system" => BuildHoloSystem(),
+                "storage" => BuildHoloStorage(),
                 _ => null
             };
             if (page != null) holoContent.Children.Add(page);

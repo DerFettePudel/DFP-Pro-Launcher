@@ -2601,6 +2601,14 @@ Upload || Upload || 上传 || Subida || Envoi || Upload || Отдача || ア�
 Temperaturen und Lüfter || Temperatures and fans || 温度与风扇 || Temperaturas y ventiladores || Températures et ventilateurs || Temperaturas e ventoinhas || Температуры и вентиляторы || 温度とファン
 Sensoren werden gelesen ... || Reading sensors ... || 正在读取传感器 ... || Leyendo sensores ... || Lecture des capteurs ... || Lendo sensores ... || Чтение датчиков ... || センサーを読み取り中 ...
 Wird gelesen ... || Reading ... || 正在读取 ... || Leyendo ... || Lecture ... || Lendo ... || Чтение ... || 読み取り中 ...
+Wird gemessen ... || Measuring ... || 正在测量 ... || Midiendo ... || Mesure en cours ... || Medindo ... || Измерение ... || 計測中 ...
+Größen messen || Measure sizes || 测量大小 || Medir tamaños || Mesurer les tailles || Medir tamanhos || Измерить размеры || サイズを計測
+Die Größen deiner Spiele werden gemessen ... || Measuring the size of your games ... || 正在测量你的游戏大小 ... || Midiendo el tamaño de tus juegos ... || Mesure de la taille de tes jeux ... || Medindo o tamanho dos seus jogos ... || Измеряется размер твоих игр ... || ゲームのサイズを計測中 ...
+Noch keine Größen bekannt. Klick auf „Größen messen“. || No sizes known yet. Click “Measure sizes”. || 尚无大小信息。点击“测量大小”。 || Aún no se conocen tamaños. Haz clic en «Medir tamaños». || Aucune taille connue. Clique sur « Mesurer les tailles ». || Nenhum tamanho conhecido ainda. Clique em “Medir tamanhos”. || Размеры пока неизвестны. Нажми «Измерить размеры». || サイズはまだ不明です。「サイズを計測」をクリックしてください。
+Zusammen || Total || 合计 || En total || Au total || No total || Всего || 合計
+Größtes Spiel || Largest game || 最大的游戏 || Juego más grande || Plus gros jeu || Maior jogo || Самая большая игра || 最大のゲーム
+belegt || used || 已用 || usado || utilisé || usado || занято || 使用済み
+Frei || Free || 可用 || Libre || Libre || Livre || Свободно || 空き
 """;
     }
 }

@@ -7296,6 +7296,7 @@ namespace Game_launcher
                         settings.GameSizes[dir] = new GameSizeEntry { Bytes = size, Measured = DateTime.Now };
                     SaveSettings();
                     if (currentFilter.StartsWith("smart:")) ApplyFilter();
+                    if (holoKey == "storage") RequestConsoleRefresh();   // Thema 2: Größen-Karte neu zeichnen
                 }));
             });
         }
