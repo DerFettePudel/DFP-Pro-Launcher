@@ -41,6 +41,8 @@ namespace Game_launcher
             if (view == ViewOptimization) return "optimization";
             if (view == ViewTools) return "tools";
             if (view == ViewDeals) return "deals";
+            if (view == ViewBacklog) return "backlog";
+            if (view == ViewGallery) return "gallery";
             return null;
         }
 
@@ -103,6 +105,7 @@ namespace Game_launcher
             holoKey = string.Empty;
             holoClock = null;
             StopHoloLive();
+            CloseHoloLightbox();
         }
 
         /// <summary>Daten haben sich geändert: offene Holo-Seite ohne Einflug-Animation neu aufbauen.</summary>
@@ -143,6 +146,8 @@ namespace Game_launcher
                 "optimization" => BuildHoloOptimization(),
                 "tools" => BuildHoloTools(),
                 "deals" => BuildHoloDeals(),
+                "backlog" => BuildHoloBacklog(),
+                "gallery" => BuildHoloGallery(),
                 _ => null
             };
             if (page != null) holoContent.Children.Add(page);

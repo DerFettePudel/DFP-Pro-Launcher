@@ -2621,6 +2621,16 @@ Gruppen || Groups || 分组 || Grupos || Groupes || Grupos || Группы || �
 Werkzeug suchen ... || Search tools ... || 搜索工具 ... || Buscar herramienta ... || Chercher un outil ... || Procurar ferramenta ... || Найти инструмент ... || ツールを検索 ...
 Alle Werkzeuge || All tools || 所有工具 || Todas las herramientas || Tous les outils || Todas as ferramentas || Все инструменты || すべてのツール
 Im Store holen || Get it in the store || 在商店领取 || Conseguir en la tienda || Récupérer dans la boutique || Pegar na loja || Забрать в магазине || ストアで入手
+Termin || Date || 日期 || Fecha || Date || Data || Дата || 予定
+Warteschlange || Queue || 队列 || Cola || File d'attente || Fila || Очередь || キュー
+Abgeschlossen || Completed || 已完成 || Completado || Terminé || Concluído || Завершено || 完了
+Fortschritt || Progress || 进度 || Progreso || Progression || Progresso || Прогресс || 進行状況
+Bald erscheinend || Coming soon || 即将推出 || Próximamente || Bientôt disponible || Em breve || Скоро выйдет || 近日発売
+Tag || day || 天 || día || jour || dia || день || 日
+Tage || days || 天 || días || jours || dias || дней || 日
+Keine Screenshots gefunden. Füge über „Ordner hinzufügen“ deinen Screenshot-Ordner hinzu. || No screenshots found. Add your screenshot folder with “Add folder”. || 未找到截图。请通过“添加文件夹”添加你的截图文件夹。 || No se encontraron capturas. Añade tu carpeta de capturas con «Añadir carpeta». || Aucune capture trouvée. Ajoute ton dossier de captures avec « Ajouter un dossier ». || Nenhuma captura encontrada. Adicione sua pasta de capturas em “Adicionar pasta”. || Скриншоты не найдены. Добавь папку со скриншотами через «Добавить папку». || スクリーンショットが見つかりません。「フォルダーを追加」でフォルダーを追加してください。
+Neuester Screenshot || Latest screenshot || 最新截图 || Captura más reciente || Dernière capture || Captura mais recente || Последний скриншот || 最新のスクリーンショット
+Titelbild || Featured || 精选 || Destacada || À la une || Destaque || Главное || 注目
 """;
     }
 }

@@ -3039,6 +3039,7 @@ namespace Game_launcher
 
         private void RefreshReleases()
         {
+            if (holoKey == "backlog") RequestConsoleRefresh();   // Thema 2: Holo-Seite mit aktualisieren
             ReleasesList.Children.Clear();
 
             var items = settings.Releases.OrderBy(r => r.Date).ToList();
@@ -3290,6 +3291,8 @@ namespace Game_launcher
             var gamesSnapshot = allGames.ToList();
             var folders = settings.ScreenshotFolders.ToList();
             var shots = await Task.Run(() => FindScreenshots(gamesSnapshot, folders));
+            lastShots = shots;
+            if (holoKey == "gallery") RequestConsoleRefresh();   // Thema 2: Holo-Galerie mit aktualisieren
 
             GalleryContainer.Children.Clear();
             TxtGalleryStatus.Text = shots.Count == 0
