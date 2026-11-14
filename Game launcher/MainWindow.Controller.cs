@@ -921,6 +921,7 @@ namespace Game_launcher
                 {
                     windowTransition = false;
                 }
+                UpdateFullscreenState();   // Vollbild-Rahmen setzen (sonst schwarzer Balken an der Stelle der Taskleiste)
                 Topmost = true;
                 Activate();
                 ForceForeground();

@@ -241,7 +241,9 @@ namespace Game_launcher
             try
             {
                 if (System.Windows.Shell.WindowChrome.GetWindowChrome(this) is not { } chrome) return;
-                bool full = settings.TaskbarHideMaximized && !controllerMode && WindowState == WindowState.Maximized;
+                // Auch im Controller-Modus (Vollbild über die Taskleiste): Mit Glasrahmen 0 zeichnet Windows den Bereich
+                // hinter der Taskleiste nicht neu – dort blieb ein schwarzer Balken
+                bool full = (settings.TaskbarHideMaximized || controllerMode) && WindowState == WindowState.Maximized;
                 var wanted = new Thickness(full ? -1 : 0);
                 if (chrome.GlassFrameThickness == wanted) return;
 
