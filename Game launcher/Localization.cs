@@ -2631,6 +2631,11 @@ Tage || days || 天 || días || jours || dias || дней || 日
 Keine Screenshots gefunden. Füge über „Ordner hinzufügen“ deinen Screenshot-Ordner hinzu. || No screenshots found. Add your screenshot folder with “Add folder”. || 未找到截图。请通过“添加文件夹”添加你的截图文件夹。 || No se encontraron capturas. Añade tu carpeta de capturas con «Añadir carpeta». || Aucune capture trouvée. Ajoute ton dossier de captures avec « Ajouter un dossier ». || Nenhuma captura encontrada. Adicione sua pasta de capturas em “Adicionar pasta”. || Скриншоты не найдены. Добавь папку со скриншотами через «Добавить папку». || スクリーンショットが見つかりません。「フォルダーを追加」でフォルダーを追加してください。
 Neuester Screenshot || Latest screenshot || 最新截图 || Captura más reciente || Dernière capture || Captura mais recente || Последний скриншот || 最新のスクリーンショット
 Titelbild || Featured || 精选 || Destacada || À la une || Destaque || Главное || 注目
+Sendestatus || Broadcast status || 直播状态 || Estado de emisión || État de diffusion || Status da transmissão || Статус трансляции || 配信ステータス
+Countdown „Gleich live“ || “Live soon” countdown || “即将直播”倒计时 || Cuenta atrás «En directo pronto» || Compte à rebours « Bientôt en direct » || Contagem “Ao vivo em breve” || Отсчёт «Скоро в эфире» || 「まもなく配信」カウントダウン
+Checkliste vor dem Livegang || Pre-stream checklist || 开播前检查清单 || Lista antes de emitir || Liste avant le direct || Checklist antes da live || Чек-лист перед эфиром || 配信前チェックリスト
+Streaming-Programme || Streaming programs || 直播程序 || Programas de streaming || Logiciels de streaming || Programas de streaming || Программы для стрима || 配信ソフト
+Schnellzugriffe || Quick links || 快捷方式 || Accesos rápidos || Accès rapides || Atalhos || Быстрые ссылки || クイックリンク
 """;
     }
 }

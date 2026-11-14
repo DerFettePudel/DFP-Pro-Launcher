@@ -43,6 +43,7 @@ namespace Game_launcher
             if (view == ViewDeals) return "deals";
             if (view == ViewBacklog) return "backlog";
             if (view == ViewGallery) return "gallery";
+            if (view == ViewStreamer) return "streamer";
             return null;
         }
 
@@ -148,6 +149,7 @@ namespace Game_launcher
                 "deals" => BuildHoloDeals(),
                 "backlog" => BuildHoloBacklog(),
                 "gallery" => BuildHoloGallery(),
+                "streamer" => BuildHoloStreamer(),
                 _ => null
             };
             if (page != null) holoContent.Children.Add(page);

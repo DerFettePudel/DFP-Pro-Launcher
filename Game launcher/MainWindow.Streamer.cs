@@ -217,6 +217,7 @@ namespace Game_launcher
         {
             ToggleStreamerMode();
             RenderStreamerPage();
+            if (holoKey == "streamer") RequestConsoleRefresh();   // Thema 2: ON-AIR-Schild und Status neu zeichnen
         }
 
         private void RenderStreamerPage()
