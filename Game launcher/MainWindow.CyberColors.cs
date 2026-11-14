@@ -286,6 +286,16 @@ namespace Game_launcher
             }
             ApplyHoloBackground();
             RefreshConsole();
+
+            // Die Einstellungsseite baut sich sonst nie neu auf: hier ja, damit Kanten und Beschriftungen sofort die neue
+            // Farbe zeigen – aber nicht, während ein Regler noch gezogen wird (sonst ginge er unter der Maus verloren)
+            if (holoKey == "settings" && System.Windows.Input.Mouse.LeftButton == System.Windows.Input.MouseButtonState.Released)
+            {
+                double offset = holoScroll?.VerticalOffset ?? 0;
+                BuildHoloPage(false);
+                holoScroll?.ScrollToVerticalOffset(offset);
+            }
+            else if (holoKey == "settings") CyberColorsChanged();   // nach dem Loslassen erneut versuchen
         }
     }
 }

@@ -338,6 +338,11 @@ namespace Game_launcher
         public int CyberGlassOpacity { get; set; } = 88;
         public int CyberGlow { get; set; } = 100;
 
+        // Farben getrennt je Thema: Die normalen Farbfelder (AccentColor ...) gehören dem Thema in ColorsOwner,
+        // die des anderen Themas liegen in OtherThemeColors (Name → Wert als Text). Leer = noch nie getrennt.
+        public string ColorsOwner { get; set; } = string.Empty;
+        public Dictionary<string, string> OtherThemeColors { get; set; } = new();
+
         // Fehlerbericht und Beta-Kanal
         public bool ErrorReports { get; set; } = true;
         public bool BetaUpdates { get; set; }

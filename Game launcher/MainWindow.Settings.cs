@@ -183,6 +183,8 @@ namespace Game_launcher
                 settings.AutoDetectMigrated = true;
             }
             if (settings.UiTheme is not ("nova" or "brutal")) settings.UiTheme = "nova";
+            settings.ColorsOwner ??= string.Empty;
+            settings.OtherThemeColors ??= new Dictionary<string, string>();
             settings.GameFolders ??= new List<string>();
             settings.GameFolders.RemoveAll(string.IsNullOrWhiteSpace);
             settings.LauncherChips?.RemoveAll(string.IsNullOrWhiteSpace);   // null bleibt null: automatische Auswahl

@@ -30,6 +30,7 @@ namespace Game_launcher
             // Nur beim ersten Laden: Später (Einstellungen importieren, Profil) gilt das Thema erst nach einem Neustart
             if (uiThemeChosen) return;
             uiThemeChosen = true;
+            SwapThemeColors(settings.UiTheme == "brutal" ? "brutal" : "nova");   // jedes Thema hat seine eigenen Farben
 
             activeUiTheme = settings.UiTheme == "brutal" ? "brutal" : "nova";
             if (!IsBrutal) return;
@@ -48,6 +49,54 @@ namespace Game_launcher
                     new Uri("pack://application:,,,/DFPProLauncher;component/"), "./Fonts/#Chakra Petch, Segoe UI Variable Display, Segoe UI");
             }
             catch { }
+        }
+
+        /// <summary>Farbeinstellungen, die jedes Thema für sich hat.</summary>
+        private static readonly string[] ThemeColorProperties =
+        {
+            nameof(AppSettings.AccentColor), nameof(AppSettings.BackgroundColor), nameof(AppSettings.SidebarColor),
+            nameof(AppSettings.NavTextColor), nameof(AppSettings.NavActiveColor), nameof(AppSettings.BrandNameColor),
+            nameof(AppSettings.RgbAccent), nameof(AppSettings.RgbSpeed)
+        };
+
+        /// <summary>
+        /// Farben je Thema getrennt halten: Gehören die aktuellen Farben dem anderen Thema, werden sie mit dem gemerkten
+        /// Satz des gestarteten Themas getauscht. Beim allerersten Wechsel übernimmt das neue Thema die bisherigen Farben.
+        /// </summary>
+        private void SwapThemeColors(string active)
+        {
+            if (settings.ColorsOwner.Length == 0)
+            {
+                settings.ColorsOwner = active;   // bisherige Farben gehören dem Thema, das gerade läuft
+                SaveSettings();
+                return;
+            }
+            if (settings.ColorsOwner == active) return;
+
+            var type = typeof(AppSettings);
+            var current = new Dictionary<string, string>();
+            foreach (string name in ThemeColorProperties)
+            {
+                var property = type.GetProperty(name);
+                if (property == null) continue;
+                current[name] = Convert.ToString(property.GetValue(settings), System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+
+                // gemerkten Wert des gestarteten Themas einsetzen (fehlt er: bisherigen Wert behalten)
+                if (settings.OtherThemeColors.TryGetValue(name, out string? saved))
+                {
+                    try
+                    {
+                        object value = property.PropertyType == typeof(string) ? saved
+                            : Convert.ChangeType(saved, property.PropertyType, System.Globalization.CultureInfo.InvariantCulture);
+                        property.SetValue(settings, value);
+                    }
+                    catch { }
+                }
+            }
+
+            settings.OtherThemeColors = current;   // Farben des anderen Themas für dessen nächsten Start aufheben
+            settings.ColorsOwner = active;
+            SaveSettings();
         }
 
         private static string HexOf(System.Windows.Media.Color color) => $"#{color.R:X2}{color.G:X2}{color.B:X2}";
