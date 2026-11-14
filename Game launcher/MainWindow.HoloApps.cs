@@ -37,6 +37,13 @@ namespace Game_launcher
                 HoloButton("App hinzufügen", () => BtnAddApp_Click(this, new RoutedEventArgs()), true, ""),
                 HoloButton("Neu laden", () => BtnRefreshApps_Click(this, new RoutedEventArgs()), false, "")));
 
+            // Streamer-Modus „Pfade verbergen“: Thema 1 deckt die App-Liste ebenfalls ab
+            if (SHide(settings.StreamHidePaths))
+            {
+                page.Children.Add(HoloPanel(Loc.T("Streamer-Modus"), HoloHint("Im Streamer-Modus ausgeblendet.")));
+                return page;
+            }
+
             var layout = new Grid();
             layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(250) });
             layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });

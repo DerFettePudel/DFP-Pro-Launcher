@@ -162,6 +162,8 @@ namespace Game_launcher
             ApplyStreamerMode();
         }
 
+        private string lastHoloStreamSignature = string.Empty;
+
         private void ApplyStreamerMode()
         {
             if (StreamBadge == null) return;
@@ -182,6 +184,17 @@ namespace Game_launcher
             isLoadingSettings = true;
             try { ChkStreamer.IsChecked = settings.StreamerMode; }
             finally { isLoadingSettings = previous; }
+
+            // Thema 2: START, Bibliothek und Holo-Seiten blenden private Angaben beim Aufbau aus – also neu aufbauen,
+            // sobald sich Streamer-Modus oder eine seiner Kategorien ändert (nicht bei jeder Prüfung)
+            string holoSignature = on + "|" + settings.StreamHideName + settings.StreamHideLocation + settings.StreamHideStats
+                + settings.StreamHideRecent + settings.StreamHidePaths + settings.StreamHideShots;
+            if (holoSignature != lastHoloStreamSignature)
+            {
+                bool first = lastHoloStreamSignature.Length == 0;
+                lastHoloStreamSignature = holoSignature;
+                if (!first && IsConsole) RequestConsoleRefresh();
+            }
 
             if (lastStreamerState != on && !refreshingStreamer)
             {

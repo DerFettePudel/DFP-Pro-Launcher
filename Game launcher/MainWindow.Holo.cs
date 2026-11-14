@@ -70,6 +70,31 @@ namespace Game_launcher
             PlaceHoloHost();
         }
 
+        /// <summary>
+        /// Hintergrund der Holo-Ebene: Mit eigenem Hintergrundbild (oder Glas-Effekt) halbdurchsichtig, damit es wie auf
+        /// START durchscheint; sonst das Blauschwarz von Thema 2.
+        /// </summary>
+        private void ApplyHoloBackground()
+        {
+            if (holoHost == null) return;
+            bool image = BackgroundImage?.Visibility == Visibility.Visible;
+            bool glass = settings.GlassEffect && SupportsGlass();
+            holoHost.Background = image ? new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x59, ConsoleBase.R, ConsoleBase.G, ConsoleBase.B))
+                : glass ? new SolidColorBrush(System.Windows.Media.Color.FromArgb(0xB3, ConsoleBase.R, ConsoleBase.G, ConsoleBase.B))
+                : ConsoleInk;
+        }
+
+        /// <summary>
+        /// Die alte Seite unter der Holo-Ebene unsichtbar machen (bleibt aber „sichtbar“ für Zeitgeber und Messungen),
+        /// damit bei durchscheinendem Hintergrund nichts doppelt zu sehen ist.
+        /// </summary>
+        private void MaskUnderHolo(FrameworkElement view)
+        {
+            if (!IsConsole || holoHost?.Visibility != Visibility.Visible || holoKey.Length == 0) return;
+            view.BeginAnimation(UIElement.OpacityProperty, null);
+            view.Opacity = 0;
+        }
+
         /// <summary>Gleiche Spalte wie die Bühne von START; oben Platz für Fensterleiste und Kopfleiste.</summary>
         private void PlaceHoloHost()
         {
@@ -96,6 +121,7 @@ namespace Game_launcher
             holoKey = key;
             holoHost.Visibility = Visibility.Visible;
             PlaceHoloHost();
+            ApplyHoloBackground();
             BuildHoloPage(!same);
             if (!same) holoScroll?.ScrollToVerticalOffset(0);
         }

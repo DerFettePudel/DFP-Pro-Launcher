@@ -54,15 +54,75 @@ namespace Game_launcher
                 if (card.Child is not StackPanel body || holoSettingsCards.Any(c => c.Card == card)) continue;
                 var heading = body.Children.Count > 0 ? body.Children[0] as TextBlock : null;
                 card.Child = null;
-                holoSettingsCards.Add(new HoloSettingsCard
+                var entry = new HoloSettingsCard
                 {
                     Card = card,
                     Body = body,
                     Category = card.Tag as string ?? "general",
                     Title = heading?.Text ?? string.Empty,
                     Heading = heading
-                });
+                };
+                AdjustSettingsForTheme2(entry);
+                holoSettingsCards.Add(entry);
             }
+        }
+
+        /// <summary>Zeilen, die in Thema 2 keine Wirkung haben – bleiben hier ausgeblendet (auch bei der Suche).</summary>
+        private readonly HashSet<UIElement> holoSettingsHidden = new();
+
+        /// <summary>
+        /// Keine Überschneidungen zwischen den Themen: Optionen, die nur Thema 1 betreffen, ausblenden, und Texte, die
+        /// von der schwebenden Leiste unten sprechen, auf die Kopfleiste von Thema 2 umschreiben.
+        /// </summary>
+        private void AdjustSettingsForTheme2(HoloSettingsCard card)
+        {
+            // Zeile (direktes Kind der Karte), in der eine Überschrift mit diesem Text steht
+            (UIElement Row, TextBlock Title)? FindRow(string key)
+            {
+                string text = Loc.T(key);
+                foreach (UIElement child in card.Body.Children)
+                {
+                    var hit = FindTextBlock(child, t => t.Text == text || t.Text == key);
+                    if (hit != null) return (child, hit);
+                }
+                return null;
+            }
+
+            // Nur Thema 1: Farbstil des Pudel-Logos (Thema 2 zeigt immer den Neon-Pudel) und das Einfärben des alten Dashboards
+            foreach (string key in new[] { "Logo-Design", "Dashboard passend zum letzten Spiel einfärben" })
+                if (FindRow(key) is { } row)
+                {
+                    row.Row.Visibility = Visibility.Collapsed;
+                    holoSettingsHidden.Add(row.Row);
+                }
+
+            // Texte an die Kopfleiste von Thema 2 anpassen
+            if (FindRow("Position der Leiste") is { } position && FindDescription(position.Title) is TextBlock positionText)
+                positionText.Text = Loc.T("Oben als Kopfleiste mit START, BIBLIOTHEK und allen Bereichen, oder links bzw. rechts als Seitenleiste.");
+            if (FindRow("Logo und Name in der schwebenden Leiste anzeigen") is { } brand)
+            {
+                brand.Title.Text = Loc.T("Logo und Name in der Kopfleiste anzeigen");
+                if (FindDescription(brand.Title) is TextBlock brandText)
+                    brandText.Text = Loc.T("Gilt, wenn die Leiste oben ist. Logo, Name und Untertitel übernehmen deine Einstellungen unter „Logo und Name“.");
+            }
+        }
+
+        private static TextBlock? FindTextBlock(DependencyObject node, Func<TextBlock, bool> match)
+        {
+            if (node is TextBlock block) return match(block) ? block : null;
+            if (node is System.Windows.Controls.Panel panel)
+                foreach (UIElement child in panel.Children)
+                    if (FindTextBlock(child, match) is TextBlock found) return found;
+            if (node is Decorator { Child: DependencyObject inner }) return FindTextBlock(inner, match);
+            return null;
+        }
+
+        /// <summary>Die Beschreibung steht direkt unter der Überschrift einer Option.</summary>
+        private static TextBlock? FindDescription(TextBlock title)
+        {
+            if (title.Parent is not System.Windows.Controls.Panel parent) return null;
+            int index = parent.Children.IndexOf(title);
+            return index >= 0 && index + 1 < parent.Children.Count ? parent.Children[index + 1] as TextBlock : null;
         }
 
         private FrameworkElement BuildHoloSettings()
@@ -141,7 +201,7 @@ namespace Game_launcher
                 bool inCategory = card.Category == holoSettingsCategory;
                 if (query.Length == 0)
                 {
-                    foreach (UIElement child in card.Body.Children) child.Visibility = Visibility.Visible;
+                    foreach (UIElement child in card.Body.Children) child.Visibility = holoSettingsHidden.Contains(child) ? Visibility.Collapsed : Visibility.Visible;
                     if (inCategory) shown.Add(card);
                     continue;
                 }
@@ -153,6 +213,7 @@ namespace Game_launcher
                 {
                     var child = card.Body.Children[i];
                     if (child == card.Heading) continue;
+                    if (holoSettingsHidden.Contains(child)) { child.Visibility = Visibility.Collapsed; continue; }
                     var text = new System.Text.StringBuilder();
                     CollectTexts(child, text);
                     bool match = titleMatch || text.ToString().Contains(query, StringComparison.CurrentCultureIgnoreCase);

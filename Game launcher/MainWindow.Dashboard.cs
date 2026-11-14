@@ -1972,6 +1972,7 @@ namespace Game_launcher
             if (WelcomeLayer == null || !settings.WelcomeAnimation || !settings.SetupDone || settings.StartMinimized) return;
 
             bool reduced = settings.PerformanceMode || !settings.PageAnimations;
+            if (IsBrutal) ApplyCyberWelcome(reduced);   // Thema 2: Neon-Pudel, Holo-Hintergrund, Glitch (MainWindow.Cyber.cs)
 
             var (greetingTop, greetingBig, _) = BuildGreeting();
             WelcomeGreeting.Text = greetingTop;

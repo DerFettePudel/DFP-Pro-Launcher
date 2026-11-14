@@ -584,7 +584,8 @@ namespace Game_launcher
         {
             var parts = new List<string>();
             if (game.PlaySeconds >= 60 && !SHide(settings.StreamHideStats)) parts.Add(Loc.T("Spielzeit") + " " + FormatPlaytime(game.PlaySeconds));
-            parts.Add(game.LastPlayed.HasValue ? Loc.T("zuletzt gespielt") + " " + Loc.T(FormatRelative(game.LastPlayed.Value)) : Loc.T("nie gespielt"));
+            if (!SHide(settings.StreamHideRecent))
+                parts.Add(game.LastPlayed.HasValue ? Loc.T("zuletzt gespielt") + " " + Loc.T(FormatRelative(game.LastPlayed.Value)) : Loc.T("nie gespielt"));
             parts.Add(Loc.T(game.Source));
             return string.Join("   ·   ", parts);
         }
@@ -602,11 +603,20 @@ namespace Game_launcher
             consoleHomeTiles.Clear();
 
             var games = VisibleGames.ToList();
-            var row = games.Where(g => g.LastPlayed.HasValue).OrderByDescending(g => g.LastPlayed).Take(14).ToList();
-            foreach (var favorite in games.Where(g => g.IsFavorite).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase))
-                if (row.Count < 18 && !row.Contains(favorite)) row.Add(favorite);
-            foreach (var other in games.OrderByDescending(g => g.FirstSeen ?? DateTime.MinValue))
-                if (row.Count < 18 && !row.Contains(other)) row.Add(other);
+            List<GameItem> row;
+            if (SHide(settings.StreamHideRecent))
+            {
+                // Streamer-Modus „Zuletzt gespielt verbergen“: Reihenfolge verrät nichts (alphabetisch)
+                row = games.OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase).Take(18).ToList();
+            }
+            else
+            {
+                row = games.Where(g => g.LastPlayed.HasValue).OrderByDescending(g => g.LastPlayed).Take(14).ToList();
+                foreach (var favorite in games.Where(g => g.IsFavorite).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase))
+                    if (row.Count < 18 && !row.Contains(favorite)) row.Add(favorite);
+                foreach (var other in games.OrderByDescending(g => g.FirstSeen ?? DateTime.MinValue))
+                    if (row.Count < 18 && !row.Contains(other)) row.Add(other);
+            }
 
             var layout = new Grid();
             layout.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });

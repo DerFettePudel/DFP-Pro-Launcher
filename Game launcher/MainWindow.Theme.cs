@@ -115,6 +115,7 @@ namespace Game_launcher
             BrushCardBorder = MakeBrush("#1E2638");
             BrushFooter = MakeBrush("#121726");
             BrushTileHover = MakeBrush("#1A2133");
+            ApplyHoloBackground();   // Hintergrundbild/Glas auch auf den Holo-Seiten
         }
 
         // ───────── Kopfleiste oben (Thema 2) ─────────

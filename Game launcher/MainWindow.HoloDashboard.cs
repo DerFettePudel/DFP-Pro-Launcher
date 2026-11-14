@@ -20,7 +20,13 @@ namespace Game_launcher
         {
             var page = new StackPanel();
             var games = VisibleGames.ToList();
+            // Streamer-Modus: dieselben Kategorien wie im Dashboard von Thema 1 (dort abgedeckt, hier gar nicht erst gezeigt)
             bool hideStats = SHide(settings.StreamHideStats);
+            bool hideRecent = SHide(settings.StreamHideRecent);
+            bool hideLocation = SHide(settings.StreamHideLocation);
+            bool hidePaths = SHide(settings.StreamHidePaths);
+            bool hideShots = SHide(settings.StreamHideShots);
+            bool hideName = SHide(settings.StreamHideName);
 
             // ── Kopf ──
             var now = DateTime.Now;
@@ -35,14 +41,13 @@ namespace Game_launcher
             page.Children.Add(HoloHeader(code, GreetingLine(), null, actions.ToArray()));
 
             // ── Zahlen-Platten ──
-            if (!DashOff("stats"))
+            if (!DashOff("stats") && !hideStats)
             {
                 var stats = new System.Windows.Controls.Primitives.UniformGrid { Rows = 1, Margin = new Thickness(-6, 0, 4, 4) };
                 stats.Children.Add(HoloStat(Loc.T("Spiele"), games.Count.ToString(Loc.Culture), OpenConsoleLibraryOverview, games.Count));
                 int favorites = games.Count(g => g.IsFavorite);
                 stats.Children.Add(HoloStat(Loc.T("Favoriten"), favorites.ToString(Loc.Culture), null, favorites));
-                if (!hideStats)
-                    stats.Children.Add(HoloStat(Loc.T("Gesamtspielzeit"), FormatPlaytime(games.Where(g => !IsTrackingIgnored(g)).Sum(g => g.PlaySeconds)), () => NavigateTo("stats")));
+                stats.Children.Add(HoloStat(Loc.T("Gesamtspielzeit"), FormatPlaytime(games.Where(g => !IsTrackingIgnored(g)).Sum(g => g.PlaySeconds)), () => NavigateTo("stats")));
                 int updates = games.Count(g => g.UpdatePending);
                 stats.Children.Add(HoloStat(Loc.T("Updates bereit"), updates.ToString(Loc.Culture), null, updates));
                 page.Children.Add(stats);
@@ -57,16 +62,16 @@ namespace Game_launcher
 
             // ── Links: Fokus, Spiel des Tages, Cover-Streifen ──
             var focus = played.FirstOrDefault() ?? favoriteList.FirstOrDefault();
-            if (!DashOff("hero") && focus != null) left.Children.Add(BuildHoloFocus(focus));
+            if (!DashOff("hero") && focus != null && !hideRecent) left.Children.Add(BuildHoloFocus(focus));
             if (!DashOff("daily")) left.Children.Add(BuildHoloDaily());
-            if (!DashOff("recent"))
+            if (!DashOff("recent") && !hideRecent)
                 left.Children.Add(HoloPanel(Loc.T("Zuletzt gespielt"), HoloCoverStrip(played.Take(Math.Max(settings.RecentCount, 6)).ToList(), "Noch nichts gespielt."), OpenConsoleLibraryOverview));
-            if (!DashOff("favorites") && favoriteList.Count > 0)
+            if (!DashOff("favorites") && favoriteList.Count > 0 && !hideRecent)
                 left.Children.Add(HoloPanel(Loc.T("Favoriten"), HoloCoverStrip(favoriteList.Take(Math.Max(settings.RecentCount, 6)).ToList(), null)));
-            if (!DashOff("quick")) left.Children.Add(BuildHoloQuick());
+            if (!DashOff("quick") && !hidePaths) left.Children.Add(BuildHoloQuick());
 
             // ── Rechts: Zeit und Wetter, Woche, Backlog, Updates, Wunschliste, Steam ──
-            if (!DashOff("clock")) right.Children.Add(BuildHoloClock());
+            if (!DashOff("clock")) right.Children.Add(BuildHoloClock(hideLocation));
             if (!hideStats && !DashOff("goal")) right.Children.Add(BuildHoloWeek());
             var pending = games.Where(g => g.UpdatePending).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase).ToList();
             if (pending.Count > 0)
@@ -77,7 +82,7 @@ namespace Game_launcher
                 right.Children.Add(HoloPanel(Loc.T("Updates bereit") + "  " + pending.Count.ToString(Loc.Culture), list));
             }
             if (!DashOff("backlog")) right.Children.Add(BuildHoloBacklog(games));
-            if (!DashOff("wishlist")) right.Children.Add(BuildHoloWish());
+            if (!DashOff("wishlist") && !hideShots) right.Children.Add(BuildHoloWish());
             if (epicFree.Count > 0)
             {
                 var list = new StackPanel();
@@ -88,7 +93,7 @@ namespace Game_launcher
                 }
                 right.Children.Add(HoloPanel(Loc.T("Gratis bei Epic Games"), list, () => NavigateTo("deals")));
             }
-            if (!DashOff("friends")) right.Children.Add(BuildHoloFriends());
+            if (!DashOff("friends") && !hideName) right.Children.Add(BuildHoloFriends());
             if (!DashOff("achievements")) right.Children.Add(BuildHoloAchievements());
 
             return page;
@@ -157,6 +162,7 @@ namespace Game_launcher
         private FrameworkElement BuildHoloDaily()
         {
             var game = PickDailyGame(out string reason);
+            if (SHide(settings.StreamHideRecent)) reason = string.Empty;   // Grund verrät, wann zuletzt gespielt wurde
             if (game == null) return HoloPanel(Loc.T("Spiel des Tages"), HoloHint("Sobald Spiele in deiner Bibliothek sind, schlägt dir der Launcher hier jeden Tag eines vor."));
 
             var row = new Grid();
@@ -209,7 +215,7 @@ namespace Game_launcher
 
         // ───────── Uhr und Wetter ─────────
 
-        private FrameworkElement BuildHoloClock()
+        private FrameworkElement BuildHoloClock(bool hideLocation)
         {
             var body = new StackPanel();
             if (settings.ShowClock)
@@ -218,7 +224,9 @@ namespace Game_launcher
                 body.Children.Add(holoClock);
             }
 
-            if (settings.ShowWeather && TxtWeatherTemp != null && TxtWeatherTemp.Text.Length > 0)
+            // Streamer-Modus „Standort verbergen“: Wetter nennt den Ort, darum ganz weglassen
+            if (hideLocation) body.Children.Add(HoloHint("Wetter im Streamer-Modus ausgeblendet (Standort)."));
+            else if (settings.ShowWeather && TxtWeatherTemp != null && TxtWeatherTemp.Text.Length > 0)
             {
                 var weather = new Grid { Margin = new Thickness(0, settings.ShowClock ? 10 : 0, 0, 0) };
                 weather.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });

@@ -445,7 +445,7 @@ namespace Game_launcher
             top.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
             var brand = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
-            var logo = (FrameworkElement)FindResource("DfpLogo");
+            var logo = BrandPoodle();   // passend zum Thema
             logo.Width = 46;
             logo.Height = 46;
             brand.Children.Add(logo);

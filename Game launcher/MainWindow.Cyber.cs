@@ -138,6 +138,75 @@ namespace Game_launcher
             });
         }
 
+        // ───────── Willkommensanimation in Thema 2 ─────────
+
+        private bool cyberWelcomeReady;
+
+        /// <summary>
+        /// Startlogo passend zum Thema: dunkler Holo-Hintergrund statt Thema-1-Fläche, Neon-Pudel (bzw. eigenes Logo),
+        /// Name in der Cyber-Schrift mit Farbversatz, Lichtlinie Akzent → Cyan, kurz nach dem Erscheinen ein Glitch.
+        /// </summary>
+        private void ApplyCyberWelcome(bool reduced)
+        {
+            if (WelcomeLayer == null) return;
+
+            if (!cyberWelcomeReady)
+            {
+                cyberWelcomeReady = true;
+                WelcomeLayer.Background = ConsoleInk;
+                WelcomeLayer.Children.Insert(0, BuildHoloBackdrop());
+
+                WelcomeGreeting.SetResourceReference(TextBlock.FontFamilyProperty, "MonoFont");
+                WelcomeGreeting.Foreground = ConsoleCyan;
+                WelcomeName.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
+                WelcomeName.FontWeight = FontWeights.Bold;
+                if (!settings.PerformanceMode) WelcomeName.SetResourceReference(UIElement.EffectProperty, "TitleGlow");
+                MakeGlitchText(WelcomeName);
+
+                var accent = GetAccentColor();
+                var line = new LinearGradientBrush { StartPoint = new System.Windows.Point(0, 0), EndPoint = new System.Windows.Point(1, 0) };
+                line.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, accent.R, accent.G, accent.B), 0));
+                line.GradientStops.Add(new GradientStop(accent, 0.35));
+                line.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromRgb(0x22, 0xD3, 0xEE), 0.75));
+                line.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, 0x22, 0xD3, 0xEE), 1));
+                WelcomeLine.Background = line;
+                WelcomeLine.CornerRadius = new CornerRadius(0);
+                WelcomeLine.Height = 2;
+                if (!settings.PerformanceMode) WelcomeLine.SetResourceReference(UIElement.EffectProperty, "NeonGlow");
+            }
+
+            // Logo jedes Mal neu (eigenes Logo aus den Einstellungen bleibt erhalten)
+            WelcomeLogo.Content = HasBrandImage && BrandLogo?.Content is Border custom
+                ? new Border { Background = custom.Background, CornerRadius = custom.CornerRadius }
+                : BuildCyberPoodle();
+            WelcomeLogo.Width = 190;
+            WelcomeLogo.Height = 190;
+
+            // Kurz nach dem Erscheinen: Störbalken über das Logo und Farbversatz am Namen
+            if (!reduced)
+            {
+                var glitch = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(900) };
+                glitch.Tick += (s, e) =>
+                {
+                    glitch.Stop();
+                    if (WelcomeLayer.Visibility == Visibility.Visible) GlitchBurstForced();
+                };
+                glitch.Start();
+            }
+        }
+
+        /// <summary>Glitch auch dann, wenn das Fenster (noch) nicht aktiv ist – für die Willkommensanimation.</summary>
+        private void GlitchBurstForced()
+        {
+            if (settings.PerformanceMode) return;
+            foreach (var (reference, burst) in glitchTargets.ToList())
+            {
+                if (!reference.TryGetTarget(out var target) || !target.IsVisible) continue;
+                try { burst(glitchRandom); }
+                catch { }
+            }
+        }
+
         // ───────── Pudel in Neon ─────────
 
         /// <summary>Das Pudel-Logo als Cyberpunk-Version: dunkle Scheibe, Neonkanten, Visier statt Augen, HUD-Ring.</summary>

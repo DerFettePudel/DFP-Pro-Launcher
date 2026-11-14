@@ -81,7 +81,8 @@ namespace Game_launcher
             if (!string.IsNullOrEmpty(game.Source)) host.Children.Add(ConsoleChip(null, Loc.T(game.Source), GetLauncherIcon(game.Source)));
             if (game.UpdatePending) host.Children.Add(ConsoleChip(null, Loc.T("Update verfügbar"), null, true));
             if (game.PlaySeconds >= 60 && !SHide(settings.StreamHideStats)) host.Children.Add(ConsoleChip(Loc.T("Spielzeit"), FormatPlaytime(game.PlaySeconds)));
-            host.Children.Add(ConsoleChip(Loc.T("zuletzt gespielt"), game.LastPlayed.HasValue ? Loc.T(FormatRelative(game.LastPlayed.Value)) : Loc.T("nie")));
+            if (!SHide(settings.StreamHideRecent))
+                host.Children.Add(ConsoleChip(Loc.T("zuletzt gespielt"), game.LastPlayed.HasValue ? Loc.T(FormatRelative(game.LastPlayed.Value)) : Loc.T("nie")));
             if (KnownGameSize(game) is long bytes && bytes > 0) host.Children.Add(ConsoleChip(Loc.T("Größe"), FormatBytes(bytes)));
             if (game.Rating > 0) host.Children.Add(ConsoleChip(null, new string('★', Math.Clamp(game.Rating, 1, 5)), null, false, "#FACC15"));
         }

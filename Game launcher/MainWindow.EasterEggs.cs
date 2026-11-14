@@ -29,7 +29,7 @@ namespace Game_launcher
 
             panel.Children.Add(new ContentControl
             {
-                Content = FindResource("DfpLogo"),
+                Content = BrandPoodle(),   // passend zum Thema
                 Width = 110,
                 Height = 110,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Center,
@@ -1014,7 +1014,7 @@ namespace Game_launcher
             double poodleLeft = centerX - logoSize - 70;
             double grapeLeft = centerX + 70;
 
-            var poodle = (FrameworkElement)FindResource("DfpLogo");
+            var poodle = BrandPoodle();   // passend zum Thema
             poodle.Width = logoSize;
             poodle.Height = logoSize;
             Canvas.SetTop(poodle, top);

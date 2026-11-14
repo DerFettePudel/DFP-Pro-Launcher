@@ -86,6 +86,7 @@ namespace Game_launcher
             OnConsoleShowView();            // Thema 2: Bereich unter der Kopfleiste zeigen (statt START/BIBLIOTHEK)
             ShowHoloPage(activeView);       // Thema 2: neu gebaute Holo-Seite darüber (MainWindow.Holo.cs)
             AnimateIn(activeView);
+            MaskUnderHolo(activeView);      // Thema 2: alte Seite unter der Holo-Seite unsichtbar (läuft weiter)
             UpdateCoverTint();
             if (ErrorHooksReady) WriteSessionMarker(activeView.Name);
             if (activeView != ViewDashboard) SetDashEditMode(false);

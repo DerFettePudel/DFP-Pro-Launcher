@@ -24,6 +24,13 @@ namespace Game_launcher
                 HoloButton("Platz schaffen", () => ShowSpaceAssistant(), true, ""),
                 HoloButton(sizeScanRunning ? "Wird gemessen ..." : "Größen messen", () => { StartGameSizeScan(true); RefreshHoloPage(); }, false, "")));
 
+            // Streamer-Modus „Pfade verbergen“: Laufwerke und Spielgrößen werden in Thema 1 ebenfalls abgedeckt
+            if (SHide(settings.StreamHidePaths))
+            {
+                page.Children.Add(HoloPanel(Loc.T("Streamer-Modus"), HoloHint("Im Streamer-Modus ausgeblendet.")));
+                return page;
+            }
+
             var sized = VisibleGames.Select(g => (Game: g, Bytes: KnownGameSize(g) ?? 0)).Where(x => x.Bytes > 0).OrderByDescending(x => x.Bytes).ToList();
             if (sized.Count == 0 && !sizeScanRunning) StartGameSizeScan();
 
