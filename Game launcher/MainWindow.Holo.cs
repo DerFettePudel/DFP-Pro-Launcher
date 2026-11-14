@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -25,7 +25,7 @@ namespace Game_launcher
         private TextBlock? holoClock;
         private DateTime holoAnimatingUntil;
 
-        private static readonly System.Windows.Media.Color HoloCyan = System.Windows.Media.Color.FromRgb(0x22, 0xD3, 0xEE);
+        private static System.Windows.Media.Color HoloCyan = System.Windows.Media.Color.FromRgb(0x22, 0xD3, 0xEE);   // zweite Leuchtfarbe (einstellbar, MainWindow.CyberColors.cs)
 
         /// <summary>Welche alte Seite durch eine Holo-Seite ersetzt wird (null = noch keine).</summary>
         private string? HoloKeyFor(FrameworkElement view)
@@ -297,8 +297,11 @@ namespace Game_launcher
         private Grid HoloPlate(FrameworkElement content, double cut, out System.Windows.Shapes.Path edge)
         {
             var glassFill = new LinearGradientBrush { StartPoint = new System.Windows.Point(0, 0), EndPoint = new System.Windows.Point(0, 1) };
-            glassFill.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xD9, 0x0E, 0x16, 0x26), 0));
-            glassFill.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xEB, 0x07, 0x0B, 0x14), 1));
+            // Glas in Grundton und Leuchtfarbe der eigenen Palette, Deckkraft einstellbar
+            byte TopAlpha() => (byte)Math.Clamp(0xD9 * cyberGlassFactor, 40, 255);
+            byte BottomAlpha() => (byte)Math.Clamp(0xEB * cyberGlassFactor, 50, 255);
+            glassFill.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(TopAlpha(), CyberPanelTop.R, CyberPanelTop.G, CyberPanelTop.B), 0));
+            glassFill.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(BottomAlpha(), CyberPanelBottom.R, CyberPanelBottom.G, CyberPanelBottom.B), 1));
 
             var shape = new System.Windows.Shapes.Path { Fill = glassFill, Stroke = HoloEdgeBrush(), StrokeThickness = 1, IsHitTestVisible = false };
             edge = shape;

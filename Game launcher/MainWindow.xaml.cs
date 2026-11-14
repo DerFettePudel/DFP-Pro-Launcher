@@ -256,6 +256,7 @@ namespace Game_launcher
         private static SolidColorBrush MakeBrush(string? hex, string fallback = "#000000")
         {
             SolidColorBrush brush;
+            if (hex != null) hex = RemapCyberHex(hex);   // Thema 2: Cyan und Grundton nach den eigenen Farben
             try
             {
                 brush = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(hex ?? fallback));

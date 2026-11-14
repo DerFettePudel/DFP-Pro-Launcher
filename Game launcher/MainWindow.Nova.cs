@@ -33,7 +33,7 @@ namespace Game_launcher
             }
 
             var accent = GetAccentColor();   // im RGB-Modus die aktuelle Regenbogenfarbe
-            var cool = System.Windows.Media.Color.FromRgb(0x22, 0xD3, 0xEE);
+            var cool = HoloCyan;
             static byte Mix(byte a, byte b) => (byte)((a + b) / 2);
             var second = System.Windows.Media.Color.FromRgb(Mix(accent.R, cool.R), Mix(accent.G, cool.G), Mix(accent.B, cool.B));
 

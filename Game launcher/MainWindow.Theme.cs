@@ -33,6 +33,7 @@ namespace Game_launcher
 
             activeUiTheme = settings.UiTheme == "brutal" ? "brutal" : "nova";
             if (!IsBrutal) return;
+            ApplyCyberPalette();   // eigene Farben von Thema 2, bevor irgendetwas gebaut wird
 
             if (!LoadCyberDictionary())
             {
@@ -69,6 +70,7 @@ namespace Game_launcher
                     .Replace("__ACCENT22__", HexOf(accent, 0x38))
                     .Replace("__ACCENT__", HexOf(accent))
                     .Replace("__INK__", InkFor(accent));
+                xaml = ApplyPaletteToXaml(xaml);   // eigene Leuchtfarbe, Grundton und Leuchtstärke
 
                 var dictionary = (ResourceDictionary)System.Windows.Markup.XamlReader.Parse(xaml);
                 foreach (object key in dictionary.Keys.Cast<object>().ToList())

@@ -46,10 +46,11 @@ namespace Game_launcher
         private readonly DispatcherTimer consoleHoverTimer = new() { Interval = TimeSpan.FromMilliseconds(110) };
         private GameItem? consolePendingHover;
 
-        private static readonly System.Windows.Media.Color ConsoleBase = System.Windows.Media.Color.FromRgb(0x06, 0x08, 0x0D);
-        private static readonly SolidColorBrush ConsoleInk = MakeBrush("#06080D");
+        // Grundton und zweite Leuchtfarbe sind in Thema 2 einstellbar (ApplyCyberPalette in MainWindow.CyberColors.cs)
+        private static System.Windows.Media.Color ConsoleBase = System.Windows.Media.Color.FromRgb(0x06, 0x08, 0x0D);
+        private static SolidColorBrush ConsoleInk = MakeBrush("#06080D");
         private static readonly SolidColorBrush ConsoleMuted = MakeBrush("#8494AB");
-        private static readonly SolidColorBrush ConsoleCyan = MakeBrush("#22D3EE");
+        private static SolidColorBrush ConsoleCyan = MakeBrush("#22D3EE");
 
         private void InitConsole()
         {
@@ -192,8 +193,8 @@ namespace Game_launcher
             var accent = GetAccentColor();
             var fade = new LinearGradientBrush { StartPoint = new System.Windows.Point(0, 0), EndPoint = new System.Windows.Point(1, 0) };
             fade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xAA, accent.R, accent.G, accent.B), 0));
-            fade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x66, 0x22, 0xD3, 0xEE), 0.6));
-            fade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, 0x22, 0xD3, 0xEE), 1));
+            fade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x66, HoloCyan.R, HoloCyan.G, HoloCyan.B), 0.6));
+            fade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, HoloCyan.R, HoloCyan.G, HoloCyan.B), 1));
             line.Background = fade;
 
             consoleSideTabs = new StackPanel { Children = { consoleSideHome, consoleSideLibrary, line } };
@@ -336,7 +337,7 @@ namespace Game_launcher
                 var accent = GetAccentColor();
                 line.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xAA, accent.R, accent.G, accent.B), 0));
                 line.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x22, 0x30, 0x3F, 0x5A), 0.5));
-                line.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x88, 0x22, 0xD3, 0xEE), 1));
+                line.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x88, HoloCyan.R, HoloCyan.G, HoloCyan.B), 1));
                 consoleBarBack.BorderBrush = line;
                 consoleBarBack.BorderThickness = new Thickness(0, 0, 0, 1);
             }

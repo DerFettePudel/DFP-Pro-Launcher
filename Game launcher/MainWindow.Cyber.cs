@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -38,6 +38,7 @@ namespace Game_launcher
             MakeGlitchText(BrandTitle);
             MakeGlitchText(NavDockBrandTitle);
             ApplyBrand();   // Pudel in der Neon-Version einsetzen (Seitenleiste und Kopfleiste)
+            BuildCyberColorsCard();   // Einstellungen → Darstellung: eigene Farben von Thema 2
 
             BrandLogo.MouseEnter += (s, e) => GlitchBurst();
             glitchTimer.Tick += (s, e) =>
@@ -167,8 +168,8 @@ namespace Game_launcher
                 var line = new LinearGradientBrush { StartPoint = new System.Windows.Point(0, 0), EndPoint = new System.Windows.Point(1, 0) };
                 line.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, accent.R, accent.G, accent.B), 0));
                 line.GradientStops.Add(new GradientStop(accent, 0.35));
-                line.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromRgb(0x22, 0xD3, 0xEE), 0.75));
-                line.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, 0x22, 0xD3, 0xEE), 1));
+                line.GradientStops.Add(new GradientStop(HoloCyan, 0.75));
+                line.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, HoloCyan.R, HoloCyan.G, HoloCyan.B), 1));
                 WelcomeLine.Background = line;
                 WelcomeLine.CornerRadius = new CornerRadius(0);
                 WelcomeLine.Height = 2;
@@ -280,9 +281,9 @@ namespace Game_launcher
             Add(Shape("M 240 249 Q 250 256 260 249", null, cyanSoft, 3));
 
             // Visier statt Augen: Verlauf Akzent → Cyan, leuchtend
-            var visorFill = new LinearGradientBrush(accent, System.Windows.Media.Color.FromRgb(0x22, 0xD3, 0xEE), 0);
+            var visorFill = new LinearGradientBrush(accent, HoloCyan, 0);
             var visor = Add(Shape("M 182 168 L 320 168 L 309 203 L 193 203 Z", visorFill, MakeBrush("#CCFFFFFF"), 2));
-            if (effects) visor.Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 22, ShadowDepth = 0, Opacity = 0.9, Color = System.Windows.Media.Color.FromRgb(0x22, 0xD3, 0xEE) };
+            if (effects) visor.Effect = new System.Windows.Media.Effects.DropShadowEffect { BlurRadius = 22, ShadowDepth = 0, Opacity = 0.9, Color = HoloCyan };
             Add(Shape("M 196 177 L 300 177", null, MakeBrush("#99FFFFFF"), 3));
             Add(Shape("M 206 194 L 236 194", null, MakeBrush("#55FFFFFF"), 2));
 
@@ -395,7 +396,7 @@ namespace Game_launcher
             edge.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xAA, accent.R, accent.G, accent.B), 0));
             edge.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x30, 0x30, 0x3F, 0x5A), 0.45));
             edge.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x30, 0x30, 0x3F, 0x5A), 0.65));
-            edge.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x99, 0x22, 0xD3, 0xEE), 1));
+            edge.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x99, HoloCyan.R, HoloCyan.G, HoloCyan.B), 1));
             SidebarBorder.BorderBrush = edge;
         }
 

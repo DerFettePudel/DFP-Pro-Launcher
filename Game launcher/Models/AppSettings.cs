@@ -332,6 +332,12 @@ namespace Game_launcher
         public string UiTheme { get; set; } = "nova";
         public string ConsoleNavPosition { get; set; } = "top";   // Thema 2: top (Kopfleiste) | left | right (Seitenleiste)
 
+        // Thema 2: eigene Farben (zweite Leuchtfarbe statt Cyan, Hintergrund-Ton, Glas-Deckkraft in %, Leuchtstärke in %)
+        public string CyberSecondColor { get; set; } = "#22D3EE";
+        public string CyberBaseColor { get; set; } = "#06080D";
+        public int CyberGlassOpacity { get; set; } = 88;
+        public int CyberGlow { get; set; } = 100;
+
         // Fehlerbericht und Beta-Kanal
         public bool ErrorReports { get; set; } = true;
         public bool BetaUpdates { get; set; }

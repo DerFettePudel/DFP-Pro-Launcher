@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -20,8 +20,8 @@ namespace Game_launcher
             var accent = GetAccentColor();
             var fade = new LinearGradientBrush { StartPoint = new System.Windows.Point(0, 0), EndPoint = new System.Windows.Point(1, 0) };
             fade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x99, accent.R, accent.G, accent.B), 0));
-            fade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x55, 0x22, 0xD3, 0xEE), 0.5));
-            fade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, 0x22, 0xD3, 0xEE), 1));
+            fade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x55, HoloCyan.R, HoloCyan.G, HoloCyan.B), 0.5));
+            fade.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, HoloCyan.R, HoloCyan.G, HoloCyan.B), 1));
             return new Border { Height = 1, Background = fade, IsHitTestVisible = false };
         }
 
