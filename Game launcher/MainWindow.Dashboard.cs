@@ -915,6 +915,7 @@ namespace Game_launcher
                     Foreground = BrushSubtle
                 });
             }
+            if (holoKey is "links" or "dashboard") RequestConsoleRefresh();   // Thema 2: Holo-Seite mit aktualisieren
         }
 
         private void MoveQuickLink(QuickLink link, int delta)

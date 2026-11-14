@@ -5773,6 +5773,7 @@ namespace Game_launcher
         private void RenderWishlist()
         {
             if (WishContainer == null) return;
+            if (holoKey == "wishlist") RequestConsoleRefresh();   // Thema 2: Holo-Seite mit aktualisieren
             WishContainer.Children.Clear();
 
             if (settings.Wishlist.Count == 0)

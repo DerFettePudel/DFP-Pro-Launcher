@@ -2565,6 +2565,35 @@ nicht gespielt || not played || 未游玩 || sin jugar || pas joué || não joga
 Aktive Tage || Active days || 活跃天数 || Días activos || Jours actifs || Dias ativos || Активные дни || アクティブ日数
 Schnitt pro Tag || Average per day || 每日平均 || Media por día || Moyenne par jour || Média por dia || В среднем за день || 1日平均
 Andere || Other || 其他 || Otros || Autres || Outros || Другие || その他
+App hinzufügen || Add app || 添加应用 || Añadir app || Ajouter une app || Adicionar app || Добавить приложение || アプリを追加
+Kategorien || Categories || 类别 || Categorías || Catégories || Categorias || Категории || カテゴリー
+Alle Anwendungen || All applications || 所有应用程序 || Todas las aplicaciones || Toutes les applications || Todos os aplicativos || Все приложения || すべてのアプリ
+Hinzufügen || Add || 添加 || Añadir || Ajouter || Adicionar || Добавить || 追加
+Webseiten || Websites || 网站 || Sitios web || Sites web || Sites || Сайты || ウェブサイト
+Programme || Programs || 程序 || Programas || Programmes || Programas || Программы || プログラム
+Ordner und Dateien || Folders and files || 文件夹和文件 || Carpetas y archivos || Dossiers et fichiers || Pastas e arquivos || Папки и файлы || フォルダーとファイル
+Preise prüfen || Check prices || 检查价格 || Comprobar precios || Vérifier les prix || Verificar preços || Проверить цены || 価格を確認
+Auf der Liste || On the list || 在清单上 || En la lista || Sur la liste || Na lista || В списке || リスト内
+Höchster Rabatt || Biggest discount || 最大折扣 || Mayor descuento || Plus grosse remise || Maior desconto || Максимальная скидка || 最大割引
+Zuletzt geprüft || Last checked || 上次检查 || Última comprobación || Dernière vérification || Última verificação || Последняя проверка || 最終確認
+Im Steam-Shop öffnen || Open in the Steam store || 在 Steam 商店中打开 || Abrir en la tienda de Steam || Ouvrir dans la boutique Steam || Abrir na loja Steam || Открыть в магазине Steam || Steamストアで開く
+Im Streamer-Modus ausgeblendet. || Hidden in streamer mode. || 在主播模式下隐藏。 || Oculto en modo streamer. || Masqué en mode streamer. || Oculto no modo streamer. || Скрыто в режиме стримера. || 配信者モードでは非表示です。
+Keine Dateien gefunden. || No files found. || 未找到文件。 || No se encontraron archivos. || Aucun fichier trouvé. || Nenhum arquivo encontrado. || Файлы не найдены. || ファイルが見つかりません。
+Dateien || Files || 文件 || Archivos || Fichiers || Arquivos || Файлы || ファイル
+Gesamtgröße || Total size || 总大小 || Tamaño total || Taille totale || Tamanho total || Общий размер || 合計サイズ
+Heute neu || New today || 今日新增 || Nuevos hoy || Nouveaux aujourd'hui || Novos hoje || Новые сегодня || 今日の新着
+Größte Datei || Largest file || 最大文件 || Archivo más grande || Plus gros fichier || Maior arquivo || Самый большой файл || 最大のファイル
+Eingang || Inbox || 收件 || Entrada || Arrivées || Entrada || Входящие || 受信
+Dateitypen || File types || 文件类型 || Tipos de archivo || Types de fichiers || Tipos de arquivo || Типы файлов || ファイルの種類
+Heute || Today || 今天 || Hoy || Aujourd'hui || Hoje || Сегодня || 今日
+Diesen Monat || This month || 本月 || Este mes || Ce mois-ci || Este mês || В этом месяце || 今月
+Älter || Older || 更早 || Más antiguos || Plus ancien || Mais antigos || Старше || それ以前
+Archive || Archives || 压缩包 || Archivos comprimidos || Archives || Arquivos compactados || Архивы || アーカイブ
+Installer || Installers || 安装程序 || Instaladores || Installateurs || Instaladores || Установщики || インストーラー
+Videos || Videos || 视频 || Vídeos || Vidéos || Vídeos || Видео || 動画
+Audio || Audio || 音频 || Audio || Audio || Áudio || Аудио || オーディオ
+Dokumente || Documents || 文档 || Documentos || Documents || Documentos || Документы || ドキュメント
+Abbilder || Disk images || 镜像 || Imágenes de disco || Images disque || Imagens de disco || Образы дисков || ディスクイメージ
 """;
     }
 }

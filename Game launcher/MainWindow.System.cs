@@ -2862,6 +2862,7 @@ namespace Game_launcher
 
             BuildAppFilterChips(all);
             RenderAppTiles(all);
+            if (holoKey == "apps") RequestConsoleRefresh();   // Thema 2: Holo-Seite mit aktualisieren
         }
 
         private void BuildAppFilterChips(List<AppEntry> all)

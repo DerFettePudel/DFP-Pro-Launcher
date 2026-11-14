@@ -32,6 +32,10 @@ namespace Game_launcher
         {
             if (view == ViewDashboard) return "dashboard";
             if (view == ViewStats) return "stats";
+            if (view == ViewApps) return "apps";
+            if (view == ViewLinks) return "links";
+            if (view == ViewWishlist) return "wishlist";
+            if (view == ViewDownloads) return "downloads";
             return null;
         }
 
@@ -123,6 +127,10 @@ namespace Game_launcher
             {
                 "dashboard" => BuildHoloDashboard(),
                 "stats" => BuildHoloStats(),
+                "apps" => BuildHoloApps(),
+                "links" => BuildHoloLinks(),
+                "wishlist" => BuildHoloWishlist(),
+                "downloads" => BuildHoloDownloads(),
                 _ => null
             };
             if (page != null) holoContent.Children.Add(page);
@@ -735,6 +743,114 @@ namespace Game_launcher
             Arrange(0);
             grid.SizeChanged += (s, e) => { if (Math.Abs(e.NewSize.Width - e.PreviousSize.Width) > 1) Arrange(e.NewSize.Width); };
             return grid;
+        }
+
+        /// <summary>Kacheln füllen die ganze Breite: so viele Spalten wie passen, alle gleich breit.</summary>
+        private static void HoloFitWrap(WrapPanel wrap, double minItemWidth)
+        {
+            wrap.SizeChanged += (s, e) =>
+            {
+                if (e.NewSize.Width <= 0) return;
+                int columns = Math.Max(1, (int)(e.NewSize.Width / minItemWidth));
+                double item = Math.Floor(e.NewSize.Width / columns);
+                if (Math.Abs(wrap.ItemWidth - item) > 0.5) wrap.ItemWidth = item;
+            };
+        }
+
+        /// <summary>Raster gleich breiter Karten: so viele Spalten, wie bei der Mindestbreite passen.</summary>
+        private static System.Windows.Controls.Primitives.UniformGrid HoloCardGrid(double minWidth)
+        {
+            var grid = new System.Windows.Controls.Primitives.UniformGrid { Columns = 3, VerticalAlignment = System.Windows.VerticalAlignment.Top };
+            grid.SizeChanged += (s, e) =>
+            {
+                if (e.NewSize.Width <= 0) return;
+                int columns = Math.Max(1, (int)(e.NewSize.Width / minWidth));
+                if (grid.Columns != columns) grid.Columns = columns;
+            };
+            return grid;
+        }
+
+        /// <summary>Suchfeld im Holo-Stil: Lupe, Platzhalter, schräger Rahmen; meldet jede Änderung.</summary>
+        private FrameworkElement HoloSearchBox(string placeholder, string initial, Action<string> changed, double width = 320)
+        {
+            var box = new System.Windows.Controls.TextBox
+            {
+                Text = initial,
+                Height = 40,
+                Width = width,
+                Padding = new Thickness(38, 0, 12, 0),
+                VerticalContentAlignment = System.Windows.VerticalAlignment.Center,
+                FontSize = 14,
+                Background = MakeBrush("#CC0B1222"),
+                BorderBrush = MakeBrush("#5522D3EE"),
+                Foreground = System.Windows.Media.Brushes.White,
+                CaretBrush = new SolidColorBrush(HoloCyan)
+            };
+            var icon = new TextBlock { Text = "", FontSize = 14, Foreground = ConsoleCyan, Margin = new Thickness(14, 0, 0, 0), VerticalAlignment = System.Windows.VerticalAlignment.Center, IsHitTestVisible = false };
+            icon.SetResourceReference(TextBlock.FontFamilyProperty, "IconFont");
+            var hint = new TextBlock { Text = Loc.T(placeholder), FontSize = 14, Foreground = ConsoleMuted, Margin = new Thickness(40, 0, 0, 0), VerticalAlignment = System.Windows.VerticalAlignment.Center, IsHitTestVisible = false, Visibility = initial.Length == 0 ? Visibility.Visible : Visibility.Collapsed };
+            box.TextChanged += (s, e) =>
+            {
+                hint.Visibility = box.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+                changed(box.Text.Trim());
+            };
+            box.GotKeyboardFocus += (s, e) => box.BorderBrush = new SolidColorBrush(HoloCyan);
+            box.LostKeyboardFocus += (s, e) => box.BorderBrush = MakeBrush("#5522D3EE");
+
+            var host = new Grid { Margin = new Thickness(0, 0, 12, 10), HorizontalAlignment = System.Windows.HorizontalAlignment.Left };
+            host.Children.Add(box);
+            host.Children.Add(icon);
+            host.Children.Add(hint);
+            return host;
+        }
+
+        /// <summary>Eintrag einer senkrechten Schiene (Kategorien, Bereiche): schräge Platte, aktiv mit Lichtkante und Leuchten.</summary>
+        private FrameworkElement HoloRailItem(string label, string? count, bool active, Action click, string? glyph = null)
+        {
+            var row = new Grid { Margin = new Thickness(16, 10, 14, 10) };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            if (glyph != null)
+            {
+                var icon = new TextBlock { Text = glyph, FontSize = 15, Width = 28, Foreground = active ? ConsoleCyan : ConsoleMuted, VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                icon.SetResourceReference(TextBlock.FontFamilyProperty, glyph.Length == 1 && glyph[0] >= '' && glyph[0] <= '' ? "IconFont" : "DisplayFont");
+                row.Children.Add(icon);
+            }
+            var text = new TextBlock { Text = label.ToUpper(Loc.Culture), FontSize = 13.5, FontWeight = FontWeights.SemiBold, Foreground = active ? System.Windows.Media.Brushes.White : MakeBrush("#B8C4D8"), TextTrimming = TextTrimming.CharacterEllipsis, VerticalAlignment = System.Windows.VerticalAlignment.Center };
+            text.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
+            Grid.SetColumn(text, 1);
+            row.Children.Add(text);
+            if (count != null)
+            {
+                var number = new TextBlock { Text = count, FontSize = 11, Foreground = active ? ConsoleCyan : ConsoleMuted, Margin = new Thickness(10, 0, 0, 0), VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                number.SetResourceReference(TextBlock.FontFamilyProperty, "MonoFont");
+                Grid.SetColumn(number, 2);
+                row.Children.Add(number);
+            }
+
+            var accent = GetAccentColor();
+            var plate = new Border
+            {
+                BorderThickness = new Thickness(active ? 3 : 0, 0, 0, 0),
+                Background = active ? new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x30, accent.R, accent.G, accent.B)) : System.Windows.Media.Brushes.Transparent,
+                RenderTransformOrigin = new System.Windows.Point(0.5, 0.5),
+                RenderTransform = new SkewTransform(-12, 0)
+            };
+            plate.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
+            if (active && !settings.PerformanceMode) plate.SetResourceReference(UIElement.EffectProperty, "NeonGlow");
+
+            var item = new Grid { Margin = new Thickness(0, 0, 0, 4), Cursor = System.Windows.Input.Cursors.Hand, Background = System.Windows.Media.Brushes.Transparent };
+            item.Children.Add(plate);
+            item.Children.Add(row);
+            if (!active)
+            {
+                item.MouseEnter += (s, e) => { plate.Background = MakeBrush("#1A22D3EE"); text.Foreground = ConsoleCyan; };
+                item.MouseLeave += (s, e) => { plate.Background = System.Windows.Media.Brushes.Transparent; text.Foreground = MakeBrush("#B8C4D8"); };
+            }
+            item.MouseLeftButtonUp += (s, e) => click();
+            return item;
         }
 
         /// <summary>Seitenkopf: Kennung in Cyan, großer Titel mit Glitch, Untertitel, rechts Knöpfe.</summary>
