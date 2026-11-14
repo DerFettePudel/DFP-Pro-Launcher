@@ -2794,6 +2794,7 @@ namespace Game_launcher
             FillDeals(EpicFreeContainer, epicFree, "Zurzeit gibt es keine Gratis-Spiele.");
             FillDeals(EpicUpcomingContainer, epicUpcoming, "Noch keine Vorschau verfügbar.");
             FillDeals(SteamDealsContainer, steamDeals, "Keine Angebote gefunden.");
+            if (holoKey is "deals" or "dashboard") RequestConsoleRefresh();   // Thema 2: Holo-Seite mit aktualisieren
         }
 
         private void FillDeals(WrapPanel panel, List<DealItem> deals, string emptyText)

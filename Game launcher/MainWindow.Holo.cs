@@ -39,6 +39,8 @@ namespace Game_launcher
             if (view == ViewSystem) return "system";
             if (view == ViewStorage) return "storage";
             if (view == ViewOptimization) return "optimization";
+            if (view == ViewTools) return "tools";
+            if (view == ViewDeals) return "deals";
             return null;
         }
 
@@ -139,6 +141,8 @@ namespace Game_launcher
                 "system" => BuildHoloSystem(),
                 "storage" => BuildHoloStorage(),
                 "optimization" => BuildHoloOptimization(),
+                "tools" => BuildHoloTools(),
+                "deals" => BuildHoloDeals(),
                 _ => null
             };
             if (page != null) holoContent.Children.Add(page);
@@ -772,7 +776,8 @@ namespace Game_launcher
                 if (e.NewSize.Width <= 0) return;
                 int columns = Math.Max(1, (int)(e.NewSize.Width / minItemWidth));
                 double item = Math.Floor(e.NewSize.Width / columns);
-                if (Math.Abs(wrap.ItemWidth - item) > 0.5) wrap.ItemWidth = item;
+                // ItemWidth ist anfangs NaN: ein Vergleich damit ist immer falsch, darum eigens prüfen
+                if (double.IsNaN(wrap.ItemWidth) || Math.Abs(wrap.ItemWidth - item) > 0.5) wrap.ItemWidth = item;
             };
         }
 

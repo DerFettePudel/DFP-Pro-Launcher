@@ -939,6 +939,31 @@ namespace Game_launcher
 
         private void BuildToolTiles()
         {
+            var tools = ToolDefinitions();
+            toolEntries = tools.Select(t => (t.Icon, t.Title, t.Text, t.Target)).ToArray();
+
+            bool firstGroup = true;
+            foreach (var group in tools.GroupBy(t => t.Category))
+            {
+                var header = ToolSectionHeader(group.Key);
+                if (firstGroup) { header.Margin = new Thickness(0, 0, 0, 10); firstGroup = false; }
+                ToolsContainer.Children.Add(header);
+
+                var row = new WrapPanel();
+                foreach (var tool in group)
+                {
+                    string target = tool.Target;
+                    row.Children.Add(CreateToolTile(tool.Icon, tool.Color, tool.Title, tool.Text, () => HandleToolTarget(target)));
+                }
+                ToolsContainer.Children.Add(row);
+            }
+
+            BuildSystemCommandTiles();
+        }
+
+        /// <summary>Alle Werkzeuge der Seite „Tools“ (auch für die Holo-Seite von Thema 2).</summary>
+        private (string Icon, string Color, string Title, string Text, string Target, string Category)[] ToolDefinitions()
+        {
             string pictures = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
             string screenshots = System.IO.Path.Combine(pictures, "Screenshots");
             string screenshotTarget = Directory.Exists(screenshots) ? screenshots : pictures;
@@ -978,26 +1003,7 @@ namespace Game_launcher
                     ("🔒", red, "PC sperren", "Bildschirm sperren", "power:lock", "Energie")
                 }).ToArray();
             }
-
-            toolEntries = tools.Select(t => (t.Icon, t.Title, t.Text, t.Target)).ToArray();
-
-            bool firstGroup = true;
-            foreach (var group in tools.GroupBy(t => t.Category))
-            {
-                var header = ToolSectionHeader(group.Key);
-                if (firstGroup) { header.Margin = new Thickness(0, 0, 0, 10); firstGroup = false; }
-                ToolsContainer.Children.Add(header);
-
-                var row = new WrapPanel();
-                foreach (var tool in group)
-                {
-                    string target = tool.Target;
-                    row.Children.Add(CreateToolTile(tool.Icon, tool.Color, tool.Title, tool.Text, () => HandleToolTarget(target)));
-                }
-                ToolsContainer.Children.Add(row);
-            }
-
-            BuildSystemCommandTiles();
+            return tools;
         }
 
         // ───────────────────────────── Anwendungen ─────────────────────────────

@@ -2617,6 +2617,10 @@ Grafiktreiber || Graphics driver || 显卡驱动 || Controlador gráfico || Pilo
 Beheben || Fix || 修复 || Arreglar || Corriger || Corrigir || Исправить || 修正
 Autostart-Programme || Startup programs || 开机启动程序 || Programas de inicio || Programmes au démarrage || Programas de inicialização || Программы автозапуска || スタートアップ プログラム
 Freigebbar || Can be freed || 可释放 || Liberable || Libérable || Pode ser liberado || Можно освободить || 解放可能
+Gruppen || Groups || 分组 || Grupos || Groupes || Grupos || Группы || グループ
+Werkzeug suchen ... || Search tools ... || 搜索工具 ... || Buscar herramienta ... || Chercher un outil ... || Procurar ferramenta ... || Найти инструмент ... || ツールを検索 ...
+Alle Werkzeuge || All tools || 所有工具 || Todas las herramientas || Tous les outils || Todas as ferramentas || Все инструменты || すべてのツール
+Im Store holen || Get it in the store || 在商店领取 || Conseguir en la tienda || Récupérer dans la boutique || Pegar na loja || Забрать в магазине || ストアで入手
 """;
     }
 }
