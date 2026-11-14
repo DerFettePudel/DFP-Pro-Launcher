@@ -185,7 +185,7 @@ namespace Game_launcher
             }
 
             var tile = new Grid { Height = height, Margin = new Thickness(0, 0, 12, 12), Cursor = System.Windows.Input.Cursors.Hand, ToolTip = app.ExePath.Length > 0 && !SHide(settings.StreamHidePaths) ? app.ExePath : app.Name, ContextMenu = HoloAppMenu(app) };
-            tile.Children.Add(shape);
+            tile.Children.Add(HoloShapeLayer(shape));
             tile.Children.Add(row);
             tile.SizeChanged += (s, e) => shape.Data = ChamferGeometry(e.NewSize.Width, e.NewSize.Height, 12);
 

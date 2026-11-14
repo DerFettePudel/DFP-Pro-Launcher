@@ -2609,6 +2609,14 @@ Zusammen || Total || 合计 || En total || Au total || No total || Всего ||
 Größtes Spiel || Largest game || 最大的游戏 || Juego más grande || Plus gros jeu || Maior jogo || Самая большая игра || 最大のゲーム
 belegt || used || 已用 || usado || utilisé || usado || занято || 使用済み
 Frei || Free || 可用 || Libre || Libre || Livre || Свободно || 空き
+Task-Manager || Task Manager || 任务管理器 || Administrador de tareas || Gestionnaire des tâches || Gerenciador de Tarefas || Диспетчер задач || タスク マネージャー
+Aktiver Plan: || Active plan: || 当前计划： || Plan activo: || Plan actif : || Plano ativo: || Активный план: || 現在のプラン:
+Energiesparplan || Power plan || 电源计划 || Plan de energía || Mode de gestion de l'alimentation || Plano de energia || План электропитания || 電源プラン
+Windows für Spiele || Windows for gaming || 为游戏优化 Windows || Windows para juegos || Windows pour les jeux || Windows para jogos || Windows для игр || ゲーム向けWindows
+Grafiktreiber || Graphics driver || 显卡驱动 || Controlador gráfico || Pilote graphique || Driver gráfico || Видеодрайвер || グラフィックドライバー
+Beheben || Fix || 修复 || Arreglar || Corriger || Corrigir || Исправить || 修正
+Autostart-Programme || Startup programs || 开机启动程序 || Programas de inicio || Programmes au démarrage || Programas de inicialização || Программы автозапуска || スタートアップ プログラム
+Freigebbar || Can be freed || 可释放 || Liberable || Libérable || Pode ser liberado || Можно освободить || 解放可能
 """;
     }
 }

@@ -631,6 +631,7 @@ namespace Game_launcher
             TxtPowerPlan.Text = $"Aktiver Plan: {name}";
             UpdatePlanTiles(name);
             RefreshGamingCheck();
+            if (holoKey == "optimization") RequestConsoleRefresh();   // Thema 2: Holo-Seite mit aktualisieren
         }
 
         // ───────────────────────────── Gaming-Check: Windows-Einstellungen für Spiele ─────────────────────────────
@@ -3494,6 +3495,8 @@ namespace Game_launcher
             TxtCleanupNote.Visibility = needAdmin ? Visibility.Visible : Visibility.Collapsed;
             if (needAdmin)
                 TxtCleanupNote.Text = Loc.T($"Systemberichte: {FormatCleanupSize(systemCrashBytes)} lassen sich nur mit Administratorrechten löschen.");
+            cleanupMeasured = true;
+            if (holoKey == "optimization") RequestConsoleRefresh();   // Thema 2: Holo-Seite mit aktualisieren
         }
 
         private async Task ClearCleanupItemAsync(CleanupItem item)

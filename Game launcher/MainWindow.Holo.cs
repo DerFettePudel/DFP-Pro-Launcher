@@ -38,6 +38,7 @@ namespace Game_launcher
             if (view == ViewDownloads) return "downloads";
             if (view == ViewSystem) return "system";
             if (view == ViewStorage) return "storage";
+            if (view == ViewOptimization) return "optimization";
             return null;
         }
 
@@ -137,6 +138,7 @@ namespace Game_launcher
                 "downloads" => BuildHoloDownloads(),
                 "system" => BuildHoloSystem(),
                 "storage" => BuildHoloStorage(),
+                "optimization" => BuildHoloOptimization(),
                 _ => null
             };
             if (page != null) holoContent.Children.Add(page);
@@ -238,6 +240,17 @@ namespace Game_launcher
             return edge;
         }
 
+        /// <summary>
+        /// Umriss, der der Größe seines Behälters folgt, in eine Canvas legen: Die meldet keine eigene Größe,
+        /// sonst würde die Kante (Strichstärke) das Layout bei jedem Durchgang ein Stück größer drücken.
+        /// </summary>
+        private static Canvas HoloShapeLayer(System.Windows.Shapes.Shape shape)
+        {
+            var layer = new Canvas { IsHitTestVisible = shape.IsHitTestVisible };
+            layer.Children.Add(shape);
+            return layer;
+        }
+
         /// <summary>Glas-Fläche in der Form des Panels (wächst mit).</summary>
         private Grid HoloPlate(FrameworkElement content, double cut, out System.Windows.Shapes.Path edge)
         {
@@ -249,7 +262,7 @@ namespace Game_launcher
             edge = shape;
 
             var root = new Grid();
-            root.Children.Add(shape);
+            root.Children.Add(HoloShapeLayer(shape));
             root.Children.Add(content);
             root.SizeChanged += (s, e) =>
             {
@@ -761,6 +774,68 @@ namespace Game_launcher
                 double item = Math.Floor(e.NewSize.Width / columns);
                 if (Math.Abs(wrap.ItemWidth - item) > 0.5) wrap.ItemWidth = item;
             };
+        }
+
+        /// <summary>Schalter im Holo-Stil: schräge Spur, Knopf gleitet, an = Akzentfarbe mit Leuchten.</summary>
+        private FrameworkElement HoloToggle(bool value, Action<bool> changed, bool enabled = true)
+        {
+            bool state = value;
+            var accent = GetAccentColor();
+            var track = new Border { Width = 50, Height = 22, BorderThickness = new Thickness(1), RenderTransformOrigin = new System.Windows.Point(0.5, 0.5), RenderTransform = new SkewTransform(-14, 0) };
+            var knob = new Border { Width = 20, Height = 14, HorizontalAlignment = System.Windows.HorizontalAlignment.Left, Margin = new Thickness(3, 0, 0, 0), RenderTransformOrigin = new System.Windows.Point(0.5, 0.5) };
+            var slide = new TranslateTransform();
+            knob.RenderTransform = new TransformGroup { Children = { new SkewTransform(-14, 0), slide } };
+            var host = new Grid { Width = 54, Height = 24, Cursor = enabled ? System.Windows.Input.Cursors.Hand : System.Windows.Input.Cursors.Arrow, Background = System.Windows.Media.Brushes.Transparent, Opacity = enabled ? 1 : 0.45, VerticalAlignment = System.Windows.VerticalAlignment.Center };
+            host.Children.Add(track);
+            host.Children.Add(knob);
+
+            void Paint(bool animate)
+            {
+                double x = state ? 24 : 0;
+                if (animate && settings.PageAnimations) slide.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(x, TimeSpan.FromMilliseconds(160)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
+                else { slide.BeginAnimation(TranslateTransform.XProperty, null); slide.X = x; }
+                if (state)
+                {
+                    track.Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(0x55, accent.R, accent.G, accent.B));
+                    track.BorderBrush = new SolidColorBrush(accent);
+                    knob.Background = System.Windows.Media.Brushes.White;
+                    if (!settings.PerformanceMode) track.SetResourceReference(UIElement.EffectProperty, "NeonGlow");
+                }
+                else
+                {
+                    track.Background = MakeBrush("#141C2E");
+                    track.BorderBrush = MakeBrush("#3A4766");
+                    knob.Background = MakeBrush("#5B6B86");
+                    track.Effect = null;
+                }
+            }
+            Paint(false);
+
+            if (enabled)
+                host.MouseLeftButtonUp += (s, e) =>
+                {
+                    state = !state;
+                    Paint(true);
+                    changed(state);
+                };
+            return host;
+        }
+
+        /// <summary>Zeile mit Titel, Beschreibung und Schalter rechts.</summary>
+        private FrameworkElement HoloToggleRow(string title, string? description, bool value, Action<bool> changed, bool enabled = true, string? tooltip = null)
+        {
+            var row = new Grid { Margin = new Thickness(0, 0, 0, 14), ToolTip = tooltip };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            var texts = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(0, 0, 18, 0) };
+            texts.Children.Add(new TextBlock { Text = Loc.T(title), FontSize = 14, FontWeight = FontWeights.SemiBold, Foreground = System.Windows.Media.Brushes.White, TextWrapping = TextWrapping.Wrap });
+            if (!string.IsNullOrEmpty(description))
+                texts.Children.Add(new TextBlock { Text = Loc.T(description), FontSize = 12, Foreground = ConsoleMuted, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 3, 0, 0) });
+            row.Children.Add(texts);
+            var toggle = HoloToggle(value, changed, enabled);
+            Grid.SetColumn(toggle, 1);
+            row.Children.Add(toggle);
+            return row;
         }
 
         /// <summary>Raster gleich breiter Karten: so viele Spalten, wie bei der Mindestbreite passen.</summary>
