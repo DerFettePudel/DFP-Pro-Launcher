@@ -31,6 +31,7 @@ namespace Game_launcher
         private string? HoloKeyFor(FrameworkElement view)
         {
             if (view == ViewDashboard) return "dashboard";
+            if (view == ViewStats) return "stats";
             return null;
         }
 
@@ -121,6 +122,7 @@ namespace Game_launcher
             FrameworkElement? page = holoKey switch
             {
                 "dashboard" => BuildHoloDashboard(),
+                "stats" => BuildHoloStats(),
                 _ => null
             };
             if (page != null) holoContent.Children.Add(page);
@@ -316,37 +318,54 @@ namespace Game_launcher
                 head.MouseLeave += (s, e) => { caption.Foreground = System.Windows.Media.Brushes.White; edge.Stroke = HoloEdgeBrush(); };
             }
 
-            HoloEnter(plate);
+            HoloEnter(plate, edge, plate);
             return plate;
         }
 
-        /// <summary>Einflug: schräg von rechts herein, nacheinander, kurzes Aufblitzen der Kante.</summary>
-        private void HoloEnter(FrameworkElement element)
+        /// <summary>
+        /// Einflug: weich von unten hochgleiten und einblenden (nacheinander, nach Lage auf der Seite gestaffelt),
+        /// bei Panels läuft dazu eine Lichtlinie über die Oberkante und die Kante glüht kurz nach.
+        /// </summary>
+        private void HoloEnter(FrameworkElement element, System.Windows.Shapes.Path? edge = null, Grid? plate = null)
         {
             int index = holoPanelIndex++;
             if (!holoAnimate) return;
 
-            var skew = new SkewTransform(0, 0);
-            var move = new TranslateTransform(46, 0);
-            element.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
-            element.RenderTransform = new TransformGroup { Children = { skew, move } };
+            var move = new TranslateTransform(0, 26);
+            element.RenderTransform = move;
             element.Opacity = 0;
 
-            var begin = TimeSpan.FromMilliseconds(60 + Math.Min(index, 14) * 55);
-            var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
-            element.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimationUsingKeyFrames
-            {
-                BeginTime = begin,
-                KeyFrames =
-                {
-                    new DiscreteDoubleKeyFrame(0.55, KeyTime.FromTimeSpan(TimeSpan.Zero)),
-                    new DiscreteDoubleKeyFrame(0.15, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(50))),
-                    new DiscreteDoubleKeyFrame(0.8, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(100))),
-                    new LinearDoubleKeyFrame(1, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(320)))
-                }
-            });
-            move.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(46, 0, TimeSpan.FromMilliseconds(460)) { BeginTime = begin, EasingFunction = ease });
-            skew.BeginAnimation(SkewTransform.AngleXProperty, new DoubleAnimation(-9, 0, TimeSpan.FromMilliseconds(460)) { BeginTime = begin, EasingFunction = ease });
+            var begin = TimeSpan.FromMilliseconds(40 + Math.Min(index, 12) * 45);
+            var ease = new QuinticEase { EasingMode = EasingMode.EaseOut };
+            element.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(380)) { BeginTime = begin, EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut } });
+            move.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(26, 0, TimeSpan.FromMilliseconds(620)) { BeginTime = begin, EasingFunction = ease });
+
+            if (plate == null || edge == null) return;
+
+            // Lichtlinie: wächst an der Oberkante von links nach rechts und verblasst
+            var sweep = new Border { Height = 2, VerticalAlignment = System.Windows.VerticalAlignment.Top, Margin = new Thickness(0, 0, 18, 0), IsHitTestVisible = false, Opacity = 0 };
+            var accent = GetAccentColor();
+            var fill = new LinearGradientBrush { StartPoint = new System.Windows.Point(0, 0), EndPoint = new System.Windows.Point(1, 0) };
+            fill.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0x00, HoloCyan.R, HoloCyan.G, HoloCyan.B), 0));
+            fill.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xFF, HoloCyan.R, HoloCyan.G, HoloCyan.B), 0.85));
+            fill.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0xFF, 0xFF, 0xFF, 0xFF), 1));
+            sweep.Background = fill;
+            var grow = new ScaleTransform(0, 1);
+            sweep.RenderTransform = grow;
+            plate.Children.Add(sweep);
+
+            var lineBegin = begin + TimeSpan.FromMilliseconds(120);
+            grow.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(520)) { BeginTime = lineBegin, EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut } });
+            var fade = new DoubleAnimationUsingKeyFrames { BeginTime = lineBegin };
+            fade.KeyFrames.Add(new LinearDoubleKeyFrame(1, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(60))));
+            fade.KeyFrames.Add(new LinearDoubleKeyFrame(1, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(520))));
+            fade.KeyFrames.Add(new LinearDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(820))));
+            fade.Completed += (s, e) => plate.Children.Remove(sweep);
+            sweep.BeginAnimation(UIElement.OpacityProperty, fade);
+
+            // Kante glüht nach dem Ankommen kurz auf
+            var glow = new DoubleAnimation(1, 2.2, TimeSpan.FromMilliseconds(260)) { BeginTime = lineBegin + TimeSpan.FromMilliseconds(380), AutoReverse = true, EasingFunction = new SineEase() };
+            edge.BeginAnimation(System.Windows.Shapes.Shape.StrokeThicknessProperty, glow);
         }
 
         /// <summary>Ringanzeige: Spur, Bogen in Farbe (wächst beim Einblenden), gestrichelter Außenring, Zahl in der Mitte.</summary>
@@ -404,6 +423,21 @@ namespace Game_launcher
             }
             grid.Children.Add(center);
             return grid;
+        }
+
+        /// <summary>Bogen von „from“ bis „to“ (Anteile eines Kreises, 0 = oben, im Uhrzeigersinn).</summary>
+        private static Geometry ArcSlice(double center, double radius, double from, double to)
+        {
+            if (to - from <= 0.0005) return Geometry.Empty;
+            if (to - from >= 0.9995) return new EllipseGeometry(new System.Windows.Point(center, center), radius, radius);
+            System.Windows.Point At(double f)
+            {
+                double angle = f * 2 * Math.PI - Math.PI / 2;
+                return new System.Windows.Point(center + radius * Math.Cos(angle), center + radius * Math.Sin(angle));
+            }
+            var figure = new PathFigure { StartPoint = At(from), IsClosed = false, IsFilled = false };
+            figure.Segments.Add(new ArcSegment(At(to), new System.Windows.Size(radius, radius), 0, to - from > 0.5, SweepDirection.Clockwise, true));
+            return new PathGeometry(new[] { figure });
         }
 
         private static Geometry ArcGeometry(double center, double radius, double fraction)

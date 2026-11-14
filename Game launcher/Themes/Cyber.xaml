@@ -331,6 +331,52 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <!-- Alle übrigen Hinweise: Glas-Blase mit Lichtkante links, Cyan-Rand und HUD-Ecke -->
+    <Style TargetType="ToolTip">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="HasDropShadow" Value="False"/>
+        <Setter Property="FontFamily" Value="{DynamicResource DisplayFont}"/>
+        <Setter Property="Foreground" Value="#E8F0F8"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <Grid x:Name="root" Margin="12" Opacity="0" MaxWidth="420">
+                        <Grid.RenderTransform>
+                            <TranslateTransform x:Name="slide" X="-6"/>
+                        </Grid.RenderTransform>
+                        <Border Background="#F20A0F1A" BorderBrush="#7322D3EE" BorderThickness="3,1,1,1" Padding="13,7,14,8">
+                            <ContentPresenter>
+                                <ContentPresenter.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextWrapping" Value="Wrap"/>
+                                    </Style>
+                                </ContentPresenter.Resources>
+                            </ContentPresenter>
+                        </Border>
+                        <Border Width="3" HorizontalAlignment="Left" Background="{DynamicResource AccentBrush}" Effect="{StaticResource NeonGlow}"/>
+                        <Border Width="12" Height="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-2,-2" Background="#22D3EE"/>
+                        <Border Width="2" Height="12" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-2,-2" Background="#22D3EE"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <EventTrigger RoutedEvent="ToolTip.Opened">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.14"/>
+                                    <DoubleAnimation Storyboard.TargetName="slide" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.2">
+                                        <DoubleAnimation.EasingFunction>
+                                            <CubicEase EasingMode="EaseOut"/>
+                                        </DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <Style x:Key="SideToolTip" TargetType="ToolTip" BasedOn="{StaticResource DockToolTip}">
         <Setter Property="Placement" Value="Right"/>
     </Style>

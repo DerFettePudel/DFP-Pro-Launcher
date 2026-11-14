@@ -2555,6 +2555,16 @@ Woche || Week || 本周 || Semana || Semaine || Semana || Неделя || 週
 Ziel {#0} Std. || Goal {0} h || 目标 {0} 小时 || Objetivo {0} h || Objectif {0} h || Meta {0} h || Цель {0} ч || 目標 {0} 時間
 Fast geschafft || Almost there || 即将完成 || Casi lo tienes || Presque fini || Quase lá || Почти готово || あと少し
 Noch nichts gespielt. || Nothing played yet. || 还没有玩过任何游戏。 || Aún no has jugado nada. || Rien joué pour l'instant. || Nada jogado ainda. || Пока ничего не сыграно. || まだ何もプレイしていません。
+Mein Spielejahr || My gaming year || 我的游戏年度 || Mi año de juego || Mon année de jeu || Meu ano de jogos || Мой игровой год || 私のゲーム年
+Der Streamer-Modus verbirgt gerade Spielzeiten und Statistiken. || Streamer mode is currently hiding playtimes and statistics. || 主播模式当前隐藏了游戏时间和统计数据。 || El modo streamer oculta ahora los tiempos de juego y las estadísticas. || Le mode streamer masque actuellement les temps de jeu et les statistiques. || O modo streamer está ocultando tempos de jogo e estatísticas. || Режим стримера сейчас скрывает время игры и статистику. || 配信者モードがプレイ時間と統計を非表示にしています。
+Aktivität (letzte 26 Wochen) || Activity (last 26 weeks) || 活动（最近 26 周） || Actividad (últimas 26 semanas) || Activité (26 dernières semaines) || Atividade (últimas 26 semanas) || Активность (последние 26 недель) || アクティビティ（過去26週間）
+Spielzeit pro Launcher || Playtime per launcher || 各启动器的游戏时间 || Tiempo de juego por launcher || Temps de jeu par launcher || Tempo de jogo por launcher || Время игры по лаунчерам || ランチャー別プレイ時間
+Gespielt || Played || 已玩 || Jugados || Joués || Jogados || Сыграно || プレイ済み
+Serie || Streak || 连续 || Racha || Série || Sequência || Серия || 連続
+nicht gespielt || not played || 未游玩 || sin jugar || pas joué || não jogado || не играл || 未プレイ
+Aktive Tage || Active days || 活跃天数 || Días activos || Jours actifs || Dias ativos || Активные дни || アクティブ日数
+Schnitt pro Tag || Average per day || 每日平均 || Media por día || Moyenne par jour || Média por dia || В среднем за день || 1日平均
+Andere || Other || 其他 || Otros || Autres || Outros || Другие || その他
 """;
     }
 }
