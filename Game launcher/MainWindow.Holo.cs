@@ -36,6 +36,7 @@ namespace Game_launcher
             if (view == ViewLinks) return "links";
             if (view == ViewWishlist) return "wishlist";
             if (view == ViewDownloads) return "downloads";
+            if (view == ViewSystem) return "system";
             return null;
         }
 
@@ -97,6 +98,7 @@ namespace Game_launcher
             holoHost.Visibility = Visibility.Collapsed;
             holoKey = string.Empty;
             holoClock = null;
+            StopHoloLive();
         }
 
         /// <summary>Daten haben sich geändert: offene Holo-Seite ohne Einflug-Animation neu aufbauen.</summary>
@@ -119,6 +121,7 @@ namespace Game_launcher
             if (holoContent == null) return;
             holoContent.Children.Clear();
             holoClock = null;
+            StopHoloLive();   // Live-Werte nur auf der Seite, die sie selbst wieder startet
             holoPanelIndex = 0;
             holoAnimate = animate && settings.PageAnimations && !settings.PerformanceMode;
             if (holoAnimate) holoAnimatingUntil = DateTime.Now.AddMilliseconds(1500);
@@ -131,6 +134,7 @@ namespace Game_launcher
                 "links" => BuildHoloLinks(),
                 "wishlist" => BuildHoloWishlist(),
                 "downloads" => BuildHoloDownloads(),
+                "system" => BuildHoloSystem(),
                 _ => null
             };
             if (page != null) holoContent.Children.Add(page);

@@ -2594,6 +2594,13 @@ Videos || Videos || 视频 || Vídeos || Vidéos || Vídeos || Видео || 動
 Audio || Audio || 音频 || Audio || Audio || Áudio || Аудио || オーディオ
 Dokumente || Documents || 文档 || Documentos || Documents || Documentos || Документы || ドキュメント
 Abbilder || Disk images || 镜像 || Imágenes de disco || Images disque || Imagens de disco || Образы дисков || ディスクイメージ
+Ping testen || Test ping || 测试延迟 || Probar ping || Tester le ping || Testar ping || Проверить пинг || Pingをテスト
+Kern || Core || 核心 || Núcleo || Noyau || Núcleo || Ядро || コア
+Download || Download || 下载 || Descarga || Téléchargement || Download || Загрузка || ダウンロード
+Upload || Upload || 上传 || Subida || Envoi || Upload || Отдача || アップロード
+Temperaturen und Lüfter || Temperatures and fans || 温度与风扇 || Temperaturas y ventiladores || Températures et ventilateurs || Temperaturas e ventoinhas || Температуры и вентиляторы || 温度とファン
+Sensoren werden gelesen ... || Reading sensors ... || 正在读取传感器 ... || Leyendo sensores ... || Lecture des capteurs ... || Lendo sensores ... || Чтение датчиков ... || センサーを読み取り中 ...
+Wird gelesen ... || Reading ... || 正在读取 ... || Leyendo ... || Lecture ... || Lendo ... || Чтение ... || 読み取り中 ...
 """;
     }
 }

@@ -316,6 +316,7 @@ namespace Game_launcher
             {
                 hardwareBusy = false;
                 BtnRefreshHardware.IsEnabled = true;
+                if (holoKey == "system") RequestConsoleRefresh();   // Thema 2: Holo-Seite mit aktualisieren
             }
         }
 
@@ -1533,6 +1534,7 @@ namespace Game_launcher
             finally
             {
                 BtnPing.IsEnabled = true;
+                if (holoKey == "system") RequestConsoleRefresh();   // Thema 2: Ergebnisse auf der Holo-Seite zeigen
             }
         }
 
@@ -2160,6 +2162,7 @@ namespace Game_launcher
         private void RenderSensors(SensorReport report)
         {
             var rows = report.Rows;
+            lastSensorReport = report;   // Thema 2: Holo-Seite liest die Werte von hier
             SensorPanel.Children.Clear();
             RenderSensorHelp(report);
 

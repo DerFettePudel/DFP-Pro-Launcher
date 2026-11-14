@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -77,7 +77,8 @@ namespace Game_launcher
 
             // Startseite aus den Einstellungen: „Spiele“ = Bibliothek, sonst START
             if (settings.StartPage == "games") ShowConsoleLibrary();
-            else ShowConsoleHome();        }
+            else ShowConsoleHome();
+        }
 
         private void RequestConsoleRefresh()
         {
