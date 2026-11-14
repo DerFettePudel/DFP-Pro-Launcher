@@ -2636,6 +2636,7 @@ Countdown „Gleich live“ || “Live soon” countdown || “即将直播”�
 Checkliste vor dem Livegang || Pre-stream checklist || 开播前检查清单 || Lista antes de emitir || Liste avant le direct || Checklist antes da live || Чек-лист перед эфиром || 配信前チェックリスト
 Streaming-Programme || Streaming programs || 直播程序 || Programas de streaming || Logiciels de streaming || Programas de streaming || Программы для стрима || 配信ソフト
 Schnellzugriffe || Quick links || 快捷方式 || Accesos rápidos || Accès rapides || Atalhos || Быстрые ссылки || クイックリンク
+Bereiche || Sections || 分区 || Secciones || Sections || Seções || Разделы || セクション
 """;
     }
 }

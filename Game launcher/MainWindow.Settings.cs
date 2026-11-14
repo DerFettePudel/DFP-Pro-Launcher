@@ -1767,6 +1767,12 @@ namespace Game_launcher
             if (SettingsCards == null) return;
 
             settingsCategory = category;
+            // Thema 2: Bereich auch auf der Holo-Seite wechseln (z. B. wenn die Suche Strg+K eine Einstellung öffnet)
+            if (holoKey == "settings" && category != holoSettingsCategory)
+            {
+                SelectHoloSettingsCategory(category);
+                return;
+            }
             if (TxtSettingsSearch != null && TxtSettingsSearch.Text.Trim().Length > 0)
             {
                 FilterSettings(TxtSettingsSearch.Text.Trim());

@@ -544,9 +544,18 @@
             <Setter.Value>
                 <ControlTemplate TargetType="CheckBox">
                     <StackPanel Orientation="Horizontal" Background="Transparent">
-                        <Grid Width="46" Height="24" VerticalAlignment="Center">
-                            <Border x:Name="Track" CornerRadius="12" Background="#141A28" BorderBrush="#2E3A55" BorderThickness="1"/>
-                            <Ellipse x:Name="Knob" Width="16" Height="16" Fill="#7C8AA3" HorizontalAlignment="Left" Margin="4,0,0,0"/>
+                        <!-- Schräger Holo-Schieber (wie die Schalter der Holo-Seiten) -->
+                        <Grid Width="52" Height="22" VerticalAlignment="Center" Margin="4,0,0,0">
+                            <Border x:Name="Track" Background="#141C2E" BorderBrush="#3A4766" BorderThickness="1" RenderTransformOrigin="0.5,0.5">
+                                <Border.RenderTransform>
+                                    <SkewTransform AngleX="-14"/>
+                                </Border.RenderTransform>
+                            </Border>
+                            <Border x:Name="Knob" Width="20" Height="14" Background="#5B6B86" HorizontalAlignment="Left" Margin="4,0,0,0" RenderTransformOrigin="0.5,0.5">
+                                <Border.RenderTransform>
+                                    <SkewTransform AngleX="-14"/>
+                                </Border.RenderTransform>
+                            </Border>
                         </Grid>
                         <ContentPresenter x:Name="Label" Margin="12,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True"/>
                     </StackPanel>
@@ -558,10 +567,10 @@
                             <Setter TargetName="Track" Property="BorderBrush" Value="#22D3EE"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Track" Property="Background" Value="__ACCENT40__"/>
                             <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             <Setter TargetName="Track" Property="Effect" Value="{StaticResource NeonGlow}"/>
-                            <Setter TargetName="Knob" Property="Fill" Value="White"/>
+                            <Setter TargetName="Knob" Property="Background" Value="White"/>
                             <Setter TargetName="Knob" Property="HorizontalAlignment" Value="Right"/>
                             <Setter TargetName="Knob" Property="Margin" Value="0,0,4,0"/>
                         </Trigger>

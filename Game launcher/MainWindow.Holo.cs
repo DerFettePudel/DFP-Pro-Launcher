@@ -44,6 +44,7 @@ namespace Game_launcher
             if (view == ViewBacklog) return "backlog";
             if (view == ViewGallery) return "gallery";
             if (view == ViewStreamer) return "streamer";
+            if (view == ViewSettings) return "settings";
             return null;
         }
 
@@ -113,6 +114,9 @@ namespace Game_launcher
         private void RefreshHoloPage()
         {
             if (holoHost == null || holoHost.Visibility != Visibility.Visible || holoKey.Length == 0) return;
+            // Einstellungen bestehen aus lebenden Bedienelementen: nicht bei jeder Datenänderung neu aufbauen
+            // (sonst gingen z. B. ein gezogener Regler oder ein Eingabefeld mitten in der Bedienung verloren)
+            if (holoKey == "settings") return;
             // Während die Panels einfliegen nicht neu aufbauen (sonst bricht die Animation ab)
             if (DateTime.Now < holoAnimatingUntil)
             {
@@ -150,6 +154,7 @@ namespace Game_launcher
                 "backlog" => BuildHoloBacklog(),
                 "gallery" => BuildHoloGallery(),
                 "streamer" => BuildHoloStreamer(),
+                "settings" => BuildHoloSettings(),
                 _ => null
             };
             if (page != null) holoContent.Children.Add(page);
