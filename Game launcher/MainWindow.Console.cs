@@ -617,7 +617,11 @@ namespace Game_launcher
             Grid.SetColumn(hud, 1);
             Grid.SetRowSpan(hud, 2);
             layout.Children.Add(hud);
-            layout.SizeChanged += (s, e) => hud.Visibility = e.NewSize.Width >= 1180 ? Visibility.Visible : Visibility.Collapsed;
+            layout.SizeChanged += (s, e) =>
+            {
+                hud.Visibility = e.NewSize.Width >= 1180 ? Visibility.Visible : Visibility.Collapsed;
+                FitConsoleHud(hud, layout);
+            };
             hud.Visibility = consoleView.ActualWidth == 0 || consoleView.ActualWidth >= 1180 ? Visibility.Visible : Visibility.Collapsed;
 
             if (row.Count == 0)

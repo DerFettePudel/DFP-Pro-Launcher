@@ -131,6 +131,7 @@
 
     <!-- ========== Knöpfe: leicht schräg (Parallelogramm), feine Kante, Leuchten beim Drüberfahren ========== -->
     <Style TargetType="Button">
+        <Setter Property="FontFamily" Value="{DynamicResource DisplayFont}"/>
         <Setter Property="Background" Value="{DynamicResource ControlBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="#3A4766"/>
@@ -337,7 +338,8 @@
     <!-- ========== Chips: schräg, beim Auswählen in der Akzentfarbe mit Leuchten ========== -->
     <Style x:Key="ChipStyle" TargetType="RadioButton">
         <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontFamily" Value="{DynamicResource DisplayFont}"/>
+        <Setter Property="FontSize" Value="13.5"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Margin" Value="0,0,8,8"/>
         <Setter Property="Cursor" Value="Hand"/>

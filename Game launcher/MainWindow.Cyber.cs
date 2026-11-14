@@ -27,6 +27,9 @@ namespace Game_launcher
 
         private bool GlitchAllowed => IsBrutal && settings.PageAnimations && !settings.PerformanceMode;
 
+        /// <summary>So lange wandert der Störbalken über das Logo; danach folgt das kurze Verzerren (auch am Namen).</summary>
+        private const double GlitchSweepMs = 420;
+
         private void InitCyber()
         {
             if (!IsBrutal || cyberReady) return;
@@ -115,16 +118,23 @@ namespace Game_launcher
             host.Children.Add(main);
             parent.Children.Insert(index, host);
 
+            // Der Name verzerrt sich zeitgleich mit dem Logo (nachdem der Störbalken durch ist)
             RegisterGlitch(host, random =>
             {
+                var start = TimeSpan.FromMilliseconds(GlitchSweepMs);
                 double d = 2 + random.NextDouble() * 2.5;
                 foreach (var (ghost, sign) in new[] { (cyan, -1.0), (magenta, 1.0) })
                 {
-                    ghost.BeginAnimation(UIElement.OpacityProperty, Steps((0, 0.85), (70, 0.25), (120, 0.8), (210, 0.4), (270, 0)));
-                    ((TranslateTransform)ghost.RenderTransform).BeginAnimation(TranslateTransform.XProperty,
-                        Steps((0, sign * d), (70, -sign * d * 0.5), (120, sign * d * 1.4), (210, sign * d * 0.6), (270, 0)));
+                    var flash = Steps((0, 0.85), (70, 0.25), (120, 0.8), (210, 0.4), (270, 0));
+                    flash.BeginTime = start;
+                    ghost.BeginAnimation(UIElement.OpacityProperty, flash);
+                    var offset = Steps((0, sign * d), (70, -sign * d * 0.5), (120, sign * d * 1.4), (210, sign * d * 0.6), (270, 0));
+                    offset.BeginTime = start;
+                    ((TranslateTransform)ghost.RenderTransform).BeginAnimation(TranslateTransform.XProperty, offset);
                 }
-                shake.BeginAnimation(TranslateTransform.XProperty, Steps((0, 0), (40, 1.6), (100, -1.4), (160, 0.8), (230, 0)));
+                var jolt = Steps((0, 0), (40, 1.6), (100, -1.4), (160, 0.8), (230, 0));
+                jolt.BeginTime = start;
+                shake.BeginAnimation(TranslateTransform.XProperty, jolt);
             });
         }
 
@@ -133,9 +143,13 @@ namespace Game_launcher
         /// <summary>Das Pudel-Logo als Cyberpunk-Version: dunkle Scheibe, Neonkanten, Visier statt Augen, HUD-Ring.</summary>
         private Viewbox BuildCyberPoodle()
         {
-            var canvas = new Canvas { Width = 500, Height = 500, Clip = new EllipseGeometry(new System.Windows.Point(250, 250), 250, 250) };
+            // Zwei Ebenen: „canvas“ ist das Bild, darüber liegen Störbalken und Farbkopien (sie zeigen das Bild über einen VisualBrush)
+            var canvas = new Canvas { Width = 500, Height = 500 };
             var shake = new TranslateTransform();
-            canvas.RenderTransform = shake;
+            var skew = new SkewTransform();
+            var stretch = new ScaleTransform(1, 1);
+            canvas.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
+            canvas.RenderTransform = new TransformGroup { Children = { stretch, skew, shake } };
             bool effects = !settings.PerformanceMode;
             var accent = GetAccentColor();
             var cyan = MakeBrush("#22D3EE");
@@ -210,12 +224,58 @@ namespace Game_launcher
             var tag = Add(new TextBlock { Text = "DFP", Width = 90, TextAlignment = TextAlignment.Center, FontSize = 31, FontWeight = FontWeights.Bold, Foreground = cyan }, 205, 366);
             tag.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
 
-            // Glitch-Streifen (sonst unsichtbar)
-            var sliceA = Add(new System.Windows.Shapes.Rectangle { Width = 500, Height = 24, Opacity = 0, IsHitTestVisible = false, RenderTransform = new TranslateTransform() }, 0, 0);
-            sliceA.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "AccentBrush");
-            var sliceB = Add(new System.Windows.Shapes.Rectangle { Width = 500, Height = 14, Opacity = 0, IsHitTestVisible = false, Fill = cyan, RenderTransform = new TranslateTransform() }, 0, 0);
+            // ── Glitch-Ebene ──
+            var fx = new Canvas { Width = 500, Height = 500, IsHitTestVisible = false };
 
-            var box = new Viewbox { Stretch = Stretch.Uniform, Child = canvas, Tag = "cyber" };
+            // Farbkopien (Umriss des Logos in Cyan und Magenta), blitzen beim Verzerren versetzt auf
+            System.Windows.Shapes.Rectangle Ghost(string hex) => new()
+            {
+                Width = 500, Height = 500, Opacity = 0, Fill = MakeBrush(hex),
+                OpacityMask = new VisualBrush(canvas)
+                {
+                    ViewboxUnits = BrushMappingMode.Absolute, Viewbox = new Rect(0, 0, 500, 500),
+                    ViewportUnits = BrushMappingMode.Absolute, Viewport = new Rect(0, 0, 500, 500),
+                    Stretch = Stretch.Fill
+                },
+                RenderTransform = new TranslateTransform()
+            };
+            // Sie liegen hinter dem Bild: zu sehen sind nur die versetzten Ränder
+            var ghostCyan = Ghost("#22D3EE");
+            var ghostMagenta = Ghost("#FF2BD6");
+            var back = new Canvas { Width = 500, Height = 500, IsHitTestVisible = false };
+            back.Children.Add(ghostCyan);
+            back.Children.Add(ghostMagenta);
+
+            // Störbalken: zeigt den Bildstreifen darunter seitlich verschoben, mit Neonkanten oben und unten
+            const double BandHeight = 54;
+            var bandImage = new VisualBrush(canvas)
+            {
+                ViewboxUnits = BrushMappingMode.Absolute,
+                Viewbox = new Rect(0, -BandHeight, 500, BandHeight),
+                ViewportUnits = BrushMappingMode.Absolute,
+                Viewport = new Rect(0, 0, 500, BandHeight),
+                Stretch = Stretch.Fill
+            };
+            var bandShift = new TranslateTransform();
+            var band = new Grid { Width = 500, Height = BandHeight, Background = bandImage, Opacity = 0, RenderTransform = bandShift };
+            var bandTint = new Border { Opacity = 0.22 };
+            bandTint.SetResourceReference(Border.BackgroundProperty, "AccentBrush");
+            band.Children.Add(bandTint);
+            var bandTop = new Border { Height = 3, VerticalAlignment = System.Windows.VerticalAlignment.Top };
+            bandTop.SetResourceReference(Border.BackgroundProperty, "AccentBrush");
+            band.Children.Add(bandTop);
+            band.Children.Add(new Border { Height = 2, VerticalAlignment = System.Windows.VerticalAlignment.Bottom, Background = cyan });
+            Canvas.SetTop(band, -BandHeight);
+            fx.Children.Add(band);
+
+            // Bild und Störbalken rund beschneiden, die Farbkopien dahinter nicht (sonst wären ihre Ränder weg)
+            canvas.Clip = new EllipseGeometry(new System.Windows.Point(250, 250), 250, 250);
+            fx.Clip = new EllipseGeometry(new System.Windows.Point(250, 250), 250, 250);
+            var root = new Grid { Width = 500, Height = 500 };
+            root.Children.Add(back);
+            root.Children.Add(canvas);
+            root.Children.Add(fx);
+            var box = new Viewbox { Stretch = Stretch.Uniform, Child = root, Tag = "cyber" };
 
             // Drehen nur, solange das Logo angezeigt wird (sonst hielte die endlose Animation es im Speicher)
             if (effects && settings.PageAnimations)
@@ -227,14 +287,30 @@ namespace Game_launcher
 
             RegisterGlitch(box, random =>
             {
-                shake.BeginAnimation(TranslateTransform.XProperty, Steps((0, 0), (40, 9), (90, -7), (150, 4), (220, 0)));
-                foreach (var slice in new[] { sliceA, sliceB })
+                // 1) Störbalken wandert von oben nach unten über das Bild (der Streifen darunter ruckelt seitlich)
+                var sweep = TimeSpan.FromMilliseconds(GlitchSweepMs);
+                Canvas.SetTop(band, -BandHeight);
+                band.BeginAnimation(Canvas.TopProperty, new DoubleAnimation(-BandHeight, 500, sweep));
+                bandImage.BeginAnimation(VisualBrush.ViewboxProperty, new RectAnimation(new Rect(0, -BandHeight, 500, BandHeight), new Rect(0, 500, 500, BandHeight), sweep));
+                band.BeginAnimation(UIElement.OpacityProperty, Steps((0, 1), (GlitchSweepMs, 0)));
+                double kick = 14 + random.NextDouble() * 10;
+                bandShift.BeginAnimation(TranslateTransform.XProperty, Steps(
+                    (0, kick), (70, -kick * 0.6), (140, kick * 1.2), (210, -kick * 0.4), (280, kick * 0.8), (350, -kick), (GlitchSweepMs, 0)));
+
+                // 2) Danach kurz verzerren: Schrägziehen, Strecken, Ruck und Farbversatz
+                double t = GlitchSweepMs;
+                double tilt = (random.Next(2) == 0 ? 1 : -1) * (7 + random.NextDouble() * 5);
+                skew.BeginAnimation(SkewTransform.AngleXProperty, Steps((0, 0), (t, tilt), (t + 50, -tilt * 0.7), (t + 100, tilt * 0.4), (t + 160, 0)));
+                stretch.BeginAnimation(ScaleTransform.ScaleXProperty, Steps((0, 1), (t, 1.06), (t + 50, 0.96), (t + 110, 1.02), (t + 160, 1)));
+                stretch.BeginAnimation(ScaleTransform.ScaleYProperty, Steps((0, 1), (t, 0.95), (t + 70, 1.03), (t + 160, 1)));
+                shake.BeginAnimation(TranslateTransform.XProperty, Steps((0, 0), (t, 10), (t + 50, -8), (t + 100, 5), (t + 160, 0)));
+                foreach (var (ghost, sign) in new[] { (ghostCyan, -1.0), (ghostMagenta, 1.0) })
                 {
-                    Canvas.SetTop(slice, 60 + random.Next(0, 360));
-                    slice.BeginAnimation(UIElement.OpacityProperty, Steps((0, 0.55), (60, 0), (110, 0.4), (190, 0)));
-                    ((TranslateTransform)slice.RenderTransform).BeginAnimation(TranslateTransform.XProperty, Steps((0, random.Next(-30, 30)), (110, random.Next(-30, 30)), (190, 0)));
+                    ghost.BeginAnimation(UIElement.OpacityProperty, Steps((0, 0), (t, 0.7), (t + 60, 0.25), (t + 110, 0.6), (t + 170, 0)));
+                    ((TranslateTransform)ghost.RenderTransform).BeginAnimation(TranslateTransform.XProperty,
+                        Steps((0, 0), (t, sign * 14), (t + 60, -sign * 8), (t + 110, sign * 18), (t + 170, 0)));
                 }
-                visor.BeginAnimation(UIElement.OpacityProperty, Steps((0, 0.35), (60, 1), (120, 0.5), (200, 1)));
+                visor.BeginAnimation(UIElement.OpacityProperty, Steps((0, 1), (t, 0.3), (t + 60, 1), (t + 110, 0.5), (t + 170, 1)));
             });
             return box;
         }

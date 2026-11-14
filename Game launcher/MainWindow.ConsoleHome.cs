@@ -160,6 +160,10 @@ namespace Game_launcher
             if (!SHide(settings.StreamHideStats)) hud.Children.Add(ConsoleHudCard(Loc.T("Diese Woche"), BuildConsoleWeek()));
             hud.Children.Add(ConsoleHudCard(Loc.T("Bibliothek"), BuildConsoleLibraryStats()));
 
+            var updates = VisibleGames.Where(g => g.UpdatePending).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase).ToList();
+            if (updates.Count > 0)
+                hud.Children.Add(ConsoleHudCard(Loc.T("Updates bereit") + "   " + updates.Count.ToString(Loc.Culture), BuildConsoleUpdates(updates)));
+
             // Gratis-Spiele bei Epic (wie das Banner im Dashboard von Thema 1)
             if (epicFree.Count > 0)
             {
@@ -178,6 +182,21 @@ namespace Game_launcher
                 hud.Children.Add(ConsoleHudCard(Loc.T("Gratis bei Epic Games"), list, () => ShowConsolePage("deals")));
             }
             return hud;
+        }
+
+        /// <summary>Karten, die nicht mehr ganz auf die Infotafel passen, ausblenden statt abschneiden.</summary>
+        private static void FitConsoleHud(FrameworkElement hud, Grid layout)
+        {
+            if (hud is not StackPanel panel || layout.RowDefinitions.Count < 2) return;
+            double available = layout.RowDefinitions[0].ActualHeight + layout.RowDefinitions[1].ActualHeight - panel.Margin.Top - panel.Margin.Bottom;
+            double used = 0;
+            foreach (UIElement child in panel.Children)
+            {
+                child.Visibility = Visibility.Visible;
+                child.Measure(new System.Windows.Size(panel.Width, double.PositiveInfinity));
+                used += child.DesiredSize.Height;
+                if (used > available) child.Visibility = Visibility.Collapsed;
+            }
         }
 
         /// <summary>Spielzeit dieser Woche: Summe, Serie, Balken der letzten 7 Tage, Wochenziel.</summary>
@@ -282,33 +301,36 @@ namespace Game_launcher
                 numbers.Children.Add(cell);
             }
             panel.Children.Add(numbers);
-
-            // Updates: anklickbar, öffnet das (erste) Spiel
-            var updates = games.Where(g => g.UpdatePending).OrderBy(g => g.Name, StringComparer.CurrentCultureIgnoreCase).ToList();
-            if (updates.Count > 0)
-            {
-                var line = new Border
-                {
-                    Margin = new Thickness(0, 14, 0, 0),
-                    Padding = new Thickness(12, 8, 12, 8),
-                    CornerRadius = new CornerRadius(3),
-                    BorderThickness = new Thickness(1),
-                    Background = MakeBrush("#1422D3EE"),
-                    BorderBrush = MakeBrush("#5522D3EE"),
-                    Cursor = System.Windows.Input.Cursors.Hand,
-                    ToolTip = string.Join("\n", updates.Take(8).Select(g => g.Name)),
-                    Child = new TextBlock
-                    {
-                        Text = "⬇  " + (updates.Count == 1 ? Loc.T("1 Update bereit") + ": " + updates[0].Name : Loc.T($"{updates.Count} Updates bereit")),
-                        FontSize = 13.5,
-                        Foreground = System.Windows.Media.Brushes.White,
-                        TextTrimming = TextTrimming.CharacterEllipsis
-                    }
-                };
-                line.MouseLeftButtonUp += (s, e) => ShowConsoleDetail(updates[0]);
-                panel.Children.Add(line);
-            }
             return panel;
+        }
+
+        /// <summary>Spiele, für die ein Update bereitsteht: jedes einzeln, ein Klick öffnet das Spiel.</summary>
+        private FrameworkElement BuildConsoleUpdates(List<GameItem> updates)
+        {
+            var list = new StackPanel();
+            foreach (var game in updates.Take(8))
+            {
+                var row = new StackPanel { Orientation = System.Windows.Controls.Orientation.Horizontal };
+                var icon = GetLauncherIcon(game.Source);
+                if (icon != null)
+                {
+                    var image = new System.Windows.Controls.Image { Source = icon, Width = 15, Height = 15, Margin = new Thickness(0, 0, 9, 0), VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                    RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
+                    row.Children.Add(image);
+                }
+                var name = new TextBlock { Text = game.Name, FontSize = 14, Foreground = System.Windows.Media.Brushes.White, TextTrimming = TextTrimming.CharacterEllipsis, MaxWidth = 260, VerticalAlignment = System.Windows.VerticalAlignment.Center };
+                name.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
+                row.Children.Add(name);
+
+                var item = new Border { Child = row, Padding = new Thickness(8, 5, 8, 5), Margin = new Thickness(-8, 0, -8, 1), CornerRadius = new CornerRadius(3), Background = System.Windows.Media.Brushes.Transparent, Cursor = System.Windows.Input.Cursors.Hand };
+                item.MouseEnter += (s, e) => { item.Background = MakeBrush("#1A22D3EE"); name.Foreground = ConsoleCyan; };
+                item.MouseLeave += (s, e) => { item.Background = System.Windows.Media.Brushes.Transparent; name.Foreground = System.Windows.Media.Brushes.White; };
+                item.MouseLeftButtonUp += (s, e) => ShowConsoleDetail(game);
+                list.Children.Add(item);
+            }
+            if (updates.Count > 8)
+                list.Children.Add(new TextBlock { Text = "…", FontSize = 14, Foreground = ConsoleMuted, Margin = new Thickness(0, 2, 0, 0) });
+            return list;
         }
 
         // ───────── BIBLIOTHEK: Launcher-Logos und Präsentation ─────────

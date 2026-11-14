@@ -2542,8 +2542,7 @@ Launcher || Launchers || 启动器 || Launchers || Launchers || Launchers || Л�
 Diese Woche || This week || 本周 || Esta semana || Cette semaine || Esta semana || На этой неделе || 今週
 {#0} Tage in Folge || {0} days in a row || 连续 {0} 天 || {0} días seguidos || {0} jours d'affilée || {0} dias seguidos || {0} дн. подряд || {0}日連続
 Gratis bei Epic Games || Free on Epic Games || Epic Games 免费 || Gratis en Epic Games || Gratuit sur Epic Games || Grátis na Epic Games || Бесплатно в Epic Games || Epic Gamesで無料
-1 Update bereit || 1 update ready || 1 个更新可用 || 1 actualización lista || 1 mise à jour prête || 1 atualização pronta || 1 обновление готово || アップデート1件あり
-{#0} Updates bereit || {0} updates ready || {0} 个更新可用 || {0} actualizaciones listas || {0} mises à jour prêtes || {0} atualizações prontas || Готово обновлений: {0} || アップデート{0}件あり
+Updates bereit || Updates ready || 可用更新 || Actualizaciones listas || Mises à jour prêtes || Atualizações prontas || Готовые обновления || アップデートあり
 Deine Spiele || Your games || 你的游戏 || Tus juegos || Tes jeux || Seus jogos || Твои игры || あなたのゲーム
 Klick auf ein Logo zeigt alle Spiele dieses Launchers || Click a logo to see all games from that launcher || 点击标志即可查看该启动器的所有游戏 || Haz clic en un logo para ver todos los juegos de ese launcher || Clique sur un logo pour voir tous les jeux de ce launcher || Clique em um logo para ver todos os jogos desse launcher || Нажми на логотип, чтобы увидеть все игры этого лаунчера || ロゴをクリックすると、そのランチャーのゲームをすべて表示します
 """;
