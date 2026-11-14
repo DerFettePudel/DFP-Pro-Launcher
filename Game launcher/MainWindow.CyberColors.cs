@@ -278,7 +278,12 @@ namespace Game_launcher
             ApplyCyberSidebarEdge();
             RenderCyberPresets();
             UpdateCyberSwatches();
-            if (holoHost != null) holoHost.Children[0] = BuildHoloBackdrop();
+            if (holoHost != null && holoHost.Children.Count > 0)
+            {
+                // Hintergrund (Raster, Leuchten) neu in den neuen Farben – erst entfernen, dann einsetzen
+                holoHost.Children.RemoveAt(0);
+                holoHost.Children.Insert(0, BuildHoloBackdrop());
+            }
             ApplyHoloBackground();
             RefreshConsole();
         }
