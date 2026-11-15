@@ -214,6 +214,16 @@ namespace Game_launcher
                 return;
             }
 
+            // Thema 2: Befehle wie „start <spiel>“ (MainWindow.CyberCommand.cs)
+            if (BuildCyberCommandEntries(query, entries))
+            {
+                spotlightEntries.Clear();
+                spotlightEntries.AddRange(entries.Take(9));
+                spotlightIndex = 0;
+                RenderSpotlight();
+                return;
+            }
+
             if (query.Length == 0)
             {
                 foreach (var game in VisibleGames.Where(g => g.LastPlayed.HasValue).OrderByDescending(g => g.LastPlayed).Take(4))
@@ -316,6 +326,7 @@ namespace Game_launcher
 
         private void RenderSpotlight()
         {
+            if (IsBrutal && cyberCommandReady) { RenderCyberCommand(); return; }
             SpotlightResults.Children.Clear();
 
             if (spotlightEntries.Count == 0)
@@ -369,6 +380,7 @@ namespace Game_launcher
 
         private void HighlightSpotlight()
         {
+            if (IsBrutal && cyberCommandReady) { HighlightCyberCommand(); return; }
             for (int i = 0; i < SpotlightResults.Children.Count; i++)
             {
                 if (SpotlightResults.Children[i] is Border item)
@@ -379,6 +391,7 @@ namespace Game_launcher
         private void ActivateSpotlight(SpotlightEntry entry)
         {
             CloseSpotlight();
+            PlayCyberSound("confirm");
             entry.Action();
         }
 

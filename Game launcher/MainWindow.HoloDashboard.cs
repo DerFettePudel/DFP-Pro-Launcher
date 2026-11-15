@@ -30,7 +30,7 @@ namespace Game_launcher
 
             // ── Kopf ──
             var now = DateTime.Now;
-            string code = now.ToString("dddd", Loc.Culture) + "  ·  " + now.ToString("M", Loc.Culture) + "  ·  " + Loc.T($"KW {System.Globalization.ISOWeek.GetWeekOfYear(now)}");
+            string code = (settings.CyberGreeting ? CyberStatusLine() + "  ·  " : "") + now.ToString("dddd", Loc.Culture) + "  ·  " + now.ToString("M", Loc.Culture) + "  ·  " + Loc.T($"KW {System.Globalization.ISOWeek.GetWeekOfYear(now)}");
             var actions = new List<FrameworkElement>();
             if (!DashOff("actions"))
             {

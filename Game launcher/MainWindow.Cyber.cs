@@ -39,6 +39,10 @@ namespace Game_launcher
             MakeGlitchText(NavDockBrandTitle);
             ApplyBrand();   // Pudel in der Neon-Version einsetzen (Seitenleiste und Kopfleiste)
             BuildCyberColorsCard();   // Einstellungen → Darstellung: eigene Farben von Thema 2
+            BuildCyberEffectsCard();  // … und die Effekte (MainWindow.CyberFx.cs)
+            cyberNightActive = CyberNightNow;
+            PreviewMouseMove += CyberParallax;
+            InitCyberCommand();       // Strg+K als Befehlszeile (MainWindow.CyberCommand.cs)
 
             BrandLogo.MouseEnter += (s, e) => GlitchBurst();
             glitchTimer.Tick += (s, e) =>

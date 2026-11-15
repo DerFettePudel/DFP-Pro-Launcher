@@ -65,6 +65,7 @@ namespace Game_launcher
             cyberBaseHex = $"{basis.R:X2}{basis.G:X2}{basis.B:X2}";
             cyberGlassFactor = Math.Clamp(settings.CyberGlassOpacity, 30, 100) / 88.0;
             cyberGlowFactor = Math.Clamp(settings.CyberGlow, 0, 150) / 100.0;
+            if (CyberNightNow) cyberGlowFactor *= 0.65;   // Nachtmodus: gedämpftes Leuchten (MainWindow.CyberFx.cs)
             cyberPaletteActive = true;
 
             HoloCyan = second;

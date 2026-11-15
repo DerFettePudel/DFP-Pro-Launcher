@@ -31,6 +31,7 @@ namespace Game_launcher
         private string? HoloKeyFor(FrameworkElement view)
         {
             if (view == ViewDashboard) return "dashboard";
+            if (view == ViewGames) return "games";
             if (view == ViewStats) return "stats";
             if (view == ViewApps) return "apps";
             if (view == ViewLinks) return "links";
@@ -123,7 +124,11 @@ namespace Game_launcher
             PlaceHoloHost();
             ApplyHoloBackground();
             BuildHoloPage(!same);
-            if (!same) holoScroll?.ScrollToVerticalOffset(0);
+            if (!same)
+            {
+                holoScroll?.ScrollToVerticalOffset(0);
+                Dispatcher.BeginInvoke(new Action(() => PlayCyberScan(holoHost)), System.Windows.Threading.DispatcherPriority.Loaded);
+            }
         }
 
         private void HideHoloPage()
@@ -167,6 +172,7 @@ namespace Game_launcher
             FrameworkElement? page = holoKey switch
             {
                 "dashboard" => BuildHoloDashboard(),
+                "games" => BuildHoloGames(),
                 "stats" => BuildHoloStats(),
                 "apps" => BuildHoloApps(),
                 "links" => BuildHoloLinks(),
@@ -203,7 +209,10 @@ namespace Game_launcher
                 ViewportUnits = BrushMappingMode.Absolute,
                 Stretch = Stretch.None
             };
-            back.Children.Add(new Border { Background = tile });
+            var dotLayer = new Border { Background = tile };
+            back.Children.Add(dotLayer);
+            var glows = new Grid();
+            back.Children.Add(glows);
 
             Border Glow(System.Windows.Point center, System.Windows.Media.Color color, byte alpha, double radius)
             {
@@ -212,8 +221,9 @@ namespace Game_launcher
                 brush.GradientStops.Add(new GradientStop(System.Windows.Media.Color.FromArgb(0, color.R, color.G, color.B), 1));
                 return new Border { Background = brush };
             }
-            back.Children.Add(Glow(new System.Windows.Point(0.92, 0.0), accent, 0x30, 0.55));
-            back.Children.Add(Glow(new System.Windows.Point(0.0, 1.0), HoloCyan, 0x1C, 0.5));
+            glows.Children.Add(Glow(new System.Windows.Point(0.92, 0.0), accent, 0x30, 0.55));
+            glows.Children.Add(Glow(new System.Windows.Point(0.0, 1.0), HoloCyan, 0x1C, 0.5));
+            MakeBackdropLive(tile, dotLayer, glows);   // Thema 2: wandert und folgt der Maus (MainWindow.CyberFx.cs)
 
             // Unten: Fluchtlinien wie ein Boden aus Licht, sehr dezent
             var floor = new System.Windows.Shapes.Path

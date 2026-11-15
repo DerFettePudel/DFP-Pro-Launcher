@@ -1419,6 +1419,7 @@ namespace Game_launcher
         private void DisplayGames(List<GameItem> games)
         {
             if (GamesListContainer == null) return;
+            if (holoKey == "games") RequestConsoleRefresh();   // Thema 2: Holo-Bibliothek mitziehen
 
             bool animate = playCardEntrance && settings.CardAnimations;
             playCardEntrance = false;
@@ -2388,6 +2389,7 @@ namespace Game_launcher
 
             var played = TimeSpan.FromSeconds(sessionSeconds.TryGetValue(game, out double seconds) ? seconds : 0);
             if (finished) RecordSession(game, played);
+            if (finished) LogGameSession(game, sessionStart.TryGetValue(game, out var started) ? started : DateTime.Now - played, played);
             sessionStart.Remove(game);
             sessionSeconds.Remove(game);
             sessionBreakCount.Remove(game);
@@ -3850,6 +3852,11 @@ namespace Game_launcher
             int sources = VisibleGames.Select(g => g.Source).Distinct().Count();
             int done = VisibleGames.Count(g => g.Status == "done");
             bool goalReached = settings.WeeklyGoalHours > 0 && GetWeekSeconds() >= settings.WeeklyGoalHours * 3600.0;
+            var loggedSessions = settings.GameSessions.Values.Where(l => l != null).SelectMany(l => l).ToList();
+            int nightSessions = loggedSessions.Count(s => s.Start.Hour >= 22 || s.Start.Hour < 5);
+            double longestHours = Math.Max(loggedSessions.Count > 0 ? loggedSessions.Max(s => s.Seconds) : 0,
+                settings.YearStats.Values.Where(y => y != null).Select(y => y.LongestSeconds).DefaultIfEmpty(0).Max()) / 3600.0;
+            double bestGameHours = VisibleGames.Where(g => !IsTrackingIgnored(g)).Select(g => g.PlaySeconds).DefaultIfEmpty(0).Max() / 3600.0;
 
             AchievementDef Def(string id, string icon, string title, string description, double current, double target)
                 => new() { Id = id, Icon = icon, Title = title, Description = description, Current = current, Target = target };
@@ -3875,7 +3882,12 @@ namespace Game_launcher
                 Def("night", "🌙", "Nachtschwärmer", "Spiele nach Mitternacht.", settings.NightOwl ? 1 : 0, 1),
                 Def("goal", "🏆", "Ziel erreicht", "Erreiche dein Wochenziel.", goalReached ? 1 : 0, 1),
                 Def("backup", "💾", "Vorsichtig", "Sichere einen Spielstand.", Math.Min(settings.BackupCount, 1), 1),
-                Def("done", "✅", "Durchgespielt", "Verschiebe ein Spiel nach „Durchgespielt“.", Math.Min(done, 1), 1)
+                Def("done", "✅", "Durchgespielt", "Verschiebe ein Spiel nach „Durchgespielt“.", Math.Min(done, 1), 1),
+                Def("done_10", "🏁", "Vollender", "Spiele 10 Spiele durch.", done, 10),
+                Def("night_shift", "🌃", "Nachtschicht", "Spiele 5 Sitzungen, die nach 22 Uhr beginnen.", nightSessions, 5),
+                Def("long_session", "🛰", "Langstrecke", "Spiele 4 Stunden am Stück.", longestHours, 4),
+                Def("loyal_50", "💠", "Treue Seele", "Spiele ein einzelnes Spiel 50 Stunden.", bestGameHours, 50),
+                Def("time_1000", "🪐", "Unendlich", "Spiele insgesamt 1000 Stunden.", hours, 1000)
             };
         }
 

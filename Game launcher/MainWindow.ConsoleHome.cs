@@ -150,6 +150,14 @@ namespace Game_launcher
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Right
             };
             greeting.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
+            if (settings.CyberGreeting)
+            {
+                // Status nach Tageszeit (SYSTEM ONLINE …) über der Begrüßung
+                var status = ConsoleEyebrow("// " + CyberStatusLine());
+                status.HorizontalAlignment = System.Windows.HorizontalAlignment.Right;
+                status.Margin = new Thickness(0, 0, 0, 4);
+                hud.Children.Add(status);
+            }
             hud.Children.Add(greeting);
 
             var now = DateTime.Now;

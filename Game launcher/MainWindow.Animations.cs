@@ -106,6 +106,17 @@ namespace Game_launcher
             launchOverlayMinimize = false;
             launchOverlayShown = DateTime.Now;
 
+            if (IsBrutal && settings.CyberLaunchHud)
+            {
+                // Thema 2: Lade-HUD (MainWindow.CyberFx.cs)
+                BuildCyberLaunchHud(host, game);
+                launchOverlayTimer ??= new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+                launchOverlayTimer.Tick -= LaunchOverlayTick;
+                launchOverlayTimer.Tick += LaunchOverlayTick;
+                launchOverlayTimer.Start();
+                return true;
+            }
+
             var accent = GetAccentColor();
             double coverWidth = 240, coverHeight = 360;
 

@@ -1976,6 +1976,7 @@ namespace Game_launcher
 
             var (greetingTop, greetingBig, _) = BuildGreeting();
             WelcomeGreeting.Text = greetingTop;
+            if (IsBrutal && settings.CyberGreeting) WelcomeGreeting.Text = "// " + CyberStatusLine() + "   ·   " + greetingTop.TrimEnd(',');
             WelcomeName.Text = greetingBig;
             WelcomeName.FontSize = greetingBig.Length > 22 ? 36 : 44;   // ganze Sätze etwas kleiner
             WelcomeName.TextWrapping = TextWrapping.Wrap;

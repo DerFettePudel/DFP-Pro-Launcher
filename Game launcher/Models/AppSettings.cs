@@ -343,6 +343,18 @@ namespace Game_launcher
         public string ColorsOwner { get; set; } = string.Empty;
         public Dictionary<string, string> OtherThemeColors { get; set; } = new();
 
+        // Thema 2: Effekte (alle abschaltbar)
+        public bool CyberCoverGlow { get; set; } = true;        // Leuchten beim Hovern in der Hauptfarbe des Covers
+        public bool CyberLiveBackground { get; set; } = true;   // Punkteraster wandert langsam und folgt der Maus
+        public bool CyberScanTransition { get; set; } = true;   // Seitenwechsel als Scan-Linie
+        public bool CyberLaunchHud { get; set; } = true;        // Lade-HUD beim Spielstart
+        public bool CyberSounds { get; set; } = true;           // leise Klick-/Summ-Töne
+        public int CyberSoundVolume { get; set; } = 35;         // in %
+        public bool CyberGreeting { get; set; } = true;         // Begrüßung nach Tageszeit (SYSTEM ONLINE …)
+
+        // Letzte Sitzungen je Spiel (Spielname → neueste zuerst, höchstens 12)
+        public Dictionary<string, List<GameSessionEntry>> GameSessions { get; set; } = new();
+
         // Fehlerbericht und Beta-Kanal
         public bool ErrorReports { get; set; } = true;
         public bool BetaUpdates { get; set; }
@@ -384,6 +396,12 @@ namespace Game_launcher
     {
         public long Bytes { get; set; }
         public DateTime Measured { get; set; }
+    }
+
+    public class GameSessionEntry
+    {
+        public DateTime Start { get; set; }
+        public double Seconds { get; set; }
     }
 
     public class YearStat

@@ -56,7 +56,9 @@ namespace Game_launcher
         {
             nameof(AppSettings.AccentColor), nameof(AppSettings.BackgroundColor), nameof(AppSettings.SidebarColor),
             nameof(AppSettings.NavTextColor), nameof(AppSettings.NavActiveColor), nameof(AppSettings.BrandNameColor),
-            nameof(AppSettings.RgbAccent), nameof(AppSettings.RgbSpeed)
+            nameof(AppSettings.RgbAccent), nameof(AppSettings.RgbSpeed),
+            // Hintergrundbild samt Abdunkeln und Unschärfe ebenfalls je Thema
+            nameof(AppSettings.BackgroundImagePath), nameof(AppSettings.BackgroundSourcePath), nameof(AppSettings.BgDim), nameof(AppSettings.BgBlur)
         };
 
         /// <summary>

@@ -127,6 +127,38 @@ namespace Game_launcher
                     ShowConsoleLibrary();
                     PresentConsoleLauncher(first, true);
                 });
+                Dev("🚀 Start-HUD (ohne Spiel, erkannt nach 2,5 s)", () =>
+                {
+                    var game = VisibleGames.OrderByDescending(g => g.LastPlayed ?? DateTime.MinValue).FirstOrDefault();
+                    if (game == null || !ShowLaunchAnimation(game)) { Msg("Keine Animation: Seitenanimationen aus, Leistungsmodus an, Start-HUD aus oder kein Spiel vorhanden."); return; }
+                    var detect = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(2500) };
+                    detect.Tick += (s, e) => { detect.Stop(); OnLaunchAnimationGameDetected(game); };
+                    detect.Start();
+                });
+                Dev("📡 Scan-Linie abspielen", () => PlayCyberScan(holoHost?.Visibility == Visibility.Visible ? holoHost : consoleStage));
+                Dev("🔊 Holo-Klänge nacheinander", () =>
+                {
+                    var kinds = new[] { "hover", "click", "open", "type", "confirm", "launch" };
+                    int index = 0;
+                    var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(900) };
+                    timer.Tick += (s, e) => { if (index >= kinds.Length) { timer.Stop(); return; } PlayCyberSound(kinds[index++]); };
+                    timer.Start();
+                });
+                Dev("🕘 Test-Sitzungen fürs erste Spiel eintragen", () =>
+                {
+                    var game = VisibleGames.OrderByDescending(g => g.LastPlayed ?? DateTime.MinValue).FirstOrDefault();
+                    if (game == null) return;
+                    var random = new Random();
+                    for (int i = 8; i >= 1; i--) LogGameSession(game, DateTime.Now.AddDays(-i * 2).AddHours(random.Next(-6, 6)), TimeSpan.FromMinutes(random.Next(20, 260)));
+                    SaveSettings();
+                    if (IsConsole) ShowConsoleDetail(game);
+                });
+                Dev("🌙 Nachtmodus von Thema 2 umschalten", () =>
+                {
+                    cyberGlowFactor = cyberGlowFactor > 0.7 * Math.Clamp(settings.CyberGlow, 0, 150) / 100.0 ? cyberGlowFactor * 0.65 : Math.Clamp(settings.CyberGlow, 0, 150) / 100.0;
+                    LoadCyberDictionary();
+                    ApplyBrutalTokens();
+                });
                 Dev("↔ Navigation: oben → links → rechts", () =>
                 {
                     settings.ConsoleNavPosition = settings.ConsoleNavPosition switch { "top" => "left", "left" => "right", _ => "top" };

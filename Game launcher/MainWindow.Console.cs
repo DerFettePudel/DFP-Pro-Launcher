@@ -108,7 +108,18 @@ namespace Game_launcher
                     consolePresentScroll?.ScrollToVerticalOffset(presentOffset);
                     break;
                 case "detail":
-                    if (consoleDetailGame != null) BuildConsoleDetail(consoleDetailGame);
+                    // Während das Hologramm sich aufbaut, nicht neu aufbauen
+                    if (DateTime.Now < holoAnimatingUntil)
+                    {
+                        RequestConsoleRefresh();
+                        break;
+                    }
+                    if (consoleDetailGame != null)
+                    {
+                        double detailOffset = consoleView?.Children.OfType<ScrollViewer>().FirstOrDefault()?.VerticalOffset ?? 0;
+                        BuildConsoleDetail(consoleDetailGame);
+                        consoleView?.Children.OfType<ScrollViewer>().FirstOrDefault()?.ScrollToVerticalOffset(detailOffset);
+                    }
                     break;
                 case "page":
                     RefreshHoloPage();
@@ -358,6 +369,7 @@ namespace Game_launcher
             if (consoleClock != null) consoleClock.Text = ConsoleTimeText();
             if (consoleHudClock != null) consoleHudClock.Text = ConsoleTimeText();
             if (holoClock != null) holoClock.Text = ConsoleTimeText();
+            CheckCyberNight();
         }
 
         // ───────── Umschalten ─────────
@@ -366,7 +378,10 @@ namespace Game_launcher
         {
             if (consoleStage == null) return;
             if (mode is "home" or "library") consoleReturnMode = mode;
+            bool changed = consoleMode != mode;
             consoleMode = mode;
+            if (mode != "detail") holoDetailShown = null;   // beim nächsten Öffnen baut sich das Hologramm wieder auf
+            if (changed && mode != "page") Dispatcher.BeginInvoke(new Action(() => PlayCyberScan(consoleStage)), DispatcherPriority.Loaded);
 
             consoleStage.Visibility = mode == "page" ? Visibility.Collapsed : Visibility.Visible;
             if (mode != "page") HideHoloPage();
@@ -939,96 +954,7 @@ namespace Game_launcher
             return tile;
         }
 
-        // ───────── DETAILS ─────────
-
-        private void BuildConsoleDetail(GameItem game)
-        {
-            if (consoleView == null) return;
-            consoleView.Children.Clear();
-            consoleFocus = game;
-            SetConsoleBackdrop(game);
-
-            var layout = new Grid { Margin = new Thickness(64, ConsoleTopInset + 34, 64, 50) };
-            layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            layout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            consoleView.Children.Add(layout);
-
-            var left = new StackPanel { VerticalAlignment = System.Windows.VerticalAlignment.Bottom, Margin = new Thickness(0, 0, 48, 0) };
-            left.Children.Add(ConsoleEyebrow("// " + Loc.T(game.Source).ToUpper(Loc.Culture)));
-            var title = ConsoleTitle(game.Name, 72);
-            title.TextWrapping = TextWrapping.Wrap;
-            title.TextTrimming = TextTrimming.None;
-            left.Children.Add(title);
-
-            var stats = new WrapPanel { Margin = new Thickness(0, 28, 0, 26) };
-            void Stat(string label, string value)
-            {
-                var block = new Border { Margin = new Thickness(0, 0, 14, 10), Padding = new Thickness(18, 10, 22, 10), CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1) };
-                block.SetResourceReference(Border.BackgroundProperty, "CardFillBrush");
-                block.SetResourceReference(Border.BorderBrushProperty, "CardEdgeBrush");
-                var stack = new StackPanel();
-                stack.Children.Add(ConsoleTitle(value, 30));
-                var caption = new TextBlock { Text = label.ToUpper(Loc.Culture), FontSize = 11, Foreground = ConsoleCyan, Margin = new Thickness(0, 2, 0, 0) };
-                caption.SetResourceReference(TextBlock.FontFamilyProperty, "MonoFont");
-                stack.Children.Add(caption);
-                block.Child = stack;
-                stats.Children.Add(block);
-            }
-            if (!SHide(settings.StreamHideStats)) Stat(Loc.T("Spielzeit"), game.PlaySeconds >= 60 ? FormatPlaytime(game.PlaySeconds) : "—");
-            Stat(Loc.T("zuletzt gespielt"), game.LastPlayed.HasValue ? Loc.T(FormatRelative(game.LastPlayed.Value)) : Loc.T("nie"));
-            Stat(Loc.T("Starts"), game.LaunchCount.ToString(Loc.Culture));
-            if (game.Rating > 0) Stat(Loc.T("Bewertung"), new string('★', Math.Clamp(game.Rating, 1, 5)));
-            if (KnownGameSize(game) is long bytes && bytes > 0) Stat(Loc.T("Größe"), FormatBytes(bytes));
-            left.Children.Add(stats);
-
-            if (!string.IsNullOrWhiteSpace(game.Notes))
-            {
-                left.Children.Add(new TextBlock
-                {
-                    Text = game.Notes.Trim(),
-                    FontSize = 15,
-                    Foreground = MakeBrush("#C9D4E3"),
-                    TextWrapping = TextWrapping.Wrap,
-                    MaxHeight = 66,
-                    TextTrimming = TextTrimming.WordEllipsis,
-                    MaxWidth = 900,
-                    HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
-                    Margin = new Thickness(0, 0, 0, 22)
-                });
-            }
-
-            // Alle wichtigen Aktionen direkt anklickbar, der Rest im ⋯-Menü
-            var actions = new WrapPanel();
-            actions.Children.Add(ConsoleButton("▶  " + Loc.T("Spielen").ToUpper(Loc.Culture), true, () => LaunchGame(game), 18));
-            actions.Children.Add(ConsoleButton((game.IsFavorite ? "★  " : "☆  ") + Loc.T("Favorit").ToUpper(Loc.Culture), false, () => { ToggleFavorite(game); BuildConsoleDetail(game); }));
-            actions.Children.Add(ConsoleButton("📝  " + Loc.T("Details").ToUpper(Loc.Culture), false, () => ShowGameDetails(game)));
-            if (!string.IsNullOrEmpty(game.InstallDir) || System.IO.File.Exists(game.ExecutablePath))
-                actions.Children.Add(ConsoleButton("📂  " + Loc.T("Ordner").ToUpper(Loc.Culture), false, () => OpenGameLocation(game)));
-            actions.Children.Add(ConsoleButton("💾  " + Loc.T("Jetzt sichern").ToUpper(Loc.Culture), false, () => _ = BackupNowAsync(game)));
-            if (game.Source == "Steam" && game.AppId.Length > 0)
-                actions.Children.Add(ConsoleButton("🏆  " + Loc.T("Erfolge").ToUpper(Loc.Culture), false, () => _ = ShowSteamAchievementsAsync(game)));
-            if (CanRepair(game))
-                actions.Children.Add(ConsoleButton("🛠  " + Loc.T("Reparieren").ToUpper(Loc.Culture), false, () => RepairGame(game)));
-            System.Windows.Controls.Button? more = null;
-            more = ConsoleButton("⋯", false, () =>
-            {
-                var menu = BuildGameMenu(game);
-                menu.PlacementTarget = more;
-                menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Top;
-                menu.IsOpen = true;
-            }, 18);
-            actions.Children.Add(more);
-            actions.Children.Add(ConsoleButton("←  " + Loc.T("Zurück").ToUpper(Loc.Culture), false, () => ConsoleBack()));
-            left.Children.Add(actions);
-            layout.Children.Add(left);
-
-            var cover = ConsoleCoverTile(game, 300, 450);
-            cover.SetResourceReference(Border.BorderBrushProperty, "AccentBrush");
-            cover.VerticalAlignment = System.Windows.VerticalAlignment.Bottom;
-            if (!settings.PerformanceMode) cover.SetResourceReference(UIElement.EffectProperty, "HardShadow");
-            Grid.SetColumn(cover, 1);
-            layout.Children.Add(cover);
-        }
+        // DETAILS: BuildConsoleDetail steht als Hologramm-Ansicht in MainWindow.HoloGames.cs
 
         // ───────── Tastatur ─────────
 

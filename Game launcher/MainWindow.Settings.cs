@@ -116,6 +116,9 @@ namespace Game_launcher
             settings.AnimatedChecked ??= new List<string>();
             settings.EggSeen ??= new List<string>();
             settings.MilestonesReached ??= new List<int>();
+            settings.GameSessions ??= new Dictionary<string, List<GameSessionEntry>>();
+            foreach (var key in settings.GameSessions.Where(p => p.Value == null).Select(p => p.Key).ToList()) settings.GameSessions[key] = new List<GameSessionEntry>();
+            settings.CyberSoundVolume = Math.Clamp(settings.CyberSoundVolume, 0, 100);
             settings.FirstRunDate ??= string.Empty;
             settings.StreamerApps ??= new List<QuickButton>();
             settings.StreamerLinks ??= new List<QuickLink>();
@@ -4283,12 +4286,15 @@ namespace Game_launcher
         }
 
         /// <summary>Löscht ältere, vom Launcher erzeugte Dateien eines Musters (zum Beispiel alte Ausschnitte), außer der aktuellen.</summary>
-        private static void DeleteOldGenerated(string pattern, string keep)
+        private void DeleteOldGenerated(string pattern, string keep)
         {
             try
             {
+                // Bilder, die das andere Thema benutzt (Hintergrund je Thema), nie löschen
+                var otherTheme = new HashSet<string>(settings.OtherThemeColors.Values.Where(v => !string.IsNullOrEmpty(v)), StringComparer.OrdinalIgnoreCase);
                 foreach (string file in Directory.GetFiles(SettingsDir, pattern))
                 {
+                    if (otherTheme.Contains(file)) continue;
                     if (!string.Equals(file, keep, StringComparison.OrdinalIgnoreCase))
                     {
                         try { File.Delete(file); } catch { }

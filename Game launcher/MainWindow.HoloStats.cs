@@ -360,6 +360,10 @@ namespace Game_launcher
             var body = new StackPanel();
             var head = new WrapPanel { Margin = new Thickness(0, 0, 0, 12) };
             head.Children.Add(ConsoleChip(Loc.T("Freigeschaltet"), rows.Count(r => r.Done).ToString(Loc.Culture) + " / " + rows.Count.ToString(Loc.Culture), null, true));
+            // Der Erfolg, der am nächsten dran ist
+            var next = rows.Where(r => !r.Done && !r.Def.Secret).OrderByDescending(r => r.Percent).FirstOrDefault();
+            if (next.Def != null)
+                head.Children.Add(ConsoleChip(Loc.T("Als Nächstes"), Loc.T(next.Def.Title) + "  " + Math.Round(next.Percent * 100).ToString(Loc.Culture) + " %"));
             body.Children.Add(head);
             body.Children.Add(wrap);
             return HoloPanel(Loc.T("Erfolge"), body);
@@ -438,6 +442,28 @@ namespace Game_launcher
             };
             state.SetResourceReference(TextBlock.FontFamilyProperty, "MonoFont");
             tile.Children.Add(state);
+
+            // Hovern: Abzeichen springt leicht nach vorn und dreht sich ein Stück (Hologramm-Gefühl)
+            var pop = new ScaleTransform(1, 1);
+            var turn = new RotateTransform(0);
+            hex.RenderTransformOrigin = new System.Windows.Point(0.5, 0.5);
+            hex.RenderTransform = new TransformGroup { Children = { pop, turn } };
+            tile.Background = System.Windows.Media.Brushes.Transparent;
+            tile.MouseEnter += (s, e) =>
+            {
+                PlayCyberSound("hover");
+                if (!settings.HoverAnimations || settings.PerformanceMode) return;
+                var back = new System.Windows.Media.Animation.BackEase { Amplitude = 0.5, EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut };
+                pop.BeginAnimation(ScaleTransform.ScaleXProperty, new System.Windows.Media.Animation.DoubleAnimation(1.14, TimeSpan.FromMilliseconds(260)) { EasingFunction = back });
+                pop.BeginAnimation(ScaleTransform.ScaleYProperty, new System.Windows.Media.Animation.DoubleAnimation(1.14, TimeSpan.FromMilliseconds(260)) { EasingFunction = back });
+                turn.BeginAnimation(RotateTransform.AngleProperty, new System.Windows.Media.Animation.DoubleAnimation(done ? 30 : 8, TimeSpan.FromMilliseconds(420)) { EasingFunction = back });
+            };
+            tile.MouseLeave += (s, e) =>
+            {
+                pop.BeginAnimation(ScaleTransform.ScaleXProperty, new System.Windows.Media.Animation.DoubleAnimation(1, TimeSpan.FromMilliseconds(200)));
+                pop.BeginAnimation(ScaleTransform.ScaleYProperty, new System.Windows.Media.Animation.DoubleAnimation(1, TimeSpan.FromMilliseconds(200)));
+                turn.BeginAnimation(RotateTransform.AngleProperty, new System.Windows.Media.Animation.DoubleAnimation(0, TimeSpan.FromMilliseconds(260)));
+            };
             return tile;
         }
     }
