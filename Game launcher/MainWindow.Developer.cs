@@ -472,7 +472,8 @@ namespace Game_launcher
             Dev("💥 Unbehandelten Fehler auslösen", () =>
             {
                 lastReportPrompt = DateTime.MinValue;
-                Dispatcher.BeginInvoke(new Action(() => throw new InvalidOperationException("Absichtlicher Testfehler aus dem Entwickler-Reiter")));
+                Dispatcher.BeginInvoke(new Action(() => 
+                throw new InvalidOperationException("Absichtlicher Testfehler aus dem Entwickler-Reiter")));
             });
             Dev("🔢 Versionsvergleich prüfen", () =>
             {
@@ -566,15 +567,6 @@ namespace Game_launcher
                 if (game != null) ShowCompletedStamp(game);
             });
             Dev("🎮 Lichtstreifen: Controller-Modus an/aus", ToggleControllerMode);
-
-            Group("Name und Untertitel");
-            Dev("🔒 Freischaltung zurücknehmen (wieder sperren)", DevRelockBrand);
-            Dev("🔑 Code-Eingabe öffnen (/code …)", () =>
-            {
-                OpenSpotlight();
-                TxtSpotlight.Text = "/code ";
-                TxtSpotlight.CaretIndex = TxtSpotlight.Text.Length;
-            });
 
             Group("Arbeitsspeicher");
             Dev("🧹 RAM jetzt freigeben (wie im Hintergrund)", async () =>
