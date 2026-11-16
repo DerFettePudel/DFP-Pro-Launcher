@@ -798,3 +798,203 @@ fc068fda || Salva tutte le impostazioni in un file o le ricarica, ad esempio su 
 f50c5cf6 || Riporta logo, nome e colori allo stato originale.
 00aad5fa || Colore del testo della scritta.
 56ef74d8 || Ora e data sulla dashboard.
+92efc097 || Ingrandisce o riduce l'intera interfaccia in percentuale.
+d6ad6941 || Sposta l'immagine di pochi pixel per evitare che gli elementi fissi si imprimano sullo schermo.
+0f87da32 || Nascondi i giochi con il clic destro. Qui li recuperi.
+30419fe6 || Quattro riquadri con libreria, preferiti, tempo di gioco e ultimo gioco giocato.
+4bd91a26 || Sfocatura dell'immagine. Valori più alti richiedono un po' più di potenza grafica.
+7444b194 || Altre cartelle in cui la galleria cerca screenshot.
+39a2d261 || Quali tasti confermano e tornano indietro. «Automatico» riconosce da solo il tipo di controller.
+9b8b8bf8 || Quanto è larga la barra laterale espansa.
+b8aee113 || Ogni quanto il monitor di sistema legge nuovi valori. Intervalli più lunghi risparmiano il processore.
+ce346b58 || Quanto sono arrotondati gli angoli. 0 dà schede squadrate.
+416766c9 || Quanto cresce una scheda al passaggio del mouse.
+366cb343 || Quanti riquadri mostrare per sezione.
+43798f68 || Scegli quali programmi chiudere correttamente all'avvio del gioco.
+d83bd62d || Disegna l'interfaccia con il processore invece che con la scheda video. Aiuta con errori di visualizzazione e driver molto vecchi.
+eb216fdc || Mostra brevemente l'overlay come prova.
+43393220 || Mostra l'icona in basso a destra accanto all'orologio. Un clic apre il pannello rapido per avviare giochi e uscire.
+2214a63d || Mostra in grande l'ultimo gioco giocato in cima alla dashboard.
+1136fa29 || Mostra i giochi contrassegnati con una stella.
+faebc10b || Mostra come riquadri i giochi avviati di recente.
+76814c46 || Mostra la seconda riga sotto il nome (predefinito «LAUNCHER»).
+68163ad6 || Mostra un avviso nella dashboard appena è disponibile un nuovo gioco gratis.
+d6c55b68 || Mostra un avviso nella dashboard quando resta libero meno del 10 % di spazio.
+6d16f4ed || Mostra ad esempio «Steam» e il tempo di gioco finora sotto il titolo.
+30ac51d6 || Mostra anche i secondi nell'orologio.
+29701e60 || Cambia il nome e il sottotitolo accanto al logo.
+16ac9da7 || Attivo = resta nascosto. Disattivalo per mostrare di nuovo un gioco.
+d5e1f9ce || Per questi programmi non viene registrato il tempo di gioco. Wallpaper Engine, Lively e Rainmeter sono già esclusi automaticamente.
+ebfc8f0d || Mostra notifiche
+7162366c || Piccoli avvisi in basso a destra, ad esempio per nuovi giochi, obiettivi o promemoria.
+6f60c6be || Avvia i giochi solo con il doppio clic
+e40d7c65 || Evita avvii accidentali: un singolo clic su una scheda non avvia il gioco. Il pulsante Gioca funziona comunque.
+a9dccd20 || Avvisa prima di uscire se un gioco è in esecuzione
+dc75656a || Chiede conferma prima di chiudere il launcher mentre sta ancora registrando il tempo di un gioco in esecuzione.
+6e1c6bb6 || Preferisci copertine animate da SteamGridDB
+7bb950b6 || Carica copertine animate (WebP o APNG) se disponibili. Si animano al passaggio del mouse. Richiede più memoria. Poi fai clic su «Ricarica copertine».
+20533e73 || Registro errori e backup
+e760a2e7 || In caso di problemi aiuta il registro errori. Il launcher inoltre esegue ogni giorno il backup delle impostazioni e le ripristina automaticamente se il file è danneggiato.
+69801fd0 || Apri registro errori
+b18b2cfb || Apri backup delle impostazioni
+b0386871 || Errore imprevisto
+b693d831 || I dettagli sono nel registro errori (Impostazioni, Dati e informazioni).
+5daf0a4e || Fonte delle copertine cambiata
+1ca91bfe || Fai clic su «Ricarica copertine» per applicare la modifica.
+3f4fc0b9 || Un gioco è ancora in esecuzione. Se chiudi il launcher, il suo tempo di gioco non verrà più registrato.\n\nUscire comunque?
+e07134d0 || Esci dal launcher
+ae21440e || ⏱ Modifica tempo di gioco ...
+4aab762d || Modifica tempo di gioco
+14c751c9 || Tempo di gioco totale di «{0}» in ore (ad esempio 12,5):
+91396cc5 || Inserisci un numero (ad esempio 12,5).
+efec05bd || Impostazioni ripristinate
+42a3b229 || Il file delle impostazioni era danneggiato. È stato caricato l'ultimo backup.
+af824338 || Immagini, GIF e WebP
+abb7b527 || Copertine: il nome del gioco viene inviato al negozio di Steam, le immagini arrivano da Steam ed Epic. Con una chiave SteamGridDB il nome viene inviato anche a SteamGridDB. Meteo: la tua posizione approssimativa viene ricavata dall'indirizzo IP (o dalla località nelle impostazioni) e inviata a Open-Meteo. Tutti i dati hardware restano sul tuo PC.
+8de6c451 || Suggerimento: trascina un'immagine, una GIF o una WebP direttamente su una scheda gioco oppure scegli «Imposta copertina personalizzata» con il clic destro. Le copertine animate si muovono al passaggio del mouse.
+f3e09bc8 || Lista dei desideri
+ebe7757a || Aggiungi i giochi Steam che vorresti avere. Il launcher controlla i prezzi e ti avvisa appena viene raggiunto il prezzo obiettivo.
+39fbca4b || 🔄 Controlla prezzi
+8f6bc240 || Controllo dei prezzi ...
+da07aa53 || Ultimo controllo:
+b3774d27 || Ancora nessun gioco nella lista dei desideri. Aggiungi un gioco Steam e il launcher ti avvisa appena il prezzo scende.
+a71a9b6a || Prezzo obiettivo
+5ee27ef0 || Prezzo obiettivo:
+0512ebdf || Obiettivo: dal 20 % di sconto
+eda1daa9 || Obiettivo raggiunto
+bc7010af || Gratis
+91960d97 || Avviso prezzo
+17a4ae3a || 🛒 Apri nel negozio di Steam
+3d24eb78 || 🎯 Cambia prezzo obiettivo ...
+c005e923 || Nome del gioco (esattamente come nel negozio di Steam):
+7407d5be || Questo gioco è già nella lista dei desideri.
+63bfbd25 || Il gioco non è stato trovato nel negozio di Steam. Controlla l'ortografia, il nome deve corrispondere esattamente.
+470f1681 || Prezzo obiettivo per «{0}» (ad esempio 14,99). Lascia vuoto = avvisa a ogni sconto dal 20 %:
+bd2a04de || Quanto è costato «{0}»? (ad esempio 29,99, vuoto = non specificato):
+9fa3050b || Prezzo d'acquisto
+7ea12c23 || Prezzo d'acquisto:
+2580cd0f || Costo all'ora:
+8965b9c5 || 💶 Inserisci prezzo d'acquisto ...
+f3b72c0f || ⚙ Profilo di gioco ...
+58faf446 || Profilo di gioco: {0}
+6fa8ee8d || Stabilisci cosa vale per questo gioco. «Predefinito» usa l'impostazione generale.
+0016ab68 || Predefinito
+a8393e7c || Sempre attivo
+e11178aa || Sempre disattivo
+cf72e08e || Prestazioni elevate durante il gioco
+0f5a52f1 || Imposta la combinazione di risparmio energia di Windows su «Prestazioni elevate» finché questo gioco è in esecuzione.
+b580d9fa || Chiudi programmi all'avvio
+1d8a955a || Chiude i programmi scelti nelle impostazioni prima che questo gioco si avvii.
+6a6b9a36 || Giochi mancanti
+ef987e1c || Questi giochi non sono più stati trovati. Le voci selezionate verranno rimosse dall'elenco.
+574160bd || {0} giochi aggiunti manualmente non sono più stati trovati.
+e643de24 || Pulisci
+489bb950 || 🌡 Temperature e ventole
+e0fea886 || Mostra temperature e ventole
+6d486c63 || Mostra nel monitor di sistema le temperature di processore e scheda video e la velocità delle ventole. Alcuni sensori richiedono diritti di amministratore.
+5396b3e7 || Diritti di amministratore
+dbf59fc3 || Riavvia il launcher chiedendo i diritti di amministratore, così tutti i sensori possono essere letti.
+d91cfdff || Riavvia come amministratore
+b09bda2a || Amministratore
+5cd40659 || Il launcher è già in esecuzione con diritti di amministratore.
+3b0bfe28 || Aggiornato ogni 2 secondi.
+0923e054 || Impossibile leggere i sensori. I dettagli sono nel registro errori.
+f0c1e49e || Nessun sensore trovato. Avvia il launcher come amministratore per avere più valori.
+08131c68 || Scheda madre
+d7781e34 || 📅 Attività (ultime 26 settimane)
+472fae77 || Ancora nessuna attività. Ogni giorno con tempo di gioco colora qui un riquadro.
+857534db || giorni con tempo di gioco nelle ultime 26 settimane
+11202e82 || 📸 Salva come immagine
+549b0fcd || Salva immagine
+d0568bef || Immagine salvata
+e06758c9 || Novità
+85d40d8b || 🏷 Genere
+3c613d5f || ✖ Tutti i generi
+47a39fef || Nessuna info sui giochi ancora caricata
+2a9c13a5 || Carica info sui giochi da Steam (descrizione, genere, novità)
+f57671c5 || Carica in background le informazioni sui tuoi giochi Steam. Così funzionano il filtro per genere e le novità nella finestra dei dettagli.
+524ee110 || Condividi design
+2ff64daa || Design come file
+45c94692 || Salva colori, logo e layout in un file che puoi condividere o caricare su un altro PC.
+cde10810 || Esporta design ...
+7d6ea239 || Importa design ...
+2bc80456 || Esporta design
+a78c8787 || Importa design
+075b2288 || Design salvato
+77aa19b1 || Design caricato
+483075a5 || Aggiornamenti
+2137f1da || Cerca aggiornamenti all'avvio
+207fd55a || Controlla al massimo una volta al giorno se c'è una versione più recente e mostra un avviso con link.
+d77f2d67 || Fonte degli aggiornamenti (GitHub: utente/repository)
+ebdf89d5 || Qui è indicato dove vengono pubblicate le versioni più recenti. Senza voce non si cerca nulla.
+d480717d || Controlla ora
+5ffacce6 || Ricerca in corso ...
+e8a3c0e3 || Inserisci prima una fonte degli aggiornamenti (utente/repository).
+4a766870 || Nessuna versione trovata.
+4f5751d7 || Hai la versione più recente.
+ec741be6 || Ricerca non riuscita. Controlla la connessione a Internet.
+06c5d8ae || È disponibile la versione {0}.
+b9971f18 || Scarica
+3ae40568 || Cartella di backup (cloud)
+a6d8591b || Cartella di backup aggiuntiva
+763b540f || Salvataggi e impostazioni vengono copiati anche in questa cartella. Scegli ad esempio una cartella in OneDrive o Dropbox e i tuoi dati saranno salvati anche online.
+5ef4b7d4 || Nessuna cartella impostata
+6dbf1dfa || Scegli una cartella per i backup (ad esempio in OneDrive o Dropbox)
+edf8f50b || Esegui backup di tutto ora
+22503088 || Rimuovi
+95e0cc6f || Backup
+9c70921c || Backup completato
+675a5d04 || Scegli prima una cartella di backup.
+9dc38b6f || Effetti sonori
+3927ea3a || Suoni delicati durante la navigazione, l'avvio e le notifiche. Disattivati per impostazione predefinita.
+2ed048a4 || Avvia la configurazione guidata
+3e9e3350 || Benvenuto in DFP Pro Launcher
+8f408c8d || Benvenuto!
+d47aefd4 || Scegli la tua lingua. Tutto si può cambiare in seguito nelle impostazioni.
+8af89706 || Come dobbiamo chiamarti?
+4dcb2b97 || Il nome compare nella dashboard. Scegli anche un colore.
+fe356228 || Copertine e funzioni online
+730627ef || Per copertine, meteo e offerte il launcher ha bisogno di Internet. Con una chiave SteamGridDB gratuita (steamgriddb.com) ottieni copertine particolarmente belle. Entrambe le cose sono facoltative.
+8d807000 || Tutto pronto!
+64f2c0ec || Il launcher cerca ora i tuoi giochi da Steam, Epic, GOG, EA, Ubisoft, Battle.net, Rockstar e Xbox. Altri giochi basta trascinarli nella finestra. Ctrl+K apre la ricerca.
+590bfeaa || Salta
+28ef580b || Avanti
+27c53c0d || Si parte
+7ca3460c || Indietro
+e9c2a61a || Preferito
+f4a9c097 || Filtro
+86f22996 || Streamer
+0b2e1107 || Modalità streamer
+3b5ace99 || Attiva modalità streamer
+a093018c || Nasconde le informazioni private, così nulla compare per sbaglio in una diretta o in una registrazione. Per cambiare al volo usa Ctrl+Maiusc+S nel launcher o Ctrl+Alt+S ovunque (se la scorciatoia globale è attiva). Anche il pannello rapido dell'icona nell'area di notifica ha un pulsante apposito.
+ecccbbbc || Attiva automaticamente quando è in esecuzione OBS o un altro software di streaming
+4b621312 || Riconosce OBS, Streamlabs, Twitch Studio, XSplit, vMix e Prism. La modalità si disattiva appena il programma viene chiuso.
+d1b0b39e || Cosa viene nascosto
+b38d6fc5 || Le aree vengono sfocate o sostituite da valori neutri. Vale solo mentre la modalità streamer è attiva.
+17ca9b0c || Nascondi nome
+2b18af8c || Sostituisce il tuo nome utente nella barra laterale e nel saluto con «Gamer» e sfoca il campo del nome nelle impostazioni.
+8342011a || Nascondi meteo e posizione
+6d6607b8 || Sfoca la scheda meteo e il campo della località, perché rivelano più o meno dove abiti.
+90450064 || Nascondi tempo di gioco e statistiche
+f3179c0b || Sfoca la pagina delle statistiche e i riquadri della dashboard e nasconde i tempi di gioco sulle schede e nella finestra dei dettagli.
+df6f78ca || Nascondi giocati di recente, preferiti e il banner Continua a giocare
+f0f8ff0e || Così nessuno vede a cos'altro giochi.
+1db467a7 || Nascondi percorsi, nomi di file e chiavi
+2aa0da5d || Sfoca download, applicazioni, archiviazione, la chiave SteamGridDB, i percorsi delle cartelle e la fonte degli aggiornamenti. I percorsi contengono spesso il tuo nome utente di Windows.
+e8409b94 || Nascondi screenshot e lista dei desideri
+560a5b53 || Sfoca la galleria e la lista dei desideri.
+13bc024a || Notifiche
+e96c8b93 || Silenzia notifiche e avvisi
+ad4fa000 || Sopprime notifiche, banner e avvisi di prezzo in modalità streamer. I promemoria di pausa e limite giornaliero restano.
+fc96ad38 || Modalità streamer attiva
+be6b5385 || Le informazioni private ora sono nascoste.
+0f900e7c || È in esecuzione un software di streaming. Le informazioni private sono nascoste.
+9c62cbd8 || Modalità streamer disattivata
+7726e92b || Tutte le informazioni sono di nuovo visibili.
+2e98678b || 📡 Modalità streamer
+ef884a54 || 📡 Modalità streamer (automatica)
+ea9929fd || 📡 Attiva/disattiva modalità streamer
+4f640bf1 || Attiva/disattiva modalità streamer
+62b76af3 || Nasconde le informazioni private
+3a839501 || Fai clic per disattivare
+458731ec || Modalità controller

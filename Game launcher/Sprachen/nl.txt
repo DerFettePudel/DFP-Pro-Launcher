@@ -798,3 +798,203 @@ fc068fda || Slaat alle instellingen op in een bestand of laadt ze weer, bijvoorb
 f50c5cf6 || Zet logo, naam en kleuren terug naar de oorspronkelijke staat.
 00aad5fa || Tekstkleur van het opschrift.
 56ef74d8 || Tijd en datum op het dashboard.
+92efc097 || Vergroot of verkleint de hele interface in procenten.
+d6ad6941 || Verschuift het beeld een paar pixels zodat vaste elementen niet inbranden.
+0f87da32 || Verberg games met een rechtsklik. Hier haal je ze terug.
+30419fe6 || Vier tegels met bibliotheek, favorieten, speeltijd en laatst gespeelde game.
+4bd91a26 || Vervaging van de afbeelding. Hogere waarden vragen iets meer grafische kracht.
+7444b194 || Extra mappen die de galerij doorzoekt op schermafbeeldingen.
+39a2d261 || Welke knoppen bevestigen en teruggaan. „Automatisch” herkent zelf het type controller.
+9b8b8bf8 || Hoe breed de uitgeklapte zijbalk is.
+b8aee113 || Hoe vaak de systeemmonitor nieuwe waarden ophaalt. Langere pauzes sparen de processor.
+ce346b58 || Hoe sterk de hoeken afgerond zijn. 0 geeft hoekige kaarten.
+416766c9 || Hoeveel een kaart groeit als je er met de muis overheen gaat.
+366cb343 || Hoeveel tegels per onderdeel worden getoond.
+43798f68 || Kies welke programma's bij het starten van een game netjes worden gesloten.
+d83bd62d || Tekent de interface met de processor in plaats van de videokaart. Helpt bij weergavefouten en zeer oude stuurprogramma's.
+eb216fdc || Toont de overlay kort als test.
+43393220 || Toont het pictogram rechtsonder naast de klok. Een klik opent het snelpaneel om games te starten en af te sluiten.
+2214a63d || Toont je laatst gespeelde game groot bovenaan het dashboard.
+1136fa29 || Toont de games die je met een ster hebt gemarkeerd.
+faebc10b || Toont je laatst gestarte games als tegels.
+76814c46 || Toont de tweede regel onder de naam (standaard „LAUNCHER”).
+68163ad6 || Toont een melding op het dashboard zodra er een nieuwe gratis game is.
+d6c55b68 || Toont een melding op het dashboard als er minder dan 10 % ruimte vrij is.
+6d16f4ed || Toont bijvoorbeeld „Steam” en de speeltijd tot nu toe onder de titel.
+30ac51d6 || Toont ook de seconden in de klok.
+29701e60 || Wijzig de naam en de ondertitel naast het logo.
+16ac9da7 || Aan = blijft verborgen. Zet uit om een game weer te tonen.
+d5e1f9ce || Voor deze programma's wordt geen speeltijd bijgehouden. Wallpaper Engine, Lively en Rainmeter zijn al automatisch uitgezonderd.
+ebfc8f0d || Meldingen tonen
+7162366c || Kleine pop-ups rechtsonder, bijvoorbeeld bij nieuwe games, prestaties of herinneringen.
+6f60c6be || Games alleen met dubbelklik starten
+e40d7c65 || Voorkomt per ongeluk starten: één klik op een kaart start de game niet. De knop Spelen werkt nog steeds.
+a9dccd20 || Waarschuwen voor afsluiten als er een game draait
+dc75656a || Vraagt om bevestiging voordat de launcher afsluit terwijl hij nog de speeltijd van een draaiende game bijhoudt.
+6e1c6bb6 || Geanimeerde covers van SteamGridDB verkiezen
+7bb950b6 || Laadt geanimeerde covers (WebP of APNG) als die er zijn. Ze spelen bij aanwijzen. Vraagt meer geheugen. Klik daarna op „Covers opnieuw laden”.
+20533e73 || Foutenlogboek en back-ups
+e760a2e7 || Bij problemen helpt het foutenlogboek. De launcher maakt bovendien dagelijks een back-up van je instellingen en herstelt die automatisch als het bestand beschadigd is.
+69801fd0 || Foutenlogboek openen
+b18b2cfb || Back-ups van instellingen openen
+b0386871 || Onverwachte fout
+b693d831 || Details staan in het foutenlogboek (Instellingen, Gegevens en info).
+5daf0a4e || Coverbron gewijzigd
+1ca91bfe || Klik op „Covers opnieuw laden” om de wijziging toe te passen.
+3f4fc0b9 || Er draait nog een game. Als je de launcher afsluit, wordt de speeltijd niet verder bijgehouden.\n\nToch afsluiten?
+e07134d0 || Launcher afsluiten
+ae21440e || ⏱ Speeltijd bewerken ...
+4aab762d || Speeltijd bewerken
+14c751c9 || Totale speeltijd van „{0}” in uren (bijvoorbeeld 12,5):
+91396cc5 || Voer een getal in (bijvoorbeeld 12,5).
+efec05bd || Instellingen hersteld
+42a3b229 || Het instellingenbestand was beschadigd. De laatste back-up is geladen.
+af824338 || Afbeeldingen, GIF en WebP
+abb7b527 || Covers: de gamenaam wordt naar de Steam-winkel gestuurd, afbeeldingen komen van Steam en Epic. Met een SteamGridDB-sleutel wordt de naam ook naar SteamGridDB gestuurd. Weer: je ongeveer locatie wordt via je IP-adres bepaald (of de plaats uit de instellingen) en naar Open-Meteo gestuurd. Alle hardwaregegevens blijven op je pc.
+8de6c451 || Tip: sleep een afbeelding, GIF of WebP direct op een gamekaart of kies met een rechtsklik „Eigen cover instellen”. Geanimeerde covers spelen bij aanwijzen.
+f3e09bc8 || Verlanglijst
+ebe7757a || Voeg Steam-games toe die je graag zou hebben. De launcher controleert de prijzen en laat het weten zodra je doelprijs is bereikt.
+39fbca4b || 🔄 Prijzen controleren
+8f6bc240 || Prijzen worden gecontroleerd ...
+da07aa53 || Laatst gecontroleerd:
+b3774d27 || Nog geen games op de verlanglijst. Voeg een Steam-game toe, de launcher laat het weten zodra de prijs daalt.
+a71a9b6a || Doelprijs
+5ee27ef0 || Doelprijs:
+0512ebdf || Doel: vanaf 20 % korting
+eda1daa9 || Doel bereikt
+bc7010af || Gratis
+91960d97 || Prijsalarm
+17a4ae3a || 🛒 Openen in de Steam-winkel
+3d24eb78 || 🎯 Doelprijs wijzigen ...
+c005e923 || Naam van de game (precies zoals in de Steam-winkel):
+7407d5be || Deze game staat al op de verlanglijst.
+63bfbd25 || De game is niet gevonden in de Steam-winkel. Controleer de spelling, de naam moet precies kloppen.
+470f1681 || Doelprijs voor „{0}” (bijvoorbeeld 14,99). Leeg laten = bij elke korting vanaf 20 % melden:
+bd2a04de || Wat kostte „{0}”? (bijvoorbeeld 29,99, leeg = niet opgeven):
+9fa3050b || Aankoopprijs
+7ea12c23 || Aankoopprijs:
+2580cd0f || Kosten per uur:
+8965b9c5 || 💶 Aankoopprijs invoeren ...
+f3b72c0f || ⚙ Gameprofiel ...
+58faf446 || Gameprofiel: {0}
+6fa8ee8d || Bepaal wat voor deze game geldt. „Standaard” gebruikt de algemene instelling.
+0016ab68 || Standaard
+a8393e7c || Altijd aan
+e11178aa || Altijd uit
+cf72e08e || Hoge prestaties tijdens het spelen
+0f5a52f1 || Zet het Windows-energiebeheerschema op „Hoge prestaties” zolang deze game draait.
+b580d9fa || Programma's sluiten bij starten
+1d8a955a || Sluit de in de instellingen gekozen programma's voordat deze game start.
+6a6b9a36 || Ontbrekende games
+ef987e1c || Deze games zijn niet meer gevonden. Aangevinkte items worden uit de lijst verwijderd.
+574160bd || {0} handmatig toegevoegde games zijn niet meer gevonden.
+e643de24 || Opruimen
+489bb950 || 🌡 Temperaturen en ventilatoren
+e0fea886 || Temperaturen en ventilatoren tonen
+6d486c63 || Toont in de systeemmonitor de temperaturen van processor en videokaart en de ventilatorsnelheden. Sommige sensoren vereisen beheerdersrechten.
+5396b3e7 || Beheerdersrechten
+dbf59fc3 || Start de launcher opnieuw en vraagt om beheerdersrechten, zodat alle sensoren gelezen kunnen worden.
+d91cfdff || Opnieuw starten als administrator
+b09bda2a || Administrator
+5cd40659 || De launcher draait al met beheerdersrechten.
+3b0bfe28 || Elke 2 seconden bijgewerkt.
+0923e054 || De sensoren konden niet worden gelezen. Details staan in het foutenlogboek.
+f0c1e49e || Geen sensoren gevonden. Start de launcher als administrator voor meer waarden.
+08131c68 || Moederbord
+d7781e34 || 📅 Activiteit (laatste 26 weken)
+472fae77 || Nog geen activiteit. Elke dag met speeltijd kleurt hier een vakje.
+857534db || dagen met speeltijd in de laatste 26 weken
+11202e82 || 📸 Opslaan als afbeelding
+549b0fcd || Afbeelding opslaan
+d0568bef || Afbeelding opgeslagen
+e06758c9 || Nieuws
+85d40d8b || 🏷 Genre
+3c613d5f || ✖ Alle genres
+47a39fef || Nog geen game-info geladen
+2a9c13a5 || Game-info van Steam laden (beschrijving, genre, nieuws)
+f57671c5 || Laadt op de achtergrond info over je Steam-games. Daarmee werken het genrefilter en het nieuws in het detailvenster.
+524ee110 || Ontwerp delen
+2ff64daa || Ontwerp als bestand
+45c94692 || Slaat kleuren, logo en indeling op in een bestand dat je kunt delen of op een andere pc kunt laden.
+cde10810 || Ontwerp exporteren ...
+7d6ea239 || Ontwerp importeren ...
+2bc80456 || Ontwerp exporteren
+a78c8787 || Ontwerp importeren
+075b2288 || Ontwerp opgeslagen
+77aa19b1 || Ontwerp geladen
+483075a5 || Updates
+2137f1da || Bij het starten naar updates zoeken
+207fd55a || Controleert hooguit één keer per dag of er een nieuwere versie is en toont dan een melding met link.
+d77f2d67 || Updatebron (GitHub: gebruiker/repository)
+ebdf89d5 || Hier staat waar de nieuwste versies worden gepubliceerd. Zonder invoer wordt niet gezocht.
+d480717d || Nu controleren
+5ffacce6 || Zoeken ...
+e8a3c0e3 || Voer eerst een updatebron in (gebruiker/repository).
+4a766870 || Er is geen versie gevonden.
+4f5751d7 || Je hebt de nieuwste versie.
+ec741be6 || Zoeken mislukt. Controleer je internetverbinding.
+06c5d8ae || Versie {0} is beschikbaar.
+b9971f18 || Downloaden
+3ae40568 || Back-upmap (cloud)
+a6d8591b || Extra back-upmap
+763b540f || Savegames en instellingen worden ook naar deze map gekopieerd. Kies bijvoorbeeld een map in OneDrive of Dropbox, dan staan je gegevens ook online veilig.
+5ef4b7d4 || Geen map ingesteld
+6dbf1dfa || Map voor back-ups kiezen (bijvoorbeeld in OneDrive of Dropbox)
+edf8f50b || Nu alles back-uppen
+22503088 || Verwijderen
+95e0cc6f || Back-up
+9c70921c || Back-up voltooid
+675a5d04 || Kies eerst een back-upmap.
+9dc38b6f || Geluidseffecten
+3927ea3a || Zachte geluiden bij navigeren, starten en meldingen. Standaard uitgeschakeld.
+2ed048a4 || Installatieassistent starten
+3e9e3350 || Welkom bij DFP Pro Launcher
+8f408c8d || Welkom!
+d47aefd4 || Kies je taal. Alles kun je later in de instellingen wijzigen.
+8af89706 || Hoe mogen we je noemen?
+4dcb2b97 || De naam verschijnt op het dashboard. Kies ook een kleur.
+fe356228 || Covers en online functies
+730627ef || Voor covers, weer en aanbiedingen heeft de launcher internet nodig. Met een gratis SteamGridDB-sleutel (steamgriddb.com) krijg je extra mooie covers. Beide zijn vrijwillig.
+8d807000 || Alles klaar!
+64f2c0ec || De launcher zoekt nu je games van Steam, Epic, GOG, EA, Ubisoft, Battle.net, Rockstar en Xbox. Andere games sleep je gewoon naar het venster. Ctrl+K opent zoeken.
+590bfeaa || Overslaan
+28ef580b || Volgende
+27c53c0d || Aan de slag
+7ca3460c || Terug
+e9c2a61a || Favoriet
+f4a9c097 || Filter
+86f22996 || Streamer
+0b2e1107 || Streamermodus
+3b5ace99 || Streamermodus inschakelen
+a093018c || Verbergt privégegevens, zodat niets per ongeluk in een stream of opname te zien is. Snel schakelen kan met Ctrl+Shift+S in de launcher of Ctrl+Alt+S overal (als de globale sneltoets actief is). Ook het snelpaneel bij het systeemvakpictogram heeft er een knop voor.
+ecccbbbc || Automatisch inschakelen als OBS of andere streamingsoftware draait
+4b621312 || Herkent OBS, Streamlabs, Twitch Studio, XSplit, vMix en Prism. De modus gaat weer uit zodra het programma sluit.
+d1b0b39e || Wat wordt verborgen
+b38d6fc5 || De onderdelen worden vervaagd of vervangen door neutrale gegevens. Dit geldt alleen zolang de streamermodus actief is.
+17ca9b0c || Naam verbergen
+2b18af8c || Vervangt je gebruikersnaam in de zijbalk en de begroeting door „Gamer” en vervaagt het naamveld in de instellingen.
+8342011a || Weer en locatie verbergen
+6d6607b8 || Vervaagt de weerkaart en het veld voor de weerlocatie, want die verraden ongeveer waar je woont.
+90450064 || Speeltijd en statistieken verbergen
+f3179c0b || Vervaagt de statistiekpagina en de dashboardtegels en verbergt speeltijden op de kaarten en in het detailvenster.
+df6f78ca || Laatst gespeeld, favorieten en de banner Verder spelen verbergen
+f0f8ff0e || Zodat niemand ziet wat je nog meer speelt.
+1db467a7 || Paden, bestandsnamen en sleutels verbergen
+2aa0da5d || Vervaagt downloads, toepassingen, opslag, de SteamGridDB-sleutel, mappaden en de updatebron. Paden bevatten vaak je Windows-gebruikersnaam.
+e8409b94 || Schermafbeeldingen en verlanglijst verbergen
+560a5b53 || Vervaagt de galerij en de verlanglijst.
+13bc024a || Meldingen
+e96c8b93 || Meldingen en mededelingen dempen
+ad4fa000 || Onderdrukt meldingen, banners en prijsalarmen in de streamermodus. Pauze- en daglimietherinneringen blijven.
+fc96ad38 || Streamermodus aan
+be6b5385 || Privégegevens zijn nu verborgen.
+0f900e7c || Er draait streamingsoftware. Privégegevens zijn verborgen.
+9c62cbd8 || Streamermodus uit
+7726e92b || Alle gegevens zijn weer zichtbaar.
+2e98678b || 📡 Streamermodus
+ef884a54 || 📡 Streamermodus (automatisch)
+ea9929fd || 📡 Streamermodus wisselen
+4f640bf1 || Streamermodus wisselen
+62b76af3 || Verbergt privégegevens
+3a839501 || Klik om uit te schakelen
+458731ec || Controllermodus

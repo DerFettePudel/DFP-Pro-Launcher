@@ -798,3 +798,203 @@ fc068fda || Tüm ayarları bir dosyaya kaydeder veya yeniden yükler, örneğin 
 f50c5cf6 || Logoyu, adı ve renkleri orijinal hâline döndürür.
 00aad5fa || Yazının metin rengi.
 56ef74d8 || Panoda saat ve tarih.
+92efc097 || Tüm arayüzü yüzde olarak büyütür veya küçültür.
+d6ad6941 || Sabit öğelerin ekrana yanmaması için görüntüyü birkaç piksel kaydırır.
+0f87da32 || Oyunları sağ tıklayarak gizle. Burada geri getirirsin.
+30419fe6 || Kütüphane, favoriler, oynama süresi ve son oynanan oyun için dört kutucuk.
+4bd91a26 || Resim için bulanıklık. Yüksek değerler biraz daha fazla grafik gücü ister.
+7444b194 || Galerinin ekran görüntüsü aradığı ek klasörler.
+39a2d261 || Hangi tuşların onaylayıp geri döndüğü. „Otomatik“ kumanda türünü kendisi algılar.
+9b8b8bf8 || Açılmış kenar çubuğunun genişliği.
+b8aee113 || Sistem izleyicinin ne sıklıkla yeni değer aldığı. Uzun aralıklar işlemciyi korur.
+ce346b58 || Köşelerin ne kadar yuvarlak olduğu. 0 köşeli kartlar verir.
+416766c9 || Fareyle üzerine gelince bir kartın ne kadar büyüdüğü.
+366cb343 || Her bölümde kaç kutucuk gösterileceği.
+43798f68 || Oyun başlarken hangi programların düzgünce kapatılacağını seç.
+d83bd62d || Arayüzü ekran kartı yerine işlemciyle çizer. Görüntü hatalarında ve çok eski sürücülerde yardımcı olur.
+eb216fdc || Kaplamayı deneme amaçlı kısaca gösterir.
+43393220 || Simgeyi sağ altta saatin yanında gösterir. Bir tıklama, oyun başlatmak ve çıkmak için hızlı paneli açar.
+2214a63d || Son oynadığın oyunu panonun en üstünde büyük gösterir.
+1136fa29 || Yıldızla işaretlediğin oyunları gösterir.
+faebc10b || Son başlattığın oyunları kutucuk olarak gösterir.
+76814c46 || Adın altındaki ikinci satırı gösterir (varsayılan „LAUNCHER“).
+68163ad6 || Yeni bir ücretsiz oyun çıktığında panoda bir bildirim gösterir.
+d6c55b68 || Boş alan %10'un altına düşünce panoda bir bildirim gösterir.
+6d16f4ed || Başlığın altında örneğin „Steam“ ve şimdiye kadarki oynama süresini gösterir.
+30ac51d6 || Saatte saniyeleri de gösterir.
+29701e60 || Logonun yanındaki adı ve alt başlığı değiştir.
+16ac9da7 || Açık = gizli kalır. Bir oyunu yeniden göstermek için kapat.
+d5e1f9ce || Bu programlar için oynama süresi kaydedilmez. Wallpaper Engine, Lively ve Rainmeter zaten otomatik olarak hariç tutulur.
+ebfc8f0d || Bildirimleri göster
+7162366c || Sağ altta küçük açılır bildirimler, örneğin yeni oyunlar, başarımlar veya hatırlatıcılar için.
+6f60c6be || Oyunları yalnızca çift tıklamayla başlat
+e40d7c65 || Yanlışlıkla başlatmayı önler: karta tek tıklamak oyunu başlatmaz. Oyna düğmesi çalışmaya devam eder.
+a9dccd20 || Oyun çalışırken çıkmadan önce uyar
+dc75656a || Başlatıcı hâlâ çalışan bir oyunun süresini kaydederken kapatılmadan önce onay ister.
+6e1c6bb6 || SteamGridDB'den hareketli kapakları tercih et
+7bb950b6 || Varsa hareketli kapakları (WebP veya APNG) yükler. Üzerine gelince oynar. Daha fazla bellek gerektirir. Ardından „Kapakları yeniden yükle“ye tıkla.
+20533e73 || Hata günlüğü ve yedekler
+e760a2e7 || Bir sorun olursa hata günlüğü yardımcı olur. Başlatıcı ayrıca ayarlarını her gün yedekler ve dosya bozulursa otomatik geri yükler.
+69801fd0 || Hata günlüğünü aç
+b18b2cfb || Ayar yedeklerini aç
+b0386871 || Beklenmeyen hata
+b693d831 || Ayrıntılar hata günlüğünde (Ayarlar, Veriler ve bilgi).
+5daf0a4e || Kapak kaynağı değişti
+1ca91bfe || Değişikliğin uygulanması için „Kapakları yeniden yükle“ye tıkla.
+3f4fc0b9 || Hâlâ bir oyun çalışıyor. Başlatıcıyı kapatırsan oynama süresi artık kaydedilmez.\n\nYine de çıkılsın mı?
+e07134d0 || Başlatıcıdan çık
+ae21440e || ⏱ Oynama süresini düzenle ...
+4aab762d || Oynama süresini düzenle
+14c751c9 || „{0}“ için toplam oynama süresi, saat cinsinden (örneğin 12,5):
+91396cc5 || Lütfen bir sayı gir (örneğin 12,5).
+efec05bd || Ayarlar geri yüklendi
+42a3b229 || Ayar dosyası bozuktu. Son yedek yüklendi.
+af824338 || Resimler, GIF ve WebP
+abb7b527 || Kapaklar: oyun adı Steam mağazasına gönderilir, resimler Steam ve Epic'ten gelir. SteamGridDB anahtarıyla ad SteamGridDB'ye de gönderilir. Hava durumu: yaklaşık konumun IP adresinden (veya ayarlardaki yerden) belirlenir ve Open-Meteo'ya gönderilir. Tüm donanım verileri bilgisayarında kalır.
+8de6c451 || İpucu: Bir resmi, GIF'i veya WebP'yi doğrudan oyun kartına sürükle ya da sağ tıklayıp „Özel kapak belirle“yi seç. Hareketli kapaklar üzerine gelince oynar.
+f3e09bc8 || İstek listesi
+ebe7757a || Sahip olmak istediğin Steam oyunlarını ekle. Başlatıcı fiyatları kontrol eder ve hedef fiyatına ulaşıldığında haber verir.
+39fbca4b || 🔄 Fiyatları kontrol et
+8f6bc240 || Fiyatlar kontrol ediliyor ...
+da07aa53 || Son kontrol:
+b3774d27 || İstek listesinde henüz oyun yok. Bir Steam oyunu ekle, fiyat düştüğünde başlatıcı haber verir.
+a71a9b6a || Hedef fiyat
+5ee27ef0 || Hedef fiyat:
+0512ebdf || Hedef: %20 ve üzeri indirim
+eda1daa9 || Hedefe ulaşıldı
+bc7010af || Ücretsiz
+91960d97 || Fiyat alarmı
+17a4ae3a || 🛒 Steam mağazasında aç
+3d24eb78 || 🎯 Hedef fiyatı değiştir ...
+c005e923 || Oyunun adı (Steam mağazasındakiyle tam aynı):
+7407d5be || Bu oyun zaten istek listesinde.
+63bfbd25 || Oyun Steam mağazasında bulunamadı. Yazımı kontrol et, ad tam olarak eşleşmeli.
+470f1681 || „{0}“ için hedef fiyat (örneğin 14,99). Boş bırak = %20'den başlayan her indirimde bildir:
+bd2a04de || „{0}“ ne kadara mal oldu? (örneğin 29,99, boş = belirtme):
+9fa3050b || Satın alma fiyatı
+7ea12c23 || Satın alma fiyatı:
+2580cd0f || Saat başı maliyet:
+8965b9c5 || 💶 Satın alma fiyatını gir ...
+f3b72c0f || ⚙ Oyun profili ...
+58faf446 || Oyun profili: {0}
+6fa8ee8d || Bu oyun için neyin geçerli olacağını belirle. „Varsayılan“ genel ayarı kullanır.
+0016ab68 || Varsayılan
+a8393e7c || Her zaman açık
+e11178aa || Her zaman kapalı
+cf72e08e || Oyun sırasında yüksek performans
+0f5a52f1 || Bu oyun çalıştığı sürece Windows güç planını „Yüksek performans“a geçirir.
+b580d9fa || Başlangıçta programları kapat
+1d8a955a || Bu oyun başlamadan önce ayarlarda seçilen programları kapatır.
+6a6b9a36 || Eksik oyunlar
+ef987e1c || Bu oyunlar artık bulunamadı. İşaretli girdiler listeden kaldırılır.
+574160bd || Elle eklenen {0} oyun artık bulunamadı.
+e643de24 || Temizle
+489bb950 || 🌡 Sıcaklıklar ve fanlar
+e0fea886 || Sıcaklıkları ve fanları göster
+6d486c63 || Sistem izleyicide işlemci ve ekran kartı sıcaklıklarını ve fan hızlarını gösterir. Bazı sensörler yönetici hakları ister.
+5396b3e7 || Yönetici hakları
+dbf59fc3 || Tüm sensörlerin okunabilmesi için başlatıcıyı yeniden başlatır ve yönetici hakları ister.
+d91cfdff || Yönetici olarak yeniden başlat
+b09bda2a || Yönetici
+5cd40659 || Başlatıcı zaten yönetici haklarıyla çalışıyor.
+3b0bfe28 || 2 saniyede bir güncellenir.
+0923e054 || Sensörler okunamadı. Ayrıntılar hata günlüğünde.
+f0c1e49e || Sensör bulunamadı. Daha fazla değer için başlatıcıyı yönetici olarak başlat.
+08131c68 || Anakart
+d7781e34 || 📅 Etkinlik (son 26 hafta)
+472fae77 || Henüz etkinlik yok. Oynanan her gün burada bir kareyi boyar.
+857534db || son 26 haftada oynanan gün
+11202e82 || 📸 Resim olarak kaydet
+549b0fcd || Resmi kaydet
+d0568bef || Resim kaydedildi
+e06758c9 || Haberler
+85d40d8b || 🏷 Tür
+3c613d5f || ✖ Tüm türler
+47a39fef || Henüz oyun bilgisi yüklenmedi
+2a9c13a5 || Oyun bilgilerini Steam'den yükle (açıklama, tür, haberler)
+f57671c5 || Steam oyunlarınla ilgili bilgileri arka planda yükler. Böylece tür filtresi ve ayrıntı penceresindeki haberler çalışır.
+524ee110 || Tasarımı paylaş
+2ff64daa || Dosya olarak tasarım
+45c94692 || Renkleri, logoyu ve düzeni paylaşabileceğin veya başka bir bilgisayarda yükleyebileceğin bir dosyaya kaydeder.
+cde10810 || Tasarımı dışa aktar ...
+7d6ea239 || Tasarımı içe aktar ...
+2bc80456 || Tasarımı dışa aktar
+a78c8787 || Tasarımı içe aktar
+075b2288 || Tasarım kaydedildi
+77aa19b1 || Tasarım yüklendi
+483075a5 || Güncellemeler
+2137f1da || Başlangıçta güncellemeleri denetle
+207fd55a || Günde en fazla bir kez daha yeni bir sürüm olup olmadığını kontrol eder ve varsa bağlantılı bir bildirim gösterir.
+d77f2d67 || Güncelleme kaynağı (GitHub: kullanıcı/depo)
+ebdf89d5 || En yeni sürümlerin yayımlandığı yer burada yazar. Girdi yoksa arama yapılmaz.
+d480717d || Şimdi denetle
+5ffacce6 || Aranıyor ...
+e8a3c0e3 || Önce bir güncelleme kaynağı gir (kullanıcı/depo).
+4a766870 || Sürüm bulunamadı.
+4f5751d7 || En yeni sürüme sahipsin.
+ec741be6 || Arama başarısız oldu. İnternet bağlantını kontrol et.
+06c5d8ae || {0} sürümü mevcut.
+b9971f18 || İndir
+3ae40568 || Yedek klasörü (bulut)
+a6d8591b || Ek yedek klasörü
+763b540f || Oyun kayıtları ve ayarlar ayrıca bu klasöre kopyalanır. Örneğin OneDrive veya Dropbox'ta bir klasör seçersen verilerin çevrimiçi olarak da yedeklenir.
+5ef4b7d4 || Klasör belirlenmedi
+6dbf1dfa || Yedekler için bir klasör seç (örneğin OneDrive veya Dropbox'ta)
+edf8f50b || Şimdi her şeyi yedekle
+22503088 || Kaldır
+95e0cc6f || Yedek
+9c70921c || Yedekleme tamamlandı
+675a5d04 || Önce bir yedek klasörü seç.
+9dc38b6f || Ses efektleri
+3927ea3a || Gezinirken, başlatırken ve bildirimlerde hafif sesler. Varsayılan olarak kapalı.
+2ed048a4 || Kurulum yardımcısını başlat
+3e9e3350 || DFP Pro Launcher'a hoş geldin
+8f408c8d || Hoş geldin!
+d47aefd4 || Dilini seç. Her şeyi daha sonra ayarlardan değiştirebilirsin.
+8af89706 || Sana nasıl hitap edelim?
+4dcb2b97 || Ad panoda görünür. Ayrıca bir renk seç.
+fe356228 || Kapaklar ve çevrimiçi özellikler
+730627ef || Başlatıcının kapaklar, hava durumu ve fırsatlar için internete ihtiyacı var. Ücretsiz bir SteamGridDB anahtarıyla (steamgriddb.com) çok güzel kapaklar alırsın. İkisi de isteğe bağlıdır.
+8d807000 || Her şey hazır!
+64f2c0ec || Başlatıcı şimdi Steam, Epic, GOG, EA, Ubisoft, Battle.net, Rockstar ve Xbox'taki oyunlarını arıyor. Diğer oyunları pencereye sürükleyip bırakman yeterli. Ctrl+K aramayı açar.
+590bfeaa || Atla
+28ef580b || İleri
+27c53c0d || Hadi başlayalım
+7ca3460c || Geri
+e9c2a61a || Favori
+f4a9c097 || Filtre
+86f22996 || Yayıncı
+0b2e1107 || Yayıncı modu
+3b5ace99 || Yayıncı modunu aç
+a093018c || Özel bilgileri gizler, böylece hiçbiri yanlışlıkla bir yayında veya kayıtta görünmez. Başlatıcıda Ctrl+Shift+S ile veya her yerde Ctrl+Alt+S ile (genel kısayol etkinse) hızlıca açıp kapat. Bildirim alanı simgesindeki hızlı panelde de bunun için bir düğme var.
+ecccbbbc || OBS veya başka bir yayın yazılımı çalışırken otomatik aç
+4b621312 || OBS, Streamlabs, Twitch Studio, XSplit, vMix ve Prism'i algılar. Program kapanınca mod yeniden kapanır.
+d1b0b39e || Neler gizlenir
+b38d6fc5 || Alanlar bulanıklaştırılır veya nötr bilgilerle değiştirilir. Bu yalnızca yayıncı modu etkinken geçerlidir.
+17ca9b0c || Adı gizle
+2b18af8c || Kenar çubuğunda ve selamlamada kullanıcı adını „Gamer“ ile değiştirir ve ayarlardaki ad alanını bulanıklaştırır.
+8342011a || Hava durumunu ve konumu gizle
+6d6607b8 || Hava durumu kartını ve hava durumu konumu alanını bulanıklaştırır, çünkü bunlar aşağı yukarı nerede yaşadığını belli eder.
+90450064 || Oynama süresini ve istatistikleri gizle
+f3179c0b || İstatistik sayfasını ve panodaki kutucukları bulanıklaştırır, kartlardaki ve ayrıntı penceresindeki oynama sürelerini gizler.
+df6f78ca || Son oynananları, favorileri ve devam et afişini gizle
+f0f8ff0e || Böylece başka neler oynadığını kimse görmez.
+1db467a7 || Yolları, dosya adlarını ve anahtarları gizle
+2aa0da5d || İndirilenleri, uygulamaları, depolamayı, SteamGridDB anahtarını, klasör yollarını ve güncelleme kaynağını bulanıklaştırır. Yollar genellikle Windows kullanıcı adını içerir.
+e8409b94 || Ekran görüntülerini ve istek listesini gizle
+560a5b53 || Galeriyi ve istek listesini bulanıklaştırır.
+13bc024a || Bildirimler
+e96c8b93 || Bildirimleri ve uyarıları sessize al
+ad4fa000 || Yayıncı modunda bildirimleri, afişleri ve fiyat alarmlarını bastırır. Mola ve günlük sınır hatırlatıcıları korunur.
+fc96ad38 || Yayıncı modu açık
+be6b5385 || Özel bilgiler artık gizli.
+0f900e7c || Bir yayın yazılımı çalışıyor. Özel bilgiler gizli.
+9c62cbd8 || Yayıncı modu kapalı
+7726e92b || Tüm bilgiler yeniden görünür.
+2e98678b || 📡 Yayıncı modu
+ef884a54 || 📡 Yayıncı modu (otomatik)
+ea9929fd || 📡 Yayıncı modunu aç/kapat
+4f640bf1 || Yayıncı modunu aç/kapat
+62b76af3 || Özel bilgileri gizler
+3a839501 || Kapatmak için tıkla
+458731ec || Kumanda modu

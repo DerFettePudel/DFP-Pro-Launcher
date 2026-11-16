@@ -798,3 +798,203 @@ fc068fda || Zapisuje wszystkie ustawienia do pliku lub je wczytuje, na przykład
 f50c5cf6 || Przywraca logo, nazwę i kolory do stanu pierwotnego.
 00aad5fa || Kolor tekstu napisu.
 56ef74d8 || Godzina i data na pulpicie.
+92efc097 || Powiększa lub pomniejsza cały interfejs w procentach.
+d6ad6941 || Przesuwa obraz o kilka pikseli, aby stałe elementy nie wypaliły się na ekranie.
+0f87da32 || Ukrywaj gry prawym przyciskiem. Tutaj je przywrócisz.
+30419fe6 || Cztery kafelki: biblioteka, ulubione, czas gry i ostatnio grana gra.
+4bd91a26 || Rozmycie obrazu. Wyższe wartości wymagają nieco więcej mocy graficznej.
+7444b194 || Dodatkowe foldery, w których galeria szuka zrzutów ekranu.
+39a2d261 || Które przyciski zatwierdzają i cofają. „Automatycznie” samo rozpoznaje typ kontrolera.
+9b8b8bf8 || Jak szeroki jest rozwinięty pasek boczny.
+b8aee113 || Jak często monitor systemu pobiera nowe wartości. Dłuższe odstępy oszczędzają procesor.
+ce346b58 || Jak bardzo zaokrąglone są rogi. 0 daje kanciaste karty.
+416766c9 || Jak bardzo rośnie karta po najechaniu kursorem.
+366cb343 || Ile kafelków pokazywać w każdej sekcji.
+43798f68 || Wybierz, które programy mają być poprawnie zamykane przy starcie gry.
+d83bd62d || Rysuje interfejs procesorem zamiast kartą graficzną. Pomaga przy błędach wyświetlania i bardzo starych sterownikach.
+eb216fdc || Na chwilę pokazuje nakładkę na próbę.
+43393220 || Pokazuje ikonę w prawym dolnym rogu obok zegara. Kliknięcie otwiera szybki panel do uruchamiania gier i zamykania.
+2214a63d || Pokazuje ostatnio graną grę w dużym rozmiarze na górze pulpitu.
+1136fa29 || Pokazuje gry oznaczone gwiazdką.
+faebc10b || Pokazuje ostatnio uruchomione gry jako kafelki.
+76814c46 || Pokazuje drugą linię pod nazwą (domyślnie „LAUNCHER”).
+68163ad6 || Pokazuje powiadomienie na pulpicie, gdy pojawi się nowa darmowa gra.
+d6c55b68 || Pokazuje powiadomienie na pulpicie, gdy wolne jest mniej niż 10% miejsca.
+6d16f4ed || Pokazuje pod tytułem na przykład „Steam” i dotychczasowy czas gry.
+30ac51d6 || Pokazuje też sekundy w zegarze.
+29701e60 || Zmień nazwę i podtytuł obok logo.
+16ac9da7 || Włączone = pozostaje ukryta. Wyłącz, aby znowu pokazać grę.
+d5e1f9ce || Dla tych programów czas gry nie jest mierzony. Wallpaper Engine, Lively i Rainmeter są już automatycznie wykluczone.
+ebfc8f0d || Pokazuj powiadomienia
+7162366c || Małe dymki w prawym dolnym rogu, np. przy nowych grach, osiągnięciach lub przypomnieniach.
+6f60c6be || Uruchamiaj gry tylko dwuklikiem
+e40d7c65 || Zapobiega przypadkowym uruchomieniom: pojedyncze kliknięcie karty nie uruchamia gry. Przycisk Graj nadal działa.
+a9dccd20 || Ostrzegaj przed zamknięciem, gdy gra działa
+dc75656a || Pyta o potwierdzenie przed zamknięciem launchera, gdy wciąż mierzy czas uruchomionej gry.
+6e1c6bb6 || Preferuj animowane okładki z SteamGridDB
+7bb950b6 || Pobiera animowane okładki (WebP lub APNG), jeśli są dostępne. Odtwarzają się po najechaniu. Wymaga więcej pamięci. Potem kliknij „Załaduj okładki ponownie”.
+20533e73 || Dziennik błędów i kopie
+e760a2e7 || W razie problemów pomoże dziennik błędów. Launcher dodatkowo codziennie tworzy kopię ustawień i automatycznie ją przywraca, gdy plik jest uszkodzony.
+69801fd0 || Otwórz dziennik błędów
+b18b2cfb || Otwórz kopie ustawień
+b0386871 || Nieoczekiwany błąd
+b693d831 || Szczegóły są w dzienniku błędów (Ustawienia, Dane i informacje).
+5daf0a4e || Zmieniono źródło okładek
+1ca91bfe || Kliknij „Załaduj okładki ponownie”, aby zmiana zadziałała.
+3f4fc0b9 || Gra nadal działa. Jeśli zamkniesz launcher, jej czas gry nie będzie dalej mierzony.\n\nZamknąć mimo to?
+e07134d0 || Zamknij launcher
+ae21440e || ⏱ Edytuj czas gry ...
+4aab762d || Edytuj czas gry
+14c751c9 || Łączny czas gry „{0}” w godzinach (na przykład 12,5):
+91396cc5 || Wpisz liczbę (na przykład 12,5).
+efec05bd || Przywrócono ustawienia
+42a3b229 || Plik ustawień był uszkodzony. Wczytano ostatnią kopię.
+af824338 || Obrazy, GIF i WebP
+abb7b527 || Okładki: nazwa gry jest wysyłana do sklepu Steam, obrazy pochodzą ze Steam i Epic. Z kluczem SteamGridDB nazwa trafia też do SteamGridDB. Pogoda: twoja przybliżona lokalizacja jest ustalana na podstawie adresu IP (lub miejsca z ustawień) i wysyłana do Open-Meteo. Wszystkie dane o sprzęcie zostają na twoim komputerze.
+8de6c451 || Wskazówka: przeciągnij obraz, GIF lub WebP bezpośrednio na kartę gry albo wybierz „Ustaw własną okładkę” prawym przyciskiem. Animowane okładki odtwarzają się po najechaniu.
+f3e09bc8 || Lista życzeń
+ebe7757a || Dodaj gry ze Steam, które chcesz mieć. Launcher sprawdza ceny i daje znać, gdy osiągnięta zostanie twoja cena docelowa.
+39fbca4b || 🔄 Sprawdź ceny
+8f6bc240 || Sprawdzanie cen ...
+da07aa53 || Ostatnio sprawdzono:
+b3774d27 || Lista życzeń jest pusta. Dodaj grę ze Steam, a launcher da znać, gdy cena spadnie.
+a71a9b6a || Cena docelowa
+5ee27ef0 || Cena docelowa:
+0512ebdf || Cel: od 20% zniżki
+eda1daa9 || Cel osiągnięty
+bc7010af || Za darmo
+91960d97 || Alert cenowy
+17a4ae3a || 🛒 Otwórz w sklepie Steam
+3d24eb78 || 🎯 Zmień cenę docelową ...
+c005e923 || Nazwa gry (dokładnie jak w sklepie Steam):
+7407d5be || Ta gra jest już na liście życzeń.
+63bfbd25 || Nie znaleziono gry w sklepie Steam. Sprawdź pisownię, nazwa musi się dokładnie zgadzać.
+470f1681 || Cena docelowa dla „{0}” (na przykład 14,99). Puste = powiadamiaj o każdej zniżce od 20%:
+bd2a04de || Ile kosztowała gra „{0}”? (na przykład 29,99, puste = nie podawaj):
+9fa3050b || Cena zakupu
+7ea12c23 || Cena zakupu:
+2580cd0f || Koszt za godzinę:
+8965b9c5 || 💶 Wpisz cenę zakupu ...
+f3b72c0f || ⚙ Profil gry ...
+58faf446 || Profil gry: {0}
+6fa8ee8d || Ustal, co dotyczy tej gry. „Domyślnie” używa ustawienia ogólnego.
+0016ab68 || Domyślnie
+a8393e7c || Zawsze wł.
+e11178aa || Zawsze wył.
+cf72e08e || Wysoka wydajność podczas gry
+0f5a52f1 || Przełącza plan zasilania Windows na „Wysoka wydajność”, dopóki ta gra działa.
+b580d9fa || Zamykaj programy przy starcie
+1d8a955a || Zamyka programy wybrane w ustawieniach przed uruchomieniem tej gry.
+6a6b9a36 || Brakujące gry
+ef987e1c || Tych gier już nie znaleziono. Zaznaczone wpisy zostaną usunięte z listy.
+574160bd || Nie znaleziono już ręcznie dodanych gier: {0}.
+e643de24 || Posprzątaj
+489bb950 || 🌡 Temperatury i wentylatory
+e0fea886 || Pokazuj temperatury i wentylatory
+6d486c63 || Pokazuje w monitorze systemu temperatury procesora i karty graficznej oraz obroty wentylatorów. Niektóre czujniki wymagają uprawnień administratora.
+5396b3e7 || Uprawnienia administratora
+dbf59fc3 || Uruchamia launcher ponownie i prosi o uprawnienia administratora, aby można było odczytać wszystkie czujniki.
+d91cfdff || Uruchom ponownie jako administrator
+b09bda2a || Administrator
+5cd40659 || Launcher już działa z uprawnieniami administratora.
+3b0bfe28 || Odświeżane co 2 sekundy.
+0923e054 || Nie udało się odczytać czujników. Szczegóły są w dzienniku błędów.
+f0c1e49e || Nie znaleziono czujników. Uruchom launcher jako administrator, aby mieć więcej wartości.
+08131c68 || Płyta główna
+d7781e34 || 📅 Aktywność (ostatnie 26 tygodni)
+472fae77 || Brak aktywności. Każdy dzień z grą koloruje tu jedno pole.
+857534db || dni z grą w ostatnich 26 tygodniach
+11202e82 || 📸 Zapisz jako obraz
+549b0fcd || Zapisz obraz
+d0568bef || Obraz zapisany
+e06758c9 || Aktualności
+85d40d8b || 🏷 Gatunek
+3c613d5f || ✖ Wszystkie gatunki
+47a39fef || Nie wczytano jeszcze informacji o grach
+2a9c13a5 || Wczytuj informacje o grach ze Steam (opis, gatunek, aktualności)
+f57671c5 || Wczytuje w tle informacje o twoich grach ze Steam. Dzięki temu działa filtr gatunków i aktualności w oknie szczegółów.
+524ee110 || Udostępnij wygląd
+2ff64daa || Wygląd jako plik
+45c94692 || Zapisuje kolory, logo i układ w pliku, który możesz przekazać dalej lub wczytać na innym komputerze.
+cde10810 || Eksportuj wygląd ...
+7d6ea239 || Importuj wygląd ...
+2bc80456 || Eksportuj wygląd
+a78c8787 || Importuj wygląd
+075b2288 || Wygląd zapisany
+77aa19b1 || Wygląd wczytany
+483075a5 || Aktualizacje
+2137f1da || Sprawdzaj aktualizacje przy starcie
+207fd55a || Najwyżej raz dziennie sprawdza, czy jest nowsza wersja, i pokazuje powiadomienie z linkiem.
+d77f2d67 || Źródło aktualizacji (GitHub: użytkownik/repozytorium)
+ebdf89d5 || Tutaj podano, gdzie publikowane są najnowsze wersje. Bez wpisu nic nie jest sprawdzane.
+d480717d || Sprawdź teraz
+5ffacce6 || Wyszukiwanie ...
+e8a3c0e3 || Najpierw podaj źródło aktualizacji (użytkownik/repozytorium).
+4a766870 || Nie znaleziono wersji.
+4f5751d7 || Masz najnowszą wersję.
+ec741be6 || Wyszukiwanie nie powiodło się. Sprawdź połączenie z internetem.
+06c5d8ae || Dostępna jest wersja {0}.
+b9971f18 || Pobierz
+3ae40568 || Folder kopii (chmura)
+a6d8591b || Dodatkowy folder kopii
+763b540f || Zapisy gier i ustawienia są dodatkowo kopiowane do tego folderu. Wybierz na przykład folder w OneDrive lub Dropbox, a twoje dane będą też zabezpieczone online.
+5ef4b7d4 || Nie ustawiono folderu
+6dbf1dfa || Wybierz folder na kopie (na przykład w OneDrive lub Dropbox)
+edf8f50b || Zabezpiecz wszystko teraz
+22503088 || Usuń
+95e0cc6f || Kopia zapasowa
+9c70921c || Kopia zakończona
+675a5d04 || Najpierw wybierz folder kopii.
+9dc38b6f || Efekty dźwiękowe
+3927ea3a || Ciche dźwięki przy nawigacji, uruchamianiu i powiadomieniach. Domyślnie wyłączone.
+2ed048a4 || Uruchom asystenta konfiguracji
+3e9e3350 || Witaj w DFP Pro Launcher
+8f408c8d || Witaj!
+d47aefd4 || Wybierz swój język. Wszystko możesz później zmienić w ustawieniach.
+8af89706 || Jak mamy się do ciebie zwracać?
+4dcb2b97 || Nazwa pojawi się na pulpicie. Wybierz też kolor.
+fe356228 || Okładki i funkcje online
+730627ef || Launcher potrzebuje internetu do okładek, pogody i promocji. Z darmowym kluczem SteamGridDB (steamgriddb.com) dostaniesz wyjątkowo ładne okładki. Oba są opcjonalne.
+8d807000 || Wszystko gotowe!
+64f2c0ec || Launcher szuka teraz twoich gier ze Steam, Epic, GOG, EA, Ubisoft, Battle.net, Rockstar i Xbox. Inne gry po prostu przeciągnij do okna. Ctrl+K otwiera wyszukiwanie.
+590bfeaa || Pomiń
+28ef580b || Dalej
+27c53c0d || Zaczynamy
+7ca3460c || Wstecz
+e9c2a61a || Ulubiona
+f4a9c097 || Filtr
+86f22996 || Streamer
+0b2e1107 || Tryb streamera
+3b5ace99 || Włącz tryb streamera
+a093018c || Ukrywa prywatne informacje, aby nic przypadkiem nie pojawiło się na streamie lub nagraniu. Szybko przełączysz go skrótem Ctrl+Shift+S w launcherze lub Ctrl+Alt+S wszędzie (jeśli skrót globalny jest aktywny). Szybki panel przy ikonie w obszarze powiadomień też ma do tego przycisk.
+ecccbbbc || Włączaj automatycznie, gdy działa OBS lub inne oprogramowanie do streamingu
+4b621312 || Wykrywa OBS, Streamlabs, Twitch Studio, XSplit, vMix i Prism. Tryb wyłącza się po zamknięciu programu.
+d1b0b39e || Co jest ukrywane
+b38d6fc5 || Obszary są rozmywane lub zastępowane neutralnymi danymi. Dotyczy to tylko czasu, gdy tryb streamera jest aktywny.
+17ca9b0c || Ukryj nazwę
+2b18af8c || Zastępuje twoją nazwę użytkownika na pasku bocznym i w powitaniu słowem „Gamer” i rozmywa pole nazwy w ustawieniach.
+8342011a || Ukryj pogodę i lokalizację
+6d6607b8 || Rozmywa kartę pogody i pole lokalizacji, bo zdradzają w przybliżeniu, gdzie mieszkasz.
+90450064 || Ukryj czas gry i statystyki
+f3179c0b || Rozmywa stronę statystyk i kafelki na pulpicie oraz ukrywa czasy gry na kartach i w oknie szczegółów.
+df6f78ca || Ukryj ostatnio grane, ulubione i baner Graj dalej
+f0f8ff0e || Żeby nikt nie widział, w co jeszcze grasz.
+1db467a7 || Ukryj ścieżki, nazwy plików i klucze
+2aa0da5d || Rozmywa pobrane, aplikacje, pamięć, klucz SteamGridDB, ścieżki folderów i źródło aktualizacji. Ścieżki często zawierają twoją nazwę użytkownika Windows.
+e8409b94 || Ukryj zrzuty ekranu i listę życzeń
+560a5b53 || Rozmywa galerię i listę życzeń.
+13bc024a || Powiadomienia
+e96c8b93 || Wycisz powiadomienia i komunikaty
+ad4fa000 || W trybie streamera wstrzymuje powiadomienia, banery i alerty cenowe. Przypomnienia o przerwie i limicie dziennym zostają.
+fc96ad38 || Tryb streamera włączony
+be6b5385 || Prywatne informacje są teraz ukryte.
+0f900e7c || Działa oprogramowanie do streamingu. Prywatne informacje są ukryte.
+9c62cbd8 || Tryb streamera wyłączony
+7726e92b || Wszystkie informacje są znowu widoczne.
+2e98678b || 📡 Tryb streamera
+ef884a54 || 📡 Tryb streamera (automatyczny)
+ea9929fd || 📡 Przełącz tryb streamera
+4f640bf1 || Przełącz tryb streamera
+62b76af3 || Ukrywa prywatne informacje
+3a839501 || Kliknij, aby wyłączyć
+458731ec || Tryb kontrolera
