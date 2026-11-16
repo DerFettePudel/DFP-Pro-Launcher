@@ -1998,3 +1998,253 @@ df95b54e || (kontrol)
 54bfd097 || maks. {0} °C
 446ff80e || maks. {0}
 76941098 || {0} sıcaklık ve {1} fan
+4b2006be || İşlemci sıcaklıkları ve anakarttaki fanlar için başlatıcının yönetici haklarına ihtiyacı var.
+817ebf2d || İşlemci sıcaklıkları ve fanlar için Windows'un ücretsiz „PawnIO“ sürücüsüne ihtiyacı var. Bir kez kur ve ardından başlatıcıyı yeniden başlat.
+3f22ea24 || PawnIO'yu indir
+60a44188 || Anakartın fan hızı bildirmiyor. Bazı anakartlar bunları yalnızca kendi yazılımlarına verir.
+6ab0e372 || İşlemcin sıcaklık bildirmiyor. Sürücü kurulduktan sonra bilgisayarı yeniden başlatmak çoğu zaman yardımcı olur.
+2fa88b16 || Yine mi sen?
+0c47c49e || Ah, sensin.
+550d1bac || Nihayet!
+10c7b2e2 || Seni bekliyorduk.
+bce45cee || Olamaz, yine mi sen.
+2fe6a9ad || Oyunlar seni bekliyordu.
+1ac23b50 || Kaniş seni özledi.
+616186e4 || Vahşi bir oyuncu belirdi!
+198c96d3 || Kanepe çoktan ısındı.
+d91a6a39 || Ne sürpriz … değil.
+da029bba || Yapacak daha iyi bir işin yok mu? İyi.
+419673e5 || Seviye atladın, efsane!
+e35df83f || Yeni oyun, yeni şans.
+be737a3f || Oyun zamanı!
+6dbed183 || Karargâha hoş geldin.
+0bb22317 || Hâlâ uyanık mısın, {0}?
+35618486 || Gece vardiyası mı, {0}?
+cb3e1100 || Geç bir tur mu, {0}?
+3a2286fb || Pst, {0}, diğerleri çoktan uyudu.
+06167bed || Kullanmak için bir kapağa tıkla. Resimler doğrudan SteamGridDB'den gelir.
+ab6b26a2 || Arama için ücretsiz bir SteamGridDB anahtarı gerekir. Giriş yaptıktan sonra Profil → Tercihler → API altında bulursun.
+eec8b2f2 || Anahtar al
+9afccf3d || Ara
+a5a79b20 || Hareketliler de
+61500e47 || Dosyadan seç …
+05260484 || hareketli
+c3199e22 || Kapak yükleniyor …
+49fc13a1 || Kapak yüklenemedi. Lütfen tekrar dene.
+6d2b32d5 || Kapak bulunamadı. Başka bir arama terimi dene.
+74a73ffd || {0} kapak bulundu.
+95992d58 || Kapak aranıyor …
+1221ec8b || Çevrimiçi özellikler kapalı. Ayarlardan yeniden açabilirsin.
+4403ef30 || Bu ada sahip bir oyun bulunamadı. Başka bir arama terimi dene.
+fc3219b6 || Anahtar olmadan bir dosyadan kapak seçebilirsin.
+bf889e66 || Kaynak: HWiNFO
+534eee4f || HWiNFO'yu indir
+352efd75 || HWiNFO zaten çalışıyor. Orada ayarları (Settings) aç ve „Shared Memory Support“u etkinleştir. Böylece başlatıcı yönetici hakları olmadan da tüm sıcaklıkları, fanları ve işlemci gücünü gösterir.
+45012b22 || İşlemci sıcaklıkları ve anakarttaki fanlar için başlatıcının yönetici haklarına ihtiyacı var. Yönetici hakkı olmadan alternatif: HWiNFO'yu „Shared Memory Support“ açık şekilde arka planda çalıştır.
+6cd40f9d || Bilgisayarın bu değerleri doğrudan vermiyor. Güvenilir alternatif: ücretsiz HWiNFO'yu kur, ayarlarında „Shared Memory Support“u aç ve arka planda çalıştır. Başlatıcı değerleri sonra otomatik okur.
+84a365cb || HWiNFO'yu başlat
+300e7608 || HWiNFO kuruluyor … Lütfen Windows sorusunu onayla.
+2e6849ca || HWiNFO kurulu ama çalışmıyor. Başlat, ayarlarda (Settings) „Shared Memory Support“u aç ve arka planda çalıştır.
+40fd2c63 || HWiNFO'da Ayarlar (Settings) altında „Shared Memory Support“u aç, değerler başlatıcıda görünür.
+9aacb9d0 || HWiNFO indirilip kuruluyor. Lütfen Windows sorusunu onayla.
+b5e5d07b || HWiNFO kurulamadı. İndirme sayfası açılıyor.
+97078ed1 || Sıcaklık ve güç: sensörlerdeki nota bak
+5728bf31 || Geçen sefer çökme
+78ab02a9 || Başlatıcı geçen sefer beklenmedik şekilde kapandı. Hata günlüğünü açmak için buraya tıkla.
+2a6a7a11 || Şimdiye kadar hata kaydedilmedi.
+bdfecd1d || Hata günlüğü
+11cf0333 || ✏ Özelleştir
+1439a47c || Panoyu özelleştir
+aba35892 || Bir bileşeni istediğin yere sürükle. ✕ onu kaldırır, aşağıdan gizli bileşenleri yeniden ekleyebilirsin.
+91d24595 || ✓ Bitti
+0a065d91 || Bileşen ekle
+7199bb10 || Şu an gösterilecek bir şey yok. İçerik olunca bileşen görünür.
+48e291bd || Tüm bileşenler zaten panoda.
+6cfc37e4 || Oyun başlarken ses
+050efa9f || Bir oyun başlatılınca hangi sesin çalacağı. WAV biçiminde kendi dosyaların. Ses efektlerinin açık olması gerekir.
+346d9140 || Klasik
+5d6997cc || Atari jetonu
+c53fc7c9 || Konsol açılışı
+026196b4 || Güçlendirme
+bd2abdbe || Fanfar
+f9fa6973 || Özel dosya ...
+865d3ad4 || WAV dosyaları
+1d169686 || ▶ Dinle
+58e02cd9 || „Oynamaya devam et“ satırı
+90dd6de2 || Kumanda modunda en üstte son üç oyununu gösterir. Yön tuşunda yukarı satırı seçer, A başlatır.
+d7759dcc || Oyundan sonra yardımcı programları kapat
+8c6f1037 || Yalnızca başlatıcının oyun için başlattığı programları kapatır. Önceden çalışanlar açık kalır.
+1c3385b4 || GÜNCELLEME
+25d13eee || Bu oyun için Steam'de bir güncelleme bekliyor.
+468eff23 || Panoyu son oyuna göre renklendir
+2e7c6169 || Son oynanan oyunun kapağından alınan yumuşak bir renk geçişi panonun arkasında durur.
+c86b3be4 || Çözünürlük mümkün değil
+3d67ce83 || Ekran {2} Hz'de {0} × {1} desteklemiyor.
+58ceb6f8 || Oyun başlarken ekran
+a0b48e78 || Ana ekranın HDR desteklemiyor.
+d960d741 || Çözünürlüğü değiştirme
+40d54106 || Açık
+701c5d8a || değiştirme
+f0ef78e5 || geçerli
+465fcb3c || Hızlı menü
+291f0ea7 || 🏠  Başlatıcıya git
+4f4c9a07 || Guide tuşuyla hızlı menü
+d89d0502 || Xbox tuşunu 1 saniye basılı tut: oyunda devam et, ses düzeyi ve oyunu kapat seçenekli bir menü, aksi halde kumanda modu açılır. Kısa basış Windows'a kalır.
+7255421f || DFP Pro Launcher üzerinden
+870506c5 || Discord durumunu göster
+93b73150 || Arkadaşların Discord'da ne oynadığını ve ne zamandır oynadığını görür. Bu bilgisayarda Discord uygulaması gerekir, webhook gerekmez.
+8742f038 || 🏆  Steam başarımları ...
+36d286ae || Steam başarımları
+4d7cb7cd || Steam başarımları (isteğe bağlı)
+02319eda || Ücretsiz bir Steam Web API anahtarıyla (steamcommunity.com/dev/apikey) başlatıcı oyun başına başarımlarını gösterir (bir Steam oyununa sağ tıkla). Steam profilinin oyun ayrıntılarını herkese açık göstermesi gerekir. Anahtar şifrelenerek saklanır.
+05dd9a7b || API anahtarı
+c221232a || SteamID64 (otomatik algılanır)
+0285c010 || Steam {0} ile yanıt veriyor.
+2c8210cf || Steam başarımları için bir Steam Web API anahtarı gerekir.\n\nAyarlar, kapaklar ve oyun bilgileri, „Steam başarımları (isteğe bağlı)“.
+3043b908 || Çevrimiçi özellikler kapalı (Ayarlar, çevrimiçi özellikler ve gizlilik).
+b365f5ec || Başarımlar yükleniyor ...
+01ad059f || Bu oyunun Steam başarımı yok.
+0d451500 || {1} başarımdan {0} tanesi açıldı (%{2})
+192ac889 || Steam profilin oyun ayrıntılarını herkese açık göstermiyor. Steam'de: Profili düzenle, Gizlilik, oyun ayrıntılarını „Herkese açık“ yap.
+9588d7dd || Başarımlar yüklenemedi:
+40146f97 || Steam hesabın için veri göndermedi.
+07f1371f || Gizli başarım
+d0418a27 || Bu başarıma sahip oyuncuların oranı
+a183bf1d || Kontrol ediliyor ...
+6753cd04 || Lütfen anahtarı ve 17 haneli bir SteamID64 gir.
+3ebc8d45 || Steam anahtarı reddediyor.
+81c6c22e || Bu SteamID'ye ait profil yok.
+9a2594c1 || ✓ Anahtar çalışıyor.
+a571ac81 || ✓ Anahtar çalışıyor ama profilin herkese açık değil. Başarımlar o zaman görünmez.
+e10001aa || Steam'e ulaşılamıyor.
+0ea71012 || Telefon kumandası
+afa60e7c || Telefon kumandasını aç
+62a7f356 || Başlatıcıyı kanepeden telefonunun tarayıcısıyla kontrol et: oyun başlat ve kapat, ses düzeyi, bilgisayarı kilitle, uyku ve kapatma. Yalnızca ev ağında ve yalnızca QR kodundaki gizli anahtarla çalışır.
+323328a1 || QR kodunu göster
+bd48c0e2 || Yeni anahtar oluştur
+4f490c9d || Steam arkadaşları
+88c1c9bc || Az kaldı (Steam başarımları)
+b8979e78 || Şu an çalışıyor
+fa7c0cfe || Kilitle
+3242625d || Sesi aç
+37d23f68 || Şu an çalışan oyun yok.
+7dc0ed0b || Bu oyun başlatılsın mı?
+02531be1 || Oyun başlatılıyor ...
+9267b6c3 || Oyun kapatılıyor ...
+5daebf29 || Oyun kapatılsın mı? Kaydedilmemiş ilerleme kaybolur.
+a60626a4 || Bilgisayar uyku moduna alınsın mı?
+86fb73f9 || Bilgisayar kapanıyor ...
+edfc8b8a || Bilgisayar kilitleniyor.
+fe286dff || Bilgisayar yanıt vermiyor.
+e59dd816 || Anahtar artık geçerli değil. Lütfen başlatıcıdaki QR kodunu yeniden tara.
+2a86eda1 || Başlatıcıdaki QR kodunu tara: Ayarlar, Kontroller, Telefon kumandası.
+515b09c2 || Kapalı.
+47ca4832 || Başlatılamadı.
+d22eb808 || Çalışıyor ama bu bilgisayarın şu an ev ağına bağlantısı yok.
+b8e67312 || {0} adresinde çalışıyor
+69584767 || Telefon kumandası başlatılamadı. Başka bir program bağlantı noktalarını kullanıyor.
+eb170e9e || Başlatılıyor: {0}
+6e7fe305 || Bilgisayar {0} saniye içinde kapanacak.
+6ba5b422 || Yayıncı modunda QR kodu gösterilmez, çünkü gizli anahtarı içerir.
+e1df61d9 || Kodu telefonunun kamerasıyla tara. Telefon ve bilgisayar aynı Wi-Fi'da olmalı. İpucu: Sonra sayfayı ana ekrana ekle.
+fe577df4 || Windows güvenlik duvarını sorarsa özel ağlar için „İzin ver“i seç.
+5692e311 || Yeni bir anahtar oluşturulsun mu? Şimdiye kadar bağlanan tüm telefonların QR kodunu yeniden taraması gerekir.
+7e1f3845 || Yeni anahtar oluşturuldu. Lütfen QR kodunu yeniden tara.
+265f329e || Bunun için Ayarlar'da „Oyunlar ve kapaklar“ altında, „Kapak“ kartına bir Steam API anahtarı gir.
+4b195d25 || Arkadaşlar yükleniyor ...
+967df7b9 || Şu an Steam arkadaşlarından hiçbiri çevrimiçi değil.
+c8324f79 || + {0} kişi daha çevrimiçi
+10228bed || 👥  Steam arkadaşları
+bf7cc452 || {0} oynuyor
+d86a78e8 || Meşgul
+bc3b88aa || Çevrimiçi
+df80c61c || Uzakta
+7b9fe99a || Kapat
+2e000424 || PC
+684ebeef || Ben de başlatayım
+7ca8ff97 || Steam arkadaş listen herkese açık değil. Steam'de: Profili düzenle, Gizlilik, arkadaş listesini „Herkese açık“ yap.
+2acb8ee6 || Steam'e şu an ulaşılamıyor.
+b238466e || Başarımlı birkaç Steam oyunu oyna, burada neyin eksik olduğu görünür.
+8f02aee4 || 🏆  Az kaldı
+85fd5bbc || Tüm başarımları göster
+d4d5ce31 || %{1} için yalnızca {0} başarım kaldı
+6a4b1bd3 || %{1} için {0} başarım kaldı
+c8144317 || Son açılan
+73936796 || oyuncuların yalnızca %{0} kadarında var
+6c12767f || Telefona bildirimler
+0d39b6b1 || Açık kumanda sayfasında afiş olarak görünür. ntfy ile (aşağıda) telefon kilitliyken gerçek anlık bildirim olarak da gelir.
+f2310d7c || Bir Steam arkadaşı senin de sahip olduğun bir oyunu başlatıyor (Steam API anahtarı gerekir)
+9e27d49a || Kumanda pili bitiyor
+66919032 || ntfy uygulamasıyla anlık bildirimler
+d4f10afb || Android ve iPhone için ücretsiz uygulama. Telefon kilitliyken ve dışarıdayken de çalışır. Kısa mesajlar ntfy.sh hizmeti üzerinden yalnızca senin bildiğin gizli bir kanala gider.
+974f8617 || ntfy ile eşleştir
+6b1e978e || Test bildirimi gönder
+24acb154 || Açık. Telefonunu bir kez „ntfy ile eşleştir“ üzerinden eşleştir.
+962d652c || Yayıncı modunda QR kodu gösterilmez, çünkü gizli kanalı içerir.
+2272ed30 || 1. Play Store veya App Store'dan ücretsiz „ntfy“ uygulamasını kur.\n2. Uygulamada „+“ya dokun ve aşağıdaki kanalı gir (sunucu: ntfy.sh). Ya da kodu tara ve bağlantıyı uygulamayla aç.\n3. Burada „Test bildirimi gönder“e dokun.
+e6326966 || Kanal:
+ed38872c || Kopyala
+b892b825 || Test bildirimi
+fc8bf411 || DFP Pro Launcher bildirimleri telefonuna böyle gelir.
+7ac3712d || Gönderildi. Açık kumanda sayfasında görünür.
+b70adacf || Telefon kumandasını veya ntfy'yi aç.
+8ecc8cd6 || Gönderildi. Bir şey gelmezse ntfy uygulamasındaki kanalı kontrol et.
+ea06ce09 || ntfy'ye şu an ulaşılamıyor.
+29ee897b || Steam arkadaşı oynuyor
+73fe26c0 || {0} şu an {1} oynuyor. Bu oyun sende de var.
+fd3f20e1 || Pil %{0}. Şarj etme zamanı.
+087ca5bd || şarj oluyor
+3956d1e3 || Ara ...
+6152ee4c || Ctrl K
+ae69b709 || F1  Kısayollar
+93412d36 || Arka planda renk parıltısı
+140b5f13 || Kenarlarda vurgu renginde sakin bir parıltı. Performansa mal olmaz, OLED modunda kapalı.
+c22c8d15 || Her yere daha hızlı, faresiz ulaş.
+fe906a34 || Aramayı aç (oyunlar, uygulamalar, komutlar)
+d8334f91 || Oyun kütüphanesinde ara
+53919d11 || Kenar çubuğu bölümlerini doğrudan aç
+0cd5b6ce || Yayıncı modunu aç veya kapat
+0c2ae68b || Kumanda modunu aç veya kapat
+52f467ef || Bu genel bakışı göster veya gizle
+5099409f || Kapak görünümü: göz at ve oyun başlat
+21c05de3 || Aramayı veya genel bakışı kapat
+0082e5a9 || İpucu: Aramada „/“ gizli komutlara götürür.
+9cfc2f11 || Başlatıcı hakkında
+5487d3f5 || Ctrl
+7123fc62 || Shift
+a8f681b1 || Oynanacaklar listende
+3e1bf552 || Başlatıcıdan hiç başlatılmadı
+c273f765 || {0} gündür oynanmadı
+cb94e6dd || Favorilerinden biri
+d7558299 || Yine canın çekti mi?
+910715d5 || Kütüphanende oyunlar olunca başlatıcı burada her gün bir tane önerir.
+07ceb25f || Başka öneri
+5a6dc660 || ✨  Günün oyunu
+6a704450 || Günün oyunu
+5a90e2f2 || ＋ Başlatıcılar
+40944fe9 || Burada üstte hangi başlatıcıların filtre olarak duracağını seç ve kendi oyun klasörlerini ekle.
+abfa8a4e || Oyun klasörleri
+d469ef01 || ✕  Burada gizle
+96352c62 || Üstte göster:
+61d2503b || 1 oyun
+dc51823d || oyun yok
+9f2ff126 || ★  Yalnızca önemliler
+bf6146ad || ▦  Oyunu olan hepsini göster
+517afbf9 || 📂  Oyun klasörü ekle ...
+502848e4 || 📂  Oyun klasörünü kaldır
+6be96a7f || Oyunlarının bulunduğu klasörü seç (her alt klasör bir oyundur)
+1ba1d078 || Lütfen bütün bir sürücü değil, bir klasör seç.
+ce293ccb || Bu oyun klasörü artık taranmasın mı?
+202a10b2 || Oyunların kendisi bilgisayarında kalır.
+4e9c42a9 || Yeni oyun algılandı
+a03bbe4e || {0} yeni oyun algılandı
+4e1c7a10 || Yeni oyunları otomatik algıla
+51c02b83 || Bir başlatıcıya oyun eklenip eklenmediğini veya silinip silinmediğini 20 saniyede bir kontrol eder ve kütüphaneyi „Yeniden tara“ olmadan günceller. Oyun sırasında bekler.
+050c896b || Oyun dosyalarını onar
+567d44de || 🛠  Oyun dosyalarını onar ...
+8d124c66 || „{0}“ şu an çalışıyor. Dosyaları kontrol etmeden önce lütfen oyunu kapat.
+11d2e1fc || Steam şimdi „{0}“ dosyalarını kontrol ediyor. Eksik veya bozuk dosyaları Steam yeniden indirir.
+71fc0a2b || „{0}“ için kontrol ve onarımı başlatıcının kendisi yapar.
+e2e80b83 || Epic Games Launcher'da: Kütüphane → oyundaki ⋯ → Yönet → Dosyaları doğrula.
+e4edb81a || Windows Ayarları'nda: Uygulamalar → Yüklü uygulamalar → oyundaki ⋯ → Gelişmiş seçenekler → Onar. Xbox uygulamasında da olur: oyun → ⋯ → Yönet → Dosyalar → Doğrula ve onar.
+70fa44e9 || EA app'te: Kütüphane → oyundaki ⋯ → Onar.

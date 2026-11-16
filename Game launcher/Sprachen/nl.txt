@@ -1998,3 +1998,253 @@ df95b54e || (besturing)
 54bfd097 || max. {0} °C
 446ff80e || max. {0}
 76941098 || {0} temperaturen en {1} ventilatoren
+4b2006be || Voor processortemperaturen en de ventilatoren op het moederbord heeft de launcher beheerdersrechten nodig.
+817ebf2d || Voor processortemperaturen en ventilatoren heeft Windows het gratis stuurprogramma „PawnIO” nodig. Installeer het één keer en start de launcher daarna opnieuw.
+3f22ea24 || PawnIO downloaden
+60a44188 || Je moederbord meldt geen ventilatorsnelheden. Sommige moederborden geven ze alleen door aan hun eigen software.
+6ab0e372 || Je processor meldt geen temperatuur. Na het installeren van het stuurprogramma helpt een herstart van de pc vaak.
+2fa88b16 || Jij weer?
+0c47c49e || Ach, jij bent het.
+550d1bac || Eindelijk!
+10c7b2e2 || We hadden je al verwacht.
+bce45cee || O nee, niet jij weer.
+2fe6a9ad || De games zaten al te wachten.
+1ac23b50 || De poedel heeft je gemist.
+616186e4 || Een wilde gamer verschijnt!
+198c96d3 || De bank is al voorverwarmd.
+d91a6a39 || Wat een verrassing … niet.
+da029bba || Niks beters te doen? Mooi zo.
+419673e5 || Level up, legende!
+e35df83f || Nieuwe game, nieuwe kansen.
+be737a3f || Tijd om te gamen!
+6dbed183 || Welkom op het hoofdkwartier.
+0bb22317 || Nog wakker, {0}?
+35618486 || Nachtdienst, {0}?
+cb3e1100 || Laat potje, {0}?
+3a2286fb || Psst, {0}, de anderen slapen al.
+06167bed || Klik op een cover om hem te gebruiken. De afbeeldingen komen direct van SteamGridDB.
+ab6b26a2 || Voor het zoeken heb je een gratis SteamGridDB-sleutel nodig. Na het aanmelden vind je hem onder Profiel → Voorkeuren → API.
+eec8b2f2 || Sleutel halen
+9afccf3d || Zoeken
+a5a79b20 || Ook geanimeerd
+61500e47 || Uit bestand kiezen …
+05260484 || geanimeerd
+c3199e22 || Cover wordt geladen …
+49fc13a1 || De cover kon niet worden geladen. Probeer het opnieuw.
+6d2b32d5 || Geen covers gevonden. Probeer een andere zoekterm.
+74a73ffd || {0} covers gevonden.
+95992d58 || Covers zoeken …
+1221ec8b || De online functies zijn uitgeschakeld. Je kunt ze in de instellingen weer inschakelen.
+4403ef30 || Geen game met deze naam gevonden. Probeer een andere zoekterm.
+fc3219b6 || Zonder sleutel kun je een cover uit een bestand kiezen.
+bf889e66 || Bron: HWiNFO
+534eee4f || HWiNFO downloaden
+352efd75 || HWiNFO draait al. Open daar de instellingen (Settings) en schakel „Shared Memory Support” in. Dan toont de launcher alle temperaturen, ventilatoren en het processorvermogen, ook zonder beheerdersrechten.
+45012b22 || Voor processortemperaturen en de ventilatoren op het moederbord heeft de launcher beheerdersrechten nodig. Alternatief zonder beheerdersrechten: laat HWiNFO met ingeschakelde „Shared Memory Support” op de achtergrond draaien.
+6cd40f9d || Je pc geeft deze waarden niet direct door. Betrouwbaar alternatief: installeer het gratis HWiNFO, schakel in de instellingen „Shared Memory Support” in en laat het op de achtergrond draaien. De launcher leest de waarden dan automatisch.
+84a365cb || HWiNFO starten
+300e7608 || HWiNFO wordt geïnstalleerd … Bevestig de Windows-vraag.
+2e6849ca || HWiNFO is geïnstalleerd, maar draait niet. Start het, schakel in de instellingen (Settings) „Shared Memory Support” in en laat het op de achtergrond draaien.
+40fd2c63 || Schakel in HWiNFO onder instellingen (Settings) „Shared Memory Support” in, dan verschijnen de waarden in de launcher.
+9aacb9d0 || HWiNFO wordt gedownload en geïnstalleerd. Bevestig de Windows-vraag.
+b5e5d07b || HWiNFO kon niet worden geïnstalleerd. De downloadpagina wordt geopend.
+97078ed1 || Temperatuur en vermogen: zie de opmerking bij de sensoren
+5728bf31 || Crash de vorige keer
+78ab02a9 || De launcher is de vorige keer onverwacht afgesloten. Klik hier om het foutenlogboek te openen.
+2a6a7a11 || Tot nu toe zijn er geen fouten vastgelegd.
+bdfecd1d || Foutenlogboek
+11cf0333 || ✏ Aanpassen
+1439a47c || Dashboard aanpassen
+aba35892 || Sleep een widget naar de gewenste plek. ✕ verwijdert hem, onderaan kun je verborgen widgets weer toevoegen.
+91d24595 || ✓ Klaar
+0a065d91 || Widget toevoegen
+7199bb10 || Op dit moment niets te tonen. De widget verschijnt zodra er inhoud is.
+48e291bd || Alle widgets staan al op het dashboard.
+6cfc37e4 || Geluid bij het starten van een game
+050efa9f || Welk geluid klinkt bij het starten van een game. Eigen bestanden in WAV-formaat. Geluidseffecten moeten aan staan.
+346d9140 || Klassiek
+5d6997cc || Arcademunt
+c53fc7c9 || Console-opstart
+026196b4 || Power-up
+bd2abdbe || Fanfare
+f9fa6973 || Eigen bestand ...
+865d3ad4 || WAV-bestanden
+1d169686 || ▶ Beluisteren
+58e02cd9 || Rij „Verder spelen”
+90dd6de2 || Toont in de controllermodus bovenaan je laatste drie games. Richtingskruis omhoog kiest de rij, A start.
+d7759dcc || Hulpprogramma's na de game sluiten
+8c6f1037 || Sluit alleen programma's die de launcher voor de game heeft gestart. Wat al draaide, blijft open.
+1c3385b4 || UPDATE
+25d13eee || Voor deze game staat een update klaar in Steam.
+468eff23 || Dashboard inkleuren naar de laatste game
+2e7c6169 || Achter het dashboard ligt een zacht kleurverloop uit de cover van de laatst gespeelde game.
+c86b3be4 || Resolutie niet mogelijk
+3d67ce83 || Het scherm ondersteunt {0} × {1} bij {2} Hz niet.
+58ceb6f8 || Scherm bij het starten van de game
+a0b48e78 || Je hoofdscherm ondersteunt geen HDR.
+d960d741 || Resolutie niet wijzigen
+40d54106 || Aan
+701c5d8a || niet wijzigen
+f0ef78e5 || huidig
+465fcb3c || Snelmenu
+291f0ea7 || 🏠  Naar de launcher
+4f4c9a07 || Snelmenu met de Guide-knop
+d89d0502 || Houd de Xbox-knop 1 seconde ingedrukt: in een game opent een menu met verder spelen, volume en game afsluiten, anders de controllermodus. Kort drukken blijft voor Windows.
+7255421f || via DFP Pro Launcher
+870506c5 || Discord-status tonen
+93b73150 || Je vrienden zien in Discord wat je speelt en sinds wanneer. Vereist de Discord-app op deze pc, een webhook is niet nodig.
+8742f038 || 🏆  Steam-prestaties ...
+36d286ae || Steam-prestaties
+4d7cb7cd || Steam-prestaties (optioneel)
+02319eda || Met een gratis Steam Web API-sleutel (steamcommunity.com/dev/apikey) toont de launcher je prestaties per game (rechtsklik op een Steam-game). Je Steam-profiel moet de gamedetails openbaar tonen. De sleutel wordt versleuteld opgeslagen.
+05dd9a7b || API-sleutel
+c221232a || SteamID64 (wordt automatisch herkend)
+0285c010 || Steam antwoordt met {0}.
+2c8210cf || Voor Steam-prestaties heb je een Steam Web API-sleutel nodig.\n\nInstellingen, covers en game-info, „Steam-prestaties (optioneel)”.
+3043b908 || De online functies zijn uitgeschakeld (Instellingen, online functies en privacy).
+b365f5ec || Prestaties worden geladen ...
+01ad059f || Deze game heeft geen Steam-prestaties.
+0d451500 || {0} van {1} vrijgespeeld ({2} %)
+192ac889 || Je Steam-profiel toont de gamedetails niet openbaar. In Steam: Profiel bewerken, Privacy, gamedetails op „Openbaar”.
+9588d7dd || De prestaties konden niet worden geladen:
+40146f97 || Steam heeft geen gegevens over je account geleverd.
+07f1371f || Verborgen prestatie
+d0418a27 || Aandeel spelers met deze prestatie
+a183bf1d || Wordt gecontroleerd ...
+6753cd04 || Voer een sleutel en een SteamID64 van 17 cijfers in.
+3ebc8d45 || Steam weigert de sleutel.
+81c6c22e || Er bestaat geen profiel bij deze SteamID.
+9a2594c1 || ✓ Sleutel werkt.
+a571ac81 || ✓ Sleutel werkt, maar je profiel is niet openbaar. Prestaties zijn dan niet zichtbaar.
+e10001aa || Steam is niet bereikbaar.
+0ea71012 || Telefoonafstandsbediening
+afa60e7c || Telefoonafstandsbediening inschakelen
+62a7f356 || Bedien de launcher vanaf de bank met de browser van je telefoon: games starten en afsluiten, volume, pc vergrendelen, slaapstand en uitschakelen. Werkt alleen in je thuisnetwerk en alleen met de geheime sleutel uit de QR-code.
+323328a1 || QR-code tonen
+bd48c0e2 || Nieuwe sleutel maken
+4f490c9d || Steam-vrienden
+88c1c9bc || Bijna klaar (Steam-prestaties)
+b8979e78 || Draait nu
+fa7c0cfe || Vergrendelen
+3242625d || Geluid aan
+37d23f68 || Er draait nu geen game.
+7dc0ed0b || Deze game starten?
+02531be1 || Game wordt gestart ...
+9267b6c3 || Game wordt afgesloten ...
+5daebf29 || Game afsluiten? Niet-opgeslagen voortgang gaat verloren.
+a60626a4 || Pc in de slaapstand zetten?
+86fb73f9 || Pc wordt afgesloten ...
+edfc8b8a || Pc wordt vergrendeld.
+fe286dff || De pc reageert niet.
+e59dd816 || De sleutel is niet meer geldig. Scan de QR-code in de launcher opnieuw.
+2a86eda1 || Scan de QR-code in de launcher: Instellingen, Bediening, Telefoonafstandsbediening.
+515b09c2 || Uit.
+47ca4832 || Kon niet worden gestart.
+d22eb808 || Draait, maar deze pc heeft nu geen verbinding met het thuisnetwerk.
+b8e67312 || Draait op {0}
+69584767 || De telefoonafstandsbediening kon niet worden gestart. Een ander programma gebruikt de poorten.
+eb170e9e || Wordt gestart: {0}
+6e7fe305 || De pc wordt over {0} seconden afgesloten.
+6ba5b422 || In de streamermodus wordt de QR-code niet getoond, omdat hij de geheime sleutel bevat.
+e1df61d9 || Scan de code met de camera van je telefoon. Telefoon en pc moeten op hetzelfde wifi-netwerk zitten. Tip: voeg de pagina daarna toe aan je startscherm.
+fe577df4 || Vraagt Windows naar de firewall, kies dan „Toestaan” voor privénetwerken.
+5692e311 || Een nieuwe sleutel maken? Alle telefoons die tot nu toe verbonden waren, moeten de QR-code dan opnieuw scannen.
+7e1f3845 || Nieuwe sleutel gemaakt. Scan de QR-code opnieuw.
+265f329e || Voer daarvoor in de instellingen onder „Games en covers”, kaart „Cover”, een Steam-API-sleutel in.
+4b195d25 || Vrienden worden geladen ...
+967df7b9 || Op dit moment is geen van je Steam-vrienden online.
+c8324f79 || + nog {0} online
+10228bed || 👥  Steam-vrienden
+bf7cc452 || speelt {0}
+d86a78e8 || Bezet
+bc3b88aa || Online
+df80c61c || Afwezig
+7b9fe99a || Afsluiten
+2e000424 || Pc
+684ebeef || Ook starten
+7ca8ff97 || Je Steam-vriendenlijst is niet openbaar. In Steam: Profiel bewerken, Privacy, vriendenlijst op „Openbaar”.
+2acb8ee6 || Steam is op dit moment niet bereikbaar.
+b238466e || Speel een paar Steam-games met prestaties, dan verschijnt hier wat je nog mist.
+8f02aee4 || 🏆  Bijna klaar
+85fd5bbc || Alle prestaties tonen
+d4d5ce31 || Nog maar {0} prestatie tot {1} %
+6a4b1bd3 || Nog {0} prestaties tot {1} %
+c8144317 || Laatst vrijgespeeld
+73936796 || slechts {0} % van de spelers heeft hem
+6c12767f || Meldingen op je telefoon
+0d39b6b1 || Verschijnen als banner op de geopende afstandsbedieningspagina. Met ntfy (hieronder) ook als echte pushmelding als de telefoon vergrendeld is.
+f2310d7c || Een Steam-vriend start een game die jij ook hebt (vereist de Steam-API-sleutel)
+9e27d49a || Controlleraccu raakt leeg
+66919032 || Pushmeldingen via de app ntfy
+d4f10afb || Gratis app voor Android en iPhone. Werkt ook als de telefoon vergrendeld is en onderweg. De korte berichten gaan via de dienst ntfy.sh naar een geheim kanaal dat alleen jij kent.
+974f8617 || Koppelen met ntfy
+6b1e978e || Testmelding sturen
+24acb154 || Aan. Koppel je telefoon één keer via „Koppelen met ntfy”.
+962d652c || In de streamermodus wordt de QR-code niet getoond, omdat hij het geheime kanaal bevat.
+2272ed30 || 1. Installeer de gratis app „ntfy” uit de Play Store of App Store.\n2. Tik in de app op „+” en voer het kanaal hieronder in (server: ntfy.sh). Of scan de code en open de link met de app.\n3. Tik hier op „Testmelding sturen”.
+e6326966 || Kanaal:
+ed38872c || Kopiëren
+b892b825 || Testmelding
+fc8bf411 || Zo komen meldingen van DFP Pro Launcher op je telefoon aan.
+7ac3712d || Verstuurd. Hij verschijnt op de geopende afstandsbedieningspagina.
+b70adacf || Schakel de telefoonafstandsbediening of ntfy in.
+8ecc8cd6 || Verstuurd. Komt er niets aan, controleer dan het kanaal in de ntfy-app.
+ea06ce09 || ntfy is op dit moment niet bereikbaar.
+29ee897b || Steam-vriend speelt
+73fe26c0 || {0} speelt nu {1}. Jij hebt deze game ook.
+fd3f20e1 || Nog {0} % accu. Tijd om op te laden.
+087ca5bd || laadt op
+3956d1e3 || Zoeken ...
+6152ee4c || Ctrl K
+ae69b709 || F1  Sneltoetsen
+93412d36 || Kleurgloed op de achtergrond
+140b5f13 || Een rustige gloed in de accentkleur aan de randen. Kost geen prestaties, uit in de OLED-modus.
+c22c8d15 || Overal sneller komen, zonder muis.
+fe906a34 || Zoeken openen (games, apps, opdrachten)
+d8334f91 || De gamebibliotheek doorzoeken
+53919d11 || Zijbalkonderdelen direct openen
+0cd5b6ce || Streamermodus aan of uit
+0c2ae68b || Controllermodus aan of uit
+52f467ef || Dit overzicht tonen of verbergen
+5099409f || Coverweergave: bladeren en een game starten
+21c05de3 || Zoeken of overzicht sluiten
+0082e5a9 || Tip: in het zoeken leidt een „/” naar verborgen opdrachten.
+9cfc2f11 || Over de launcher
+5487d3f5 || Ctrl
+7123fc62 || Shift
+a8f681b1 || Staat op je backlog
+3e1bf552 || Nog nooit via de launcher gestart
+c273f765 || Al {0} dagen niet gespeeld
+cb94e6dd || Een van je favorieten
+d7558299 || Weer eens zin in?
+910715d5 || Zodra er games in je bibliotheek staan, stelt de launcher hier elke dag er een voor.
+07ceb25f || Andere suggestie
+5a6dc660 || ✨  Game van de dag
+6a704450 || Game van de dag
+5a90e2f2 || ＋ Launchers
+40944fe9 || Kies welke launchers hier bovenaan als filter staan en voeg eigen gamemappen toe.
+abfa8a4e || Gamemappen
+d469ef01 || ✕  Hier verbergen
+96352c62 || Bovenaan tonen:
+61d2503b || 1 game
+dc51823d || geen games
+9f2ff126 || ★  Alleen de belangrijkste
+bf6146ad || ▦  Alle met games tonen
+517afbf9 || 📂  Gamemap toevoegen ...
+502848e4 || 📂  Gamemap verwijderen
+6be96a7f || Kies de map waarin je games staan (elke submap is een game)
+1ba1d078 || Kies een map en niet een heel station.
+ce293ccb || Deze gamemap niet meer doorzoeken?
+202a10b2 || De games zelf blijven op je pc.
+4e9c42a9 || Nieuwe game gevonden
+a03bbe4e || {0} nieuwe games gevonden
+4e1c7a10 || Nieuwe games automatisch herkennen
+51c02b83 || Kijkt elke 20 seconden of er bij een launcher een game is bijgekomen of verdwenen en werkt de bibliotheek bij zonder „Opnieuw scannen”. Tijdens het spelen wordt gewacht.
+050c896b || Gamebestanden repareren
+567d44de || 🛠  Gamebestanden repareren ...
+8d124c66 || „{0}” draait nog. Sluit de game af voordat je de bestanden controleert.
+11d2e1fc || Steam controleert nu de bestanden van „{0}”. Ontbrekende of kapotte bestanden downloadt Steam opnieuw.
+71fc0a2b || Bij „{0}” doet de launcher het controleren en repareren zelf.
+e2e80b83 || In de Epic Games Launcher: Bibliotheek → ⋯ bij de game → Beheren → Bestanden verifiëren.
+e4edb81a || In de Windows-instellingen: Apps → Geïnstalleerde apps → ⋯ bij de game → Geavanceerde opties → Repareren. In de Xbox-app kan het ook: game → ⋯ → Beheren → Bestanden → Verifiëren en repareren.
+70fa44e9 || In de EA-app: Bibliotheek → ⋯ bij de game → Repareren.

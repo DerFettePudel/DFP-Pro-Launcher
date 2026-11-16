@@ -1998,3 +1998,253 @@ df95b54e || (sterowanie)
 54bfd097 || maks. {0} °C
 446ff80e || maks. {0}
 76941098 || Temperatury: {0}, wentylatory: {1}
+4b2006be || Do temperatur procesora i wentylatorów na płycie głównej launcher potrzebuje uprawnień administratora.
+817ebf2d || Do temperatur procesora i wentylatorów Windows potrzebuje darmowego sterownika „PawnIO”. Zainstaluj go raz, a potem uruchom launcher ponownie.
+3f22ea24 || Pobierz PawnIO
+60a44188 || Twoja płyta główna nie podaje obrotów wentylatorów. Niektóre płyty przekazują je tylko własnemu oprogramowaniu.
+6ab0e372 || Twój procesor nie podaje temperatury. Po instalacji sterownika często pomaga ponowne uruchomienie komputera.
+2fa88b16 || Znowu ty?
+0c47c49e || A, to ty.
+550d1bac || Nareszcie!
+10c7b2e2 || Czekaliśmy na ciebie.
+bce45cee || O nie, znowu ty.
+2fe6a9ad || Gry już czekały.
+1ac23b50 || Pudel za tobą tęsknił.
+616186e4 || Pojawia się dziki gracz!
+198c96d3 || Kanapa już nagrzana.
+d91a6a39 || Co za niespodzianka … nie.
+da029bba || Nie masz nic lepszego do roboty? I dobrze.
+419673e5 || Nowy poziom, legendo!
+e35df83f || Nowa gra, nowe szczęście.
+be737a3f || Czas pograć!
+6dbed183 || Witaj w kwaterze głównej.
+0bb22317 || Jeszcze nie śpisz, {0}?
+35618486 || Nocna zmiana, {0}?
+cb3e1100 || Późna runda, {0}?
+3a2286fb || Psst, {0}, reszta już śpi.
+06167bed || Kliknij okładkę, aby jej użyć. Obrazy pochodzą prosto z SteamGridDB.
+ab6b26a2 || Do wyszukiwania potrzebujesz darmowego klucza SteamGridDB. Po zalogowaniu znajdziesz go w Profil → Preferencje → API.
+eec8b2f2 || Pobierz klucz
+9afccf3d || Szukaj
+a5a79b20 || Także animowane
+61500e47 || Wybierz z pliku …
+05260484 || animowana
+c3199e22 || Wczytywanie okładki …
+49fc13a1 || Nie udało się wczytać okładki. Spróbuj ponownie.
+6d2b32d5 || Nie znaleziono okładek. Spróbuj innego wyszukiwania.
+74a73ffd || Znalezione okładki: {0}.
+95992d58 || Wyszukiwanie okładek …
+1221ec8b || Funkcje online są wyłączone. Możesz je znowu włączyć w ustawieniach.
+4403ef30 || Nie znaleziono gry o tej nazwie. Spróbuj innego wyszukiwania.
+fc3219b6 || Bez klucza możesz wybrać okładkę z pliku.
+bf889e66 || Źródło: HWiNFO
+534eee4f || Pobierz HWiNFO
+352efd75 || HWiNFO już działa. Otwórz jego ustawienia (Settings) i włącz „Shared Memory Support”. Wtedy launcher pokaże wszystkie temperatury, wentylatory i moc procesora, także bez uprawnień administratora.
+45012b22 || Do temperatur procesora i wentylatorów na płycie głównej launcher potrzebuje uprawnień administratora. Alternatywa bez uprawnień: pozostaw HWiNFO działające w tle z włączonym „Shared Memory Support”.
+6cd40f9d || Twój komputer nie udostępnia tych wartości bezpośrednio. Niezawodna alternatywa: zainstaluj darmowe HWiNFO, włącz w jego ustawieniach „Shared Memory Support” i pozostaw je w tle. Launcher odczyta wtedy wartości automatycznie.
+84a365cb || Uruchom HWiNFO
+300e7608 || Instalowanie HWiNFO … Potwierdź monit Windows.
+2e6849ca || HWiNFO jest zainstalowane, ale nie działa. Uruchom je, włącz w ustawieniach (Settings) „Shared Memory Support” i pozostaw w tle.
+40fd2c63 || W HWiNFO włącz „Shared Memory Support” w ustawieniach (Settings), a wartości pojawią się w launcherze.
+9aacb9d0 || HWiNFO jest pobierane i instalowane. Potwierdź monit Windows.
+b5e5d07b || Nie udało się zainstalować HWiNFO. Otwieranie strony pobierania.
+97078ed1 || Temperatura i moc: zobacz uwagę przy czujnikach
+5728bf31 || Awaria przy ostatnim uruchomieniu
+78ab02a9 || Ostatnio launcher zamknął się nieoczekiwanie. Kliknij tutaj, aby otworzyć dziennik błędów.
+2a6a7a11 || Jak dotąd nie zarejestrowano błędów.
+bdfecd1d || Dziennik błędów
+11cf0333 || ✏ Dostosuj
+1439a47c || Dostosuj pulpit
+aba35892 || Przeciągnij widżet w wybrane miejsce. ✕ go usuwa, a poniżej możesz znowu dodać ukryte widżety.
+91d24595 || ✓ Gotowe
+0a065d91 || Dodaj widżet
+7199bb10 || Obecnie nie ma nic do pokazania. Widżet pojawi się, gdy będzie zawartość.
+48e291bd || Wszystkie widżety są już na pulpicie.
+6cfc37e4 || Dźwięk przy starcie gry
+050efa9f || Jaki dźwięk zabrzmi przy uruchomieniu gry. Własne pliki w formacie WAV. Wymaga włączonych efektów dźwiękowych.
+346d9140 || Klasyczny
+5d6997cc || Żeton z automatu
+c53fc7c9 || Start konsoli
+026196b4 || Power-up
+bd2abdbe || Fanfara
+f9fa6973 || Własny plik ...
+865d3ad4 || Pliki WAV
+1d169686 || ▶ Odsłuchaj
+58e02cd9 || Rząd „Graj dalej”
+90dd6de2 || W trybie kontrolera pokazuje na górze trzy ostatnie gry. Krzyżak w górę wybiera rząd, A uruchamia.
+d7759dcc || Zamykaj programy towarzyszące po grze
+8c6f1037 || Zamyka tylko programy uruchomione przez launcher dla gry. To, co działało wcześniej, zostaje otwarte.
+1c3385b4 || AKTUALIZACJA
+25d13eee || Na tę grę czeka aktualizacja w Steam.
+468eff23 || Koloruj pulpit według ostatniej gry
+2e7c6169 || Za pulpitem leży miękki gradient wzięty z okładki ostatnio granej gry.
+c86b3be4 || Rozdzielczość niemożliwa
+3d67ce83 || Ekran nie obsługuje {0} × {1} przy {2} Hz.
+58ceb6f8 || Ekran przy starcie gry
+a0b48e78 || Twój główny ekran nie obsługuje HDR.
+d960d741 || Nie zmieniaj rozdzielczości
+40d54106 || Wł.
+701c5d8a || nie zmieniaj
+f0ef78e5 || obecna
+465fcb3c || Szybkie menu
+291f0ea7 || 🏠  Do launchera
+4f4c9a07 || Szybkie menu przyciskiem Guide
+d89d0502 || Przytrzymaj przycisk Xbox przez 1 sekundę: w grze otworzy się menu z kontynuacją, głośnością i zamknięciem gry, w przeciwnym razie tryb kontrolera. Krótkie naciśnięcie zostaje dla Windows.
+7255421f || przez DFP Pro Launcher
+870506c5 || Pokazuj status w Discordzie
+93b73150 || Znajomi widzą na Discordzie, w co grasz i od kiedy. Wymaga aplikacji Discord na tym komputerze, webhook nie jest potrzebny.
+8742f038 || 🏆  Osiągnięcia Steam ...
+36d286ae || Osiągnięcia Steam
+4d7cb7cd || Osiągnięcia Steam (opcjonalnie)
+02319eda || Z darmowym kluczem Steam Web API (steamcommunity.com/dev/apikey) launcher pokazuje twoje osiągnięcia w każdej grze (prawy przycisk na grze ze Steam). Twój profil Steam musi publicznie pokazywać szczegóły gier. Klucz jest zapisywany w postaci zaszyfrowanej.
+05dd9a7b || Klucz API
+c221232a || SteamID64 (wykrywany automatycznie)
+0285c010 || Steam odpowiada kodem {0}.
+2c8210cf || Do osiągnięć Steam potrzebujesz klucza Steam Web API.\n\nUstawienia, okładki i informacje o grach, „Osiągnięcia Steam (opcjonalnie)”.
+3043b908 || Funkcje online są wyłączone (Ustawienia, funkcje online i prywatność).
+b365f5ec || Wczytywanie osiągnięć ...
+01ad059f || Ta gra nie ma osiągnięć Steam.
+0d451500 || Odblokowano {0} z {1} ({2} %)
+192ac889 || Twój profil Steam nie pokazuje publicznie szczegółów gier. W Steam: Edytuj profil, Prywatność, ustaw szczegóły gier na „Publiczne”.
+9588d7dd || Nie udało się wczytać osiągnięć:
+40146f97 || Steam nie zwrócił danych twojego konta.
+07f1371f || Ukryte osiągnięcie
+d0418a27 || Odsetek graczy z tym osiągnięciem
+a183bf1d || Sprawdzanie ...
+6753cd04 || Wpisz klucz i 17-cyfrowy SteamID64.
+3ebc8d45 || Steam odrzuca klucz.
+81c6c22e || Nie ma profilu o tym SteamID.
+9a2594c1 || ✓ Klucz działa.
+a571ac81 || ✓ Klucz działa, ale twój profil nie jest publiczny. Osiągnięcia nie będą widoczne.
+e10001aa || Steam jest niedostępny.
+0ea71012 || Pilot w telefonie
+afa60e7c || Włącz pilota w telefonie
+62a7f356 || Steruj launcherem z kanapy w przeglądarce telefonu: uruchamianie i zamykanie gier, głośność, blokada, usypianie i wyłączanie komputera. Działa tylko w sieci domowej i tylko z tajnym kluczem z kodu QR.
+323328a1 || Pokaż kod QR
+bd48c0e2 || Utwórz nowy klucz
+4f490c9d || Znajomi ze Steam
+88c1c9bc || Prawie gotowe (osiągnięcia Steam)
+b8979e78 || Teraz uruchomione
+fa7c0cfe || Zablokuj
+3242625d || Włącz dźwięk
+37d23f68 || Obecnie nie działa żadna gra.
+7dc0ed0b || Uruchomić tę grę?
+02531be1 || Uruchamianie gry ...
+9267b6c3 || Zamykanie gry ...
+5daebf29 || Zamknąć grę? Niezapisany postęp zostanie utracony.
+a60626a4 || Uśpić komputer?
+86fb73f9 || Komputer się wyłącza ...
+edfc8b8a || Blokowanie komputera.
+fe286dff || Komputer nie odpowiada.
+e59dd816 || Klucz nie jest już ważny. Zeskanuj ponownie kod QR w launcherze.
+2a86eda1 || Zeskanuj kod QR w launcherze: Ustawienia, Sterowanie, Pilot w telefonie.
+515b09c2 || Wył.
+47ca4832 || Nie udało się uruchomić.
+d22eb808 || Działa, ale ten komputer nie jest teraz połączony z siecią domową.
+b8e67312 || Działa pod adresem {0}
+69584767 || Nie udało się uruchomić pilota w telefonie. Inny program zajmuje porty.
+eb170e9e || Uruchamianie: {0}
+6e7fe305 || Komputer wyłączy się za {0} s.
+6ba5b422 || W trybie streamera kod QR nie jest pokazywany, bo zawiera tajny klucz.
+e1df61d9 || Zeskanuj kod aparatem telefonu. Telefon i komputer muszą być w tej samej sieci Wi-Fi. Wskazówka: potem dodaj stronę do ekranu głównego.
+fe577df4 || Jeśli Windows zapyta o zaporę, wybierz „Zezwól” dla sieci prywatnych.
+5692e311 || Utworzyć nowy klucz? Wszystkie dotąd połączone telefony będą musiały ponownie zeskanować kod QR.
+7e1f3845 || Utworzono nowy klucz. Zeskanuj ponownie kod QR.
+265f329e || W tym celu wpisz klucz API Steam w ustawieniach w „Gry i okładki”, karta „Okładka”.
+4b195d25 || Wczytywanie znajomych ...
+967df7b9 || Obecnie żaden z twoich znajomych ze Steam nie jest online.
+c8324f79 || + jeszcze {0} online
+10228bed || 👥  Znajomi ze Steam
+bf7cc452 || gra w {0}
+d86a78e8 || Zajęty
+bc3b88aa || Online
+df80c61c || Zaraz wracam
+7b9fe99a || Wyłącz
+2e000424 || PC
+684ebeef || Też uruchom
+7ca8ff97 || Twoja lista znajomych Steam nie jest publiczna. W Steam: Edytuj profil, Prywatność, ustaw listę znajomych na „Publiczna”.
+2acb8ee6 || Steam jest teraz niedostępny.
+b238466e || Zagraj w kilka gier ze Steam z osiągnięciami, a tutaj zobaczysz, czego ci jeszcze brakuje.
+8f02aee4 || 🏆  Prawie gotowe
+85fd5bbc || Pokaż wszystkie osiągnięcia
+d4d5ce31 || Jeszcze tylko {0} osiągnięcie do {1} %
+6a4b1bd3 || Jeszcze {0} osiągnięć do {1} %
+c8144317 || Ostatnio odblokowane
+73936796 || ma je tylko {0} % graczy
+6c12767f || Powiadomienia na telefon
+0d39b6b1 || Pojawiają się jako baner na otwartej stronie pilota. Z ntfy (poniżej) także jako prawdziwe powiadomienie push przy zablokowanym telefonie.
+f2310d7c || Znajomy ze Steam uruchamia grę, którą też masz (wymaga klucza API Steam)
+9e27d49a || Bateria kontrolera się wyczerpuje
+66919032 || Powiadomienia push przez aplikację ntfy
+d4f10afb || Darmowa aplikacja na Androida i iPhone'a. Działa też przy zablokowanym telefonie i poza domem. Krótkie wiadomości trafiają przez usługę ntfy.sh na tajny kanał, który znasz tylko ty.
+974f8617 || Sparuj z ntfy
+6b1e978e || Wyślij powiadomienie testowe
+24acb154 || Wł. Sparuj telefon raz przez „Sparuj z ntfy”.
+962d652c || W trybie streamera kod QR nie jest pokazywany, bo zawiera tajny kanał.
+2272ed30 || 1. Zainstaluj darmową aplikację „ntfy” ze Sklepu Play lub App Store.\n2. Stuknij w aplikacji „+” i wpisz kanał poniżej (serwer: ntfy.sh). Albo zeskanuj kod i otwórz link w aplikacji.\n3. Stuknij tutaj „Wyślij powiadomienie testowe”.
+e6326966 || Kanał:
+ed38872c || Kopiuj
+b892b825 || Powiadomienie testowe
+fc8bf411 || Tak powiadomienia z DFP Pro Launcher docierają na twój telefon.
+7ac3712d || Wysłano. Pojawi się na otwartej stronie pilota.
+b70adacf || Włącz pilota w telefonie lub ntfy.
+8ecc8cd6 || Wysłano. Jeśli nic nie dotrze, sprawdź kanał w aplikacji ntfy.
+ea06ce09 || ntfy jest teraz niedostępne.
+29ee897b || Znajomy ze Steam gra
+73fe26c0 || {0} gra teraz w {1}. Też masz tę grę.
+fd3f20e1 || Bateria: {0} %. Czas naładować.
+087ca5bd || ładuje się
+3956d1e3 || Szukaj ...
+6152ee4c || Ctrl K
+ae69b709 || F1  Skróty
+93412d36 || Kolorowa poświata w tle
+140b5f13 || Spokojna poświata w kolorze akcentu przy krawędziach. Nie obciąża wydajności, w trybie OLED wyłączona.
+c22c8d15 || Wszędzie szybciej, bez myszy.
+fe906a34 || Otwórz wyszukiwanie (gry, aplikacje, polecenia)
+d8334f91 || Przeszukaj bibliotekę gier
+53919d11 || Otwieraj sekcje paska bocznego bezpośrednio
+0cd5b6ce || Tryb streamera wł. lub wył.
+0c2ae68b || Tryb kontrolera wł. lub wył.
+52f467ef || Pokaż lub ukryj ten przegląd
+5099409f || Widok okładek: przewijaj i uruchamiaj grę
+21c05de3 || Zamknij wyszukiwanie lub przegląd
+0082e5a9 || Wskazówka: w wyszukiwaniu „/” prowadzi do ukrytych poleceń.
+9cfc2f11 || O launcherze
+5487d3f5 || Ctrl
+7123fc62 || Shift
+a8f681b1 || Jest na twojej liście zaległych
+3e1bf552 || Nigdy nie uruchamiana z launchera
+c273f765 || Nie grano od {0} dni
+cb94e6dd || Jedna z twoich ulubionych
+d7558299 || Masz znowu ochotę?
+910715d5 || Gdy w bibliotece będą gry, launcher codziennie zaproponuje tu jedną.
+07ceb25f || Inna propozycja
+5a6dc660 || ✨  Gra dnia
+6a704450 || Gra dnia
+5a90e2f2 || ＋ Launchery
+40944fe9 || Wybierz, które launchery są tu na górze jako filtry, i dodaj własne foldery z grami.
+abfa8a4e || Foldery z grami
+d469ef01 || ✕  Ukryj tutaj
+96352c62 || Pokaż na górze:
+61d2503b || 1 gra
+dc51823d || brak gier
+9f2ff126 || ★  Tylko najważniejsze
+bf6146ad || ▦  Pokaż wszystkie z grami
+517afbf9 || 📂  Dodaj folder z grami ...
+502848e4 || 📂  Usuń folder z grami
+6be96a7f || Wybierz folder z grami (każdy podfolder to jedna gra)
+1ba1d078 || Wybierz folder, a nie cały dysk.
+ce293ccb || Przestać przeszukiwać ten folder z grami?
+202a10b2 || Same gry zostają na twoim komputerze.
+4e9c42a9 || Wykryto nową grę
+a03bbe4e || Wykryto nowe gry: {0}
+4e1c7a10 || Automatycznie wykrywaj nowe gry
+51c02b83 || Co 20 sekund sprawdza, czy w którymś launcherze przybyła lub ubyła gra, i aktualizuje bibliotekę bez „Skanuj ponownie”. Podczas gry czeka.
+050c896b || Napraw pliki gry
+567d44de || 🛠  Napraw pliki gry ...
+8d124c66 || „{0}” właśnie działa. Zamknij grę przed sprawdzaniem plików.
+11d2e1fc || Steam sprawdza teraz pliki „{0}”. Brakujące lub uszkodzone pliki Steam pobierze ponownie.
+71fc0a2b || W przypadku „{0}” sprawdzaniem i naprawą zajmuje się sam launcher.
+e2e80b83 || W Epic Games Launcher: Biblioteka → ⋯ przy grze → Zarządzaj → Zweryfikuj pliki.
+e4edb81a || W Ustawieniach Windows: Aplikacje → Zainstalowane aplikacje → ⋯ przy grze → Opcje zaawansowane → Napraw. W aplikacji Xbox też: gra → ⋯ → Zarządzaj → Pliki → Zweryfikuj i napraw.
+70fa44e9 || W aplikacji EA: Biblioteka → ⋯ przy grze → Napraw.
