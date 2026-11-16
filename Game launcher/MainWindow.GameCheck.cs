@@ -33,7 +33,16 @@ namespace Game_launcher
             public string Cpu = string.Empty, Gpu = string.Empty, Ram = string.Empty;
         }
 
-        private static readonly Dictionary<string, (SpecSheet Min, SpecSheet Rec)?> requirementCache = new();
+        private sealed class StoreDetails
+        {
+            public SpecSheet Min = new(), Rec = new();
+            public bool HasRequirements;
+            public readonly HashSet<int> Categories = new();
+            public int Achievements;
+            public string Languages = string.Empty;   // HTML-Liste aus dem Shop, * = mit Sprachausgabe
+        }
+
+        private static readonly Dictionary<string, StoreDetails?> storeDetailsCache = new();
         private static (string Cpu, string Gpu, double RamGb)? myPcSpecs;
 
         // ───────── Eigener PC ─────────
@@ -213,31 +222,52 @@ namespace Game_launcher
             return m.Groups[2].Value.Equals("MB", StringComparison.OrdinalIgnoreCase) ? value / 1024 : value;
         }
 
-        private async Task<(SpecSheet Min, SpecSheet Rec)?> FetchRequirementsAsync(GameItem game)
+        private async Task<string> StoreAppIdAsync(GameItem game)
+            => game.Source == "Steam" && game.AppId.Length > 0 ? game.AppId : await FindSteamAppIdAsync(game.Name);
+
+        /// <summary>Eine Abfrage im Steam-Shop für Anforderungen, Eigenschaften, Erfolge und Sprachen (pro Sitzung gemerkt).</summary>
+        private async Task<StoreDetails?> FetchStoreDetailsAsync(GameItem game)
         {
-            string appId = game.Source == "Steam" && game.AppId.Length > 0 ? game.AppId : await FindSteamAppIdAsync(game.Name);
+            string appId = await StoreAppIdAsync(game);
             if (appId.Length == 0) return null;
 
-            lock (requirementCache)
+            lock (storeDetailsCache)
             {
-                if (requirementCache.TryGetValue(appId, out var cached)) return cached;
+                if (storeDetailsCache.TryGetValue(appId, out var cached)) return cached;
             }
 
-            (SpecSheet, SpecSheet)? result = null;
+            StoreDetails? result = null;
             string json = await Http.GetStringAsync($"https://store.steampowered.com/api/appdetails?appids={appId}&l=english");
             using (var doc = JsonDocument.Parse(json))
             {
-                if (TryPath(doc.RootElement, out var req, appId, "data", "pc_requirements") && req.ValueKind == JsonValueKind.Object)
+                if (TryPath(doc.RootElement, out var data, appId, "data") && data.ValueKind == JsonValueKind.Object)
                 {
-                    var min = ParseRequirementHtml(GetJsonString(req, "minimum"));
-                    var rec = ParseRequirementHtml(GetJsonString(req, "recommended"));
-                    if (min.Cpu.Length + min.Gpu.Length + min.Ram.Length + rec.Cpu.Length + rec.Gpu.Length + rec.Ram.Length > 0)
-                        result = (min, rec);
+                    result = new StoreDetails();
+                    if (data.TryGetProperty("pc_requirements", out var req) && req.ValueKind == JsonValueKind.Object)
+                    {
+                        result.Min = ParseRequirementHtml(GetJsonString(req, "minimum"));
+                        result.Rec = ParseRequirementHtml(GetJsonString(req, "recommended"));
+                        result.HasRequirements = result.Min.Cpu.Length + result.Min.Gpu.Length + result.Min.Ram.Length
+                            + result.Rec.Cpu.Length + result.Rec.Gpu.Length + result.Rec.Ram.Length > 0;
+                    }
+                    if (data.TryGetProperty("categories", out var categories) && categories.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var category in categories.EnumerateArray())
+                            if (category.TryGetProperty("id", out var id) && id.TryGetInt32(out int number)) result.Categories.Add(number);
+                    }
+                    if (TryPath(data, out var total, "achievements", "total") && total.TryGetInt32(out int achievements)) result.Achievements = achievements;
+                    result.Languages = GetJsonString(data, "supported_languages");
                 }
             }
 
-            lock (requirementCache) requirementCache[appId] = result;
+            lock (storeDetailsCache) storeDetailsCache[appId] = result;
             return result;
+        }
+
+        private async Task<(SpecSheet Min, SpecSheet Rec)?> FetchRequirementsAsync(GameItem game)
+        {
+            var details = await FetchStoreDetailsAsync(game);
+            return details is { HasRequirements: true } ? (details.Min, details.Rec) : null;
         }
 
         private static RequirementRow CompareRow(string label, string min, string rec, string mine, Func<string, List<double>> scorer)

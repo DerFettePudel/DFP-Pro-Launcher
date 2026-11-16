@@ -544,6 +544,7 @@ namespace Game_launcher
             var chips = new WrapPanel { Margin = new Thickness(0, 14, 0, 18) };
             FillConsoleChips(chips, game);
             right.Children.Add(chips);
+            right.Children.Add(HoloPanel(Loc.T("Auf einen Blick"), BuildGameFacts(game), null, 16));
 
             // Spielzeit-Ring + Werte | Letzte Sitzungen
             var ringRow = new Grid();

@@ -1936,6 +1936,41 @@ Dein Stream läuft. Private Angaben sind verborgen. || Your stream is live. Priv
 Diese OBS-Szene ist für den Streamer-Modus markiert. Private Angaben sind verborgen. || This OBS scene is marked for streamer mode. Private details are hidden. || 此 OBS 场景已标记为主播模式。私人信息已隐藏。 || Esta escena de OBS está marcada para el modo streamer. Los datos privados están ocultos. || Cette scène OBS est marquée pour le mode streamer. Les informations privées sont masquées. || Esta cena do OBS está marcada para o modo streamer. As informações privadas estão ocultas. || Эта сцена OBS отмечена для режима стримера. Личные данные скрыты. || この OBS シーンは配信者モード用に設定されています。個人情報は非表示になっています。
 OBS-Simulation gestartet. || OBS simulation started. || OBS 模拟已启动。 || Simulación de OBS iniciada. || Simulation OBS démarrée. || Simulação do OBS iniciada. || Симуляция OBS запущена. || OBS シミュレーションを開始しました。
 Aktiv (automatisch durch OBS) || Active (automatically via OBS) || 已开启（由 OBS 自动开启） || Activo (automático por OBS) || Actif (automatiquement via OBS) || Ativo (automático pelo OBS) || Включён (автоматически через OBS) || 有効（OBS により自動）
+Auf einen Blick || At a glance || 一览 || De un vistazo || En un coup d'œil || Visão geral || Коротко || ひと目で
+Volle Controller-Unterstützung || Full controller support || 完全支持手柄 || Compatibilidad total con mando || Compatibilité manette complète || Suporte total a controle || Полная поддержка геймпада || コントローラー完全対応
+Teilweise Controller-Unterstützung || Partial controller support || 部分支持手柄 || Compatibilidad parcial con mando || Compatibilité manette partielle || Suporte parcial a controle || Частичная поддержка геймпада || コントローラー一部対応
+Splitscreen || Split screen || 分屏 || Pantalla dividida || Écran partagé || Tela dividida || Разделённый экран || 画面分割
+Koop online || Online co-op || 在线合作 || Cooperativo en línea || Coop en ligne || Cooperativo online || Онлайн-кооператив || オンライン協力
+Koop || Co-op || 合作 || Cooperativo || Coop || Cooperativo || Кооператив || 協力プレイ
+Online-PvP || Online PvP || 在线 PvP || PvP en línea || PvP en ligne || PvP online || Онлайн-PvP || オンライン対戦
+Crossplay || Crossplay || 跨平台联机 || Juego cruzado || Crossplay || Crossplay || Кроссплей || クロスプレイ
+Nur Einzelspieler || Single-player only || 仅单人 || Solo un jugador || Solo uniquement || Apenas um jogador || Только одиночная игра || シングルプレイのみ
+Remote Play Together || Remote Play Together || 远程同乐 || Remote Play Together || Remote Play Together || Remote Play Together || Remote Play Together || Remote Play Together
+Familienfreigabe || Family Sharing || 家庭共享 || Préstamo familiar || Partage familial || Compartilhamento em família || Семейный доступ || ファミリーシェアリング
+{0} Erfolge || {0} achievements || {0} 个成就 || {0} logros || {0} succès || {0} conquistas || Достижений: {0} || 実績 {0} 個
+Cloud-Speicher || Cloud saves || 云存档 || Guardado en la nube || Sauvegarde cloud || Salvamento na nuvem || Облачные сохранения || クラウドセーブ
+Deine Sprache: Text + Sprachausgabe || Your language: text + voice || 你的语言：文字 + 语音 || Tu idioma: texto + voces || Ta langue : texte + voix || Seu idioma: texto + áudio || Ваш язык: текст + озвучка || あなたの言語：字幕 + 音声
+Deine Sprache: nur Text || Your language: text only || 你的语言：仅文字 || Tu idioma: solo texto || Ta langue : texte uniquement || Seu idioma: só texto || Ваш язык: только текст || あなたの言語：字幕のみ
+Nicht in deiner Sprache || Not in your language || 不支持你的语言 || No está en tu idioma || Pas dans ta langue || Não está no seu idioma || Нет на вашем языке || あなたの言語には非対応
+Steam-Bewertung: || Steam rating: || Steam 评测： || Valoración en Steam: || Évaluation Steam : || Avaliação no Steam: || Оценка в Steam: || Steam 評価:
+Letzte 30 Tage: || Last 30 days: || 最近 30 天： || Últimos 30 días: || 30 derniers jours : || Últimos 30 dias: || За 30 дней: || 直近 30 日:
+Zu wenige Bewertungen || Too few reviews || 评测太少 || Muy pocas reseñas || Trop peu d'évaluations || Poucas avaliações || Слишком мало обзоров || レビューが少なすぎます
+Äußerst positiv || Overwhelmingly Positive || 好评如潮 || Extremadamente positivas || Extrêmement positives || Extremamente positivas || Крайне положительные || 圧倒的に好評
+Sehr positiv || Very Positive || 特别好评 || Muy positivas || Très positives || Muito positivas || Очень положительные || 非常に好評
+Positiv || Positive || 好评 || Positivas || Positives || Positivas || Положительные || 好評
+Größtenteils positiv || Mostly Positive || 多半好评 || Mayormente positivas || Plutôt positives || Ligeiramente positivas || В основном положительные || やや好評
+Ausgeglichen || Mixed || 褒贬不一 || Variadas || Moyennes || Neutras || Смешанные || 賛否両論
+Größtenteils negativ || Mostly Negative || 多半差评 || Mayormente negativas || Plutôt négatives || Ligeiramente negativas || В основном отрицательные || やや不評
+Äußerst negativ || Overwhelmingly Negative || 差评如潮 || Extremadamente negativas || Extrêmement négatives || Extremamente negativas || Крайне отрицательные || 圧倒的に不評
+Sehr negativ || Very Negative || 特别差评 || Muy negativas || Très négatives || Muito negativas || Очень отрицательные || 非常に不評
+Negativ || Negative || 差评 || Negativas || Négatives || Negativas || Отрицательные || 不評
+Die neuen Bewertungen sind deutlich schlechter. Vielleicht gibt es Probleme mit dem letzten Update. || Recent reviews are clearly worse. The last update may have caused problems. || 最近的评测明显变差。可能是最近一次更新出了问题。 || Las reseñas recientes son claramente peores. Puede que la última actualización dé problemas. || Les évaluations récentes sont nettement moins bonnes. La dernière mise à jour pose peut-être problème. || As avaliações recentes estão bem piores. A última atualização pode ter causado problemas. || Свежие обзоры заметно хуже. Возможно, последнее обновление вызвало проблемы. || 最近のレビューが明らかに悪化しています。直近のアップデートに問題があるかもしれません。
+Die neuen Bewertungen sind deutlich besser als früher. || Recent reviews are clearly better than before. || 最近的评测明显好于以前。 || Las reseñas recientes son claramente mejores que antes. || Les évaluations récentes sont nettement meilleures qu'avant. || As avaliações recentes estão bem melhores que antes. || Свежие обзоры заметно лучше, чем раньше. || 最近のレビューは以前より明らかに良くなっています。
+USB-Laufwerk || USB drive || USB 驱动器 || Unidad USB || Disque USB || Unidade USB || USB-накопитель || USB ドライブ
+NVMe-SSD || NVMe SSD || NVMe 固态硬盘 || SSD NVMe || SSD NVMe || SSD NVMe || NVMe SSD || NVMe SSD
+Festplatte (HDD) || Hard drive (HDD) || 机械硬盘 (HDD) || Disco duro (HDD) || Disque dur (HDD) || Disco rígido (HDD) || Жёсткий диск (HDD) || ハードディスク (HDD)
+SSD || SSD || 固态硬盘 || SSD || SSD || SSD || SSD || SSD
+Das Spiel liegt auf einer Festplatte (HDD). Ladezeiten können lang sein, auf einer SSD läuft es flüssiger. || This game is on a hard drive (HDD). Loading can be slow; it runs smoother on an SSD. || 此游戏位于机械硬盘 (HDD) 上。加载可能较慢，放在固态硬盘上会更流畅。 || El juego está en un disco duro (HDD). La carga puede ser lenta; en un SSD va más fluido. || Le jeu est sur un disque dur (HDD). Les chargements peuvent être longs, il tourne mieux sur un SSD. || O jogo está em um disco rígido (HDD). O carregamento pode ser lento; em um SSD roda melhor. || Игра лежит на жёстком диске (HDD). Загрузки могут быть долгими, на SSD она работает плавнее. || このゲームはハードディスク (HDD) にあります。読み込みが遅くなることがあり、SSD の方が快適です。
 Läuft das auf meinem PC? || Will it run on my PC? || 我的电脑能运行吗？ || ¿Funciona en mi PC? || Ça tourne sur mon PC ? || Roda no meu PC? || Пойдёт ли на моём ПК? || 自分の PC で動く？
 Anforderungen werden geprüft … || Checking requirements … || 正在检查配置要求 … || Comprobando requisitos … || Vérification de la configuration … || Verificando requisitos … || Проверка требований … || 必要スペックを確認中 …
 Steam-Shop nicht erreichbar. Später noch einmal öffnen. || Steam store not reachable. Try again later. || 无法连接 Steam 商店。请稍后再试。 || No se puede acceder a la tienda de Steam. Inténtalo más tarde. || Boutique Steam injoignable. Réessaie plus tard. || Loja Steam inacessível. Tente novamente mais tarde. || Магазин Steam недоступен. Попробуйте позже. || Steam ストアに接続できません。後でもう一度開いてください。

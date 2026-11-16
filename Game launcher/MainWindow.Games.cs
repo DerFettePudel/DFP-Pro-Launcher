@@ -2184,6 +2184,9 @@ namespace Game_launcher
                 info.Children.Add(new TextBlock { Text = "⬇  " + update, Foreground = MakeBrush("#FBBF24"), FontSize = 13, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0) });
             header.Children.Add(info);
             panel.Children.Add(header);
+            var facts = BuildGameFacts(game);
+            facts.Margin = new Thickness(0, 0, 0, 14);
+            panel.Children.Add(facts);
             AddGameInfoSection(panel, game);
 
             // Läuft das auf meinem PC?
