@@ -598,3 +598,203 @@ da86bba8 || Ghiaccio
 0268b075 || Monocromatico
 04cbeda6 || Colore principale
 01d4492d || Bianco
+d9c2c3a7 || Automatico
+e89b9b20 || Riquadri dettagliati
+c90c0893 || No
+f39042cd || 🙈 Nascondi questa sezione
+94801ef9 || ⬆ Sposta su
+deee1926 || ⬇ Sposta giù
+a6a9ac3f || ↺ Ripristina ordine
+a4ed1b8f || 👁 Mostra sezioni
+68a3d55f || 🔠 Voci più grandi
+d125f4ad || 🔡 Voci più piccole
+1ba2634c || 🙈 Nascondi
+fd236454 || 👁 Mostra di nuovo
+2d026a2d || 🙈 Nascosti
+15ad2628 || 🖼 Imposta copertina personalizzata ...
+e2a55b7a || ↺ Ripristina copertina
+6a085124 || ⏱ Non registrare il tempo di gioco
+6ccc002a || ⏱ Registra di nuovo il tempo di gioco
+3ae61bd1 || ✏ Modifica ...
+2dd5f96e || ◀ Sposta avanti
+7f2d96a9 || ▶ Sposta indietro
+e723ef8c || 🗑 Rimuovi
+1ba48d28 || ＋ Aggiungi
+7cc7cd9a || Ripristina predefiniti
+f53e3269 || Aggiungi collegamento
+a05895ea || Modifica collegamento
+956e5cba || 🚀 Programmi all'avvio
+5db209fe || Scegli file ...
+5acaa84d || Scegli cartella ...
+8d60473a || Scegli immagine ...
+0632cb80 || Cancella icona
+f556be03 || Immagini
+3225a285 || Immagini e GIF
+78a22217 || Scegli copertina
+1bc35d8b || Copertina personalizzata salvata
+0af47361 || Gioco nascosto
+6829306a || Lo trovi nel filtro «Nascosti».
+7a8fd47d || Giochi nascosti
+73bedb61 || Gestisci giochi nascosti ...
+20d8e0eb || Eccezioni del tempo di gioco
+ef122269 || Eccezioni
+84d0efe2 || Imposta eccezioni ...
+868535bb || Creato da
+1ebb7738 || Creato da Der_Fette_Pudel
+e7c61fff || Informazioni su DFP Pro Launcher
+65c7bb15 || Mostra informazioni
+a15e8ea1 || Controller
+556cd7a7 || Mappatura dei tasti
+35c4be6b || Nessun controller rilevato
+84a77f1c || Rilevato:
+b15cea2d || Nessun programma all'avvio trovato.
+63c4f998 || Vale per tutti gli utenti. La modifica richiede diritti di amministratore.
+8a71543b || Modalità prestazioni attiva
+6d63bb8b || Modalità prestazioni disattivata
+dda5a7e4 || Animazioni ed effetti sono disattivati.
+b42df61d || Le impostazioni predefinite sono di nuovo attive.
+9f2654d9 || La modifica avrà effetto dopo il riavvio del launcher.
+b9efd517 || Spaziatura delle schede
+caa8d61f || Larghezza della barra laterale
+5751a2ad || Proporzioni delle schede (altezza rispetto alla larghezza)
+68fe565e || Prestazioni per PC meno recenti
+8394c81d || Modalità prestazioni (meno animazioni ed effetti, risparmia risorse)
+a7a976ad || Usa il rendering software (aiuta con errori grafici, serve riavvio)
+b8267e86 || Metti in pausa le animazioni mentre la finestra è ridotta a icona
+412bb7e7 || Libera memoria mentre il launcher è in background
+7bcba2d9 || Ridotto a icona o nell'area di notifica, dopo pochi secondi il launcher restituisce a Windows quasi tutta la sua RAM. All'apertura è tutto subito di nuovo pronto.
+b1169c99 || Riproduci sempre le copertine animate (GIF), altrimenti solo al passaggio del mouse
+91a9a797 || Animazioni ed effetti
+5e155be2 || Modalità OLED
+eeaa6094 || Modalità OLED (nero puro per schermi OLED)
+f76ca7f5 || Protezione burn-in: l'interfaccia si sposta di poco ogni pochi minuti
+d80fc759 || Schede gioco
+63047220 || Copertina
+90ad4cce || Immagine di sfondo
+c4dfef67 || Colori
+20d7f93a || Logo e nome
+e52b7bbf || Design del logo
+354b9209 || Colore del nome
+d1c297e3 || Testo personalizzato
+ac332779 || Ripristina
+a7c07abe || Ripristina logo e nome
+0207b47a || Dimensione del logo
+3086342a || Dimensione del nome
+0b3940f8 || Mostra il nome accanto al logo
+5f410124 || Mostra sottotitolo
+7dbb3262 || Dimensione del testo del menu
+02abf7ff || Altezza delle voci del menu
+8e7840f0 || Sezioni visibili e ordine
+33184d46 || Lingua dell'interfaccia
+8bd72e71 || Pagina iniziale
+f282eb0c || Mostra sempre l'icona nell'area di notifica
+c24d765c || Apri launcher
+8710d7af || Avvio rapido
+462339ad || Ancora niente avviato.
+cbee2d29 || 🔍 Cerca
+680fced6 || 🎲 Casuale
+b4ec9864 || 🎮 Modalità controller
+c58832ad || ⚙ Impostazioni
+1ae26da3 || ⏻ Esci
+0c742a22 || Epic Games Store – ora gratis
+094b3cc5 || Epic Games Store – presto gratis
+fbbbeb50 || Steam – sconti attuali
+f7193006 || I file scaricati più di recente.
+338890b1 || Prova chiave
+64e0d9b2 || Salva e ricarica copertine
+5b7219a0 || Chiave SteamGridDB (facoltativa)
+56cc8b4a || Prova l'overlay
+651733a7 || Programmi da chiudere
+cdcc8d1b || Programmi di supporto
+69bb3710 || Avvio del gioco e salvataggi
+7c15f0d3 || Tempo di gioco e promemoria
+36710d2e || Libreria
+9090aaf8 || Cartelle screenshot
+f460c849 || Importazione ed esportazione
+35262ade || Cronologia
+a196d2b3 || Backup e caricamento impostazioni
+eed16e41 || Logo e collegamento
+aa225d8f || Destinazione (indirizzo web, programma, file o cartella)
+54598751 || Icona (inserisci un'emoji o scegli un'immagine, vuoto = icona del file)
+9b0a05e6 || Inserisci un nome e una destinazione.
+44087478 || Sostituire tutti i collegamenti con la selezione predefinita?
+3f019268 || Verifica connessione ...
+8565319b || Inserisci prima una chiave.
+6ae389e3 || Connessione riuscita. La chiave funziona.
+21955109 || La chiave è stata rifiutata o SteamGridDB non è raggiungibile.
+47095ad2 || Salvato. Le nuove copertine arrivano ora prima da SteamGridDB.
+42919f98 || Chiave rimossa. Si usano di nuovo le copertine di Steam ed Epic.
+dbc123c1 || 136 % corrisponde a una copertina classica. Valori più bassi rendono le schede più basse.
+31bb4a50 || Meteo attuale nella tua località. Richiede le funzioni online.
+d70786dc || Imposta tutti gli sfondi su nero puro.
+9e7cd23a || Disattivato è più leggero: le GIF si muovono solo quando il mouse è sulla scheda.
+5d8396ff || Disattivato: formato 12 ore con AM/PM.
+8d72eb60 || Disattivato: gradi Celsius.
+b8dfc4e1 || Se disattivato, il launcher resta completamente offline: niente download di copertine, meteo né offerte.
+1768a2c2 || Controlla il launcher con gamepad Xbox, PlayStation, Switch e la maggior parte degli altri (USB o Bluetooth).
+4d80eedc || All'avvio non si apre nessuna finestra, il launcher attende in background.
+5f82741e || Al prossimo avvio la finestra si apre nello stesso punto.
+257645ec || Mostra le pagine con una dissolvenza morbida e fa salire i numeri.
+ea44ebae || Mostra o nasconde la scritta accanto al logo del barboncino.
+57d02bed || Mostra il titolo sotto la copertina.
+b6ffd609 || Larghezza di una scheda in pixel.
+00e6c680 || La X di chiusura nasconde soltanto il launcher. Puoi chiuderlo dall'icona in basso a destra.
+8ee96f13 || Il tuo obiettivo in ore a settimana. 0 disattiva l'obiettivo.
+7dfd1190 || I tuoi collegamenti a siti web, programmi e cartelle. Clic destro su un riquadro per modificarlo, spostarlo o rimuoverlo.
+0251b053 || Il launcher resta visibile sopra tutte le altre finestre.
+0e2add26 || Gli indicatori del monitor di sistema scorrono verso i nuovi valori.
+fd4004c0 || Le schede compaiono una dopo l'altra invece che tutte insieme.
+83d38813 || I maggiori ribassi nel negozio di Steam. La percentuale indica il risparmio.
+25060a74 || La modifica ha effetto subito. «Automatica» usa la lingua di Windows.
+bf4b5930 || Questi programmi si avviano con ogni gioco, ad esempio Discord o uno strumento di overlay.
+dbd752c9 || Questa pagina si apre all'avvio del launcher.
+4962f56a || Al momento puoi aggiungere questi giochi gratis alla libreria e tenerli per sempre.
+33713562 || Questi giochi saranno i prossimi gratis. La data è sulla scheda.
+9431fa1b || Questo nome compare nel saluto della dashboard e nella barra laterale.
+bdedddb4 || Diametro del logo nella barra laterale.
+258378c9 || Un bordo luminoso nel colore principale attorno alla scheda sotto il puntatore.
+26a0cfc1 || Un'immagine tua dietro tutta l'interfaccia. Supporta PNG, JPG e BMP.
+f01dacaa || Una piccola finestra con valori in tempo reale sopra il gioco.
+0065e131 || Una sfumatura animata e tranquilla nel colore principale dietro l'interfaccia.
+03f2e10d || Ti ricorda di fare una pausa dopo questi minuti. 0 la disattiva.
+4ea34511 || Riconosce da solo i giochi in esecuzione e conta il tempo. Nei giochi non viene iniettato nulla.
+fb798015 || Non ci sono giochi nascosti. Nascondili con il clic destro sulla scheda.
+3a8c151d || Esporta la libreria come tabella o pagina web oppure importa il tempo di gioco da Steam.
+dfc5de4e || Stile di colore di anello e catena. «Colore principale» usa il colore scelto.
+a124b0f9 || Combinazioni di colori pronte con un clic. «Nero assoluto» è ideale per gli schermi OLED.
+a723d5d4 || Spazio tra le schede in pixel.
+e65308d0 || Funziona anche mentre un gioco è in primo piano.
+ab962b1c || Inserisci una città se la località rilevata automaticamente è sbagliata.
+611e956b || Libera schermo e memoria appena un gioco è in esecuzione.
+66f1b018 || Dimensione di testo e icone delle voci a sinistra.
+fd8c004e || Scegli liberamente colore di sfondo e principale. Il colore principale tinge interruttori, pulsanti ed evidenziazioni.
+d0a27b5a || In quale angolo dello schermo appare il mini overlay.
+ec89a85e || Spaziatura sopra e sotto. Valori più alti rendono le voci più ariose.
+12175850 || Più è alto, più l'immagine è scura. Mantiene il testo leggibile.
+05acee9c || Riquadri con copertine grandi, riquadri dettagliati con informazioni extra o un elenco compatto.
+737d0163 || Le schede si ingrandiscono leggermente al passaggio del mouse.
+c053dace || Piccole curve storiche degli ultimi minuti nel monitor di sistema.
+620ce04b || Crea un backup ZIP al termine di un gioco e conserva gli ultimi 10.
+845af6e7 || Carica la versione più grande disponibile direttamente dalla fonte. Disattivato: anteprime più piccole e leggere.
+fb506c77 || Rende la finestra leggermente trasparente, come nelle app moderne di Windows.
+341d3aea || Elimina le copertine in cache e le ricarica tutte. Le copertine personalizzate restano.
+41aba525 || Con l'interruttore nascondi una sezione, con le frecce la sposti. Puoi farlo anche con il clic destro sulla barra laterale. Le impostazioni restano sempre visibili.
+ef1efde0 || Con una chiave API gratuita (steamgriddb.com, profilo, preferenze, API) il launcher carica le copertine prima da SteamGridDB, anche per giochi Epic, Xbox e manuali.
+6f33013a || I giochi appena installati compaiono da soli. Il controllo avviene al massimo ogni 10 minuti.
+a7fb71c6 || Ancora nessun collegamento. Aggiungi siti web, programmi o cartelle con «Aggiungi».
+b1d390b9 || Personalizza il launcher. Sotto ogni opzione è spiegato cosa fa.
+857960fd || I programmi sempre attivi (ad esempio Wallpaper Engine) non contano come gioco. Wallpaper Engine, Lively e Rainmeter sono già esclusi automaticamente.
+3f35b160 || Programmi che si avviano con Windows. Deselezionarli ne impedisce l'avvio (solo per il tuo utente).
+2f760fce || Disattiva animazioni, effetti luminosi, sfocatura, grafici storici e copertine originali. Poi puoi riattivare singole opzioni.
+c65fb051 || Imposta tutti gli sfondi su nero puro. I pixel OLED restano spenti: si risparmia energia e il nero appare più profondo.
+87b8844b || Cambia la combinazione di risparmio energia di Windows durante il gioco e poi la ripristina.
+e964c14c || Chiude ad esempio browser o programmi di chat, così il gioco ha più prestazioni.
+1b51d4d2 || Dimensione del testo del nome accanto al logo.
+4ff92808 || Azzera tempo di gioco, ultima partita e avvii di tutti i giochi. Preferiti e valutazioni restano.
+9b30a9f6 || Riduce il carico del processore mentre il launcher attende in background.
+fc068fda || Salva tutte le impostazioni in un file o le ricarica, ad esempio su un nuovo PC.
+619129fb || Salva il logo come file icona o crea un collegamento sul desktop.
+3be017a7 || Avvia automaticamente il launcher quando accedi a Windows.
+f50c5cf6 || Riporta logo, nome e colori allo stato originale.
+00aad5fa || Colore del testo della scritta.
+56ef74d8 || Ora e data sulla dashboard.

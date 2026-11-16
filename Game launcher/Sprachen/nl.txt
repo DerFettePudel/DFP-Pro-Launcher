@@ -598,3 +598,203 @@ da86bba8 || IJs
 0268b075 || Monochroom
 04cbeda6 || Accentkleur
 01d4492d || Wit
+d9c2c3a7 || Automatisch
+e89b9b20 || Detailtegels
+c90c0893 || Nee
+f39042cd || 🙈 Dit onderdeel verbergen
+94801ef9 || ⬆ Omhoog
+deee1926 || ⬇ Omlaag
+a6a9ac3f || ↺ Volgorde herstellen
+a4ed1b8f || 👁 Onderdelen tonen
+68a3d55f || 🔠 Grotere items
+d125f4ad || 🔡 Kleinere items
+1ba2634c || 🙈 Verbergen
+fd236454 || 👁 Weer tonen
+2d026a2d || 🙈 Verborgen
+15ad2628 || 🖼 Eigen cover instellen ...
+e2a55b7a || ↺ Cover herstellen
+6a085124 || ⏱ Speeltijd niet bijhouden
+6ccc002a || ⏱ Speeltijd weer bijhouden
+3ae61bd1 || ✏ Bewerken ...
+2dd5f96e || ◀ Naar voren
+7f2d96a9 || ▶ Naar achteren
+e723ef8c || 🗑 Verwijderen
+1ba48d28 || ＋ Toevoegen
+7cc7cd9a || Standaard herstellen
+f53e3269 || Snelkoppeling toevoegen
+a05895ea || Snelkoppeling bewerken
+956e5cba || 🚀 Opstartprogramma's
+5db209fe || Bestand kiezen ...
+5acaa84d || Map kiezen ...
+8d60473a || Afbeelding kiezen ...
+0632cb80 || Pictogram wissen
+f556be03 || Afbeeldingen
+3225a285 || Afbeeldingen en GIF's
+78a22217 || Cover kiezen
+1bc35d8b || Eigen cover opgeslagen
+0af47361 || Game verborgen
+6829306a || Je vindt hem onder het filter „Verborgen”.
+7a8fd47d || Verborgen games
+73bedb61 || Verborgen games beheren ...
+20d8e0eb || Speeltijd-uitzonderingen
+ef122269 || Uitzonderingen
+84d0efe2 || Uitzonderingen instellen ...
+868535bb || Gemaakt door
+1ebb7738 || Gemaakt door Der_Fette_Pudel
+e7c61fff || Over DFP Pro Launcher
+65c7bb15 || Info tonen
+a15e8ea1 || Controller
+556cd7a7 || Knopindeling
+35c4be6b || Geen controller gevonden
+84a77f1c || Gevonden:
+b15cea2d || Geen opstartprogramma's gevonden.
+63c4f998 || Geldt voor alle gebruikers. Wijzigen vereist beheerdersrechten.
+8a71543b || Prestatiemodus aan
+6d63bb8b || Prestatiemodus uit
+dda5a7e4 || Animaties en effecten zijn uitgeschakeld.
+b42df61d || De standaardinstellingen zijn weer actief.
+9f2654d9 || De wijziging werkt na een herstart van de launcher.
+b9efd517 || Afstand tussen kaarten
+caa8d61f || Breedte van de zijbalk
+5751a2ad || Verhouding van de kaarten (hoogte ten opzichte van breedte)
+68fe565e || Prestaties voor oudere pc's
+8394c81d || Prestatiemodus (minder animaties en effecten, spaart prestaties)
+a7a976ad || Softwarerendering gebruiken (helpt bij grafische fouten, herstart nodig)
+b8267e86 || Animaties pauzeren zolang het venster geminimaliseerd is
+412bb7e7 || Geheugen vrijgeven zolang de launcher op de achtergrond staat
+7bcba2d9 || Geminimaliseerd of in het systeemvak geeft de launcher na een paar seconden bijna al zijn RAM terug aan Windows. Bij openen is alles meteen weer terug.
+b1169c99 || Geanimeerde covers (GIF) altijd afspelen, anders alleen bij aanwijzen
+91a9a797 || Animaties en effecten
+5e155be2 || OLED-modus
+eeaa6094 || OLED-modus (puur zwart voor OLED-schermen)
+f76ca7f5 || Inbrandbescherming: de interface verschuift om de paar minuten minimaal
+d80fc759 || Gamekaarten
+63047220 || Cover
+90ad4cce || Achtergrondafbeelding
+c4dfef67 || Kleuren
+20d7f93a || Logo en naam
+e52b7bbf || Logo-ontwerp
+354b9209 || Kleur van de naam
+d1c297e3 || Eigen tekst
+ac332779 || Herstellen
+a7c07abe || Logo en naam herstellen
+0207b47a || Grootte van het logo
+3086342a || Grootte van de naam
+0b3940f8 || Naam naast het logo tonen
+5f410124 || Ondertitel tonen
+7dbb3262 || Lettergrootte van menu-items
+02abf7ff || Hoogte van menu-items
+8e7840f0 || Zichtbare onderdelen en volgorde
+33184d46 || Taal van de interface
+8bd72e71 || Startpagina
+f282eb0c || Pictogram in systeemvak altijd tonen
+c24d765c || Launcher openen
+8710d7af || Snel starten
+462339ad || Nog niets gestart.
+cbee2d29 || 🔍 Zoeken
+680fced6 || 🎲 Willekeurig
+b4ec9864 || 🎮 Controllermodus
+c58832ad || ⚙ Instellingen
+1ae26da3 || ⏻ Afsluiten
+0c742a22 || Epic Games Store – nu gratis
+094b3cc5 || Epic Games Store – binnenkort gratis
+fbbbeb50 || Steam – actuele kortingen
+f7193006 || Je laatst gedownloade bestanden.
+338890b1 || Sleutel testen
+64e0d9b2 || Opslaan en covers opnieuw laden
+5b7219a0 || SteamGridDB-sleutel (optioneel)
+56cc8b4a || Overlay uitproberen
+651733a7 || Te sluiten programma's
+cdcc8d1b || Hulpprogramma's
+69bb3710 || Starten en savegames
+7c15f0d3 || Speeltijd en herinneringen
+36710d2e || Bibliotheek
+9090aaf8 || Mappen met schermafbeeldingen
+f460c849 || Importeren en exporteren
+35262ade || Geschiedenis
+a196d2b3 || Instellingen back-uppen en laden
+eed16e41 || Logo en snelkoppeling
+aa225d8f || Doel (webadres, programma, bestand of map)
+54598751 || Pictogram (emoji invoeren of afbeelding kiezen, leeg = pictogram van het bestand)
+9b0a05e6 || Geef een naam en een doel op.
+44087478 || Alle snelkoppelingen vervangen door de standaardselectie?
+3f019268 || Verbinding testen ...
+8565319b || Voer eerst een sleutel in.
+6ae389e3 || Verbinding geslaagd. De sleutel werkt.
+21955109 || De sleutel is geweigerd of SteamGridDB is niet bereikbaar.
+47095ad2 || Opgeslagen. Nieuwe covers komen nu eerst van SteamGridDB.
+42919f98 || Sleutel verwijderd. Er worden weer Steam- en Epic-covers gebruikt.
+dbc123c1 || 136 % komt overeen met een klassieke cover. Kleinere waarden maken de kaarten platter.
+31bb4a50 || Actueel weer op je locatie. Vereist online functies.
+d70786dc || Zet alle achtergronden op echt zwart.
+9e7cd23a || Uit is zuiniger: GIF's spelen alleen als de muis op de kaart staat.
+5d8396ff || Uit: 12-uursnotatie met AM/PM.
+8d72eb60 || Uit: weergave in graden Celsius.
+b8dfc4e1 || Uitgeschakeld blijft de launcher volledig offline: geen covers downloaden, geen weer en geen aanbiedingen.
+1768a2c2 || Bedien de launcher met Xbox-, PlayStation-, Switch- en de meeste andere gamepads (USB of Bluetooth).
+4d80eedc || Bij het starten opent er geen venster, de launcher wacht op de achtergrond.
+5f82741e || De volgende keer opent het venster op dezelfde plek.
+257645ec || Laat pagina's zacht verschijnen en telt getallen op.
+ea44ebae || Toont of verbergt de tekst naast het poedellogo.
+57d02bed || Toont de titel onder de cover.
+b6ffd609 || Breedte van een kaart in pixels.
+00e6c680 || Het sluitkruisje verbergt de launcher alleen. Afsluiten kan via het pictogram rechtsonder.
+8ee96f13 || Je doel in uren per week. 0 schakelt het doel uit.
+7dfd1190 || Je eigen snelkoppelingen naar websites, programma's en mappen. Rechtsklik op een tegel om te bewerken, te verplaatsen of te verwijderen.
+0251b053 || De launcher blijft boven alle andere vensters zichtbaar.
+0e2add26 || De meters in de systeemmonitor glijden naar nieuwe waarden.
+fd4004c0 || De kaarten verschijnen na elkaar in plaats van allemaal tegelijk.
+83d38813 || De grootste prijsverlagingen in de Steam-winkel. Het percentage toont de besparing.
+25060a74 || De wijziging werkt meteen. „Automatisch” gebruikt de taal van Windows.
+bf4b5930 || Deze programma's starten met elke game mee, bijvoorbeeld Discord of een overlaytool.
+dbd752c9 || Deze pagina opent bij het starten van de launcher.
+4962f56a || Deze games kun je nu gratis aan je bibliotheek toevoegen en houden.
+33713562 || Deze games zijn als volgende gratis. De datum staat op de kaart.
+9431fa1b || Deze naam verschijnt in de begroeting op het dashboard en in de zijbalk.
+bdedddb4 || Diameter van het logo in de zijbalk.
+258378c9 || Een gloeiende rand in je accentkleur rond de kaart onder de muisaanwijzer.
+26a0cfc1 || Een eigen afbeelding achter de hele interface. Ondersteunt PNG, JPG en BMP.
+f01dacaa || Een klein venster met live-waarden boven de game.
+0065e131 || Een rustig, geanimeerd kleurverloop in de accentkleur achter de interface.
+03f2e10d || Herinnert je na zoveel minuten aan een pauze. 0 schakelt het uit.
+4ea34511 || Herkent draaiende games zelf en telt de tijd mee. Er wordt niets in games geïnjecteerd.
+fb798015 || Er zijn geen games verborgen. Verberg games met een rechtsklik op de kaart.
+3a8c151d || Exporteer je bibliotheek als tabel of webpagina, of neem je speeltijd over uit Steam.
+dfc5de4e || Kleurstijl van ring en ketting. „Accentkleur” gebruikt je gekozen accentkleur.
+a124b0f9 || Kant-en-klare kleurcombinaties met één klik. „Pikzwart” is vooral geschikt voor OLED-schermen.
+a723d5d4 || Ruimte tussen de kaarten in pixels.
+e65308d0 || Werkt ook terwijl een game op de voorgrond draait.
+ab962b1c || Voer een stad in als de automatisch herkende locatie niet klopt.
+611e956b || Maakt scherm en geheugen vrij zodra een game draait.
+66f1b018 || Grootte van tekst en pictogrammen van de items links.
+fd8c004e || Kies vrij een achtergrond- en accentkleur. De accentkleur kleurt schakelaars, knoppen en markeringen.
+d0a27b5a || In welke schermhoek de mini-overlay verschijnt.
+ec89a85e || Ruimte boven en onder. Grotere waarden maken de items luchtiger.
+12175850 || Hoe hoger, hoe donkerder de afbeelding. Zo blijft tekst goed leesbaar.
+05acee9c || Tegels met grote covers, detailtegels met extra info of een slanke lijst.
+737d0163 || Kaarten worden iets groter als je er met de muis overheen gaat.
+c053dace || Kleine verloopcurves van de laatste minuten in de systeemmonitor.
+620ce04b || Maakt na het afsluiten van een game een ZIP-back-up en bewaart de laatste 10.
+845af6e7 || Laadt de grootst beschikbare versie direct van de bron. Uit: kleinere, geheugenvriendelijke voorbeelden.
+fb506c77 || Maakt het venster licht doorschijnend, zoals bij moderne Windows-apps.
+341d3aea || Verwijdert de opgeslagen covers en laadt ze allemaal opnieuw. Eigen covers blijven behouden.
+41aba525 || Met de schakelaar verberg je een onderdeel, met de pijlen verplaats je het. Dat kan ook met een rechtsklik op de zijbalk. Instellingen blijft altijd zichtbaar.
+ef1efde0 || Met een gratis API-sleutel (steamgriddb.com, profiel, voorkeuren, API) laadt de launcher covers eerst van SteamGridDB, ook voor Epic-, Xbox- en handmatige games.
+6f33013a || Nieuw geïnstalleerde games verschijnen vanzelf. Er wordt hoogstens elke 10 minuten gecontroleerd.
+a7fb71c6 || Nog geen snelkoppelingen. Voeg met „Toevoegen” websites, programma's of mappen toe.
+b1d390b9 || Pas de launcher aan jouw wensen aan. Onder elke optie staat wat ze doet.
+857960fd || Programma's die altijd draaien (bijvoorbeeld Wallpaper Engine) tellen niet als game. Wallpaper Engine, Lively en Rainmeter zijn al automatisch uitgezonderd.
+3f35b160 || Programma's die met Windows starten. Uitvinken voorkomt het starten (alleen voor jouw gebruiker).
+2f760fce || Schakelt animaties, gloei-effecten, vervaging, verloopgrafieken en originele covers uit. Daarna kun je losse opties weer aanzetten.
+c65fb051 || Zet alle achtergronden op echt zwart. OLED-pixels blijven uit, dat spaart stroom en ziet er dieper uit.
+87b8844b || Wisselt het Windows-energiebeheerschema tijdens het spelen en zet het daarna terug.
+e964c14c || Sluit bijvoorbeeld browsers of chatprogramma's, zodat de game meer prestaties krijgt.
+1b51d4d2 || Lettergrootte van de naam naast het logo.
+4ff92808 || Zet speeltijd, laatst gespeeld en starts van alle games terug. Favorieten en beoordelingen blijven.
+9b30a9f6 || Spaart processorbelasting terwijl de launcher op de achtergrond wacht.
+fc068fda || Slaat alle instellingen op in een bestand of laadt ze weer, bijvoorbeeld op een nieuwe pc.
+619129fb || Slaat het logo op als pictogrambestand of maakt een snelkoppeling op het bureaublad.
+3be017a7 || Start de launcher automatisch zodra je je aanmeldt bij Windows.
+f50c5cf6 || Zet logo, naam en kleuren terug naar de oorspronkelijke staat.
+00aad5fa || Tekstkleur van het opschrift.
+56ef74d8 || Tijd en datum op het dashboard.

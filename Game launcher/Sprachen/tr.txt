@@ -598,3 +598,203 @@ da86bba8 || Buz
 0268b075 || Tek renk
 04cbeda6 || Vurgu rengi
 01d4492d || Beyaz
+d9c2c3a7 || Otomatik
+e89b9b20 || Ayrıntılı kutucuklar
+c90c0893 || Hayır
+f39042cd || 🙈 Bu bölümü gizle
+94801ef9 || ⬆ Yukarı taşı
+deee1926 || ⬇ Aşağı taşı
+a6a9ac3f || ↺ Sırayı sıfırla
+a4ed1b8f || 👁 Bölümleri göster
+68a3d55f || 🔠 Daha büyük girdiler
+d125f4ad || 🔡 Daha küçük girdiler
+1ba2634c || 🙈 Gizle
+fd236454 || 👁 Yeniden göster
+2d026a2d || 🙈 Gizli
+15ad2628 || 🖼 Özel kapak belirle ...
+e2a55b7a || ↺ Kapağı sıfırla
+6a085124 || ⏱ Oynama süresini kaydetme
+6ccc002a || ⏱ Oynama süresini yeniden kaydet
+3ae61bd1 || ✏ Düzenle ...
+2dd5f96e || ◀ Öne taşı
+7f2d96a9 || ▶ Arkaya taşı
+e723ef8c || 🗑 Kaldır
+1ba48d28 || ＋ Ekle
+7cc7cd9a || Varsayılanları geri yükle
+f53e3269 || Kısayol ekle
+a05895ea || Kısayolu düzenle
+956e5cba || 🚀 Başlangıç programları
+5db209fe || Dosya seç ...
+5acaa84d || Klasör seç ...
+8d60473a || Resim seç ...
+0632cb80 || Simgeyi temizle
+f556be03 || Resimler
+3225a285 || Resimler ve GIF'ler
+78a22217 || Kapak seç
+1bc35d8b || Özel kapak kaydedildi
+0af47361 || Oyun gizlendi
+6829306a || Onu „Gizli“ filtresinde bulabilirsin.
+7a8fd47d || Gizli oyunlar
+73bedb61 || Gizli oyunları yönet ...
+20d8e0eb || Oynama süresi istisnaları
+ef122269 || İstisnalar
+84d0efe2 || İstisnaları belirle ...
+868535bb || Yapan
+1ebb7738 || Yapan: Der_Fette_Pudel
+e7c61fff || DFP Pro Launcher hakkında
+65c7bb15 || Hakkında'yı göster
+a15e8ea1 || Kumanda
+556cd7a7 || Tuş düzeni
+35c4be6b || Kumanda algılanmadı
+84a77f1c || Algılanan:
+b15cea2d || Başlangıç programı bulunamadı.
+63c4f998 || Tüm kullanıcılar için geçerli. Değiştirmek yönetici hakları gerektirir.
+8a71543b || Performans modu açık
+6d63bb8b || Performans modu kapalı
+dda5a7e4 || Animasyonlar ve efektler kapatıldı.
+b42df61d || Varsayılan ayarlar yeniden etkin.
+9f2654d9 || Değişiklik, başlatıcı yeniden başlatıldıktan sonra geçerli olur.
+b9efd517 || Kart aralığı
+caa8d61f || Kenar çubuğu genişliği
+5751a2ad || Kart en-boy oranı (genişliğe göre yükseklik)
+68fe565e || Eski bilgisayarlar için performans
+8394c81d || Performans modu (daha az animasyon ve efekt, kaynak tasarrufu)
+a7a976ad || Yazılımsal işleme kullan (grafik hatalarında yardımcı olur, yeniden başlatma gerekir)
+b8267e86 || Pencere küçültülmüşken animasyonları duraklat
+412bb7e7 || Başlatıcı arka plandayken belleği boşalt
+7bcba2d9 || Küçültüldüğünde veya bildirim alanındayken başlatıcı birkaç saniye sonra RAM'inin neredeyse tamamını Windows'a geri verir. Açtığında her şey hemen geri gelir.
+b1169c99 || Hareketli kapakları (GIF) her zaman oynat, aksi halde yalnızca üzerine gelince
+91a9a797 || Animasyonlar ve efektler
+5e155be2 || OLED modu
+eeaa6094 || OLED modu (OLED ekranlar için saf siyah)
+f76ca7f5 || Ekran yanması koruması: arayüz birkaç dakikada bir hafifçe kayar
+d80fc759 || Oyun kartları
+63047220 || Kapak
+90ad4cce || Arka plan resmi
+c4dfef67 || Renkler
+20d7f93a || Logo ve ad
+e52b7bbf || Logo tasarımı
+354b9209 || Adın rengi
+d1c297e3 || Özel metin
+ac332779 || Sıfırla
+a7c07abe || Logoyu ve adı sıfırla
+0207b47a || Logo boyutu
+3086342a || Ad boyutu
+0b3940f8 || Adı logonun yanında göster
+5f410124 || Alt başlığı göster
+7dbb3262 || Menü girdilerinin yazı boyutu
+02abf7ff || Menü girdilerinin yüksekliği
+8e7840f0 || Görünür bölümler ve sıra
+33184d46 || Arayüz dili
+8bd72e71 || Açılış sayfası
+f282eb0c || Bildirim alanı simgesini her zaman göster
+c24d765c || Başlatıcıyı aç
+8710d7af || Hızlı başlat
+462339ad || Henüz hiçbir şey başlatılmadı.
+cbee2d29 || 🔍 Ara
+680fced6 || 🎲 Rastgele
+b4ec9864 || 🎮 Kumanda modu
+c58832ad || ⚙ Ayarlar
+1ae26da3 || ⏻ Çıkış
+0c742a22 || Epic Games Store – şimdi ücretsiz
+094b3cc5 || Epic Games Store – yakında ücretsiz
+fbbbeb50 || Steam – güncel indirimler
+f7193006 || En son indirdiğin dosyalar.
+338890b1 || Anahtarı test et
+64e0d9b2 || Kaydet ve kapakları yeniden yükle
+5b7219a0 || SteamGridDB anahtarı (isteğe bağlı)
+56cc8b4a || Kaplamayı dene
+651733a7 || Kapatılacak programlar
+cdcc8d1b || Yardımcı programlar
+69bb3710 || Oyun başlatma ve kayıtlar
+7c15f0d3 || Oynama süresi ve hatırlatıcılar
+36710d2e || Kütüphane
+9090aaf8 || Ekran görüntüsü klasörleri
+f460c849 || İçe ve dışa aktarma
+35262ade || Geçmiş
+a196d2b3 || Ayarları yedekle ve yükle
+eed16e41 || Logo ve kısayol
+aa225d8f || Hedef (web adresi, program, dosya veya klasör)
+54598751 || Simge (emoji gir veya resim seç, boş = dosyanın simgesi)
+9b0a05e6 || Lütfen bir ad ve hedef gir.
+44087478 || Tüm kısayollar varsayılan seçimle değiştirilsin mi?
+3f019268 || Bağlantı test ediliyor ...
+8565319b || Lütfen önce bir anahtar gir.
+6ae389e3 || Bağlantı başarılı. Anahtar çalışıyor.
+21955109 || Anahtar reddedildi veya SteamGridDB'ye ulaşılamıyor.
+47095ad2 || Kaydedildi. Yeni kapaklar artık önce SteamGridDB'den geliyor.
+42919f98 || Anahtar kaldırıldı. Yeniden Steam ve Epic kapakları kullanılıyor.
+dbc123c1 || %136 klasik bir kapağa denk gelir. Daha küçük değerler kartları daha basık yapar.
+31bb4a50 || Bulunduğun yerdeki güncel hava durumu. Çevrimiçi özellikler gerekir.
+d70786dc || Tüm arka planları gerçek siyaha ayarlar.
+9e7cd23a || Kapalı daha hafiftir: GIF'ler yalnızca fare kartın üzerindeyken oynar.
+5d8396ff || Kapalı: AM/PM ile 12 saat biçimi.
+8d72eb60 || Kapalı: Santigrat derece olarak gösterim.
+b8dfc4e1 || Kapalıyken başlatıcı tamamen çevrimdışı kalır: kapak indirme, hava durumu ve fırsat yok.
+1768a2c2 || Başlatıcıyı Xbox, PlayStation, Switch ve diğer çoğu oyun kumandasıyla (USB veya Bluetooth) kullan.
+4d80eedc || Başlangıçta pencere açılmaz, başlatıcı arka planda bekler.
+5f82741e || Bir sonraki başlatmada pencere aynı yerde açılır.
+257645ec || Sayfaları yumuşakça gösterir ve sayıları sayarak artırır.
+ea44ebae || Kaniş logosunun yanındaki yazıyı gösterir veya gizler.
+57d02bed || Başlığı kapağın altında gösterir.
+b6ffd609 || Bir kartın piksel cinsinden genişliği.
+00e6c680 || Kapat çarpısı başlatıcıyı yalnızca gizler. Sağ alttaki simgeden tamamen kapatabilirsin.
+8ee96f13 || Haftalık saat cinsinden hedefin. 0 hedefi kapatır.
+7dfd1190 || Web sitelerine, programlara ve klasörlere kendi kısayolların. Düzenlemek, taşımak veya kaldırmak için bir kutucuğa sağ tıkla.
+0251b053 || Başlatıcı tüm diğer pencerelerin üstünde görünür kalır.
+0e2add26 || Sistem izleyicideki göstergeler yeni değerlere süzülür.
+fd4004c0 || Kartlar hepsi birden değil, sırayla görünür.
+83d38813 || Steam mağazasındaki en büyük indirimler. Yüzde, tasarrufu gösterir.
+25060a74 || Değişiklik hemen etkili olur. „Otomatik“ Windows dilini kullanır.
+bf4b5930 || Bu programlar her oyunla birlikte başlar, örneğin Discord veya bir kaplama aracı.
+dbd752c9 || Başlatıcı açıldığında bu sayfa açılır.
+4962f56a || Bu oyunları şu anda kütüphanene ücretsiz ekleyip sonsuza dek saklayabilirsin.
+33713562 || Sırada ücretsiz olacak oyunlar bunlar. Tarih kartın üzerinde yazar.
+9431fa1b || Bu ad panodaki selamlamada ve kenar çubuğunda görünür.
+bdedddb4 || Kenar çubuğundaki logonun çapı.
+258378c9 || Fare imlecinin altındaki kartın etrafında vurgu renginde parlayan bir kenar.
+26a0cfc1 || Tüm arayüzün arkasında kendi resmin. PNG, JPG ve BMP desteklenir.
+f01dacaa || Oyunun üzerinde duran, canlı değerler gösteren küçük bir pencere.
+0065e131 || Arayüzün arkasında vurgu renginde sakin, hareketli bir renk geçişi.
+03f2e10d || Bu kadar dakikadan sonra sana mola vermeni hatırlatır. 0 kapatır.
+4ea34511 || Çalışan oyunları kendisi algılar ve süreyi sayar. Oyunlara hiçbir şey enjekte edilmez.
+fb798015 || Gizli oyun yok. Oyunları karta sağ tıklayarak gizleyebilirsin.
+3a8c151d || Kütüphaneni tablo veya web sayfası olarak dışa aktar ya da oynama süreni Steam'den al.
+dfc5de4e || Halka ve zincirin renk stili. „Vurgu rengi“ seçtiğin vurgu rengini kullanır.
+a124b0f9 || Tek tıkla hazır renk kombinasyonları. „Simsiyah“ özellikle OLED ekranlar için uygundur.
+a723d5d4 || Kartlar arasındaki boşluk (piksel).
+e65308d0 || Bir oyun ön plandayken de çalışır.
+ab962b1c || Otomatik algılanan konum yanlışsa bir şehir gir.
+611e956b || Bir oyun çalıştığı anda ekranı ve belleği serbest bırakır.
+66f1b018 || Soldaki girdilerin metin ve simge boyutu.
+fd8c004e || Arka plan ve vurgu rengini serbestçe seç. Vurgu rengi anahtarları, düğmeleri ve vurguları renklendirir.
+d0a27b5a || Mini kaplamanın ekranın hangi köşesinde görüneceği.
+ec89a85e || Üst ve alt iç boşluk. Daha büyük değerler girdileri daha ferah yapar.
+12175850 || Değer ne kadar yüksekse resim o kadar koyu olur. Yazının okunur kalmasını sağlar.
+05acee9c || Büyük kapaklı kutucuklar, ek bilgili ayrıntılı kutucuklar veya ince bir liste.
+737d0163 || Fareyle üzerine gelince kartlar hafifçe büyür.
+c053dace || Sistem izleyicide son dakikaların küçük geçmiş eğrileri.
+620ce04b || Bir oyun bittikten sonra ZIP yedeği oluşturur ve son 10 tanesini saklar.
+845af6e7 || Mevcut en büyük sürümü doğrudan kaynaktan yükler. Kapalı: daha küçük, bellek dostu önizlemeler.
+fb506c77 || Pencereyi modern Windows uygulamalarındaki gibi hafif saydam yapar.
+341d3aea || Önbellekteki kapakları siler ve hepsini yeniden yükler. Özel kapaklar korunur.
+41aba525 || Anahtarla bir bölümü gizlersin, oklarla taşırsın. Bu, kenar çubuğuna sağ tıklayarak da olur. Ayarlar her zaman görünür kalır.
+ef1efde0 || Ücretsiz bir API anahtarıyla (steamgriddb.com, profil, tercihler, API) başlatıcı kapakları önce SteamGridDB'den yükler; Epic, Xbox ve elle eklenen oyunlar için de.
+6f33013a || Yeni kurulan oyunlar kendiliğinden görünür. En fazla 10 dakikada bir kontrol edilir.
+a7fb71c6 || Henüz kısayol yok. „Ekle“ ile web siteleri, programlar veya klasörler ekle.
+b1d390b9 || Başlatıcıyı kendine göre ayarla. Her seçeneğin altında ne işe yaradığı yazar.
+857960fd || Sürekli çalışan programlar (örneğin Wallpaper Engine) oyun sayılmaz. Wallpaper Engine, Lively ve Rainmeter zaten otomatik olarak hariç tutulur.
+3f35b160 || Windows ile başlayan programlar. İşaretini kaldırmak başlamasını engeller (yalnızca senin kullanıcın için).
+2f760fce || Animasyonları, parlama efektlerini, bulanıklığı, geçmiş grafiklerini ve orijinal boyutlu kapakları kapatır. Sonra tek tek seçenekleri yeniden açabilirsin.
+c65fb051 || Tüm arka planları gerçek siyaha çevirir. OLED pikselleri kapalı kalır; bu enerji tasarrufu sağlar ve daha derin görünür.
+87b8844b || Oyun sırasında Windows güç planını değiştirir ve sonra geri alır.
+e964c14c || Oyunun daha fazla performansı olsun diye örneğin tarayıcıları veya sohbet programlarını kapatır.
+1b51d4d2 || Logonun yanındaki adın yazı boyutu.
+4ff92808 || Tüm oyunların oynama süresini, son oynanma tarihini ve başlatma sayısını sıfırlar. Favoriler ve puanlar korunur.
+9b30a9f6 || Başlatıcı arka planda beklerken işlemci yükünden tasarruf eder.
+fc068fda || Tüm ayarları bir dosyaya kaydeder veya yeniden yükler, örneğin yeni bir bilgisayarda.
+619129fb || Logoyu simge dosyası olarak kaydeder veya masaüstünde bir kısayol oluşturur.
+3be017a7 || Windows'ta oturum açtığında başlatıcıyı otomatik başlatır.
+f50c5cf6 || Logoyu, adı ve renkleri orijinal hâline döndürür.
+00aad5fa || Yazının metin rengi.
+56ef74d8 || Panoda saat ve tarih.
