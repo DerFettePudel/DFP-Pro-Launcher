@@ -55,8 +55,10 @@ namespace Game_launcher
         private const string XboxScript = """
             $ErrorActionPreference = 'SilentlyContinue'
             [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+            $start = @{}
+            Get-StartApps | ForEach-Object { $f = ($_.AppID -split '!')[0]; if ($f -and -not $start.ContainsKey($f)) { $start[$f] = $_.Name } }
             $items = @(Get-AppxPackage | Where-Object { $_.InstallLocation -and (Test-Path (Join-Path $_.InstallLocation 'MicrosoftGame.config')) } | ForEach-Object {
-                [PSCustomObject]@{ Name = $_.Name; Family = $_.PackageFamilyName; Full = $_.PackageFullName; Location = $_.InstallLocation }
+                [PSCustomObject]@{ Name = $_.Name; Family = $_.PackageFamilyName; Full = $_.PackageFullName; Location = $_.InstallLocation; StartName = [string]$start[$_.PackageFamilyName] }
             })
             ConvertTo-Json -InputObject $items -Compress
             """;

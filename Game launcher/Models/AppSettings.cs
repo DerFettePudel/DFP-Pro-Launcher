@@ -72,6 +72,8 @@ namespace Game_launcher
         public List<ManualApp> ManualApps { get; set; } = new();
         public Dictionary<string, GameState> GameStates { get; set; } = new();
         public Dictionary<string, int> SteamIds { get; set; } = new();
+        // Stand der Cover-Namenssuche: steigt er, werden alte "nicht gefunden"-Einträge einmal verworfen
+        public int CoverMatchVersion { get; set; }
 
         // Animationen
         public bool PageAnimations { get; set; } = true;

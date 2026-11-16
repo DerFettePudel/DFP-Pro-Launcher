@@ -408,6 +408,7 @@ namespace Game_launcher
                         string configPath = System.IO.Path.Combine(location, "MicrosoftGame.config");
 
                         if (location.Length == 0 || family.Length == 0 || !File.Exists(configPath)) continue;
+                        if (IsXboxAddOn(location, configPath)) continue;   // DLC/Inhaltspakete (z.B. bei Call of Duty) sind keine eigenen Spiele
 
                         var config = System.Xml.Linq.XDocument.Load(configPath).Root;
                         var visuals = config?.Element("ShellVisuals");
@@ -416,10 +417,12 @@ namespace Game_launcher
                         string name = visuals?.Attribute("DefaultDisplayName")?.Value ?? string.Empty;
                         if (name.Length == 0 || name.StartsWith("ms-resource:", StringComparison.OrdinalIgnoreCase))
                         {
-                            // Anzeigename steht dann im Ordnernamen (z.B. D:\XboxGames\Forza Horizon 5\Content)
+                            // Anzeigename steht dann im Ordnernamen (z.B. D:\XboxGames\Forza Horizon 5\Content),
+                            // sonst im Startmenü (statt des technischen Paketnamens wie "Microsoft.4297127D64EC6")
+                            string startName = GetJsonString(package, "StartName").Trim();
                             name = string.Equals(System.IO.Path.GetFileName(location), "Content", StringComparison.OrdinalIgnoreCase)
                                 ? new DirectoryInfo(location).Parent?.Name ?? GetJsonString(package, "Name")
-                                : GetJsonString(package, "Name");
+                                : startName.Length > 0 ? startName : GetJsonString(package, "Name");
                         }
                         if (name.Length == 0 || found.ContainsKey(name)) continue;
 
@@ -457,6 +460,23 @@ namespace Game_launcher
                 }
             }
             catch { }
+        }
+
+        /// <summary>Erweiterungen (DLC, Inhaltspakete) hängen an einem Hauptpaket und haben keine eigene startbare App.</summary>
+        private static bool IsXboxAddOn(string location, string configPath)
+        {
+            try
+            {
+                if (File.ReadAllText(configPath).Contains("MainPackageDependency", StringComparison.OrdinalIgnoreCase)) return true;
+
+                string manifestPath = System.IO.Path.Combine(location, "appxmanifest.xml");
+                if (!File.Exists(manifestPath)) return false;
+
+                var manifest = System.Xml.Linq.XDocument.Load(manifestPath);
+                if (manifest.Descendants().Any(e => e.Name.LocalName == "MainPackageDependency")) return true;
+                return !manifest.Descendants().Any(e => e.Name.LocalName == "Application");
+            }
+            catch { return false; }
         }
 
         // Die Start-ID steht verlässlich nur in der appxmanifest.xml (Application Id); in der MicrosoftGame.config fehlt sie oft (z.B. Cyberpunk 2077: "cpLauncher")
@@ -497,6 +517,20 @@ namespace Game_launcher
         private static string NormalizeTitle(string title)
             => Regex.Replace(title.ToLowerInvariant(), "[^a-z0-9]", string.Empty);
 
+        private const int CurrentCoverMatchVersion = 1;
+
+        /// <summary>Entfernt Zusätze, die Shops unterschiedlich schreiben (™ ®, „Standard Edition“, „for Windows“ …).</summary>
+        private static string CleanStoreTitle(string title)
+        {
+            string clean = Regex.Replace(title, "[™®©]", string.Empty);
+            clean = Regex.Replace(clean, @"^GTA\s?V\b", "Grand Theft Auto V", RegexOptions.IgnoreCase);
+            clean = Regex.Replace(clean,
+                @"\s*[-–:(]?\s*\b(standard|deluxe|premium|ultimate|gold|complete|definitive|digital deluxe|game of the year|goty|anniversary|enhanced|remastered)?\s*edition\)?\s*$",
+                string.Empty, RegexOptions.IgnoreCase);
+            clean = Regex.Replace(clean, @"\s*[-–(]?\s*\b(for windows( 10| 11)?|pc|windows( 10| 11)?)\)?\s*$", string.Empty, RegexOptions.IgnoreCase);
+            return clean.Trim(' ', '-', '–', ':');
+        }
+
         /// <summary>Sucht ein Spiel im Steam-Shop und gibt die AppID zurück (leer = nicht gefunden).</summary>
         private async Task<string> FindSteamAppIdAsync(string name)
         {
@@ -509,21 +543,35 @@ namespace Game_launcher
             string id = string.Empty;
             try
             {
-                string url = $"https://store.steampowered.com/api/storesearch/?term={Uri.EscapeDataString(name)}&l=german&cc=DE";
-                using var doc = JsonDocument.Parse(await Http.GetStringAsync(url));
+                string cleaned = CleanStoreTitle(name);
+                if (cleaned.Length == 0) cleaned = name;
 
-                if (doc.RootElement.TryGetProperty("items", out var items) && items.ValueKind == JsonValueKind.Array)
+                foreach (string term in new[] { name, cleaned }.Distinct(StringComparer.OrdinalIgnoreCase))
                 {
-                    string wanted = NormalizeTitle(name);
+                    string url = $"https://store.steampowered.com/api/storesearch/?term={Uri.EscapeDataString(term)}&l=german&cc=DE";
+                    using var doc = JsonDocument.Parse(await Http.GetStringAsync(url));
+                    if (!doc.RootElement.TryGetProperty("items", out var items) || items.ValueKind != JsonValueKind.Array) continue;
+
+                    var wanted = new[] { NormalizeTitle(name), NormalizeTitle(cleaned) };
+                    string best = string.Empty;
                     foreach (var item in items.EnumerateArray())
                     {
-                        if (NormalizeTitle(GetJsonString(item, "name")) != wanted) continue;
+                        if (!item.TryGetProperty("id", out var idElement) || !idElement.TryGetInt32(out int number)) continue;
+                        string itemName = GetJsonString(item, "name");
+                        string found = NormalizeTitle(itemName);
+                        string foundClean = NormalizeTitle(CleanStoreTitle(itemName));
 
-                        if (item.TryGetProperty("id", out var idElement) && idElement.TryGetInt32(out int number))
+                        if (wanted.Contains(found) || wanted.Contains(foundClean))
                         {
-                            id = number.ToString();
+                            best = number.ToString();
                             break;
                         }
+                    }
+
+                    if (best.Length > 0)
+                    {
+                        id = best;
+                        break;
                     }
                 }
 
@@ -5338,18 +5386,20 @@ namespace Game_launcher
 
         private async Task<long> FindSgdbGameIdAsync(string name)
         {
-            string? search = await SgdbGetAsync("/search/autocomplete/" + Uri.EscapeDataString(name));
+            string cleaned = CleanStoreTitle(name);
+            if (cleaned.Length == 0) cleaned = name;
+            string? search = await SgdbGetAsync("/search/autocomplete/" + Uri.EscapeDataString(cleaned));
             if (string.IsNullOrEmpty(search)) return 0;
 
             long id = 0;
             using var doc = JsonDocument.Parse(search);
             if (!doc.RootElement.TryGetProperty("data", out var data) || data.ValueKind != JsonValueKind.Array) return 0;
 
-            string wanted = NormalizeTitle(name);
+            var wanted = new[] { NormalizeTitle(name), NormalizeTitle(cleaned) };
             foreach (var item in data.EnumerateArray())
             {
                 if (id == 0) id = JsonLong(item, "id");
-                if (NormalizeTitle(GetJsonString(item, "name")) == wanted)
+                if (wanted.Contains(NormalizeTitle(GetJsonString(item, "name"))))
                 {
                     id = JsonLong(item, "id");
                     break;

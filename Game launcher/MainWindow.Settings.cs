@@ -45,6 +45,13 @@ namespace Game_launcher
             settings.ManualApps ??= new List<ManualApp>();
             settings.GameStates ??= new Dictionary<string, GameState>();
             settings.SteamIds ??= new Dictionary<string, int>();
+            if (settings.CoverMatchVersion < CurrentCoverMatchVersion)
+            {
+                // Die Namenssuche ist toleranter geworden: früher nicht gefundene Spiele noch einmal suchen
+                foreach (var key in settings.SteamIds.Where(p => p.Value <= 0).Select(p => p.Key).ToList())
+                    settings.SteamIds.Remove(key);
+                settings.CoverMatchVersion = CurrentCoverMatchVersion;
+            }
             settings.HiddenSections ??= new List<string>();
             settings.CollectionNames ??= new List<string>();
             settings.PlayLog ??= new Dictionary<string, double>();
