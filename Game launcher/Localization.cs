@@ -25,10 +25,17 @@ namespace Game_launcher
         public static readonly (string Code, string Name)[] Languages =
         {
             ("de", "Deutsch"), ("en", "English"), ("zh", "中文"), ("es", "Español"),
-            ("fr", "Français"), ("pt", "Português"), ("ru", "Русский"), ("ja", "日本語")
+            ("fr", "Français"), ("pt", "Português"), ("ru", "Русский"), ("ja", "日本語"),
+            ("tr", "Türkçe"), ("it", "Italiano"), ("pl", "Polski"), ("ko", "한국어"), ("nl", "Nederlands"), ("uk", "Українська")
         };
 
-        private static readonly string[] CultureNames = { "de-DE", "en-US", "zh-CN", "es-ES", "fr-FR", "pt-BR", "ru-RU", "ja-JP" };
+        private static readonly string[] CultureNames =
+            { "de-DE", "en-US", "zh-CN", "es-ES", "fr-FR", "pt-BR", "ru-RU", "ja-JP", "tr-TR", "it-IT", "pl-PL", "ko-KR", "nl-NL", "uk-UA" };
+
+        // Sprachen ab Türkisch stehen nicht in der Tabelle, sondern je in einer eigenen Datei Sprachen\<code>.txt
+        // (eingebettet). Zeile: "<Kennung> || Übersetzung", Kennung = FNV-1a des deutschen Schlüssels (siehe KeyId).
+        // Fehlt eine Zeile, wird Englisch angezeigt.
+        private const int TableLanguages = 8;
 
         private sealed class Template
         {
@@ -53,8 +60,23 @@ namespace Game_launcher
 
         private static string Normalize(string text) => Regex.Replace(text, @"\s+", " ").Trim();
 
+        /// <summary>Feste Kennung eines deutschen Schlüssels (FNV-1a, 32 Bit) für die Sprachdateien.</summary>
+        public static string KeyId(string normalizedKey)
+        {
+            uint hash = 2166136261;
+            foreach (char c in normalizedKey)
+            {
+                hash ^= c;
+                hash *= 16777619;
+            }
+            return hash.ToString("x8");
+        }
+
         private static void Load()
         {
+            int width = Languages.Length - 1;   // Spalten ohne Deutsch
+            var byId = new Dictionary<string, string[]>(StringComparer.Ordinal);
+
             foreach (string rawLine in LocData.Text.Split('\n'))
             {
                 string line = rawLine.Trim();
@@ -64,12 +86,37 @@ namespace Game_launcher
                 if (parts.Length < 2) continue;
 
                 string key = Normalize(parts[0].Replace("\\n", "\n"));
-                string[] texts = parts.Skip(1).Select(p => p.Replace("\\n", "\n").Trim()).ToArray();
+                string[] texts = new string[width];
+                for (int i = 0; i < width; i++)
+                    texts[i] = i + 1 < parts.Length && i + 1 < TableLanguages ? parts[i + 1].Replace("\\n", "\n").Trim() : string.Empty;
+                byId[KeyId(key)] = texts;
 
                 if (key.Contains('{'))
                     Templates.Add(BuildTemplate(key, texts));
                 else
                     Exact[key] = texts;
+            }
+
+            // Weitere Sprachen aus den eingebetteten Dateien eintragen
+            var assembly = typeof(Loc).Assembly;
+            for (int language = TableLanguages; language < Languages.Length; language++)
+            {
+                try
+                {
+                    using var stream = assembly.GetManifestResourceStream("Game_launcher.Sprachen." + Languages[language].Code + ".txt");
+                    if (stream == null) continue;
+                    using var reader = new StreamReader(stream, System.Text.Encoding.UTF8);
+
+                    string? line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        int split = line.IndexOf(" || ", StringComparison.Ordinal);
+                        if (split <= 0) continue;
+                        if (byId.TryGetValue(line.Substring(0, split).Trim(), out var row))
+                            row[language - 1] = line.Substring(split + 4).Replace("\\n", "\n").Trim();
+                    }
+                }
+                catch { }
             }
 
             Templates.Sort((a, b) => b.Literal.CompareTo(a.Literal));

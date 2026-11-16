@@ -2338,6 +2338,12 @@
                                             <RadioButton x:Name="ChipLangPt" Content="Português" GroupName="Lang" Style="{DynamicResource ChipStyle}" Checked="Language_Changed"/>
                                             <RadioButton x:Name="ChipLangRu" Content="Русский" GroupName="Lang" Style="{DynamicResource ChipStyle}" Checked="Language_Changed"/>
                                             <RadioButton x:Name="ChipLangJa" Content="日本語" GroupName="Lang" Style="{DynamicResource ChipStyle}" Checked="Language_Changed"/>
+                                            <RadioButton x:Name="ChipLangTr" Content="Türkçe" GroupName="Lang" Style="{DynamicResource ChipStyle}" Checked="Language_Changed"/>
+                                            <RadioButton x:Name="ChipLangIt" Content="Italiano" GroupName="Lang" Style="{DynamicResource ChipStyle}" Checked="Language_Changed"/>
+                                            <RadioButton x:Name="ChipLangPl" Content="Polski" GroupName="Lang" Style="{DynamicResource ChipStyle}" Checked="Language_Changed"/>
+                                            <RadioButton x:Name="ChipLangKo" Content="한국어" GroupName="Lang" Style="{DynamicResource ChipStyle}" Checked="Language_Changed"/>
+                                            <RadioButton x:Name="ChipLangNl" Content="Nederlands" GroupName="Lang" Style="{DynamicResource ChipStyle}" Checked="Language_Changed"/>
+                                            <RadioButton x:Name="ChipLangUk" Content="Українська" GroupName="Lang" Style="{DynamicResource ChipStyle}" Checked="Language_Changed"/>
                                         </WrapPanel>
                                     </StackPanel>
                                 </StackPanel>

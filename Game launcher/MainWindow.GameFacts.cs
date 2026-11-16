@@ -103,6 +103,12 @@ namespace Game_launcher
                 "pt" => "Portuguese - Brazil",
                 "ru" => "Russian",
                 "ja" => "Japanese",
+                "tr" => "Turkish",
+                "it" => "Italian",
+                "pl" => "Polish",
+                "ko" => "Korean",
+                "nl" => "Dutch",
+                "uk" => "Ukrainian",
                 _ => "English"
             };
 

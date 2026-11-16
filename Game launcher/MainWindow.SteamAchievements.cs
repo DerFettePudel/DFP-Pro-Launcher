@@ -51,7 +51,8 @@ namespace Game_launcher
         private static string SteamLanguage() => Loc.Language switch
         {
             "en" => "english", "zh" => "schinese", "es" => "spanish", "fr" => "french",
-            "pt" => "brazilian", "ru" => "russian", "ja" => "japanese", _ => "german"
+            "pt" => "brazilian", "ru" => "russian", "ja" => "japanese", "tr" => "turkish", "it" => "italian",
+            "pl" => "polish", "ko" => "koreana", "nl" => "dutch", "uk" => "ukrainian", _ => "german"
         };
 
         private async Task<List<SteamAchievement>> LoadSteamAchievementsAsync(string appId, string key, string steamId)

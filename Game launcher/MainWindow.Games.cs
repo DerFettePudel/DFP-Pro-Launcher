@@ -5994,6 +5994,12 @@ namespace Game_launcher
             "pt" => "brazilian",
             "ru" => "russian",
             "ja" => "japanese",
+            "tr" => "turkish",
+            "it" => "italian",
+            "pl" => "polish",
+            "ko" => "koreana",
+            "nl" => "dutch",
+            "uk" => "ukrainian",
             _ => "english"
         };
 

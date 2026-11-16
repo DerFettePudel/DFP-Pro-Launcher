@@ -24,6 +24,11 @@
 		<EmbeddedResource Include="Themes\Cyber.xaml" LogicalName="Game_launcher.Themes.Cyber.xaml" />
 	</ItemGroup>
 
+	<!-- Weitere Sprachen (Türkisch, Italienisch ...): je eine Datei "Kennung || Übersetzung", gelesen in Localization.cs -->
+	<ItemGroup>
+		<EmbeddedResource Include="Sprachen\*.txt" LogicalName="Game_launcher.Sprachen.%(Filename).txt" />
+	</ItemGroup>
+
 	<!-- Schrift „Chakra Petch“ für Überschriften in Thema 2 (SIL Open Font License 1.1, Lizenz liegt bei) -->
 	<ItemGroup>
 		<Resource Include="Fonts\*.ttf" />

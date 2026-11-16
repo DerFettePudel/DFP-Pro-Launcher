@@ -1468,6 +1468,12 @@ namespace Game_launcher
             if (ChipLangPt.IsChecked == true) return "pt";
             if (ChipLangRu.IsChecked == true) return "ru";
             if (ChipLangJa.IsChecked == true) return "ja";
+            if (ChipLangTr.IsChecked == true) return "tr";
+            if (ChipLangIt.IsChecked == true) return "it";
+            if (ChipLangPl.IsChecked == true) return "pl";
+            if (ChipLangKo.IsChecked == true) return "ko";
+            if (ChipLangNl.IsChecked == true) return "nl";
+            if (ChipLangUk.IsChecked == true) return "uk";
             return "auto";
         }
 
@@ -1483,6 +1489,12 @@ namespace Game_launcher
             ChipLangPt.IsChecked = code == "pt";
             ChipLangRu.IsChecked = code == "ru";
             ChipLangJa.IsChecked = code == "ja";
+            ChipLangTr.IsChecked = code == "tr";
+            ChipLangIt.IsChecked = code == "it";
+            ChipLangPl.IsChecked = code == "pl";
+            ChipLangKo.IsChecked = code == "ko";
+            ChipLangNl.IsChecked = code == "nl";
+            ChipLangUk.IsChecked = code == "uk";
         }
 
         private void Language_Changed(object sender, RoutedEventArgs e)
@@ -2323,7 +2335,8 @@ namespace Game_launcher
             foreach (var (code, label) in new[]
             {
                 ("auto", "Automatisch (Windows)"), ("de", "Deutsch"), ("en", "English"), ("zh", "中文"), ("es", "Español"),
-                ("fr", "Français"), ("pt", "Português"), ("ru", "Русский"), ("ja", "日本語")
+                ("fr", "Français"), ("pt", "Português"), ("ru", "Русский"), ("ja", "日本語"),
+                ("tr", "Türkçe"), ("it", "Italiano"), ("pl", "Polski"), ("ko", "한국어"), ("nl", "Nederlands"), ("uk", "Українська")
             })
             {
                 string chosen = code;
