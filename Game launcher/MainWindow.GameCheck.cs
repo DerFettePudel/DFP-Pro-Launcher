@@ -264,10 +264,107 @@ namespace Game_launcher
             return result;
         }
 
-        private async Task<(SpecSheet Min, SpecSheet Rec)?> FetchRequirementsAsync(GameItem game)
+        private async Task<(SpecSheet Min, SpecSheet Rec, string Source)?> FetchRequirementsAsync(GameItem game)
         {
-            var details = await FetchStoreDetailsAsync(game);
-            return details is { HasRequirements: true } ? (details.Min, details.Rec) : null;
+            try
+            {
+                var details = await FetchStoreDetailsAsync(game);
+                if (details is { HasRequirements: true }) return (details.Min, details.Rec, "Steam");
+            }
+            catch { }
+
+            // Kein Steam-Spiel oder keine Angaben im Shop (z.B. Ubisoft, EA, Battle.net): PCGamingWiki fragen
+            var wiki = await FetchWikiRequirementsAsync(game.Name);
+            return wiki != null ? (wiki.Value.Min, wiki.Value.Rec, "PCGamingWiki") : null;
+        }
+
+        // ───────── Ersatzquelle PCGamingWiki (freies Wiki, Vorlage {{System requirements}}) ─────────
+
+        private static readonly Dictionary<string, (SpecSheet Min, SpecSheet Rec)?> wikiRequirementCache = new(StringComparer.OrdinalIgnoreCase);
+        private const string WikiApi = "https://www.pcgamingwiki.com/w/api.php";
+
+        private async Task<(SpecSheet Min, SpecSheet Rec)?> FetchWikiRequirementsAsync(string name)
+        {
+            lock (wikiRequirementCache)
+            {
+                if (wikiRequirementCache.TryGetValue(name, out var cached)) return cached;
+            }
+
+            (SpecSheet, SpecSheet)? result = null;
+            string cleaned = CleanStoreTitle(name);
+            if (cleaned.Length == 0) cleaned = name;
+
+            string title = string.Empty;
+            using (var doc = JsonDocument.Parse(await Http.GetStringAsync(
+                $"{WikiApi}?action=query&list=search&srsearch={Uri.EscapeDataString(cleaned)}&srlimit=8&format=json")))
+            {
+                if (TryPath(doc.RootElement, out var hits, "query", "search") && hits.ValueKind == JsonValueKind.Array)
+                {
+                    string wanted = NormalizeTitle(cleaned);
+                    string full = NormalizeTitle(name);
+                    string loose = string.Empty;
+                    foreach (var hit in hits.EnumerateArray())
+                    {
+                        string candidate = GetJsonString(hit, "title");
+                        string normal = NormalizeTitle(CleanStoreTitle(candidate));
+                        if (normal == wanted || normal == full)
+                        {
+                            title = candidate;
+                            break;
+                        }
+                        // z.B. "Rainbow Six Siege" ↔ "Tom Clancy's Rainbow Six Siege": einer enthält den anderen
+                        if (loose.Length == 0 && wanted.Length >= 6 && (normal.EndsWith(wanted) || wanted.EndsWith(normal) && normal.Length >= 6))
+                            loose = candidate;
+                    }
+                    if (title.Length == 0) title = loose;
+                }
+            }
+
+            if (title.Length > 0)
+            {
+                using var page = JsonDocument.Parse(await Http.GetStringAsync(
+                    $"{WikiApi}?action=parse&page={Uri.EscapeDataString(title)}&prop=wikitext&format=json&redirects=1"));
+                if (TryPath(page.RootElement, out var text, "parse", "wikitext", "*"))
+                    result = ParseWikiRequirements(text.GetString() ?? string.Empty);
+            }
+
+            lock (wikiRequirementCache) wikiRequirementCache[name] = result;
+            return result;
+        }
+
+        private static (SpecSheet Min, SpecSheet Rec)? ParseWikiRequirements(string wikitext)
+        {
+            // Es kann mehrere Blöcke geben (Windows, macOS, Linux) – nur Windows zählt
+            foreach (Match block in Regex.Matches(wikitext, @"\{\{System requirements(.*?)\n\}\}", RegexOptions.Singleline | RegexOptions.IgnoreCase))
+            {
+                string body = block.Groups[1].Value;
+                if (!Regex.IsMatch(body, @"\|\s*OSfamily\s*=\s*Windows", RegexOptions.IgnoreCase)) continue;
+
+                var fields = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                foreach (Match field in Regex.Matches(body, @"^[ \t]*\|[ \t]*(\w+)[ \t]*=[ \t]*(.*)$", RegexOptions.Multiline))
+                {
+                    string value = CleanWikiValue(field.Groups[2].Value);
+                    if (value.Length > 0) fields[field.Groups[1].Value] = value;
+                }
+
+                string Join(string prefix) => string.Join(" / ",
+                    new[] { "", "2", "3", "4" }.Select(n => fields.TryGetValue(prefix + n, out var v) ? v : null).Where(v => v != null));
+
+                var min = new SpecSheet { Cpu = Join("minCPU"), Gpu = Join("minGPU"), Ram = fields.TryGetValue("minRAM", out var minRam) ? minRam : string.Empty };
+                var rec = new SpecSheet { Cpu = Join("recCPU"), Gpu = Join("recGPU"), Ram = fields.TryGetValue("recRAM", out var recRam) ? recRam : string.Empty };
+                if (min.Cpu.Length + min.Gpu.Length + min.Ram.Length + rec.Cpu.Length + rec.Gpu.Length + rec.Ram.Length > 0)
+                    return (min, rec);
+            }
+            return null;
+        }
+
+        private static string CleanWikiValue(string value)
+        {
+            value = Regex.Replace(value, @"<ref[^>]*/>|<ref[^>]*>.*?</ref>|<ref[^>]*>.*$", string.Empty, RegexOptions.IgnoreCase);
+            value = Regex.Replace(value, @"\{\{[^{}]*\}\}", string.Empty);
+            value = Regex.Replace(value, @"\[\[(?:[^|\]]*\|)?([^\]]*)\]\]", "$1");
+            value = Regex.Replace(value, "<.*?>", " ");
+            return Regex.Replace(System.Net.WebUtility.HtmlDecode(value), @"\s+", " ").Trim();
         }
 
         private static RequirementRow CompareRow(string label, string min, string rec, string mine, Func<string, List<double>> scorer)
@@ -335,7 +432,7 @@ namespace Game_launcher
 
         private async Task FillRequirementCheckAsync(GameItem game, StackPanel body, TextBlock status)
         {
-            (SpecSheet Min, SpecSheet Rec)? req = null;
+            (SpecSheet Min, SpecSheet Rec, string Source)? req = null;
             try { req = await FetchRequirementsAsync(game); }
             catch
             {
@@ -345,11 +442,12 @@ namespace Game_launcher
 
             if (req == null)
             {
-                status.Text = Loc.T("Für dieses Spiel stehen im Steam-Shop keine Anforderungen.");
+                status.Text = Loc.T("Weder im Steam-Shop noch bei PCGamingWiki stehen Anforderungen für dieses Spiel.");
                 return;
             }
 
-            var rows = await Task.Run(() => CompareWithMyPc(req.Value));
+            var sheets = (req.Value.Min, req.Value.Rec);
+            var rows = await Task.Run(() => CompareWithMyPc(sheets));
             body.Children.Clear();
             if (rows.Count == 0)
             {
@@ -402,7 +500,13 @@ namespace Game_launcher
                 body.Children.Add(grid);
             }
 
-            body.Children.Add(new TextBlock { Text = Loc.T("Grobe Schätzung nach den Angaben im Steam-Shop."), Foreground = BrushSubtle, FontSize = 11, Opacity = 0.8 });
+            body.Children.Add(new TextBlock
+            {
+                Text = req.Value.Source == "Steam" ? Loc.T("Grobe Schätzung nach den Angaben im Steam-Shop.") : Loc.T("Grobe Schätzung nach den Angaben bei PCGamingWiki."),
+                Foreground = BrushSubtle,
+                FontSize = 11,
+                Opacity = 0.8
+            });
         }
 
         // ───────── Update-Größe (Steam) ─────────
