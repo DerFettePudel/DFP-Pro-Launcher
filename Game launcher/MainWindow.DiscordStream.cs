@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,8 +17,8 @@ namespace Game_launcher
     {
         // ═════════════════════════════ Streamer-Modus automatisch beim Discord-Stream ═════════════════════════════
         //
-        // Discord nimmt Bildschirm und Fenster über die Windows-Bildschirmaufnahme auf. Windows trägt jede laufende
-        // Aufnahme unter CapabilityAccessManager ein: LastUsedTimeStop = 0 heißt "läuft gerade".
+        // Hauptquelle ist das Log von Discord (siehe unten). Zusätzlich zählt die Windows-Bildschirmaufnahme:
+        // Windows trägt laufende Aufnahmen unter CapabilityAccessManager ein (LastUsedTimeStop = 0), aber nicht verlässlich.
         // Kurze Vorschaubilder im Auswahlfenster von Discord dauern nur Millisekunden – darum zählt eine Aufnahme
         // erst, wenn sie bei zwei Prüfungen hintereinander (5 s Abstand) läuft.
 
@@ -54,6 +57,101 @@ namespace Game_launcher
             }
         }
 
+        // ───────── Discord-Log: Discord schreibt Start und Ende des eigenen Streams in logs\renderer_js.log ─────────
+        //   [startStreamWithSource] Starting stream for source …          → eigener Stream beginnt
+        //   [RTCConnection(<id>, stream)] Connecting to RTC server …      → Verbindung dieses Streams
+        //   [Connection(stream)] capturing desktop …                      → nur beim eigenen Stream (nicht beim Zuschauen)
+        //   [RTCConnection(<id>, stream)] Destroy RTCConnection           → Stream beendet
+
+        private sealed class DiscordLogState
+        {
+            public long Offset = -1;
+            public string Rest = string.Empty;
+            public string LastStreamConnection = string.Empty;
+            public readonly HashSet<string> OwnStreams = new();
+        }
+
+        private static readonly Dictionary<string, DiscordLogState> discordLogs = new(StringComparer.OrdinalIgnoreCase);
+        private static readonly Regex DiscordConnectRegex = new(@"RTCConnection\((\d+), stream\)\] Connecting to RTC server", RegexOptions.Compiled);
+        private static readonly Regex DiscordDestroyRegex = new(@"RTCConnection\((\d+), stream\)\] Destroy RTCConnection", RegexOptions.Compiled);
+
+        private static bool IsDiscordStreamingByLog(DateTime discordStarted)
+        {
+            bool streaming = false;
+            string roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+
+            foreach (string folder in new[] { "discord", "discordptb", "discordcanary" })
+            {
+                string file = System.IO.Path.Combine(roaming, folder, "logs", "renderer_js.log");
+                if (!File.Exists(file)) continue;
+
+                try
+                {
+                    if (!discordLogs.TryGetValue(file, out var state)) discordLogs[file] = state = new DiscordLogState();
+
+                    using var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+                    long length = stream.Length;
+
+                    // Erster Blick oder Datei neu angelegt: die letzten 8 MB reichen für die laufende Sitzung
+                    if (state.Offset < 0 || length < state.Offset)
+                    {
+                        state.Offset = Math.Max(0, length - 8 * 1024 * 1024);
+                        state.Rest = string.Empty;
+                        state.LastStreamConnection = string.Empty;
+                        state.OwnStreams.Clear();
+                    }
+
+                    if (length > state.Offset)
+                    {
+                        stream.Seek(state.Offset, SeekOrigin.Begin);
+                        using var reader = new StreamReader(stream, System.Text.Encoding.UTF8);
+                        string text = state.Rest + reader.ReadToEnd();
+                        state.Offset = length;
+
+                        int lastBreak = text.LastIndexOf('\n');
+                        state.Rest = lastBreak < 0 ? text : text.Substring(lastBreak + 1);
+                        if (lastBreak >= 0) ParseDiscordLog(text.Substring(0, lastBreak), state, discordStarted);
+                    }
+
+                    if (state.OwnStreams.Count > 0) streaming = true;
+                }
+                catch { }
+            }
+
+            return streaming;
+        }
+
+        private static void ParseDiscordLog(string text, DiscordLogState state, DateTime discordStarted)
+        {
+            foreach (string line in text.Split('\n'))
+            {
+                if (line.IndexOf("stream", StringComparison.OrdinalIgnoreCase) < 0) continue;
+
+                // Zeilen aus einer früheren Discord-Sitzung zählen nicht (Discord beendet = Stream beendet)
+                if (line.Length > 25 && line[0] == '[' &&
+                    DateTime.TryParseExact(line.Substring(1, 23), "yyyy-MM-dd HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture,
+                        System.Globalization.DateTimeStyles.AssumeLocal, out var time) &&
+                    time < discordStarted.AddMinutes(-1))
+                    continue;
+
+                var connect = DiscordConnectRegex.Match(line);
+                if (connect.Success)
+                {
+                    state.LastStreamConnection = connect.Groups[1].Value;
+                    continue;
+                }
+
+                if (line.Contains("[Connection(stream)] capturing", StringComparison.Ordinal) && state.LastStreamConnection.Length > 0)
+                {
+                    state.OwnStreams.Add(state.LastStreamConnection);
+                    continue;
+                }
+
+                var destroy = DiscordDestroyRegex.Match(line);
+                if (destroy.Success) state.OwnStreams.Remove(destroy.Groups[1].Value);
+            }
+        }
+
         private static bool IsDiscordSharingScreen()
         {
             try
@@ -73,7 +171,21 @@ namespace Game_launcher
                         finally { process.Dispose(); }
                     }
                 }
-                if (discordStarted == null) return false;
+                if (discordStarted == null)
+                {
+                    lock (discordLogs)
+                    {
+                        foreach (var state in discordLogs.Values) state.OwnStreams.Clear();
+                    }
+                    return false;
+                }
+
+                lock (discordLogs)
+                {
+                    if (IsDiscordStreamingByLog(discordStarted.Value)) return true;
+                }
+
+                // Zusätzlich: Windows-Bildschirmaufnahme (trägt Discord nicht immer ein)
                 long notBefore = discordStarted.Value.AddMinutes(-1).ToFileTime();
 
                 const string store = @"Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\";
