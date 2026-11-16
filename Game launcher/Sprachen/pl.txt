@@ -2495,3 +2495,4 @@ a26b1971 || Graj 4 godziny bez przerwy.
 b7e7c121 || Następna
 eaf02075 || Sortowanie
 a191a1b6 || Ukryte
+9f23ce6f || Język został ustawiony. Aby zmieniły się naprawdę wszystkie teksty, także te tworzone raz przy starcie, najlepiej uruchomić launcher ponownie.\n\nUruchomić ponownie teraz?

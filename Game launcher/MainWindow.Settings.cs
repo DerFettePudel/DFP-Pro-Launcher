@@ -1418,7 +1418,9 @@ namespace Game_launcher
             var state = table.GetOrCreateValue(element);
             if (state.Version == Loc.Version && current == state.Shown) return;   // bereits übersetzt
 
-            if (current != state.Shown) state.Original = current;                 // neuer Text von außen
+            // neuer Text von außen; schon übersetzte Texte (vom Code mit Loc.T gesetzt) zurück aufs Deutsche führen,
+            // sonst bleiben sie beim nächsten Sprachwechsel in der alten Sprache hängen
+            if (current != state.Shown) state.Original = Loc.ToSource(current);
 
             string translated = Loc.T(state.Original);
             state.Shown = translated;
@@ -1506,7 +1508,7 @@ namespace Game_launcher
             ApplyLanguage(code);
         }
 
-        private void ApplyLanguage(string setting)
+        private void ApplyLanguage(string setting, bool offerRestart = true)
         {
             string oldPlaceholder = SearchPlaceholder;
 
@@ -1519,6 +1521,18 @@ namespace Game_launcher
             germanRestorePending = true;
             RebuildAfterLanguageChange();
             RunTranslationPass();
+
+            // Sofort wirkt die Sprache fast überall. Was der Code beim Start einmalig aufbaut (Kontextmenüs, Thema-2-Leisten …),
+            // wechselt sicher erst nach einem Neustart – darum direkt anbieten (nicht während ein Spiel läuft, das würde die Zeitmessung abbrechen)
+            if (offerRestart && activeSessions.Count == 0)
+            {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    var answer = Msg("Die Sprache ist eingestellt. Damit wirklich alle Texte wechseln, auch die, die beim Start einmalig aufgebaut werden, startet der Launcher am besten neu.\n\nJetzt neu starten?",
+                        "Sprache", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    if (answer == MessageBoxResult.Yes) RestartLauncher();
+                }), DispatcherPriority.Background);
+            }
         }
 
         private void RebuildAfterLanguageChange()
@@ -1543,6 +1557,7 @@ namespace Game_launcher
                 _ = MeasureCleanupAsync();
             }
 
+            if (IsConsole) RequestConsoleRefresh();   // Thema 2: START, Bibliothek und Holo-Seiten neu aufbauen
             if (ViewStats.Visibility == Visibility.Visible) RefreshStats(false);
             if (ViewDownloads.Visibility == Visibility.Visible) RefreshDownloads();
             if (ViewStorage.Visibility == Visibility.Visible) RefreshDrives();
@@ -2345,7 +2360,7 @@ namespace Game_launcher
                 radio.Checked += (s, e) =>
                 {
                     if (chosen == settings.Language) return;
-                    ApplyLanguage(chosen);
+                    ApplyLanguage(chosen, false);
                     restart = true;
                     dialog.DialogResult = true;
                 };

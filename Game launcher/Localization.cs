@@ -120,6 +120,108 @@ namespace Game_launcher
             }
 
             Templates.Sort((a, b) => b.Literal.CompareTo(a.Literal));
+
+            // Rückweg: übersetzter Text → deutscher Schlüssel (für Texte, die der Code schon übersetzt gesetzt hat)
+            for (int language = 0; language < width; language++)
+            {
+                var map = new Dictionary<string, string>(StringComparer.Ordinal);
+                foreach (var pair in Exact)
+                {
+                    string text = pair.Value[language];
+                    if (text.Length > 0) map.TryAdd(Normalize(text), pair.Key);
+                }
+                ReverseExact.Add(map);
+            }
+        }
+
+        private static readonly List<Dictionary<string, string>> ReverseExact = new();
+        private static readonly Dictionary<int, List<(Regex Pattern, string Key)>> ReverseTemplates = new();
+        private static int previousLanguageIndex = -1;
+
+        /// <summary>Muster einer Übersetzung ("{0} Spiele" auf Türkisch …) zurück auf den deutschen Schlüssel.</summary>
+        private static List<(Regex Pattern, string Key)> ReverseTemplatesFor(int language)
+        {
+            lock (ReverseTemplates)
+            {
+                if (ReverseTemplates.TryGetValue(language, out var list)) return list;
+                list = new List<(Regex, string)>();
+                foreach (var template in Templates)
+                {
+                    if (language >= template.Texts.Length || template.Texts[language].Length == 0) continue;
+                    string text = Normalize(template.Texts[language]);
+                    var pattern = new System.Text.StringBuilder("^");
+                    int last = 0;
+                    var used = new HashSet<string>();
+                    foreach (Match m in Regex.Matches(text, @"\{(\d)\}"))
+                    {
+                        pattern.Append(Regex.Escape(text.Substring(last, m.Index - last)));
+                        string name = "g" + m.Groups[1].Value;
+                        pattern.Append(used.Add(name) ? "(?<" + name + ">.+?)" : @"\k<" + name + ">");
+                        last = m.Index + m.Length;
+                    }
+                    pattern.Append(Regex.Escape(text.Substring(last))).Append('$');
+                    string key = KeyOfTemplate(template);
+                    if (key.Length > 0)
+                        list.Add((new Regex(pattern.ToString(), RegexOptions.Singleline | RegexOptions.CultureInvariant), key));
+                }
+                ReverseTemplates[language] = list;
+                return list;
+            }
+        }
+
+        private static readonly Dictionary<Template, string> TemplateKeys = new();
+        private static string KeyOfTemplate(Template template) => TemplateKeys.TryGetValue(template, out var key) ? key : string.Empty;
+
+        /// <summary>
+        /// Führt einen bereits übersetzten Text auf den deutschen Originaltext zurück (unbekannte Texte bleiben,
+        /// wie sie sind). Damit wechseln auch Texte, die der Code schon übersetzt gesetzt hat, beim Sprachwechsel mit.
+        /// </summary>
+        public static string ToSource(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+            return ToSource(text, 0) ?? text;
+        }
+
+        private static string? ToSource(string text, int depth)
+        {
+            if (depth > 3) return null;
+            string normalized = Normalize(text);
+            if (normalized.Length == 0) return null;
+
+            // Deutsch ist schon das Original
+            if (Exact.ContainsKey(normalized)) return null;
+
+            // Erst die aktive, dann die vorherige Sprache, dann alle anderen (nur genaue Treffer)
+            var order = new List<int>();
+            if (languageIndex >= 0) order.Add(languageIndex);
+            if (previousLanguageIndex >= 0 && previousLanguageIndex != languageIndex) order.Add(previousLanguageIndex);
+            for (int i = 0; i < ReverseExact.Count; i++) if (!order.Contains(i)) order.Add(i);
+
+            foreach (int language in order)
+                if (language < ReverseExact.Count && ReverseExact[language].TryGetValue(normalized, out var key)) return key;
+
+            if (normalized.Contains(" · "))
+            {
+                var parts = normalized.Split(" · ");
+                var back = parts.Select(p => ToSource(p, depth + 1) ?? p).ToArray();
+                return back.SequenceEqual(parts) ? null : string.Join(" · ", back);
+            }
+
+            // Muster nur für die aktive und die vorherige Sprache (spart Zeit bei Texten wie Spielnamen oder Zahlen)
+            foreach (int language in new[] { languageIndex, previousLanguageIndex }.Where(l => l >= 0).Distinct())
+            {
+                foreach (var (pattern, key) in ReverseTemplatesFor(language))
+                {
+                    var match = pattern.Match(normalized);
+                    if (!match.Success) continue;
+                    return Regex.Replace(key, @"\{#?(\d)\}", m =>
+                    {
+                        var group = match.Groups["g" + m.Groups[1].Value];
+                        return group.Success ? (ToSource(group.Value, depth + 1) ?? group.Value) : m.Value;
+                    });
+                }
+            }
+            return null;
         }
 
         private static Template BuildTemplate(string key, string[] texts)
@@ -143,12 +245,14 @@ namespace Game_launcher
             pattern.Append(Regex.Escape(tail)).Append('$');
             literal += tail.Length;
 
-            return new Template
+            var template = new Template
             {
                 Pattern = new Regex(pattern.ToString(), RegexOptions.Singleline | RegexOptions.CultureInvariant),
                 Texts = texts,
                 Literal = literal
             };
+            TemplateKeys[template] = key;
+            return template;
         }
 
         public static void SetLanguage(string code)
@@ -157,6 +261,7 @@ namespace Game_launcher
             if (index < 0) index = 1; // Englisch als Standard
 
             Language = Languages[index].Code;
+            if (languageIndex != index - 1) previousLanguageIndex = languageIndex;
             languageIndex = index - 1;
             Culture = CultureInfo.GetCultureInfo(CultureNames[index]);
 
@@ -1985,6 +2090,7 @@ OBS-Simulation gestartet. || OBS simulation started. || OBS 模拟已启动。 |
 Aktiv (automatisch durch OBS) || Active (automatically via OBS) || 已开启（由 OBS 自动开启） || Activo (automático por OBS) || Actif (automatiquement via OBS) || Ativo (automático pelo OBS) || Включён (автоматически через OBS) || 有効（OBS により自動）
 Weder im Steam-Shop noch bei PCGamingWiki stehen Anforderungen für dieses Spiel. || Neither the Steam store nor PCGamingWiki lists requirements for this game. || Steam 商店和 PCGamingWiki 均未列出此游戏的配置要求。 || Ni la tienda de Steam ni PCGamingWiki indican requisitos para este juego. || Ni la boutique Steam ni PCGamingWiki n'indiquent de configuration pour ce jeu. || Nem a loja Steam nem o PCGamingWiki listam requisitos para este jogo. || Ни в магазине Steam, ни на PCGamingWiki нет требований для этой игры. || Steam ストアにも PCGamingWiki にもこのゲームの必要スペックがありません。
 Grobe Schätzung nach den Angaben bei PCGamingWiki. || Rough estimate based on PCGamingWiki. || 根据 PCGamingWiki 信息的粗略估计。 || Estimación aproximada según PCGamingWiki. || Estimation approximative d'après PCGamingWiki. || Estimativa aproximada com base no PCGamingWiki. || Грубая оценка по данным PCGamingWiki. || PCGamingWiki の情報に基づくおおよその目安です。
+Die Sprache ist eingestellt. Damit wirklich alle Texte wechseln, auch die, die beim Start einmalig aufgebaut werden, startet der Launcher am besten neu.\n\nJetzt neu starten? || The language is set. To switch every text, including the ones built once at startup, it's best to restart the launcher.\n\nRestart now? || 语言已设置。为了让所有文本（包括启动时一次性生成的文本）都切换，最好重启启动器。\n\n现在重启吗？ || El idioma está configurado. Para que cambien todos los textos, también los que se crean una sola vez al iniciar, lo mejor es reiniciar el launcher.\n\n¿Reiniciar ahora? || La langue est définie. Pour que tous les textes changent, y compris ceux créés une seule fois au démarrage, le mieux est de redémarrer le launcher.\n\nRedémarrer maintenant ? || O idioma foi definido. Para que todos os textos mudem, inclusive os criados uma única vez ao iniciar, é melhor reiniciar o launcher.\n\nReiniciar agora? || Язык установлен. Чтобы сменились все тексты, включая создаваемые один раз при запуске, лучше перезапустить лаунчер.\n\nПерезапустить сейчас? || 言語を設定しました。起動時に一度だけ作られる表示も含めてすべて切り替えるには、ランチャーを再起動するのがおすすめです。\n\n今すぐ再起動しますか？
 Auf einen Blick || At a glance || 一览 || De un vistazo || En un coup d'œil || Visão geral || Коротко || ひと目で
 Volle Controller-Unterstützung || Full controller support || 完全支持手柄 || Compatibilidad total con mando || Compatibilité manette complète || Suporte total a controle || Полная поддержка геймпада || コントローラー完全対応
 Teilweise Controller-Unterstützung || Partial controller support || 部分支持手柄 || Compatibilidad parcial con mando || Compatibilité manette partielle || Suporte parcial a controle || Частичная поддержка геймпада || コントローラー一部対応

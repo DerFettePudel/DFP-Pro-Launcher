@@ -2495,3 +2495,4 @@ a26b1971 || Speel 4 uur aan één stuk.
 b7e7c121 || Hierna
 eaf02075 || Sortering
 a191a1b6 || Verborgen
+9f23ce6f || De taal is ingesteld. Om echt alle teksten te laten wisselen, ook die bij het starten eenmalig worden opgebouwd, kun je de launcher het beste opnieuw starten.\n\nNu opnieuw starten?

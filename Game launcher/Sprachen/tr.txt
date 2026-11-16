@@ -2495,3 +2495,4 @@ a26b1971 || Art arda 4 saat oyna.
 b7e7c121 || Sıradaki
 eaf02075 || Sıralama
 a191a1b6 || Gizli
+9f23ce6f || Dil ayarlandı. Başlangıçta bir kez oluşturulanlar dahil tüm metinlerin değişmesi için başlatıcıyı yeniden başlatmak en iyisi.\n\nŞimdi yeniden başlatılsın mı?

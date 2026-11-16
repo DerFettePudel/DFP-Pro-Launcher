@@ -2495,3 +2495,4 @@ a26b1971 || Gioca 4 ore di fila.
 b7e7c121 || Prossimo
 eaf02075 || Ordinamento
 a191a1b6 || Nascosti
+9f23ce6f || La lingua è impostata. Perché cambino davvero tutti i testi, anche quelli creati una sola volta all'avvio, è meglio riavviare il launcher.\n\nRiavviare ora?
