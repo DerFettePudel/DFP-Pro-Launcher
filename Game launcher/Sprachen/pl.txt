@@ -2248,3 +2248,250 @@ a03bbe4e || Wykryto nowe gry: {0}
 e2e80b83 || W Epic Games Launcher: Biblioteka → ⋯ przy grze → Zarządzaj → Zweryfikuj pliki.
 e4edb81a || W Ustawieniach Windows: Aplikacje → Zainstalowane aplikacje → ⋯ przy grze → Opcje zaawansowane → Napraw. W aplikacji Xbox też: gra → ⋯ → Zarządzaj → Pliki → Zweryfikuj i napraw.
 70fa44e9 || W aplikacji EA: Biblioteka → ⋯ przy grze → Napraw.
+21d27c68 || W Ubisoft Connect: Gry → wybierz grę → Właściwości → Zweryfikuj pliki.
+1c250d1b || W GOG Galaxy: otwórz grę → ikona suwaków obok „Graj” → Zarządzaj instalacją → Zweryfikuj / Napraw.
+82c08fbf || W Battle.net: wybierz grę → koło zębate obok „Graj” → Skanuj i napraw.
+33f70e29 || W Rockstar Games Launcher: Ustawienia → Moje zainstalowane gry → gra → Zweryfikuj integralność.
+96b6a411 || W aplikacji Amazon Games: Biblioteka → ⋯ przy grze → Zarządzaj → Zweryfikuj.
+6778b8ed || W Riot Client: ikona profilu → Ustawienia → wybierz grę → Napraw.
+e8278963 || W Heroic: otwórz grę → ⋯ → Zweryfikuj i napraw instalację.
+e6a54739 || W Wargaming.net Game Center: wybierz grę → Ustawienia gry → Sprawdź i napraw grę.
+ef54d37e || W HoYoPlay: wybierz grę → ⋯ obok „Graj” → Napraw pliki gry.
+dc048e10 || W Plarium Play: wybierz grę → ⋯ → Napraw.
+4ac512bf || 🖼 Okładka
+603d7d1f || ⏱ Czas gry
+5c9eaf1d || 🧩 Mody
+96b56fff || ⚙ Ustawienia tej gry
+c4ba4ac6 || Działają skróty jak „gta” czy „rdr2”, a nawet drobne literówki. Filtrem steam:, xbox:, epic:, fav:, new: lub unplayed: filtrujesz od razu.
+e4b84e13 || Motyw wyglądu
+6c19802b || Dwa zupełnie różne interfejsy. Twoje kolory, widżety i wszystkie inne ustawienia zostają. Zmiana zadziała po ponownym uruchomieniu.
+cb78cbf2 || Motyw 1 · Nova
+5b887a54 || Motyw 2 · Cyber
+133c61fa || Miękki i zaokrąglony, szkło i poświata, twój obraz tła.
+cb57c913 || Neonowe krawędzie i skośne przyciski, własny układ: Start z dużym obrazem gry, Pulpit, Biblioteka w rzędach lub jako siatka.
+9992af59 || ● aktywny
+c8f486ec || Aktywny po ponownym uruchomieniu
+ad7dfc96 || Motyw zostanie zastosowany przy następnym uruchomieniu.\n\nUruchomić ponownie teraz?
+34751d1b || W motywie 2 nawigacja jest zawsze na górze. Ten wybór dotyczy motywu 1.
+0ae8097f || Start
+03d3839d || Więcej
+2f476172 || Szukaj (Ctrl+K)
+5792bc8f || Graj
+8b45c8e9 || Graj dalej
+6710135e || Z twojej biblioteki
+f15f21cd || Nie znaleziono jeszcze gier.
+34d8bb59 || Wyniki
+eb14ee83 || Nieuruchamiane
+16a40717 || nigdy
+37463de4 || Uruchomienia
+5c8a963d || Folder
+c7f6100e || Napraw
+ff90a311 || Widok siatki
+4e081eea || Pełna strona gier ze wszystkimi filtrami, kolekcjami, inteligentnymi listami i sortowaniem
+c1ee9f9b || Osiągnięcia
+fec25c9a || Wróć do poprzedniej strony (także bocznym przyciskiem myszy)
+bf4034c1 || Znowu dalej (także przednim bocznym przyciskiem myszy)
+a46fc770 || Zwolnij miejsce
+239a0ed9 || 🧹  Zwolnij miejsce
+92b723c0 || Pokazuje największe i najdłużej nieuruchamiane gry i odinstalowuje zaznaczone.
+971b960f || Twoje zainstalowane gry z ich rozmiarem. Zaznacz gry do usunięcia: launcher uruchomi odinstalowanie i najpierw zabezpieczy zapis, jeśli ustawiono folder zapisów.
+559407c1 || 🗑  Odinstaluj zaznaczone
+639deed6 || Jeszcze nic nie zaznaczono.
+9ca4b10c || Zaznaczono: {0}
+cd51a32e || zwolni się ok. {0}
+98a92fc6 || Obliczanie rozmiaru ...
+4f925000 || Czas gry
+9c6c5cd8 || właśnie działa
+00c5b290 || ostatnio grane
+057a9071 || miesiąc temu
+3a4d53e1 || {0} mies. temu
+f3808696 || ponad rok temu
+ec95def7 || {0} lat temu
+65df400d || Wszystkie dyski
+e37c5fd5 || Wolne: {0}
+eb6b1eed || Największe najpierw
+60eedce1 || Najdłużej nieuruchamiane
+ac1acff8 || Odinstalować gry ({0})?
+536dca15 || Rozpoczęto odinstalowanie gier: {0}.
+c6108486 || Potwierdź je w oknach launcherów. Biblioteka zaktualizuje się potem sama.
+27b0b57a || Potwierdź je w oknach launcherów, a potem kliknij „Skanuj ponownie”.
+b5692c8a || Na górze (pasek nagłówka)
+df9244b1 || Launchery
+9f261f0d || W tym tygodniu
+8404f713 || {0} dni z rzędu
+2b00ecad || Za darmo w Epic Games
+4e861d46 || Aktualizacje gotowe
+46cf3036 || Twoje gry
+89bdc7a5 || Kliknij logo, aby zobaczyć wszystkie gry z tego launchera
+2a0cbe44 || Tydz. {0}
+09c2f0c5 || Losowa gra
+177f0c1a || Dodaj grę
+333cd0ab || Wyróżnione
+111d71db || Czas i pogoda
+538c8928 || Zegar i pogoda są wyłączone w ustawieniach.
+3fb6fd1f || Tydzień
+d051bedf || Cel {0} godz.
+c2c9d804 || Prawie gotowe
+6d3817a1 || Jeszcze nic nie grano.
+4580c469 || Mój rok w grach
+bfe588e3 || Tryb streamera ukrywa teraz czasy gry i statystyki.
+4529d5a4 || Aktywność (ostatnie 26 tygodni)
+8093878d || Czas gry według launchera
+0312b334 || Grane
+a7216083 || Seria
+02178de6 || nie grano
+407ee4e2 || Aktywne dni
+f8894f73 || Średnio dziennie
+dc58957c || Inne
+5a39028a || Dodaj aplikację
+09669dfe || Kategorie
+247ac6db || Wszystkie aplikacje
+9c8b02bb || Dodaj
+826ab9ff || Strony
+30718235 || Programy
+3cf34504 || Foldery i pliki
+f8e54cd8 || Sprawdź ceny
+21938a07 || Na liście
+390ff520 || Największa zniżka
+05762c7b || Ostatnio sprawdzono
+0ae2394d || Otwórz w sklepie Steam
+dba9b738 || Ukryte w trybie streamera.
+ddc8cd7b || Nie znaleziono plików.
+98574e73 || Pliki
+3fab7969 || Łączny rozmiar
+9f3e2d92 || Nowe dzisiaj
+efb2afa7 || Największy plik
+4bf48e88 || Skrzynka
+07e12462 || Typy plików
+47df3d76 || Dzisiaj
+83194f6a || W tym miesiącu
+28ae4238 || Starsze
+73690b65 || Archiwa
+5aa74c37 || Instalatory
+63609fed || Wideo
+88971439 || Audio
+9e8080db || Dokumenty
+46e3c558 || Obrazy dysków
+8e347d80 || Testuj ping
+65457e49 || Rdzeń
+6964bb19 || Pobieranie
+826f7f7c || Wysyłanie
+e4dfd47d || Temperatury i wentylatory
+d0eb2b08 || Odczytywanie czujników ...
+29b89e2a || Odczytywanie ...
+f4f9ce94 || Mierzenie ...
+856a5a13 || Zmierz rozmiary
+0ebe45c7 || Mierzenie rozmiaru twoich gier ...
+d09e486d || Rozmiary nie są jeszcze znane. Kliknij „Zmierz rozmiary”.
+00dfd0ad || Łącznie
+d649284a || Największa gra
+ac30c058 || zajęte
+185c30af || Wolne
+24a747a2 || Menedżer zadań
+65414930 || Aktywny plan:
+02139907 || Plan zasilania
+f5c2a8f8 || Windows do gier
+80f65774 || Sterownik grafiki
+8d408980 || Napraw
+6d3af8c1 || Programy autostartu
+47bb4740 || Do zwolnienia
+d3f81614 || Grupy
+4d51ada3 || Szukaj narzędzia ...
+84a75812 || Wszystkie narzędzia
+93627e46 || Pobierz ze sklepu
+12c12fbc || Termin
+84045483 || Kolejka
+c5d69534 || Ukończone
+bf04f6af || Postęp
+28a32182 || Wkrótce premiera
+f8835433 || dzień
+8cbdc362 || dni
+2ee9796d || Nie znaleziono zrzutów ekranu. Dodaj swój folder zrzutów przyciskiem „Dodaj folder”.
+4687f06e || Najnowszy zrzut ekranu
+5ed1701a || Wyróżnione
+89076080 || Status nadawania
+f63c270e || Odliczanie „Zaraz na żywo”
+5152e7e0 || Lista kontrolna przed streamem
+85928188 || Programy do streamingu
+abdf3fd2 || Szybkie linki
+d6c5fed2 || Sekcje
+a3d6be0f || Na górze jako pasek nagłówka ze START, BIBLIOTEKA i wszystkimi sekcjami albo po lewej lub prawej jako pasek boczny.
+83e83c07 || Pokazuj logo i nazwę w pasku nagłówka
+6bef9341 || Dotyczy paska na górze. Logo, nazwa i podtytuł przejmują twoje ustawienia z „Logo i nazwa”.
+63519657 || Kolory motywu 2
+83d26b3b || Gotowe zestawy
+913239ca || Gotowe połączenia koloru poświaty i odcienia tła. Twój kolor akcentu pozostaje bez zmian.
+131894bb || Drugi kolor poświaty i tło
+5eddcabd || Drugi kolor poświaty barwi krawędzie, napisy, pierścienie i linie (wcześniej cyjan). Odcień tła zawsze pozostaje ciemny, aby wszystko było czytelne.
+5193cf86 || Wybierz kolor poświaty
+08437405 || Wybierz odcień tła
+4ea23874 || Krycie szklanych paneli
+e907673c || Mniejsze krycie bardziej odsłania obraz tła i siatkę.
+6108ceb3 || Siła poświaty
+06e134c7 || Jak mocno świecą krawędzie, przyciski i tytuły. 0 % wyłącza poświatę.
+1cb4e449 || Przywróć kolory motywu 2
+90b95dc7 || Stosowane od razu. Niektóre paski przejmują kolor dopiero po ponownym uruchomieniu.
+e61f1c9f || Neonowy cyjan
+02d78aa0 || Synthwave
+e9d1810c || Matrix
+51a3f35c || Krwawy księżyc
+ca2bce39 || Pogoda ukryta w trybie streamera (lokalizacja).
+85582916 || Kliknięcie otwiera grę, dwuklik ją uruchamia.
+f2ade528 || Inteligentne listy
+dec8352a || Więcej
+f9b723ee || Nie zapisano jeszcze sesji. Od teraz launcher zapamiętuje każdą sesję tej gry.
+97fb91ea || Miejsce
+2aa18584 || Udział
+4d53977e || Ostatnie sesje
+35ba1365 || Usuń z ulubionych
+632436a8 || Akcje
+717238e0 || Uruchamia grę (Enter)
+843884ef || SYSTEM ONLINE
+e0d1048c || WSZYSTKIE SYSTEMY GOTOWE
+936492bf || WIECZORNA ZMIANA
+d9fbe484 || TRYB NOCNY AKTYWNY
+a4325dd3 || Sekwencja startowa
+1c188e95 || Sesja
+413150a9 || Ostatnia sesja
+259b47db || Efekty motywu 2
+ab1b3935 || Poświata w kolorze okładki
+9d383cec || Po najechaniu na grę jej krawędź świeci w głównym kolorze okładki.
+000350de || Żywe tło
+3e7a0f0d || Siatka punktów powoli dryfuje i lekko podąża za myszą. W trybie wydajności wyłączona.
+5c998e0b || Zmiana strony jako linia skanowania
+48184e47 || Przy zmianie strony przez ekran przesuwa się linia światła.
+3a37b843 || HUD startowy przy uruchamianiu gry
+ae8e0957 || Przy starcie pokazuje okładkę, licznik sesji i mały wskaźnik systemu (CPU, GPU, RAM).
+6b353636 || Powitanie zależne od pory dnia
+eb7b2a54 || Wiersz stanu jak SYSTEM ONLINE lub TRYB NOCNY AKTYWNY; nocą wszystko świeci nieco słabiej.
+c647e3ed || Dźwięki holo
+752beca5 || Ciche dźwięki przy najechaniu, otwieraniu i uruchamianiu. Wyciszone w trybie streamera i w „Nie przeszkadzać”.
+abd51c3e || Głośność dźwięków
+e227fae9 || Wiersz poleceń
+0db60420 || start <gra>  ·  open <strona>  ·  settings <hasło>  ·  help      ↑↓ Enter Esc
+1d144184 || start <gra>
+0377d462 || details <gra>
+c9e9914a || open <strona>
+fc661c56 || settings <hasło>
+6df67b31 || random
+e1ae316b || help
+ff7488ec || Uruchom grę od razu
+f7f2e350 || Otwórz widok gry
+e0f9dbfc || Otwórz sekcję (np. statistics, system)
+9ec14386 || Przeszukaj ustawienia
+4a1ac273 || Zaproponuj losową grę
+5294a1c2 || Pokaż wszystkie polecenia
+20230d03 || Nie znaleziono gry.
+239009c4 || Kompletysta
+3ae75cd8 || Ukończ 10 gier.
+84a267ad || Nocna zmiana
+6badec2e || Zagraj 5 sesji rozpoczętych po 22:00.
+681e0f98 || Długi dystans
+a26b1971 || Graj 4 godziny bez przerwy.
+6eca4398 || Wierna dusza
+2d855a5b || Zagraj w jedną grę 50 godzin.
+707d2a5b || Nieskończoność
+84e9224a || Graj łącznie 1000 godzin.
+b7e7c121 || Następna
+eaf02075 || Sortowanie
+a191a1b6 || Ukryte

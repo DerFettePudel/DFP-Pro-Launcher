@@ -2248,3 +2248,250 @@ a03bbe4e || {0} yeni oyun algılandı
 e2e80b83 || Epic Games Launcher'da: Kütüphane → oyundaki ⋯ → Yönet → Dosyaları doğrula.
 e4edb81a || Windows Ayarları'nda: Uygulamalar → Yüklü uygulamalar → oyundaki ⋯ → Gelişmiş seçenekler → Onar. Xbox uygulamasında da olur: oyun → ⋯ → Yönet → Dosyalar → Doğrula ve onar.
 70fa44e9 || EA app'te: Kütüphane → oyundaki ⋯ → Onar.
+21d27c68 || Ubisoft Connect'te: Oyunlar → oyunu seç → Özellikler → Dosyaları doğrula.
+1c250d1b || GOG Galaxy'de: oyunu aç → „Oyna“nın yanındaki ayar simgesi → Kurulumu yönet → Doğrula / Onar.
+82c08fbf || Battle.net'te: oyunu seç → „Oyna“nın yanındaki dişli → Tara ve onar.
+33f70e29 || Rockstar Games Launcher'da: Ayarlar → Yüklü oyunlarım → oyun → Bütünlüğü doğrula.
+96b6a411 || Amazon Games uygulamasında: Kütüphane → oyundaki ⋯ → Yönet → Doğrula.
+6778b8ed || Riot Client'ta: profil simgesi → Ayarlar → oyunu seç → Onar.
+e8278963 || Heroic'te: oyunu aç → ⋯ → Kurulumu doğrula ve onar.
+e6a54739 || Wargaming.net Game Center'da: oyunu seç → Oyun ayarları → Oyunu denetle ve onar.
+ef54d37e || HoYoPlay'de: oyunu seç → „Oyna“nın yanındaki ⋯ → Oyun dosyalarını onar.
+dc048e10 || Plarium Play'de: oyunu seç → ⋯ → Onar.
+4ac512bf || 🖼 Kapak
+603d7d1f || ⏱ Oynama süresi
+5c9eaf1d || 🧩 Modlar
+96b56fff || ⚙ Bu oyunun ayarları
+c4ba4ac6 || „gta“ veya „rdr2“ gibi kısaltmalar ve küçük yazım hataları da çalışır. steam:, xbox:, epic:, fav:, new: veya unplayed: ile doğrudan filtrelersin.
+e4b84e13 || Tasarım teması
+6c19802b || Tamamen farklı iki arayüz. Renklerin, bileşenlerin ve diğer tüm ayarların korunur. Değişiklik yeniden başlatmadan sonra uygulanır.
+cb78cbf2 || Tema 1 · Nova
+5b887a54 || Tema 2 · Cyber
+133c61fa || Yumuşak ve yuvarlak, cam ve parıltı, senin arka plan resmin.
+cb57c913 || Neon kenarlar ve eğik düğmeler, kendine özgü düzen: büyük oyun görselli Başlangıç, Pano, satırlar veya ızgara olarak Kütüphane.
+9992af59 || ● etkin
+c8f486ec || Yeniden başlatmadan sonra etkin
+ad7dfc96 || Tema bir sonraki başlatmada uygulanacak.\n\nŞimdi yeniden başlatılsın mı?
+34751d1b || Tema 2'de gezinme her zaman üsttedir. Bu seçim Tema 1 için geçerlidir.
+0ae8097f || Başlangıç
+03d3839d || Daha fazla
+2f476172 || Ara (Ctrl+K)
+5792bc8f || Oyna
+8b45c8e9 || Oynamaya devam et
+6710135e || Kütüphanenden
+f15f21cd || Henüz oyun bulunamadı.
+34d8bb59 || Sonuçlar
+eb14ee83 || Oynanmamış
+16a40717 || hiç
+37463de4 || Başlatma
+5c8a963d || Klasör
+c7f6100e || Onar
+ff90a311 || Izgara görünümü
+4e081eea || Tüm filtreler, koleksiyonlar, akıllı listeler ve sıralamayla tam oyunlar sayfası
+c1ee9f9b || Başarımlar
+fec25c9a || Önceki sayfaya dön (farenin yan tuşuyla da)
+bf4034c1 || Yeniden ileri (farenin ön yan tuşuyla da)
+a46fc770 || Yer aç
+239a0ed9 || 🧹  Yer aç
+92b723c0 || En büyük ve en uzun süredir oynanmayan oyunları gösterir ve işaretlenenleri kaldırır.
+971b960f || Yüklü oyunların ve boyutları. Gidebilecek oyunları işaretle: başlatıcı kaldırmayı başlatır ve kayıt klasörü belirlenmişse önce oyun kaydını yedekler.
+559407c1 || 🗑  Seçilenleri kaldır
+639deed6 || Henüz hiçbir şey seçilmedi.
+9ca4b10c || {0} seçili
+cd51a32e || yaklaşık {0} boşalacak
+98a92fc6 || Boyut hesaplanıyor ...
+4f925000 || Oynama süresi
+9c6c5cd8 || şu an çalışıyor
+00c5b290 || son oynanma
+057a9071 || bir ay önce
+3a4d53e1 || {0} ay önce
+f3808696 || bir yıldan uzun süre önce
+ec95def7 || {0} yıl önce
+65df400d || Tüm sürücüler
+e37c5fd5 || {0} boş
+eb6b1eed || Önce en büyük
+60eedce1 || En uzun süredir oynanmayan
+ac1acff8 || {0} oyun kaldırılsın mı?
+536dca15 || {0} oyun için kaldırma başlatıldı.
+c6108486 || Lütfen başlatıcıların pencerelerinde onayla. Kütüphane ardından kendiliğinden güncellenir.
+27b0b57a || Lütfen başlatıcıların pencerelerinde onayla ve ardından „Yeniden tara“ya tıkla.
+b5692c8a || Üst (başlık çubuğu)
+df9244b1 || Başlatıcılar
+9f261f0d || Bu hafta
+8404f713 || Art arda {0} gün
+2b00ecad || Epic Games'te ücretsiz
+4e861d46 || Güncellemeler hazır
+46cf3036 || Oyunların
+89bdc7a5 || Bir logoya tıklamak o başlatıcının tüm oyunlarını gösterir
+2a0cbe44 || {0}. hafta
+09c2f0c5 || Rastgele oyun
+177f0c1a || Oyun ekle
+333cd0ab || Odak
+111d71db || Saat ve hava durumu
+538c8928 || Saat ve hava durumu ayarlarda kapalı.
+3fb6fd1f || Hafta
+d051bedf || Hedef {0} sa
+c2c9d804 || Az kaldı
+6d3817a1 || Henüz hiçbir şey oynanmadı.
+4580c469 || Oyun yılım
+bfe588e3 || Yayıncı modu şu an oynama sürelerini ve istatistikleri gizliyor.
+4529d5a4 || Etkinlik (son 26 hafta)
+8093878d || Başlatıcı başına oynama süresi
+0312b334 || Oynanan
+a7216083 || Seri
+02178de6 || oynanmadı
+407ee4e2 || Etkin günler
+f8894f73 || Günlük ortalama
+dc58957c || Diğer
+5a39028a || Uygulama ekle
+09669dfe || Kategoriler
+247ac6db || Tüm uygulamalar
+9c8b02bb || Ekle
+826ab9ff || Web siteleri
+30718235 || Programlar
+3cf34504 || Klasörler ve dosyalar
+f8e54cd8 || Fiyatları kontrol et
+21938a07 || Listede
+390ff520 || En büyük indirim
+05762c7b || Son kontrol
+0ae2394d || Steam mağazasında aç
+dba9b738 || Yayıncı modunda gizli.
+ddc8cd7b || Dosya bulunamadı.
+98574e73 || Dosyalar
+3fab7969 || Toplam boyut
+9f3e2d92 || Bugün yeni
+efb2afa7 || En büyük dosya
+4bf48e88 || Gelen
+07e12462 || Dosya türleri
+47df3d76 || Bugün
+83194f6a || Bu ay
+28ae4238 || Daha eski
+73690b65 || Arşivler
+5aa74c37 || Yükleyiciler
+63609fed || Videolar
+88971439 || Ses
+9e8080db || Belgeler
+46e3c558 || Disk görüntüleri
+8e347d80 || Ping test et
+65457e49 || Çekirdek
+6964bb19 || İndirme
+826f7f7c || Yükleme
+e4dfd47d || Sıcaklıklar ve fanlar
+d0eb2b08 || Sensörler okunuyor ...
+29b89e2a || Okunuyor ...
+f4f9ce94 || Ölçülüyor ...
+856a5a13 || Boyutları ölç
+0ebe45c7 || Oyunlarının boyutları ölçülüyor ...
+d09e486d || Henüz boyut bilinmiyor. „Boyutları ölç“e tıkla.
+00dfd0ad || Toplam
+d649284a || En büyük oyun
+ac30c058 || dolu
+185c30af || Boş
+24a747a2 || Görev Yöneticisi
+65414930 || Etkin plan:
+02139907 || Güç planı
+f5c2a8f8 || Oyunlar için Windows
+80f65774 || Ekran kartı sürücüsü
+8d408980 || Düzelt
+6d3af8c1 || Başlangıç programları
+47bb4740 || Boşaltılabilir
+d3f81614 || Gruplar
+4d51ada3 || Araç ara ...
+84a75812 || Tüm araçlar
+93627e46 || Mağazadan al
+12c12fbc || Tarih
+84045483 || Sıra
+c5d69534 || Tamamlandı
+bf04f6af || İlerleme
+28a32182 || Yakında çıkacak
+f8835433 || gün
+8cbdc362 || gün
+2ee9796d || Ekran görüntüsü bulunamadı. „Klasör ekle“ ile ekran görüntüsü klasörünü ekle.
+4687f06e || En yeni ekran görüntüsü
+5ed1701a || Öne çıkan
+89076080 || Yayın durumu
+f63c270e || „Birazdan canlı“ geri sayımı
+5152e7e0 || Yayın öncesi kontrol listesi
+85928188 || Yayın programları
+abdf3fd2 || Hızlı bağlantılar
+d6c5fed2 || Bölümler
+a3d6be0f || Üstte START, KÜTÜPHANE ve tüm bölümlerle başlık çubuğu olarak ya da solda veya sağda kenar çubuğu olarak.
+83e83c07 || Başlık çubuğunda logoyu ve adı göster
+6bef9341 || Çubuk üstteyken geçerlidir. Logo, ad ve alt başlık „Logo ve ad“ altındaki ayarlarını kullanır.
+63519657 || Tema 2 renkleri
+83d26b3b || Hazır ayarlar
+913239ca || Parıltı rengi ve arka plan tonunun hazır kombinasyonları. Vurgu rengin olduğu gibi kalır.
+131894bb || İkinci parıltı rengi ve arka plan
+5eddcabd || İkinci parıltı rengi kenarları, yazıları, halkaları ve çizgileri renklendirir (önceden camgöbeği). Her şeyin okunur kalması için arka plan tonu hep koyu kalır.
+5193cf86 || Parıltı rengi seç
+08437405 || Arka plan tonu seç
+4ea23874 || Cam panellerin opaklığı
+e907673c || Daha az opaklık arka plan resminin ve ızgaranın daha çok görünmesini sağlar.
+6108ceb3 || Parıltı gücü
+06e134c7 || Kenarların, düğmelerin ve başlıkların ne kadar parlayacağı. %0 parıltıyı kapatır.
+1cb4e449 || Tema 2 renklerini sıfırla
+90b95dc7 || Hemen uygulanır. Birkaç çubuk rengi ancak yeniden başlatmadan sonra alır.
+e61f1c9f || Neon camgöbeği
+02d78aa0 || Synthwave
+e9d1810c || Matrix
+51a3f35c || Kanlı ay
+ca2bce39 || Hava durumu yayıncı modunda gizli (konum).
+85582916 || Tıklama oyunu açar, çift tıklama başlatır.
+f2ade528 || Akıllı listeler
+dec8352a || Diğer
+f9b723ee || Henüz oturum kaydedilmedi. Başlatıcı bundan sonra bu oyunun her oturumunu hatırlar.
+97fb91ea || Sıra
+2aa18584 || Pay
+4d53977e || Son oturumlar
+35ba1365 || Favoriyi kaldır
+632436a8 || İşlemler
+717238e0 || Oyunu başlatır (Enter)
+843884ef || SİSTEM ÇEVRİMİÇİ
+e0d1048c || TÜM SİSTEMLER HAZIR
+936492bf || AKŞAM VARDİYASI
+d9fbe484 || GECE MODU ETKİN
+a4325dd3 || Başlatma dizisi
+1c188e95 || Oturum
+413150a9 || Son oturum
+259b47db || Tema 2 efektleri
+ab1b3935 || Kapak renginde parıltı
+9d383cec || Bir oyunun üzerine gelince kenarı kapağının ana renginde parlar.
+000350de || Canlı arka plan
+3e7a0f0d || Nokta ızgarası yavaşça kayar ve fareyi hafifçe takip eder. Performans modunda kapalı.
+5c998e0b || Tarama çizgisi olarak sayfa geçişi
+48184e47 || Sayfa değişince ekranın üzerinden bir ışık çizgisi geçer.
+3a37b843 || Oyun başlarken başlatma HUD'u
+ae8e0957 || Başlatmada kapağı, oturum sayacını ve küçük bir sistem göstergesini (CPU, GPU, RAM) gösterir.
+6b353636 || Günün saatine göre selamlama
+eb7b2a54 || SİSTEM ÇEVRİMİÇİ veya GECE MODU ETKİN gibi durum satırı; geceleri her şey biraz daha loş parlar.
+c647e3ed || Holo sesleri
+752beca5 || Üzerine gelirken, açarken ve başlatırken hafif sesler. Yayıncı modunda ve „Rahatsız etme“de sessiz.
+abd51c3e || Seslerin düzeyi
+e227fae9 || Komut satırı
+0db60420 || start <oyun>  ·  open <sayfa>  ·  settings <terim>  ·  help      ↑↓ Enter Esc
+1d144184 || start <oyun>
+0377d462 || details <oyun>
+c9e9914a || open <sayfa>
+fc661c56 || settings <terim>
+6df67b31 || random
+e1ae316b || help
+ff7488ec || Oyunu hemen başlat
+f7f2e350 || Oyun görünümünü aç
+e0f9dbfc || Bölüm aç (örn. statistics, system)
+9ec14386 || Ayarlarda ara
+4a1ac273 || Rastgele bir oyun öner
+5294a1c2 || Tüm komutları göster
+20230d03 || Oyun bulunamadı.
+239009c4 || Tamamlayıcı
+3ae75cd8 || 10 oyun bitir.
+84a267ad || Gece vardiyası
+6badec2e || Saat 22'den sonra başlayan 5 oturum oyna.
+681e0f98 || Uzun yol
+a26b1971 || Art arda 4 saat oyna.
+6eca4398 || Sadık ruh
+2d855a5b || Tek bir oyunu 50 saat oyna.
+707d2a5b || Sonsuz
+84e9224a || Toplam 1000 saat oyna.
+b7e7c121 || Sıradaki
+eaf02075 || Sıralama
+a191a1b6 || Gizli

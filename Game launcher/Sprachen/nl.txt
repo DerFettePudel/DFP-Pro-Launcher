@@ -2248,3 +2248,250 @@ a03bbe4e || {0} nieuwe games gevonden
 e2e80b83 || In de Epic Games Launcher: Bibliotheek → ⋯ bij de game → Beheren → Bestanden verifiëren.
 e4edb81a || In de Windows-instellingen: Apps → Geïnstalleerde apps → ⋯ bij de game → Geavanceerde opties → Repareren. In de Xbox-app kan het ook: game → ⋯ → Beheren → Bestanden → Verifiëren en repareren.
 70fa44e9 || In de EA-app: Bibliotheek → ⋯ bij de game → Repareren.
+21d27c68 || In Ubisoft Connect: Games → game kiezen → Eigenschappen → Bestanden verifiëren.
+1c250d1b || In GOG Galaxy: game openen → schuifregelaarpictogram naast „Spelen” → Installatie beheren → Verifiëren / Repareren.
+82c08fbf || In Battle.net: game kiezen → tandwiel naast „Spelen” → Scannen en repareren.
+33f70e29 || In de Rockstar Games Launcher: Instellingen → Mijn geïnstalleerde games → game → Integriteit verifiëren.
+96b6a411 || In de Amazon Games-app: Bibliotheek → ⋯ bij de game → Beheren → Verifiëren.
+6778b8ed || In de Riot Client: profielpictogram → Instellingen → game kiezen → Repareren.
+e8278963 || In Heroic: game openen → ⋯ → Installatie verifiëren en repareren.
+e6a54739 || In het Wargaming.net Game Center: game kiezen → Game-instellingen → Game controleren en repareren.
+ef54d37e || In HoYoPlay: game kiezen → ⋯ naast „Spelen” → Gamebestanden repareren.
+dc048e10 || In Plarium Play: game kiezen → ⋯ → Repareren.
+4ac512bf || 🖼 Cover
+603d7d1f || ⏱ Speeltijd
+5c9eaf1d || 🧩 Mods
+96b56fff || ⚙ Instellingen voor deze game
+c4ba4ac6 || Afkortingen zoals „gta” of „rdr2” werken, kleine typfouten ook. Met steam:, xbox:, epic:, fav:, new: of unplayed: filter je direct.
+e4b84e13 || Ontwerpthema
+6c19802b || Twee totaal verschillende interfaces. Je kleuren, widgets en alle andere instellingen blijven behouden. De wissel wordt na een herstart toegepast.
+cb78cbf2 || Thema 1 · Nova
+5b887a54 || Thema 2 · Cyber
+133c61fa || Zacht en rond, glas en gloed, jouw achtergrondafbeelding.
+cb57c913 || Neonranden en schuine knoppen, eigen opbouw: Start met grote gamefoto, Dashboard, Bibliotheek in rijen of als raster.
+9992af59 || ● actief
+c8f486ec || Actief na herstart
+ad7dfc96 || Het thema wordt bij de volgende start toegepast.\n\nNu opnieuw starten?
+34751d1b || In thema 2 zit de navigatie altijd bovenaan. Deze keuze geldt voor thema 1.
+0ae8097f || Start
+03d3839d || Meer
+2f476172 || Zoeken (Ctrl+K)
+5792bc8f || Spelen
+8b45c8e9 || Verder spelen
+6710135e || Uit je bibliotheek
+f15f21cd || Nog geen games gevonden.
+34d8bb59 || Resultaten
+eb14ee83 || Niet gespeeld
+16a40717 || nooit
+37463de4 || Starts
+5c8a963d || Map
+c7f6100e || Repareren
+ff90a311 || Rasterweergave
+4e081eea || De volledige gamepagina met alle filters, collecties, slimme lijsten en sortering
+c1ee9f9b || Prestaties
+fec25c9a || Terug naar de vorige pagina (ook met de zijknop van de muis)
+bf4034c1 || Weer vooruit (ook met de voorste zijknop van de muis)
+a46fc770 || Ruimte maken
+239a0ed9 || 🧹  Ruimte maken
+92b723c0 || Toont de grootste en langst niet gespeelde games en verwijdert de gemarkeerde.
+971b960f || Je geïnstalleerde games met hun grootte. Markeer de games die weg mogen: de launcher start dan het verwijderen en maakt eerst een back-up van de savegame als er een savemap is ingesteld.
+559407c1 || 🗑  Geselecteerde verwijderen
+639deed6 || Nog niets geselecteerd.
+9ca4b10c || {0} geselecteerd
+cd51a32e || ca. {0} komt vrij
+98a92fc6 || Grootte wordt bepaald ...
+4f925000 || Speeltijd
+9c6c5cd8 || draait nu
+00c5b290 || laatst gespeeld
+057a9071 || een maand geleden
+3a4d53e1 || {0} maanden geleden
+f3808696 || meer dan een jaar geleden
+ec95def7 || {0} jaar geleden
+65df400d || Alle stations
+e37c5fd5 || {0} vrij
+eb6b1eed || Grootste eerst
+60eedce1 || Langst niet gespeeld
+ac1acff8 || {0} games verwijderen?
+536dca15 || Verwijderen gestart voor {0} games.
+c6108486 || Bevestig het in de vensters van de launchers. De bibliotheek werkt zichzelf daarna bij.
+27b0b57a || Bevestig het in de vensters van de launchers en klik daarna op „Opnieuw scannen”.
+b5692c8a || Boven (kopbalk)
+df9244b1 || Launchers
+9f261f0d || Deze week
+8404f713 || {0} dagen op rij
+2b00ecad || Gratis bij Epic Games
+4e861d46 || Updates klaar
+46cf3036 || Je games
+89bdc7a5 || Klik op een logo om alle games van die launcher te zien
+2a0cbe44 || Week {0}
+09c2f0c5 || Willekeurige game
+177f0c1a || Game toevoegen
+333cd0ab || Focus
+111d71db || Tijd en weer
+538c8928 || Klok en weer zijn uitgeschakeld in de instellingen.
+3fb6fd1f || Week
+d051bedf || Doel {0} u
+c2c9d804 || Bijna klaar
+6d3817a1 || Nog niets gespeeld.
+4580c469 || Mijn gamejaar
+bfe588e3 || De streamermodus verbergt nu speeltijden en statistieken.
+4529d5a4 || Activiteit (laatste 26 weken)
+8093878d || Speeltijd per launcher
+0312b334 || Gespeeld
+a7216083 || Reeks
+02178de6 || niet gespeeld
+407ee4e2 || Actieve dagen
+f8894f73 || Gemiddeld per dag
+dc58957c || Overig
+5a39028a || App toevoegen
+09669dfe || Categorieën
+247ac6db || Alle toepassingen
+9c8b02bb || Toevoegen
+826ab9ff || Websites
+30718235 || Programma's
+3cf34504 || Mappen en bestanden
+f8e54cd8 || Prijzen controleren
+21938a07 || Op de lijst
+390ff520 || Hoogste korting
+05762c7b || Laatst gecontroleerd
+0ae2394d || Openen in de Steam-winkel
+dba9b738 || Verborgen in streamermodus.
+ddc8cd7b || Geen bestanden gevonden.
+98574e73 || Bestanden
+3fab7969 || Totale grootte
+9f3e2d92 || Vandaag nieuw
+efb2afa7 || Grootste bestand
+4bf48e88 || Binnengekomen
+07e12462 || Bestandstypen
+47df3d76 || Vandaag
+83194f6a || Deze maand
+28ae4238 || Ouder
+73690b65 || Archieven
+5aa74c37 || Installatieprogramma's
+63609fed || Video's
+88971439 || Audio
+9e8080db || Documenten
+46e3c558 || Schijfkopieën
+8e347d80 || Ping testen
+65457e49 || Kern
+6964bb19 || Download
+826f7f7c || Upload
+e4dfd47d || Temperaturen en ventilatoren
+d0eb2b08 || Sensoren worden gelezen ...
+29b89e2a || Wordt gelezen ...
+f4f9ce94 || Wordt gemeten ...
+856a5a13 || Groottes meten
+0ebe45c7 || De grootte van je games wordt gemeten ...
+d09e486d || Nog geen groottes bekend. Klik op „Groottes meten”.
+00dfd0ad || Samen
+d649284a || Grootste game
+ac30c058 || gebruikt
+185c30af || Vrij
+24a747a2 || Taakbeheer
+65414930 || Actief schema:
+02139907 || Energiebeheerschema
+f5c2a8f8 || Windows voor gaming
+80f65774 || Videostuurprogramma
+8d408980 || Oplossen
+6d3af8c1 || Opstartprogramma's
+47bb4740 || Vrij te maken
+d3f81614 || Groepen
+4d51ada3 || Hulpmiddel zoeken ...
+84a75812 || Alle hulpmiddelen
+93627e46 || In de Store halen
+12c12fbc || Datum
+84045483 || Wachtrij
+c5d69534 || Voltooid
+bf04f6af || Voortgang
+28a32182 || Binnenkort verwacht
+f8835433 || dag
+8cbdc362 || dagen
+2ee9796d || Geen schermafbeeldingen gevonden. Voeg je map met schermafbeeldingen toe via „Map toevoegen”.
+4687f06e || Nieuwste schermafbeelding
+5ed1701a || Uitgelicht
+89076080 || Uitzendstatus
+f63c270e || Aftellen „Zo live”
+5152e7e0 || Checklist voor de stream
+85928188 || Streamingprogramma's
+abdf3fd2 || Snelle links
+d6c5fed2 || Onderdelen
+a3d6be0f || Bovenaan als kopbalk met START, BIBLIOTHEEK en alle onderdelen, of links of rechts als zijbalk.
+83e83c07 || Logo en naam in de kopbalk tonen
+6bef9341 || Geldt als de balk bovenaan staat. Logo, naam en ondertitel nemen je instellingen onder „Logo en naam” over.
+63519657 || Kleuren van thema 2
+83d26b3b || Voorinstellingen
+913239ca || Kant-en-klare combinaties van gloedkleur en achtergrondtint. Je accentkleur blijft zoals hij is.
+131894bb || Tweede gloedkleur en achtergrond
+5eddcabd || De tweede gloedkleur kleurt randen, opschriften, ringen en lijnen (voorheen cyaan). De achtergrondtint blijft altijd donker zodat alles leesbaar blijft.
+5193cf86 || Gloedkleur kiezen
+08437405 || Achtergrondtint kiezen
+4ea23874 || Dekking van de glaspanelen
+e907673c || Minder dekking laat de achtergrondafbeelding en het raster meer doorschijnen.
+6108ceb3 || Gloedsterkte
+06e134c7 || Hoe sterk randen, knoppen en titels gloeien. 0 % schakelt de gloed uit.
+1cb4e449 || Kleuren van thema 2 herstellen
+90b95dc7 || Wordt meteen toegepast. Een paar balken nemen de kleur pas na een herstart over.
+e61f1c9f || Neon-cyaan
+02d78aa0 || Synthwave
+e9d1810c || Matrix
+51a3f35c || Bloedmaan
+ca2bce39 || Weer verborgen in streamermodus (locatie).
+85582916 || Klik opent een game, dubbelklik start hem.
+f2ade528 || Slimme lijsten
+dec8352a || Meer
+f9b723ee || Nog geen sessies vastgelegd. Vanaf nu onthoudt de launcher elke sessie van deze game.
+97fb91ea || Plaats
+2aa18584 || Aandeel
+4d53977e || Laatste sessies
+35ba1365 || Favoriet verwijderen
+632436a8 || Acties
+717238e0 || Start de game (Enter)
+843884ef || SYSTEEM ONLINE
+e0d1048c || ALLE SYSTEMEN GEREED
+936492bf || AVONDDIENST
+d9fbe484 || NACHTMODUS ACTIEF
+a4325dd3 || Startsequentie
+1c188e95 || Sessie
+413150a9 || Laatste sessie
+259b47db || Effecten van thema 2
+ab1b3935 || Gloed in de coverkleur
+9d383cec || Bij het aanwijzen van een game gloeit de rand in de hoofdkleur van zijn cover.
+000350de || Levende achtergrond
+3e7a0f0d || Het puntraster schuift langzaam en volgt de muis een beetje. Uit in de prestatiemodus.
+5c998e0b || Paginawissel als scanlijn
+48184e47 || Bij het wisselen van pagina schuift er een lichtlijn over het scherm.
+3a37b843 || Start-HUD bij het starten van een game
+ae8e0957 || Toont bij het starten cover, sessieteller en een kleine systeemweergave (CPU, GPU, RAM).
+6b353636 || Begroeting naar tijdstip
+eb7b2a54 || Statusregel zoals SYSTEEM ONLINE of NACHTMODUS ACTIEF; 's nachts gloeit alles wat zachter.
+c647e3ed || Holo-geluiden
+752beca5 || Zachte geluiden bij aanwijzen, openen en starten. Gedempt in de streamermodus en bij „Niet storen”.
+abd51c3e || Volume van de geluiden
+e227fae9 || Opdrachtregel
+0db60420 || start <game>  ·  open <pagina>  ·  settings <term>  ·  help      ↑↓ Enter Esc
+1d144184 || start <game>
+0377d462 || details <game>
+c9e9914a || open <pagina>
+fc661c56 || settings <term>
+6df67b31 || random
+e1ae316b || help
+ff7488ec || Game direct starten
+f7f2e350 || Gameweergave openen
+e0f9dbfc || Onderdeel openen (bijv. statistics, system)
+9ec14386 || Instellingen doorzoeken
+4a1ac273 || Willekeurige game voorstellen
+5294a1c2 || Alle opdrachten tonen
+20230d03 || Geen game gevonden.
+239009c4 || Voltooier
+3ae75cd8 || Speel 10 games uit.
+84a267ad || Nachtdienst
+6badec2e || Speel 5 sessies die na 22 uur beginnen.
+681e0f98 || Lange afstand
+a26b1971 || Speel 4 uur aan één stuk.
+6eca4398 || Trouwe ziel
+2d855a5b || Speel één game 50 uur.
+707d2a5b || Oneindig
+84e9224a || Speel in totaal 1000 uur.
+b7e7c121 || Hierna
+eaf02075 || Sortering
+a191a1b6 || Verborgen
