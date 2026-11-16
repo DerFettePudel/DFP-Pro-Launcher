@@ -44,7 +44,7 @@ namespace Game_launcher
             public double CpuSum, CpuMax, GpuSum, GpuMax, RamSum, RamMax;
         }
 
-        private bool StreamerOn => settings.StreamerMode || streamAutoOn || obsAutoOn;
+        private bool StreamerOn => settings.StreamerMode || streamAutoOn || obsAutoOn || discordAutoOn;
         private bool SHide(bool option) => StreamerOn && option;
         private string DisplayUserName() => SHide(settings.StreamHideName) ? "Gamer" : settings.UserName;
 
@@ -54,7 +54,11 @@ namespace Game_launcher
         private void InitExtras7()
         {
             streamTimer.Interval = TimeSpan.FromSeconds(5);
-            streamTimer.Tick += async (s, e) => await CheckStreamingSoftwareAsync();
+            streamTimer.Tick += async (s, e) =>
+            {
+                await CheckStreamingSoftwareAsync();
+                await CheckDiscordStreamAsync();
+            };
             streamTimer.Start();
 
             lastStreamerState = StreamerOn;
@@ -129,6 +133,8 @@ namespace Game_launcher
                 streamAutoOn = false;
                 if (obsAutoOn) obsAutoSuppressed = true;   // bleibt aus, bis der Stream endet oder die Szene wechselt
                 obsAutoOn = false;
+                if (discordAutoOn) discordAutoSuppressed = true;   // bleibt aus, bis Discord das Teilen beendet
+                discordAutoOn = false;
                 settings.StreamerMode = false;
             }
 
@@ -158,6 +164,11 @@ namespace Game_launcher
                 obsAutoSuppressed = true;
                 obsAutoOn = false;
             }
+            if (!wanted && discordAutoOn)
+            {
+                discordAutoSuppressed = true;
+                discordAutoOn = false;
+            }
             SaveSettings();
             ApplyStreamerMode();
         }
@@ -179,6 +190,7 @@ namespace Game_launcher
             StreamBadge.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
             if (DockStreamBadge != null) DockStreamBadge.Visibility = on ? Visibility.Visible : Visibility.Collapsed;
             TxtStreamBadge.Text = settings.StreamerMode ? Loc.T("📡 Streamer-Modus") : Loc.T("📡 Streamer-Modus (automatisch)");
+            UpdateStreamerPill(on);
 
             bool previous = isLoadingSettings;
             isLoadingSettings = true;
@@ -241,6 +253,7 @@ namespace Game_launcher
             TxtStreamerState.Text = on
                 ? (settings.StreamerMode ? Loc.T("Aktiv (manuell)")
                    : obsAutoOn ? Loc.T("Aktiv (automatisch durch OBS)")
+                   : discordAutoOn ? Loc.T("Aktiv (automatisch, weil du in Discord streamst)")
                    : Loc.T("Aktiv (automatisch, weil eine Streaming-Software läuft)"))
                 : Loc.T("Aus");
             TxtStreamerState.Foreground = MakeBrush(on ? "#34D399" : "#9CA3AF");

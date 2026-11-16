@@ -2573,6 +2573,7 @@ namespace Game_launcher
             settings.StreamHidePaths = ChkStreamPaths.IsChecked == true;
             settings.StreamHideShots = ChkStreamShots.IsChecked == true;
             settings.StreamMuteAlerts = ChkStreamMute.IsChecked == true;
+            settings.DiscordAutoStreamer = ChkDiscordAuto.IsChecked == true;
 
             settings.ReopenAfterGame = ChkReopen.IsChecked == true;
             settings.AskOnClose = ChkAskClose.IsChecked == true;
@@ -2603,6 +2604,7 @@ namespace Game_launcher
             ChkStreamPaths.IsChecked = settings.StreamHidePaths;
             ChkStreamShots.IsChecked = settings.StreamHideShots;
             ChkStreamMute.IsChecked = settings.StreamMuteAlerts;
+            ChkDiscordAuto.IsChecked = settings.DiscordAutoStreamer;
 
             ChkReopen.IsChecked = settings.ReopenAfterGame;
             ChkAskClose.IsChecked = settings.AskOnClose;
@@ -3621,7 +3623,7 @@ namespace Game_launcher
                 "CardLayout", "LibraryView", "HoverZoom", "HoverGlow" }),
             ("background", "Hintergrund", new[] { "BackgroundImagePath", "BgDim", "BgBlur" }),
             ("streamer", "Streamer-Modus", new[] { "StreamerMode", "StreamerAuto", "StreamHideName", "StreamHideLocation", "StreamHideStats",
-                "StreamHideRecent", "StreamHidePaths", "StreamHideShots", "StreamHidePc", "StreamHideMusic", "StreamMuteAlerts", "StreamCensorStyle", "ObsAutoStreamer" }),
+                "StreamHideRecent", "StreamHidePaths", "StreamHideShots", "StreamHidePc", "StreamHideMusic", "StreamMuteAlerts", "StreamCensorStyle", "ObsAutoStreamer", "DiscordAutoStreamer" }),
             ("power", "Energieplan", Array.Empty<string>()),
             ("sidebar", "Seitenleisten-Bereiche", new[] { "HiddenSections", "SidebarCollapsed", "SidebarPosition" }),
             ("controller", "Controller-Optionen", new[] { "ControllerSupport", "ControllerLayout", "PadCombo", "PadComboMode", "PadComboInGame",

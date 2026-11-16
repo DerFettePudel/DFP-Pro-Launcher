@@ -244,6 +244,7 @@ namespace Game_launcher
         // Streamer-Modus und Komfort
         public bool StreamerMode { get; set; }
         public bool StreamerAuto { get; set; }
+        public bool DiscordAutoStreamer { get; set; } = true;   // Streamer-Modus, solange Discord den Bildschirm teilt
         public bool StreamHideName { get; set; } = true;
         public bool StreamHideLocation { get; set; } = true;
         public bool StreamHideStats { get; set; } = true;

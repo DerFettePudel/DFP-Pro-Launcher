@@ -4273,6 +4273,18 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
+                                            <TextBlock Text="Automatisch einschalten, wenn du in Discord streamst" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="Sobald Discord deinen Bildschirm oder ein Fenster teilt, geht der Streamer-Modus an und nach dem Stream wieder aus. Oben im Fenster erscheint dann ein Knopf zum Ausschalten." Style="{DynamicResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox x:Name="ChkDiscordAuto" Grid.Column="1" VerticalAlignment="Center" Checked="Option_Changed" Unchecked="Option_Changed"/>
+                                    </Grid>
+
+                                    <Grid Margin="0,0,0,18">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Margin="0,0,24,0" VerticalAlignment="Center">
                                             <TextBlock Text="Launcher in Aufnahmen und Streams unsichtbar machen" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
                                             <TextBlock Text="OBS, Discord und Bildschirmfotos zeigen das Launcher-Fenster und alle seine Dialoge nicht mehr. Du selbst siehst es ganz normal. Gilt immer, auch ohne Streamer-Modus." Style="{DynamicResource SubtleText}" FontSize="12" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                             <TextBlock x:Name="TxtCaptureExcludeHint" Foreground="#F59E0B" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0" Visibility="Collapsed"/>
