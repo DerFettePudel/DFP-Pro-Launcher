@@ -1198,3 +1198,203 @@ ee3b23b9 || Verwijderde bestanden definitief wissen
 f93ab595 || Gedownloade covers – worden daarna automatisch opnieuw geladen
 dcb5f8eb || Launcherlogboeken
 a0c8a036 || Foutenlogboeken van deze launcher
+662445b7 || DNS-cache
+47a104b9 || Helpt bij verbindingsproblemen met gameservers en launchers
+ae2a61af || {0} kan worden vrijgemaakt
+7a1c3684 || Alles schoon
+17d2609f || Systeemrapporten: {0} kunnen alleen met beheerdersrechten worden verwijderd.
+fd9e941d || Opgeruimd
+099d7a22 || {0} vrijgemaakt
+6a540b01 || De DNS-cache is geleegd.
+9b6fb5e2 || Alle onderdelen in de lijst legen? De prullenbak wordt daarbij definitief geleegd.
+3619bd24 || Geanimeerde covers
+000b4865 || De geanimeerde covers worden op de achtergrond geladen.
+88e3ada7 || Verrassingen (easter eggs)
+f7a88109 || Verborgen kleinigheden, feestdageffecten en geheime prestaties. Uit: de launcher blijft volledig serieus.
+1d9f3f3d || +30 levens
+238e286d || Konami-code ingevoerd. De regenboogmodus duurt een minuut.
+a7e5b850 || Woef!
+eb6f6af5 || De poedel is blij je te zien.
+3fe42b66 || Geheime prestatie:
+cbbd0c26 || Geheime statistiek
+901bd5b0 || Je hebt in totaal {0} uur gespeeld, dat is {1} dagen aan één stuk.
+5adae104 || In die tijd had je {0} films kunnen kijken.
+0006e4b0 || Met één kopje per drie uur zijn dat {0} kopjes koffie.
+ce46d74a || Je hebt {0} keer een game via de launcher gestart.
+85cdeb95 || Je favoriet aller tijden is „{0}” met {1} uur.
+f0c733f4 || De poedel is al {0} dagen bij je.
+71cdcb2f || Dobbelsteen
+88f9465f || Je hebt {0} gegooid. ({1} zijden)
+f5765623 || Munt
+b2d51e00 || Kop!
+12a1a49b || Munt!
+ba204579 || Disco
+986cb8be || Het feest duurt tien seconden.
+67743964 || Gooit een getal (bijvoorbeeld /dobbel 20)
+b3d08e66 || Gooit een munt
+b24664ac || Kiest een game voor je
+8af68960 || Start het feest
+c3b6b658 || Zeg hallo tegen de poedel
+4e6604c7 || Toont de geheime commando's
+73502c90 || Geheime commando's
+c3d7339e || Fijne Halloween
+8817a6d6 || Griezelige groeten, {0}!
+bd186483 || Vrolijk kerstfeest
+5b7a6fed || Fijne feestdagen, {0}!
+9dca880d || Gelukkig nieuwjaar
+f3605a04 || Op een geweldig gamejaar, {0}!
+f7a38b08 || DFP Pro Launcher werkt niet meer
+71b6cb50 || Door een probleem werkt het programma niet meer correct. Windows zoekt naar een oplossing voor het probleem ...
+408bfef8 || Het programma sluiten
+fbd59b61 || Wachten op een oplossing
+fda2f36c || 1 april!
+9ee9a003 || Alles is in orde. De poedel liet je alleen even schrikken.
+9574d778 || Pfoe, bedankt!
+1d5f1159 || Verjaardag
+d12a8bb1 || Vandaag een jaar geleden heb je me geïnstalleerd. Gefeliciteerd met de verjaardag van de launcher!
+736d3749 || Vandaag {0} jaar geleden heb je me geïnstalleerd. Gefeliciteerd met de verjaardag van de launcher!
+0c52adf4 || Nachtuil
+b967e46e || Je poedel slaapt al. Jij ook bijna?
+242aa8fc || De maker in hoogsteigen persoon
+11acaac6 || Kijk eens wie we daar hebben?
+1d975694 || Fijn dat je er bent
+801b295e || De poedel heeft je gemist
+b56cff86 || Level up, legende
+f13a0a0b || Nieuwe game, nieuwe kansen
+85c7c004 || Tijd om te gamen
+ed03a67f || Welkom op het hoofdkwartier
+71befa71 || Klaar voor avontuur
+1d0617ba || Mijlpaal
+c1b9009e || Je hebt in totaal {0} uur gespeeld.
+6758fc3b || Bankbeginner
+438a7d3f || Bankveteraan
+a5dfc166 || Poedellegende
+b3cf211d || Tijdloos
+16370928 || Onsterfelijk
+b49b0d0c || Voltreffer
+5985d900 || Het logo raakte precies een hoek.
+04954ee4 || Geheim
+42a64c42 || Geheim: vind het passende easter egg.
+bc6c70ee || Konami-code
+fb1c1471 || Je kent de oude cheats.
+1aab97d6 || Poedelvriend
+a40fd76b || Je hebt hallo gezegd tegen de poedel.
+e18ff596 || Dobbelgeluk
+97ce72c4 || Drie zessen op rij gegooid.
+8ef3fe31 || Discokoorts
+bde9d9ae || Het feest gestart.
+14e578c4 || Het logo raakte een hoek.
+3c358ee2 || Na drie uur 's nachts gespeeld.
+69be2010 || Jarige
+35b63514 || Gestart op de verjaardag van de installatie.
+8d973ce5 || Cijfermens
+ee9b0642 || De geheime statistiek gevonden.
+d335e608 || Geluksvogel
+cf5e0314 || Een zeldzame spreuk bij het starten gekregen.
+518ed0d6 || Feeststemming
+e613a49a || Een bijzondere dag gevierd in de launcher.
+8252c7d7 || Testversie
+06dc4664 || Routines
+32724b12 || Routines inschakelen
+be50945d || Routines voeren meerdere acties na elkaar uit, bijvoorbeeld: Discord openen, maximaliseren op scherm 2 en daarna Spotify starten.
+500d8761 || Uit: er draait geen routine automatisch. Handmatig uitvoeren werkt nog steeds.
+63e80071 || Verbergen (de muziek speelt door)
+14a5eb9a || Voorbeeld invoegen
+4222eb9a || De launcher herkent of je achter een desktop-pc, laptop of handheld zit en past zijbalk en kaartgrootte aan.
+a4e05547 || Desktop-pc
+0098abaf || Eigen snelstartknoppen
+3051612a || Aanbevolen: voorkomt dat de pc per ongeluk wordt uitgeschakeld.
+123bdd40 || Energiefuncties
+95d95c16 || Voegt onder Hulpmiddelen het onderdeel „Energie” toe: afsluiten, opnieuw opstarten, slaapstand, afmelden en pc vergrendelen.
+9336111a || Apparaat nu herkennen en aanpassen
+3d06b6a6 || Apparaatprofiel
+56d51e2f || Handheld
+fbd0749c || Afsluiten en opnieuw opstarten in de launcher tonen
+02144cce || Openen in browser
+26610a7f || Kleine knoppen in de zijbalk waaraan je willekeurige programma's koppelt. Rechtsklik op een knop om hem te wijzigen.
+8864914d || Laptop
+c1983f78 || Laptop en accu
+68acb64e || Muziek en snel starten
+7d128e2c || Muziekspeler in de zijbalk
+728a3cbd || Speler sluiten
+5a9042db || Spotify, YouTube Music of Apple Music direct in de launcher (als webspeler). Je meldt je één keer aan en blijft aangemeld.
+0991917b || Vragen voor uitvoeren
+72e5d88c || Waarschuwing als de oplader niet is aangesloten
+50859530 || Toont voor het starten van een game een melding als je laptop of handheld op de accu draait.
+f34639c4 || ＋ Nieuwe routine
+ed577d97 || Routine bewerken
+fdd66eef || Routine gestart
+04f2a803 || Afmelden
+08ee3389 || Webadres
+dfc4f848 || accu aanwezig
+2a6f8212 || Kiezen uit mijn toepassingen
+4fb77790 || Bewerken
+5232d5b9 || Voorbeeld toegevoegd
+d3595a3e || Pas de stappen met het potlood aan je programma's aan.
+096012d8 || Voorbeeld: gameavond
+26b6cf2d || Scherm 1 (hoofdscherm)
+e45bfca5 || Scherm {0}
+3ca894a8 || Geef de routine een naam.
+29445c45 || De oplader is niet aangesloten (accu: {0} %). Op de accu draaien games langzamer en is de accu snel leeg. Toch starten?
+9292da0f || Het programma kon niet worden gestart:\n{0}
+c439e556 || Dat is niet gelukt:\n{0}
+8be4df39 || Bestand kiezen ...
+5e8bc659 || De muziekspeler heeft de Microsoft Edge WebView2 Runtime nodig. Op Windows 11 is die meestal al aanwezig, op Windows 10 soms niet. Nu de downloadpagina openen?
+39dfc1f8 || De muziekspeler kon niet worden gestart:\n{0}
+231cfca0 || Energie
+e4b3f8f7 || Slaapstand
+c021a353 || Energiebeheerschema
+26f2e7c0 || Energiebeheerschema instellen
+07e1da1e || Herkend: {0}
+c1400083 || Er draait nog een game.
+714ee9ab || Er zijn nog geen toepassingen gevonden. Kies in plaats daarvan een bestand.
+b987897a || Venster plaatsen
+af79cf05 || Aangepast aan je apparaat
+cee37a56 || Nu uitvoeren
+411fb71b || Oplader ontbreekt
+57def7c0 || Verwijderen
+0346924b || Gemaximaliseerd
+19e40de4 || Gemaximaliseerd (vult het scherm)
+f208aef5 || Melding tonen
+c56e3695 || Geminimaliseerd
+504a10dc || Muziek
+278a6152 || Muziekspeler
+95722473 || Omhoog
+2df480cd || Omlaag
+46a96932 || Naam van de routine
+9deb072f || Naam van de knop
+5bfe7e7d || Naam van het programma (procesnaam, bijvoorbeeld Discord)
+12c01e97 || Nieuwe routine
+b7466219 || Nog geen routines. Maak een nieuwe aan of voeg het voorbeeld in.
+bbae062f || Nog geen stappen. Voeg hieronder de eerste toe.
+7b71f60a || Alleen naar het scherm verplaatsen
+e2626bac || Alleen voor deze game (leeg = alle games)
+bf87b43a || Alleen handmatig
+55d74603 || Volgend nummer
+95c63997 || Vorig nummer
+22cede18 || Afspelen of pauzeren
+2e9c0ecd || Speler tonen
+ad469c43 || Pc afsluiten
+7aaf87a3 || Pc opnieuw opstarten
+18b3d6e9 || Pc vergrendelen
+6da2b3fb || Programma sluiten
+e994f280 || Programma toevoegen
+d781a04c || Programma niet gevonden
+b360f5c5 || Programma starten
+f59178f6 || Programma kiezen
+fef648dc || Snel starten
+ad80f5eb || Snelstartknop
+335460b0 || Stappen (worden na elkaar uitgevoerd)
+42cf35aa || Nu afmelden? Niet-opgeslagen werk gaat verloren.
+85f4ce59 || De pc nu afsluiten? Niet-opgeslagen werk in andere programma's gaat verloren.
+3a4ccffb || De pc nu in de slaapstand zetten?
+3ce56b6b || De pc nu opnieuw opstarten? Niet-opgeslagen werk in andere programma's gaat verloren.
+dbfd044b || Game starten
+1a1062ce || Streamermodus uitschakelen
+e0172e3b || Tekst van de melding
+69fb34da || Verplaatst
+09b0c6e7 || Veel plezier!
+ecebf53b || Wanneer moet de routine starten?
+46de7234 || Wachten
+00c1698c || Wachten: {0} seconden
+de39234e || Website openen

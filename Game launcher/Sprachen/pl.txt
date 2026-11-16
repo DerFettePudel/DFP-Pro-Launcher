@@ -1198,3 +1198,203 @@ ee3b23b9 || Trwale usuń skasowane pliki
 f93ab595 || Pobrane okładki – potem automatycznie pobierane ponownie
 dcb5f8eb || Dzienniki launchera
 a0c8a036 || Dzienniki błędów tego launchera
+662445b7 || Pamięć podręczna DNS
+47a104b9 || Pomaga przy problemach z połączeniem z serwerami gier i launcherami
+ae2a61af || Można zwolnić {0}
+7a1c3684 || Wszystko czyste
+17d2609f || Raporty systemowe: {0} można usunąć tylko z uprawnieniami administratora.
+fd9e941d || Posprzątano
+099d7a22 || Zwolniono {0}
+6a540b01 || Pamięć podręczna DNS została wyczyszczona.
+9b6fb5e2 || Opróżnić wszystkie obszary z listy? Kosz zostanie trwale opróżniony.
+3619bd24 || Animowane okładki
+000b4865 || Animowane okładki są wczytywane w tle.
+88e3ada7 || Niespodzianki (easter eggi)
+f7a88109 || Ukryte drobiazgi, efekty świąteczne i tajne osiągnięcia. Wyłączone: launcher pozostaje całkowicie poważny.
+1d9f3f3d || +30 żyć
+238e286d || Wpisano kod Konami. Tryb tęczy trwa minutę.
+a7e5b850 || Hau!
+eb6f6af5 || Pudel cieszy się, że cię widzi.
+3fe42b66 || Tajne osiągnięcie:
+cbbd0c26 || Tajne statystyki
+901bd5b0 || Grałeś łącznie {0} godzin, to {1} dni bez przerwy.
+5adae104 || W tym czasie mógłbyś obejrzeć {0} filmów.
+0006e4b0 || Przy jednej filiżance co trzy godziny to {0} filiżanek kawy.
+ce46d74a || Uruchomiłeś grę z launchera {0} razy.
+85cdeb95 || Twój ulubieniec wszech czasów to „{0}” z {1} godzinami.
+f0c733f4 || Pudel jest z tobą od {0} dni.
+71cdcb2f || Kostka
+88f9465f || Wyrzuciłeś {0}. ({1} ścian)
+f5765623 || Moneta
+b2d51e00 || Orzeł!
+12a1a49b || Reszka!
+ba204579 || Disco
+986cb8be || Impreza trwa dziesięć sekund.
+67743964 || Losuje liczbę (na przykład /kostka 20)
+b3d08e66 || Rzuca monetą
+b24664ac || Wybiera grę dla ciebie
+8af68960 || Rozkręca imprezę
+c3b6b658 || Przywitaj się z pudlem
+4e6604c7 || Pokazuje tajne polecenia
+73502c90 || Tajne polecenia
+c3d7339e || Wesołego Halloween
+8817a6d6 || Upiorne pozdrowienia, {0}!
+bd186483 || Wesołych Świąt
+5b7a6fed || Wesołych świąt, {0}!
+9dca880d || Szczęśliwego Nowego Roku
+f3605a04 || Za świetny rok w grach, {0}!
+f7a38b08 || DFP Pro Launcher przestał działać
+71b6cb50 || Problem spowodował, że program przestał działać prawidłowo. System Windows szuka rozwiązania problemu ...
+408bfef8 || Zamknij program
+fbd59b61 || Czekaj na rozwiązanie
+fda2f36c || Prima aprilis!
+9ee9a003 || Wszystko w porządku. Pudel tylko trochę cię nastraszył.
+9574d778 || Uff, dzięki!
+1d5f1159 || Urodziny
+d12a8bb1 || Dokładnie rok temu mnie zainstalowałeś. Wszystkiego najlepszego z okazji urodzin launchera!
+736d3749 || Dziś mija {0} lat, odkąd mnie zainstalowałeś. Wszystkiego najlepszego z okazji urodzin launchera!
+0c52adf4 || Nocny marek
+b967e46e || Twój pudel już śpi. A ty niedługo?
+242aa8fc || Twórca we własnej osobie
+11acaac6 || No proszę, kto to?
+1d975694 || Fajnie, że jesteś
+801b295e || Pudel za tobą tęsknił
+b56cff86 || Nowy poziom, legendo
+f13a0a0b || Nowa gra, nowe szczęście
+85c7c004 || Czas pograć
+ed03a67f || Witaj w kwaterze głównej
+71befa71 || Gotowy na przygodę
+1d0617ba || Kamień milowy
+c1b9009e || Grałeś łącznie {0} godzin.
+6758fc3b || Kanapowy nowicjusz
+438a7d3f || Kanapowy weteran
+a5dfc166 || Legenda pudla
+b3cf211d || Ponadczasowy
+16370928 || Nieśmiertelny
+b49b0d0c || W dziesiątkę
+5985d900 || Logo trafiło dokładnie w róg.
+04954ee4 || Tajne
+42a64c42 || Tajne: znajdź odpowiedni easter egg.
+bc6c70ee || Kod Konami
+fb1c1471 || Znasz stare kody.
+1aab97d6 || Przyjaciel pudla
+a40fd76b || Przywitałeś się z pudlem.
+e18ff596 || Szczęście w kościach
+97ce72c4 || Trzy szóstki z rzędu.
+8ef3fe31 || Gorączka disco
+bde9d9ae || Rozkręciłeś imprezę.
+14e578c4 || Logo trafiło w róg.
+3c358ee2 || Grano po trzeciej w nocy.
+69be2010 || Jubilat
+35b63514 || Uruchomiono w rocznicę instalacji.
+8d973ce5 || Miłośnik liczb
+ee9b0642 || Znaleziono tajne statystyki.
+d335e608 || Szczęściarz
+cf5e0314 || Przy starcie trafiło się rzadkie powiedzonko.
+518ed0d6 || Świąteczny nastrój
+e613a49a || Świętowałeś wyjątkowy dzień w launcherze.
+8252c7d7 || Wersja testowa
+06dc4664 || Procedury
+32724b12 || Włącz procedury
+be50945d || Procedury wykonują kilka akcji po kolei, na przykład: otwórz Discord, zmaksymalizuj go na ekranie 2, a potem uruchom Spotify.
+500d8761 || Wyłączone: żadna procedura nie uruchamia się automatycznie. Ręczne uruchamianie nadal działa.
+63e80071 || Ukryj (muzyka gra dalej)
+14a5eb9a || Wstaw przykład
+4222eb9a || Launcher rozpoznaje, czy siedzisz przy komputerze stacjonarnym, laptopie czy konsoli przenośnej, i dopasowuje pasek boczny oraz rozmiar kart.
+a4e05547 || Komputer stacjonarny
+0098abaf || Własne przyciski szybkiego startu
+3051612a || Zalecane: zapobiega przypadkowemu wyłączeniu komputera.
+123bdd40 || Funkcje zasilania
+95d95c16 || Dodaje w Narzędziach sekcję „Zasilanie”: zamknij, uruchom ponownie, uśpij, wyloguj i zablokuj komputer.
+9336111a || Rozpoznaj urządzenie i dopasuj teraz
+3d06b6a6 || Profil urządzenia
+56d51e2f || Konsola przenośna
+fbd0749c || Pokazuj zamykanie i ponowne uruchamianie w launcherze
+02144cce || Otwórz w przeglądarce
+26610a7f || Małe przyciski na pasku bocznym, do których przypisujesz dowolne programy. Kliknij przycisk prawym, aby go zmienić.
+8864914d || Laptop
+c1983f78 || Laptop i bateria
+68acb64e || Muzyka i szybki start
+7d128e2c || Odtwarzacz muzyki na pasku bocznym
+728a3cbd || Zamknij odtwarzacz
+5a9042db || Spotify, YouTube Music lub Apple Music bezpośrednio w launcherze (jako odtwarzacz webowy). Logujesz się raz i pozostajesz zalogowany.
+0991917b || Pytaj przed wykonaniem
+72e5d88c || Ostrzeżenie o braku ładowarki
+50859530 || Pokazuje komunikat przed startem gry, gdy laptop lub konsola przenośna działa na baterii.
+f34639c4 || ＋ Nowa procedura
+ed577d97 || Edytuj procedurę
+fdd66eef || Procedura uruchomiona
+04f2a803 || Wyloguj
+08ee3389 || Adres strony
+dfc4f848 || bateria obecna
+2a6f8212 || Wybierz z moich aplikacji
+4fb77790 || Edytuj
+5232d5b9 || Dodano przykład
+d3595a3e || Dopasuj kroki do swoich programów ołówkiem.
+096012d8 || Przykład: wieczór z grami
+26b6cf2d || Ekran 1 (główny)
+e45bfca5 || Ekran {0}
+3ca894a8 || Nadaj procedurze nazwę.
+29445c45 || Ładowarka nie jest podłączona (bateria: {0} %). Na baterii gry działają wolniej, a bateria szybko się rozładowuje. Uruchomić mimo to?
+9292da0f || Nie udało się uruchomić programu:\n{0}
+c439e556 || To się nie udało:\n{0}
+8be4df39 || Wybierz plik ...
+5e8bc659 || Odtwarzacz muzyki wymaga środowiska Microsoft Edge WebView2 Runtime. W Windows 11 zwykle już jest, w Windows 10 czasem go brak. Otworzyć teraz stronę pobierania?
+39dfc1f8 || Nie udało się uruchomić odtwarzacza muzyki:\n{0}
+231cfca0 || Zasilanie
+e4b3f8f7 || Uśpij
+c021a353 || Plan zasilania
+26f2e7c0 || Ustaw plan zasilania
+07e1da1e || Wykryto: {0}
+c1400083 || Gra nadal działa.
+714ee9ab || Nie znaleziono jeszcze aplikacji. Wybierz zamiast tego plik.
+b987897a || Ustaw okno
+af79cf05 || Dopasowano do twojego urządzenia
+cee37a56 || Wykonaj teraz
+411fb71b || Brak ładowarki
+57def7c0 || Usuń
+0346924b || Zmaksymalizowane
+19e40de4 || Zmaksymalizowane (wypełnia ekran)
+f208aef5 || Pokaż komunikat
+c56e3695 || Zminimalizowane
+504a10dc || Muzyka
+278a6152 || Odtwarzacz muzyki
+95722473 || W górę
+2df480cd || W dół
+46a96932 || Nazwa procedury
+9deb072f || Nazwa przycisku
+5bfe7e7d || Nazwa programu (nazwa procesu, na przykład Discord)
+12c01e97 || Nowa procedura
+b7466219 || Brak procedur. Utwórz nową lub wstaw przykład.
+bbae062f || Brak kroków. Dodaj pierwszy poniżej.
+7b71f60a || Tylko przenieś na ekran
+e2626bac || Tylko dla tej gry (puste = wszystkie gry)
+bf87b43a || Tylko ręcznie
+55d74603 || Następny utwór
+95c63997 || Poprzedni utwór
+22cede18 || Odtwarzaj lub pauza
+2e9c0ecd || Pokaż odtwarzacz
+ad469c43 || Wyłącz komputer
+7aaf87a3 || Uruchom komputer ponownie
+18b3d6e9 || Zablokuj komputer
+6da2b3fb || Zamknij program
+e994f280 || Dodaj program
+d781a04c || Nie znaleziono programu
+b360f5c5 || Uruchom program
+f59178f6 || Wybierz program
+fef648dc || Szybki start
+ad80f5eb || Przycisk szybkiego startu
+335460b0 || Kroki (wykonywane po kolei)
+42cf35aa || Wylogować teraz? Niezapisana praca zostanie utracona.
+85f4ce59 || Wyłączyć teraz komputer? Niezapisana praca w innych programach zostanie utracona.
+3a4ccffb || Uśpić teraz komputer?
+3ce56b6b || Uruchomić teraz komputer ponownie? Niezapisana praca w innych programach zostanie utracona.
+dbfd044b || Uruchom grę
+1a1062ce || Wyłącz tryb streamera
+e0172e3b || Treść komunikatu
+69fb34da || Przeniesiono
+09b0c6e7 || Miłej zabawy!
+ecebf53b || Kiedy procedura ma się uruchamiać?
+46de7234 || Czekaj
+00c1698c || Czekaj: {0} s
+de39234e || Otwórz stronę

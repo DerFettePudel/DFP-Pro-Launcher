@@ -1198,3 +1198,203 @@ ee3b23b9 || Silinen dosyaları kalıcı olarak kaldır
 f93ab595 || İndirilen kapaklar – sonra otomatik olarak yeniden yüklenir
 dcb5f8eb || Başlatıcı günlükleri
 a0c8a036 || Bu başlatıcının hata günlükleri
+662445b7 || DNS önbelleği
+47a104b9 || Oyun sunucularına ve başlatıcılara bağlantı sorunlarında yardımcı olur
+ae2a61af || {0} boşaltılabilir
+7a1c3684 || Her şey temiz
+17d2609f || Sistem raporları: {0} yalnızca yönetici haklarıyla silinebilir.
+fd9e941d || Temizlendi
+099d7a22 || {0} boşaltıldı
+6a540b01 || DNS önbelleği temizlendi.
+9b6fb5e2 || Listedeki tüm alanlar boşaltılsın mı? Geri dönüşüm kutusu kalıcı olarak boşaltılır.
+3619bd24 || Hareketli kapaklar
+000b4865 || Hareketli kapaklar arka planda yükleniyor.
+88e3ada7 || Sürprizler (Easter Egg'ler)
+f7a88109 || Gizli küçük şeyler, bayram efektleri ve gizli başarımlar. Kapalı: başlatıcı tamamen ciddi kalır.
+1d9f3f3d || +30 can
+238e286d || Konami kodu girildi. Gökkuşağı modu bir dakika sürer.
+a7e5b850 || Hav!
+eb6f6af5 || Kaniş seni gördüğüne sevindi.
+3fe42b66 || Gizli başarım:
+cbbd0c26 || Gizli istatistik
+901bd5b0 || Toplam {0} saat oynadın, bu art arda {1} gün eder.
+5adae104 || Bu sürede {0} film izleyebilirdin.
+0006e4b0 || Üç saatte bir fincanla bu {0} fincan kahve eder.
+ce46d74a || Başlatıcıdan {0} kez oyun başlattın.
+85cdeb95 || Vazgeçilmezin {1} saatle „{0}“.
+f0c733f4 || Kaniş {0} gündür seninle.
+71cdcb2f || Zar
+88f9465f || {0} attın. ({1} yüz)
+f5765623 || Yazı tura
+b2d51e00 || Tura!
+12a1a49b || Yazı!
+ba204579 || Disko
+986cb8be || Parti on saniye sürüyor.
+67743964 || Bir sayı atar (örneğin /zar 20)
+b3d08e66 || Yazı tura atar
+b24664ac || Senin için bir oyun seçer
+8af68960 || Partiyi başlatır
+c3b6b658 || Kanişe merhaba de
+4e6604c7 || Gizli komutları gösterir
+73502c90 || Gizli komutlar
+c3d7339e || Mutlu Cadılar Bayramı
+8817a6d6 || Ürkütücü selamlar, {0}!
+bd186483 || Mutlu Noeller
+5b7a6fed || İyi bayramlar, {0}!
+9dca880d || Mutlu yıllar
+f3605a04 || Harika bir oyun yılına, {0}!
+f7a38b08 || DFP Pro Launcher çalışmayı durdurdu
+71b6cb50 || Bir sorun programın düzgün çalışmamasına neden oldu. Windows soruna bir çözüm arıyor ...
+408bfef8 || Programı kapat
+fbd59b61 || Çözüm bekle
+fda2f36c || 1 Nisan şakası!
+9ee9a003 || Her şey yolunda. Kaniş seni sadece biraz korkuttu.
+9574d778 || Oh be, teşekkürler!
+1d5f1159 || Doğum günü
+d12a8bb1 || Bir yıl önce bugün beni kurdun. Başlatıcının doğum günü kutlu olsun!
+736d3749 || {0} yıl önce bugün beni kurdun. Başlatıcının doğum günü kutlu olsun!
+0c52adf4 || Gece kuşu
+b967e46e || Kanişin çoktan uyudu. Sen de yakında mı?
+242aa8fc || Yaratıcının ta kendisi
+11acaac6 || Bak sen, kim gelmiş?
+1d975694 || İyi ki buradasın
+801b295e || Kaniş seni özledi
+b56cff86 || Seviye atladın, efsane
+f13a0a0b || Yeni oyun, yeni şans
+85c7c004 || Oyun zamanı
+ed03a67f || Karargâha hoş geldin
+71befa71 || Maceraya hazır
+1d0617ba || Dönüm noktası
+c1b9009e || Toplam {0} saat oynadın.
+6758fc3b || Kanepe çaylağı
+438a7d3f || Kanepe gazisi
+a5dfc166 || Kaniş efsanesi
+b3cf211d || Zamansız
+16370928 || Ölümsüz
+b49b0d0c || Tam isabet
+5985d900 || Logo tam bir köşeye çarptı.
+04954ee4 || Gizli
+42a64c42 || Gizli: uygun Easter Egg'i bul.
+bc6c70ee || Konami kodu
+fb1c1471 || Eski hileleri biliyorsun.
+1aab97d6 || Kaniş dostu
+a40fd76b || Kanişe merhaba dedin.
+e18ff596 || Zar şansı
+97ce72c4 || Art arda üç altı attın.
+8ef3fe31 || Disko ateşi
+bde9d9ae || Partiyi başlattın.
+14e578c4 || Logo bir köşeye çarptı.
+3c358ee2 || Gece üçten sonra oynadın.
+69be2010 || Doğum günü çocuğu
+35b63514 || Kurulumun yıl dönümünde başlattın.
+8d973ce5 || Sayı insanı
+ee9b0642 || Gizli istatistiği buldun.
+d335e608 || Şanslı
+cf5e0314 || Başlangıçta nadir bir söz çıktı.
+518ed0d6 || Bayram havası
+e613a49a || Başlatıcıda özel bir günü kutladın.
+8252c7d7 || Test sürümü
+06dc4664 || Rutinler
+32724b12 || Rutinleri etkinleştir
+be50945d || Rutinler birden fazla işlemi art arda başlatır, örneğin: Discord'u aç, 2. ekranda büyüt ve ardından Spotify'ı başlat.
+500d8761 || Kapalı: hiçbir rutin otomatik çalışmaz. Elle çalıştırmak mümkün olmaya devam eder.
+63e80071 || Gizle (müzik çalmaya devam eder)
+14a5eb9a || Örnek ekle
+4222eb9a || Başlatıcı masaüstü bilgisayarda mı, dizüstünde mi yoksa el konsolunda mı olduğunu algılar ve kenar çubuğunu ve kart boyutunu ayarlar.
+a4e05547 || Masaüstü bilgisayar
+0098abaf || Özel hızlı başlatma düğmeleri
+3051612a || Önerilir: bilgisayarın yanlışlıkla kapatılmasını önler.
+123bdd40 || Güç işlevleri
+95d95c16 || Araçlar altına „Güç“ bölümünü ekler: kapat, yeniden başlat, uyku, oturumu kapat ve bilgisayarı kilitle.
+9336111a || Cihazı şimdi algıla ve uyarla
+3d06b6a6 || Cihaz profili
+56d51e2f || El konsolu
+fbd0749c || Kapatma ve yeniden başlatmayı başlatıcıda göster
+02144cce || Tarayıcıda aç
+26610a7f || Kenar çubuğunda istediğin programları atayabileceğin küçük düğmeler. Değiştirmek için düğmeye sağ tıkla.
+8864914d || Dizüstü
+c1983f78 || Dizüstü ve pil
+68acb64e || Müzik ve hızlı başlatma
+7d128e2c || Kenar çubuğunda müzik çalar
+728a3cbd || Çaları kapat
+5a9042db || Spotify, YouTube Music veya Apple Music doğrudan başlatıcıda (web çalar olarak). Bir kez giriş yaparsın, sonra oturumun açık kalır.
+0991917b || Çalıştırmadan önce sor
+72e5d88c || Şarj kablosu takılı değilse uyar
+50859530 || Dizüstün veya el konsolun pille çalışıyorsa oyun başlamadan önce bir mesaj gösterir.
+f34639c4 || ＋ Yeni rutin
+ed577d97 || Rutini düzenle
+fdd66eef || Rutin başlatıldı
+04f2a803 || Oturumu kapat
+08ee3389 || Web sitesi adresi
+dfc4f848 || pil var
+2a6f8212 || Uygulamalarımdan seç
+4fb77790 || Düzenle
+5232d5b9 || Örnek eklendi
+d3595a3e || Adımları kalem simgesiyle programlarına göre ayarla.
+096012d8 || Örnek: oyun gecesi
+26b6cf2d || Ekran 1 (ana ekran)
+e45bfca5 || Ekran {0}
+3ca894a8 || Lütfen rutine bir ad ver.
+29445c45 || Şarj kablosu takılı değil (pil: %{0}). Pille oyunlar daha yavaş çalışır ve pil çabuk biter. Yine de başlatılsın mı?
+9292da0f || Program başlatılamadı:\n{0}
+c439e556 || Bu işe yaramadı:\n{0}
+8be4df39 || Dosya seç ...
+5e8bc659 || Müzik çaların Microsoft Edge WebView2 Runtime'a ihtiyacı var. Windows 11'de genellikle zaten vardır, Windows 10'da bazen yoktur. İndirme sayfası şimdi açılsın mı?
+39dfc1f8 || Müzik çalar başlatılamadı:\n{0}
+231cfca0 || Güç
+e4b3f8f7 || Uyku
+c021a353 || Güç planı
+26f2e7c0 || Güç planı ayarla
+07e1da1e || Algılanan: {0}
+c1400083 || Hâlâ bir oyun çalışıyor.
+714ee9ab || Henüz uygulama bulunamadı. Bunun yerine bir dosya seç.
+b987897a || Pencereyi yerleştir
+af79cf05 || Cihazına göre ayarlandı
+cee37a56 || Şimdi çalıştır
+411fb71b || Şarj kablosu yok
+57def7c0 || Sil
+0346924b || Ekranı kaplamış
+19e40de4 || Ekranı kaplamış (ekranı doldurur)
+f208aef5 || Mesaj göster
+c56e3695 || Küçültülmüş
+504a10dc || Müzik
+278a6152 || Müzik çalar
+95722473 || Yukarı taşı
+2df480cd || Aşağı taşı
+46a96932 || Rutinin adı
+9deb072f || Düğmenin adı
+5bfe7e7d || Programın adı (işlem adı, örneğin Discord)
+12c01e97 || Yeni rutin
+b7466219 || Henüz rutin yok. Yeni bir tane oluştur veya örneği ekle.
+bbae062f || Henüz adım yok. İlkini aşağıdan ekle.
+7b71f60a || Yalnızca ekrana taşı
+e2626bac || Yalnızca bu oyun için (boş = tüm oyunlar)
+bf87b43a || Yalnızca elle
+55d74603 || Sonraki şarkı
+95c63997 || Önceki şarkı
+22cede18 || Oynat veya duraklat
+2e9c0ecd || Çaları göster
+ad469c43 || Bilgisayarı kapat
+7aaf87a3 || Bilgisayarı yeniden başlat
+18b3d6e9 || Bilgisayarı kilitle
+6da2b3fb || Programı kapat
+e994f280 || Program ekle
+d781a04c || Program bulunamadı
+b360f5c5 || Programı başlat
+f59178f6 || Program seç
+fef648dc || Hızlı başlatma
+ad80f5eb || Hızlı başlatma düğmesi
+335460b0 || Adımlar (sırayla çalıştırılır)
+42cf35aa || Oturum şimdi kapatılsın mı? Kaydedilmemiş çalışmalar kaybolur.
+85f4ce59 || Bilgisayar şimdi kapatılsın mı? Diğer programlardaki kaydedilmemiş çalışmalar kaybolur.
+3a4ccffb || Bilgisayar şimdi uyku moduna geçsin mi?
+3ce56b6b || Bilgisayar şimdi yeniden başlatılsın mı? Diğer programlardaki kaydedilmemiş çalışmalar kaybolur.
+dbfd044b || Oyunu başlat
+1a1062ce || Yayıncı modunu kapat
+e0172e3b || Mesaj metni
+69fb34da || Taşındı
+09b0c6e7 || İyi eğlenceler!
+ecebf53b || Rutin ne zaman başlasın?
+46de7234 || Bekle
+00c1698c || Bekle: {0} saniye
+de39234e || Web sitesini aç

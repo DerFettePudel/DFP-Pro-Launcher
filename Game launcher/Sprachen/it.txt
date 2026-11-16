@@ -1198,3 +1198,203 @@ ee3b23b9 || Rimuovi definitivamente i file eliminati
 f93ab595 || Copertine scaricate – vengono poi ricaricate automaticamente
 dcb5f8eb || Registri del launcher
 a0c8a036 || Registri errori di questo launcher
+662445b7 || Cache DNS
+47a104b9 || Aiuta in caso di problemi di connessione con server di gioco e launcher
+ae2a61af || Si possono liberare {0}
+7a1c3684 || Tutto pulito
+17d2609f || Rapporti di sistema: {0} si possono eliminare solo con diritti di amministratore.
+fd9e941d || Pulito
+099d7a22 || {0} liberati
+6a540b01 || La cache DNS è stata svuotata.
+9b6fb5e2 || Svuotare tutte le aree dell'elenco? Il cestino verrà svuotato definitivamente.
+3619bd24 || Copertine animate
+000b4865 || Le copertine animate vengono caricate in background.
+88e3ada7 || Sorprese (easter egg)
+f7a88109 || Piccole cose nascoste, effetti per le feste e obiettivi segreti. Disattivato: il launcher resta del tutto serio.
+1d9f3f3d || +30 vite
+238e286d || Codice Konami inserito. La modalità arcobaleno dura un minuto.
+a7e5b850 || Bau!
+eb6f6af5 || Il barboncino è felice di vederti.
+3fe42b66 || Obiettivo segreto:
+cbbd0c26 || Statistica segreta
+901bd5b0 || Hai giocato {0} ore in totale, cioè {1} giorni di fila.
+5adae104 || In questo tempo avresti potuto guardare {0} film.
+0006e4b0 || Con una tazza ogni tre ore sarebbero {0} tazze di caffè.
+ce46d74a || Hai avviato un gioco dal launcher {0} volte.
+85cdeb95 || Il tuo gioco intramontabile è «{0}» con {1} ore.
+f0c733f4 || Il barboncino ti accompagna da {0} giorni.
+71cdcb2f || Dado
+88f9465f || Hai tirato un {0}. ({1} facce)
+f5765623 || Moneta
+b2d51e00 || Testa!
+12a1a49b || Croce!
+ba204579 || Discoteca
+986cb8be || La festa dura dieci secondi.
+67743964 || Tira un numero (ad esempio /dado 20)
+b3d08e66 || Lancia una moneta
+b24664ac || Sceglie un gioco per te
+8af68960 || Avvia la festa
+c3b6b658 || Saluta il barboncino
+4e6604c7 || Mostra i comandi segreti
+73502c90 || Comandi segreti
+c3d7339e || Buon Halloween
+8817a6d6 || Saluti spaventosi, {0}!
+bd186483 || Buon Natale
+5b7a6fed || Buone feste, {0}!
+9dca880d || Felice anno nuovo
+f3605a04 || A un grande anno di giochi, {0}!
+f7a38b08 || DFP Pro Launcher ha smesso di funzionare
+71b6cb50 || Un problema ha impedito il corretto funzionamento del programma. Windows sta cercando una soluzione ...
+408bfef8 || Chiudi il programma
+fbd59b61 || Attendi una soluzione
+fda2f36c || Pesce d'aprile!
+9ee9a003 || È tutto a posto. Il barboncino ti ha solo fatto un piccolo scherzo.
+9574d778 || Uff, grazie!
+1d5f1159 || Compleanno
+d12a8bb1 || Un anno fa oggi mi hai installato. Buon compleanno al launcher!
+736d3749 || {0} anni fa oggi mi hai installato. Buon compleanno al launcher!
+0c52adf4 || Nottambulo
+b967e46e || Il tuo barboncino dorme già. E tu?
+242aa8fc || Il creatore in persona
+11acaac6 || Ma guarda chi c'è!
+1d975694 || Che bello averti qui
+801b295e || Il barboncino ti ha sentito la mancanza
+b56cff86 || Livello superato, leggenda
+f13a0a0b || Nuovo gioco, nuova fortuna
+85c7c004 || È ora di giocare
+ed03a67f || Benvenuto al quartier generale
+71befa71 || Pronto per l'avventura
+1d0617ba || Traguardo
+c1b9009e || Hai giocato {0} ore in totale.
+6758fc3b || Esordiente da divano
+438a7d3f || Veterano da divano
+a5dfc166 || Leggenda del barboncino
+b3cf211d || Senza tempo
+16370928 || Immortale
+b49b0d0c || Centro perfetto
+5985d900 || Il logo ha colpito esattamente un angolo.
+04954ee4 || Segreto
+42a64c42 || Segreto: trova l'easter egg giusto.
+bc6c70ee || Codice Konami
+fb1c1471 || Conosci i vecchi trucchi.
+1aab97d6 || Amico del barboncino
+a40fd76b || Hai salutato il barboncino.
+e18ff596 || Fortuna ai dadi
+97ce72c4 || Tre sei di fila.
+8ef3fe31 || Febbre da discoteca
+bde9d9ae || Hai avviato la festa.
+14e578c4 || Il logo ha colpito un angolo.
+3c358ee2 || Hai giocato dopo le tre di notte.
+69be2010 || Festeggiato
+35b63514 || Avviato nell'anniversario dell'installazione.
+8d973ce5 || Amante dei numeri
+ee9b0642 || Hai trovato la statistica segreta.
+d335e608 || Fortunato
+cf5e0314 || Hai ricevuto una frase rara all'avvio.
+518ed0d6 || Aria di festa
+e613a49a || Hai festeggiato un giorno speciale nel launcher.
+8252c7d7 || Versione di prova
+06dc4664 || Sequenze
+32724b12 || Attiva sequenze
+be50945d || Le sequenze eseguono più azioni una dopo l'altra, ad esempio: apri Discord, massimizzalo sullo schermo 2 e poi avvia Spotify.
+500d8761 || Disattivato: nessuna sequenza parte automaticamente. Eseguirle a mano funziona comunque.
+63e80071 || Nascondi (la musica continua)
+14a5eb9a || Inserisci esempio
+4222eb9a || Il launcher riconosce se usi un PC desktop, un portatile o una console portatile e adatta barra laterale e dimensione delle schede.
+a4e05547 || PC desktop
+0098abaf || Pulsanti di avvio rapido personalizzati
+3051612a || Consigliato: evita di spegnere il PC per sbaglio.
+123bdd40 || Funzioni di alimentazione
+95d95c16 || Aggiunge in Strumenti la sezione «Energia»: arresta, riavvia, sospendi, disconnetti e blocca il PC.
+9336111a || Rileva il dispositivo e adatta ora
+3d06b6a6 || Profilo dispositivo
+56d51e2f || Console portatile
+fbd0749c || Mostra arresto e riavvio nel launcher
+02144cce || Apri nel browser
+26610a7f || Piccoli pulsanti nella barra laterale a cui assegni qualsiasi programma. Clic destro su un pulsante per modificarlo.
+8864914d || Portatile
+c1983f78 || Portatile e batteria
+68acb64e || Musica e avvio rapido
+7d128e2c || Lettore musicale nella barra laterale
+728a3cbd || Chiudi lettore
+5a9042db || Spotify, YouTube Music o Apple Music direttamente nel launcher (come web player). Accedi una volta e resti connesso.
+0991917b || Chiedi prima di eseguire
+72e5d88c || Avviso quando il caricabatterie è scollegato
+50859530 || Mostra un messaggio prima dell'avvio del gioco se il portatile o la console portatile funziona a batteria.
+f34639c4 || ＋ Nuova sequenza
+ed577d97 || Modifica sequenza
+fdd66eef || Sequenza avviata
+04f2a803 || Disconnetti
+08ee3389 || Indirizzo del sito web
+dfc4f848 || batteria presente
+2a6f8212 || Scegli tra le mie applicazioni
+4fb77790 || Modifica
+5232d5b9 || Esempio aggiunto
+d3595a3e || Adatta i passaggi ai tuoi programmi con la matita.
+096012d8 || Esempio: serata di gioco
+26b6cf2d || Schermo 1 (principale)
+e45bfca5 || Schermo {0}
+3ca894a8 || Dai un nome alla sequenza.
+29445c45 || Il caricabatterie non è collegato (batteria: {0} %). A batteria i giochi vanno più lenti e la batteria si scarica in fretta. Avviare comunque?
+9292da0f || Impossibile avviare il programma:\n{0}
+c439e556 || Non ha funzionato:\n{0}
+8be4df39 || Scegli file ...
+5e8bc659 || Il lettore musicale richiede Microsoft Edge WebView2 Runtime. Su Windows 11 di solito c'è già, su Windows 10 a volte no. Aprire ora la pagina di download?
+39dfc1f8 || Impossibile avviare il lettore musicale:\n{0}
+231cfca0 || Energia
+e4b3f8f7 || Sospendi
+c021a353 || Combinazione energetica
+26f2e7c0 || Imposta combinazione energetica
+07e1da1e || Rilevato: {0}
+c1400083 || Un gioco è ancora in esecuzione.
+714ee9ab || Non è ancora stata trovata nessuna applicazione. Scegli invece un file.
+b987897a || Posiziona finestra
+af79cf05 || Adattato al tuo dispositivo
+cee37a56 || Esegui ora
+411fb71b || Caricabatterie scollegato
+57def7c0 || Elimina
+0346924b || Ingrandita
+19e40de4 || Ingrandita (riempie lo schermo)
+f208aef5 || Mostra messaggio
+c56e3695 || Ridotta a icona
+504a10dc || Musica
+278a6152 || Lettore musicale
+95722473 || Sposta su
+2df480cd || Sposta giù
+46a96932 || Nome della sequenza
+9deb072f || Nome del pulsante
+5bfe7e7d || Nome del programma (nome del processo, ad esempio Discord)
+12c01e97 || Nuova sequenza
+b7466219 || Ancora nessuna sequenza. Creane una nuova o inserisci l'esempio.
+bbae062f || Ancora nessun passaggio. Aggiungi il primo qui sotto.
+7b71f60a || Sposta solo sullo schermo
+e2626bac || Solo per questo gioco (vuoto = tutti i giochi)
+bf87b43a || Solo manualmente
+55d74603 || Brano successivo
+95c63997 || Brano precedente
+22cede18 || Riproduci o pausa
+2e9c0ecd || Mostra lettore
+ad469c43 || Arresta il PC
+7aaf87a3 || Riavvia il PC
+18b3d6e9 || Blocca il PC
+6da2b3fb || Chiudi programma
+e994f280 || Aggiungi programma
+d781a04c || Programma non trovato
+b360f5c5 || Avvia programma
+f59178f6 || Scegli programma
+fef648dc || Avvio rapido
+ad80f5eb || Pulsante di avvio rapido
+335460b0 || Passaggi (eseguiti in ordine)
+42cf35aa || Disconnettere ora l'utente? Il lavoro non salvato andrà perso.
+85f4ce59 || Arrestare ora il PC? Il lavoro non salvato negli altri programmi andrà perso.
+3a4ccffb || Mettere ora il PC in sospensione?
+3ce56b6b || Riavviare ora il PC? Il lavoro non salvato negli altri programmi andrà perso.
+dbfd044b || Avvia gioco
+1a1062ce || Disattiva modalità streamer
+e0172e3b || Testo del messaggio
+69fb34da || Spostato
+09b0c6e7 || Buon divertimento!
+ecebf53b || Quando deve partire la sequenza?
+46de7234 || Attendi
+00c1698c || Attendi: {0} secondi
+de39234e || Apri sito web
