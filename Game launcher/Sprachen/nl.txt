@@ -1,0 +1,600 @@
+11f6d87b || Dashboard
+821226fb || Games
+9c02c485 || Statistieken
+abc9c18a || Aanbiedingen
+62014d28 || Backlog
+2a40f567 || Backlog en planner
+0909a4e2 || Galerij
+a39a539f || Apps
+539307de || Downloads
+092b3092 || Systeemmonitor
+dd227e60 || Opslag
+781475e0 || Optimalisatie
+950196fc || Hulpmiddelen
+9412d96a || Instellingen
+7f68b257 || Welkom terug
+c21c07ad || Ctrl+K  Zoeken
+f8799cd6 || Zijbalk in- of uitklappen
+9f02b107 || Hallo
+ce1270b2 || Goedemorgen, {0}
+451a3c7e || Goedemiddag, {0}
+f8d07fbe || Goedenavond, {0}
+8a13c656 || Goedenacht, {0}
+aaaea0fe || Week {0}
+66a03849 || zojuist
+b09a6ccd || {0} min geleden
+5cf586fe || {0} u geleden
+0c1493d2 || {0} dagen geleden
+0dd9fe05 || gisteren
+c0b8fb84 || over {0} dagen
+dad06e15 || morgen
+4c2c61d5 || vandaag!
+f090ee8b || verschenen
+c0b83bd3 || 0 min
+ffa4f626 || < 1 min
+38f252ea || {0} min
+2204bc79 || {0} u
+95671b03 || {0} u {1} min
+64d61443 || {0} d {1} u {2} min
+1001b713 || {0} dagen
+0cb7da12 || {0} games
+01b68fd9 || {0} van {1} games
+d18f5e63 || Sortering: {0}
+f68cba8a || Actief schema: {0}
+945a85c4 || {0}% gebruikt
+e1fc1b80 || {0} GB van {1} GB gebruikt
+5aacff05 || {0} GB vrij
+7cbbe25b || Naam (A–Z)
+4530f830 || Laatst gespeeld
+dc8196cc || Meest gestart
+9444e424 || Laatst toegevoegd
+0ef5f593 || Best beoordeeld
+081f1e8b || Meeste speeltijd
+612c2939 || Favorieten
+4537da31 || Snelle acties
+cbf9e774 || Games in bibliotheek
+ba438037 || Totale speeltijd
+01afcfb7 || TOTALE SPEELTIJD
+b7873bcc || MEEST GESPEELD
+9d42b849 || LAATSTE 7 DAGEN
+ecbda706 || TIJD
+e61846e2 || WEER
+ce26e471 || Nog niets gestart. Start een game via de launcher, dan verschijnt hij hier.
+526793c1 || 🎲  Willekeurige game
+44720969 || ＋  Game toevoegen
+ed5a4081 || ＋ App toevoegen
+c145a9e3 || ＋ Afspraak
+a1bec44e || 🔄  Opnieuw scannen
+60ea6285 || Opnieuw scannen
+506ad2ea || 🔍  Zoeken (Ctrl+K)
+99dc0c37 || 🎮  Controllermodus (F11)
+00f223ba || Games zoeken...
+44e25a93 || Alle
+b6915086 || ★ Favorieten
+6486ba6e || 🆕 Nieuw
+967fd747 || 🎲 Niet gespeeld
+4b3d3e91 || Handmatig
+d2842f89 || ▶ SPELEN
+184e3409 || ▶  Spelen
+87fc35ab || ▶  Verder spelen
+365e29e9 || VERDER SPELEN
+0ec24245 || Details
+e9a7dde8 || Kaarten
+fd5db391 || Detailkaarten
+fbe2c98c || Lijst
+a6eb9df7 || Geen resultaten.
+4206944a || Nog geen games gevonden. Voeg games toe met „Game toevoegen” of start een nieuwe scan.
+72171a83 || Games zoeken ...
+5b7ec51a || ☆  Toevoegen aan favorieten
+2e5e606a || ★  Verwijderen uit favorieten
+cf4bee0c || 📝  Details, beoordeling en notities ...
+38deeadc || 📁  Collecties
+7593fcff || ＋  Nieuwe collectie ...
+164cdc9b || 📋  Status (backlog)
+40cdde4f || 📋  Wil ik spelen
+75d92a79 || ▶  Speel ik nu
+ccff4ba1 || ✅  Uitgespeeld
+4557758f || 💾  Savegames
+e4c58054 || Nu back-up maken
+8bc4421d || Herstellen ...
+d225fa58 || Savemap instellen ...
+6b91f375 || ⚙  Startopties en hulpprogramma's ...
+dac5acf5 || 📂  Bestandslocatie openen
+5c32ee52 || 🗑  Verwijderen ...
+51bbb8b6 || ✖  Uit lijst verwijderen
+713a13d4 || 🗑  Uit lijst verwijderen
+7d1c08fa || 🗑  Item verwijderen
+54f27944 || 🗑  Collectie verwijderen
+3f20fd17 || 🖼  Openen
+d35ae5fa || 📂  Tonen in map
+a173204e || 📋  Kopiëren naar klembord
+ae63d84e || 🎨  Als achtergrond gebruiken
+2d5d70e9 || Annuleren
+2b4c700a || Opslaan
+e1cab4a5 || Sluiten
+9239bfb2 || Openen
+d5acd2ad || Toepassen
+46600c4a || Afsluiten
+0a6c9d4d || Willekeurige game
+005ef20f || Status
+8e811a36 || Beoordeling
+cda7a74e || Notities
+f5dcd640 || Collecties
+2da55b1e || Startparameters
+7a814f07 || Als administrator uitvoeren
+c12f34d5 || Hulpprogramma's voor deze game
+01139528 || Collectie verwijderen
+b2fd591e || Savegame herstellen
+c9d504c3 || Herstellen
+6b4c80c0 || Verwijderen
+56a1b66f || Games toevoegen
+db64a8c0 || Nieuwe collectie
+789588e5 || Nieuwe afspraak
+544fb376 || Ongeldige datum
+c6dad8bf || Fout
+76397b4e || PROCESSOR
+75edefb2 || GEHEUGEN
+d358d80c || VIDEOKAART
+44cdd9f6 || Je systeem
+ff38ad2f || Opnieuw uitlezen
+17c68938 || Netwerk en ping
+5be157c5 || Nu testen
+999382b4 || Belasting
+9b562cf1 || 3D-belasting
+bb4f1fa8 || niet beschikbaar
+86087df4 || geen antwoord
+922ed124 || Router
+62eee70f || Hardware wordt uitgelezen ...
+8f3184bc || Systeem
+4abc6a8e || Processor
+c1392a4c || Videokaart
+2ff8137a || Beeldscherm
+831f9efc || Moederbord en BIOS
+49e008d1 || Stations
+94bdf7d8 || Audio en netwerk
+6435db1b || Computernaam
+6af8354a || Besturingssysteem
+5376612b || Architectuur
+06d54772 || Looptijd sinds start
+0ecd2422 || Model
+ec80cc5d || Fabrikant
+ccdd1140 || Kernen / threads
+7ddbc0d9 || Kloksnelheid
+554688bc || Totaal
+e506c90c || Kaartfabrikant
+b371bd41 || Videogeheugen
+67ebe77e || Stuurprogrammaversie
+62a77a29 || BIOS-fabrikant
+0948883b || BIOS-versie
+7b7c9870 || BIOS-datum
+e600afa2 || Monitor {0}
+d38f0a9b || Resolutie {0}
+7dd8a9c3 || Module {0}
+aa8d6e09 || Videokaart {0}
+d429ec22 || Audio {0}
+08717d2a || Netwerk {0}
+e80aa93f || (hoofdscherm)
+e3a58811 || Lokale schijf
+11b023e7 || Berekenen
+f1fe2445 || Opslagruimte van games
+2fbdcb70 || ⚡  Energiebeheerschema
+8462e917 || Energiebesparing
+277c5761 || Gebalanceerd
+cab950b4 || Hoge prestaties
+ac5a0382 || Ultieme prestaties
+47e93b68 || 🧹  Tijdelijke bestanden
+da96a316 || Nu opschonen
+90b6b210 || 🗑  Prullenbak
+b79824c7 || Prullenbak legen
+75c2a723 || 🎮  Windows-spelmodus
+c3b0de54 || Spelmodus
+de2a5e4c || Grafische instellingen
+bb176c43 || Snelle toegang
+8fb21460 || Downloadmap
+5ddc26b1 || Tonen in map
+57c2d870 || Map openen
+4a0c0319 || Map toevoegen
+5a13c24e || Vernieuwen
+72cb2230 || Bestand
+ced6afa2 || Grootte
+44c0c36e || Gewijzigd
+9ad59e86 || Schermafbeeldingen
+32884132 || Schermknipsel
+f97a91eb || DirectX-diagnose
+1c489ab1 || Windows Taakbeheer
+6235fe00 || Broncontrole
+45232ab0 || Gedetailleerde belasting
+253992a0 || Systeeminfo
+da9bd749 || Hardware en systeem
+4ae2e8c2 || Apparaatbeheer
+00ff621c || Stuurprogramma's beheren
+3dfc6691 || Netwerk
+d0fcf128 || Netwerkverbindingen
+b3ca9a34 || Geluid
+711ecbce || Audio-instellingen
+e7c4e7ca || Resolutie en vernieuwingsfrequentie
+bf451bff || Windows-spelmodus
+10579889 || Opstart-apps
+ce1c88dc || Programma's bij opstarten
+85de536b || Naar updates zoeken
+38510a3a || Xbox en Game Pass
+67ea4e1f || NVIDIA-stuurprogramma's
+e74938e4 || AMD-stuurprogramma's
+9d3c25c2 || Intel-stuurprogramma's
+66f9f751 || Eigen app
+103d65ce || Gevonden
+1862df48 || 🎉  Mijn gamejaar
+73eb61c9 || Laatste 7 dagen
+b3c97e4f || Meest gespeelde games
+05589d7b || 🏆  Prestaties
+77401e65 || {0} van {1} vrijgespeeld
+d5627d83 || Vrijgespeeld
+18214705 || 🎁  Nu gratis bij Epic Games
+e64208ca || ⏳  Binnenkort gratis
+cd773928 || 🏷  Steam-aanbiedingen
+0c9ab1a9 || GRATIS
+d8254d4c || BINNENKORT
+b5045309 || Gratis
+b7438558 || 🗓  Binnenkort verwacht
+295a5da3 || Nieuwe gratis games
+24a404cf || Er zijn op dit moment geen gratis games.
+cf227129 || Nog geen voorbeeld beschikbaar.
+3eca9632 || Geen aanbiedingen gevonden.
+fa6671e0 || Leeg. Sleep games hierheen of gebruik ＋.
+63777db1 || Slepen om te verplaatsen, dubbelklikken om te starten
+b52b55f5 || Map met schermafbeeldingen kiezen
+0640028a || Windows
+fd9a9ad7 || Xbox Game Bar
+8aa515d8 || Eigen map
+aa2ae432 || Onbewolkt
+7410f417 || Overwegend helder
+a55e23b1 || Halfbewolkt
+7720d727 || Bewolkt
+2f180793 || Mist
+8eddf7ba || Motregen
+a66d73b2 || Ijzel (motregen)
+a6baa4ba || Regen
+a5292222 || Ijzel
+b76844b6 || Sneeuwval
+8a9b0280 || Motsneeuw
+8cefd7d5 || Regenbuien
+917b577e || Sneeuwbuien
+67c892b2 || Onweer
+570d7599 || Onweer met hagel
+e0d2ee69 || Onbekend
+ae7e4027 || Gevoelstemperatuur {0}
+baa788d0 || Wind {0} km/u
+ed9ba7e1 || Luchtvochtigheid {0} %
+b83629e1 || Vandaag {0} tot {1}
+87bc0b7c || Locatie niet gevonden
+75695be3 || Weer niet bereikbaar
+57840931 || Geef een locatie op in de instellingen.
+02666b14 || Controleer je internetverbinding.
+e0494aee || Online functies zijn uitgeschakeld
+24de5be5 || Schakel ze in bij de instellingen.
+8b01539f || Profiel
+cdc3119a || Weergave
+b4786685 || Achtergrond en glaseffect
+f715a9d2 || Animaties
+0e6e4227 || Dashboard en widgets
+28306fd1 || Games en covers
+c572f146 || Functies
+245345b3 || Doelen en herinneringen
+26ceeef7 || Savegames en starten
+e1168a65 || Meldingen en aanbiedingen
+73ec2248 || Sneltoetsen
+cdb65e89 || Zijbalk en onderdelen
+a400651e || Gedrag en venster
+a18e6fee || Online functies en privacy
+e389d679 || Gegevens en hulpmiddelen
+5bde0f3b || Gemak
+99efb25b || Taal
+771f7f8f || Automatisch (Windows)
+ac034a33 || Gebruikersnaam
+243da9d4 || Themavoorinstellingen
+c2d1d7bc || Donker
+62ef3dd9 || Pikzwart
+31cceecd || Bos
+f00a9c50 || Oceaan
+1c90883d || Zonsondergang
+1c6f408a || Rosé
+7778cb03 || Bloedrood
+977d53bf || Achtergrondkleur kiezen
+87f8fb8a || Accentkleur kiezen
+bf9b5f59 || Kleuren herstellen
+43971f45 || Zoom van de interface
+b008f086 || Gameweergave
+26d7d2a3 || Grootte van gamekaarten
+16fb0d9b || Afronding van de kaarten
+7ccab525 || Zoomsterkte bij aanwijzen
+c824322e || Gamenamen op de kaarten tonen
+042b3632 || Bron en speeltijd op de kaarten tonen
+ca777c92 || Achtergrondafbeelding kiezen
+205b551b || Afbeelding verwijderen
+25c07880 || Verduistering van de achtergrondafbeelding
+5198252f || Vervaging van de achtergrondafbeelding
+82366b7b || Glaseffect (Mica) – alleen Windows 11, werkt het best zonder achtergrondafbeelding
+1afdc17f || Vloeiende paginaovergangen en optellende getallen
+6bcba50f || Gamekaarten na elkaar laten verschijnen (met glans tijdens het laden van covers)
+06b73006 || Ringdiagrammen vloeiend animeren
+7e2e015a || Zoomanimatie bij aanwijzen
+6f23cbd7 || Gloed in de accentkleur bij aanwijzen
+f4ddd151 || Langzaam bewegend kleurverloop op de achtergrond (vraagt wat grafische kracht)
+9edc0d7c || Grote banner „Verder spelen” tonen
+c3f8dfba || Klokwidget tonen
+0a2e6747 || 24-uursnotatie
+0e5843b5 || Seconden tonen
+64e2c836 || Weerwidget tonen
+698bd335 || Temperatuur in Fahrenheit
+1795ed78 || Weerlocatie (leeg = automatisch via IP-adres)
+a8d57d21 || Statistiektegels tonen
+fb302551 || Onderdeel „Laatst gespeeld” tonen
+05e043c4 || Onderdeel „Favorieten” tonen
+247d40fa || Aantal games in „Laatst gespeeld” en „Favorieten”
+65b3208c || Covers in originele resolutie laden en tonen (vraagt meer geheugen)
+ca18f85f || Startpagina
+bc94bebe || Covers opnieuw laden
+f4dbc09e || Speeltijd automatisch bijhouden zodra een game draait
+300ed9f5 || Gamingprofiel: tijdens het spelen automatisch „Hoge prestaties” inschakelen
+aebd21a6 || Mini-overlay met CPU, GPU en RAM tonen tijdens het spelen
+b94b0af3 || Positie van de overlay
+eefa16de || Linksboven
+6b1b37d2 || Rechtsboven
+25898754 || Linksonder
+6da7387c || Rechtsonder
+9878d8b6 || Overlay testen
+10ff1df8 || Gamepadbediening (Start-knop opent de controllermodus, sneltoets F11)
+39c9464a || Weekdoel (speeltijd van de laatste 7 dagen)
+0fd7c052 || Pauzeherinnering tijdens het spelen
+8cee7058 || Uit
+67d6dc36 || {0} u per week
+100e10a6 || elke {0} min
+0697560b || Savegame na elke game automatisch back-uppen (als er een map is ingesteld)
+c84fdb65 || Standaard hulpprogramma's kiezen ...
+d9da27db || Melden bij nieuwe gratis games op Epic Games
+c892885c || Waarschuwen als een station bijna vol is
+e5d4af40 || Map met schermafbeeldingen toevoegen ...
+12b475fd || Launcher minimaliseren na het starten van een game
+3497a142 || DFP Pro Launcher starten met Windows
+87d55be6 || Geminimaliseerd starten (in het systeemvak, indien ingeschakeld)
+9bb5b271 || Bij sluiten in het systeemvak blijven draaien (speeltijd wordt verder bijgehouden)
+09fd3952 || Venster altijd op de voorgrond houden
+20af185e || Vensterpositie en -grootte onthouden
+e9a92b37 || Online functies toestaan (covers downloaden en weer)
+c1deb47a || Geschiedenis wissen
+1069d6f9 || Map met instellingen openen
+c0524cc4 || Back-up van instellingen maken
+25a14514 || Instellingen laden
+30d66a91 || Logo opslaan als pictogram (.ico)
+413ace34 || Snelkoppeling op bureaublad maken
+faefbe49 || Verloopgrafieken onder de ringdiagrammen tonen
+e68d7082 || Vernieuwing van live-waarden
+2df7516d || 0,5 s
+2a5a8405 || 1 s
+810f9054 || 2 s
+6ec01b99 || 5 s
+16958c96 || Niet-geselecteerde onderdelen verdwijnen uit de zijbalk. Via zoeken (Ctrl+K) kun je ze nog steeds openen.
+20ed9ddc || De herinnering verschijnt in de launcher en in de mini-overlay boven je game.
+2a7c536c || De overlay verschijnt boven games in venster- of randloze modus. In exclusief volledig scherm toont Windows hem niet.
+bff2abf4 || De savemap stel je per game in met een rechtermuisklik. Back-ups staan in %AppData%\Game_launcher\backups, de laatste 10 blijven bewaard.
+de41501a || Favorieten, geschiedenis, covers en instellingen staan in %AppData%\Game_launcher.
+ffee756d || Ctrl + K   Zoeken en snel starten\nCtrl + F   Games doorzoeken\nCtrl + R   Games opnieuw scannen\nCtrl + 1–9   Onderdelen openen\nCtrl + ,   Instellingen\nF11   Controllermodus\nEsc   Controllermodus of zoeken sluiten
+87d2ea76 || ↑ ↓ kiezen   ·   Enter openen   ·   Esc sluiten
+d8e5c523 || Bezetting van je stations en de ruimte die je games innemen.
+da218d80 || Berekent hoeveel ruimte elke game inneemt.
+f4e5294c || Je speeltijd wordt automatisch bijgehouden zodra een game draait.
+abb24ba9 || Je nieuwste schermafbeeldingen uit Windows, Xbox Game Bar en Steam.
+57be449b || Je belangrijkste programma's met één klik. Bekende apps worden automatisch herkend.
+06415023 || De spelmodus geeft games voorrang. Controleer hier of hij aan staat en stel de grafische prestaties per game in.
+a421b285 || Gratis games bij Epic Games en actuele kortingen op Steam.
+38dcd9a1 || Hoge prestaties geven meer FPS, maar verbruiken meer stroom.
+8ddc255b || Geen apps gevonden. Voeg je programma's zelf toe met „App toevoegen”.
+b8ee7c5d || Leegt de prullenbak van alle stations en maakt meteen ruimte vrij.
+9d8f76da || Live belasting van je pc, elke seconde bijgewerkt.
+e118248d || Verwijdert bestanden in de Temp-map die ouder zijn dan 24 uur. Bestanden in gebruik worden overgeslagen.
+4705913f || Meer prestaties en ruimte voor je games.
+b8629697 || Nog geen speeltijd geregistreerd. Start een game en de launcher meet de tijd automatisch.
+b169c8fe || Handige Windows-hulpmiddelen voor gamers, altijd bij de hand.
+7ce3941a || Pas de launcher aan jouw wensen aan.
+a003cabc || Stores, stuurprogramma's en je laatst gedownloade bestanden.
+6bb3c08a || Test je verbinding met router, DNS en gamediensten.
+7a3b817d || Sleep games tussen de kolommen. Dubbelklikken start een game. Met ＋ voeg je er meerdere tegelijk toe.
+9f5b1d61 || Games opnieuw scannen
+a4565350 || Scan voltooid!\n{0} games gevonden.
+fb9a0d1c || Er zijn nog geen games gevonden.
+5e7ba768 || Wat dacht je van „{0}”?\n\nNu starten?
+47099f15 || „{0}” echt verwijderen?\n\nDe game wordt van je pc verwijderd.
+19521c3a || „{0}” is verwijderd.
+ac5b03a5 || Steam opent nu het verwijderen.\nKlik daarna op „Opnieuw scannen” om de lijst bij te werken.
+af839e57 || Het verwijderprogramma is gestart.\nKlik daarna op „Opnieuw scannen” om de lijst bij te werken.
+7faca14b || Epic Games staat verwijderen van buitenaf niet toe.\nDe Epic Games Launcher is geopend: Bibliotheek → game → ⋯ → Verwijderen.
+57608b06 || Automatisch verwijderen is niet gelukt.\nWindows opent nu het app-beheer.
+2298b4ae || Er is geen verwijderprogramma voor deze game gevonden.\nWindows opent nu het app-beheer.
+7d4e35bc || Deze game staat al in de lijst.
+dc676a83 || Deze app staat al in de lijst.
+69c9ff21 || Het bestand is niet gevonden:\n{0}
+8d5f12bd || De game kon niet worden gestart:\n{0}
+3e5c676d || De app kon niet worden gestart:\n{0}
+fe7fed64 || Kon niet worden geopend:\n{0}
+64d7d470 || Naam opgeslagen!
+ca6b2e9e || De prullenbak is geleegd.
+a4bd84fd || De prullenbak is al leeg.
+c7d9a3ad || Prullenbak echt definitief legen?
+7bdcf424 || Tijdelijke bestanden (ouder dan 24 uur) uit de Temp-map verwijderen?
+5bb484d5 || {0} bestanden verwijderd – {1} vrijgemaakt.
+38b92ba5 || Dit energiebeheerschema is niet beschikbaar op je pc.
+828002f1 || Er is een back-up van de instellingen gemaakt.
+c616c818 || De instellingen zijn geladen.\nStart de launcher opnieuw zodat alles wordt toegepast.
+e890e2da || Het logo is opgeslagen als pictogram.
+01844d6e || De snelkoppeling met je logo is op het bureaublad gemaakt.
+99a06639 || Geschiedenis (laatst gespeeld, startteller en speeltijd) echt wissen?\nFavorieten, beoordelingen en notities blijven behouden.
+12579d3a || Alle opgeslagen covers verwijderen en opnieuw downloaden?
+c18d05eb || De datum kon niet worden gelezen. Voer hem in als DD.MM.JJJJ.
+09589235 || Datum in de notatie DD.MM.JJJJ:
+37c2951e || Naam van de komende game:
+c9f8513f || Naam van de collectie (bijvoorbeeld „Backlog” of „Co-op”):
+b220eb18 || De collectie „{0}” verwijderen?\nDe games zelf blijven behouden.
+1b4e9871 || Kies de games die in deze kolom moeten.
+d40abdb9 || Kies een back-up van „{0}”. De huidige stand wordt eerst automatisch opgeslagen.
+b5bf7f24 || Er zijn nog geen back-ups voor deze game.
+6712453a || Stel eerst de savemap in (rechtermuisklik, dan „Savegames”).
+48af8143 || De back-up is mislukt. Draait de game nog of is de map leeg?
+f1fb1110 || Mogelijke savegames gevonden:\n{0}\n\nDeze map gebruiken?
+8fa84798 || Savegame geback-upt
+8f869d83 || Savegame hersteld
+6d8519df || Game toegevoegd
+f5a42171 || {0} games toegevoegd
+a0b92c39 || Niets toegevoegd
+04d5ffc1 || Sleep .exe-bestanden of snelkoppelingen (.lnk) naar het venster.
+d15c9ed9 || De launcher blijft op de achtergrond draaien. Dubbelklik op het pictogram om hem weer te openen.
+2f0f0182 || Prestatie vrijgespeeld: {0}
+89f3e1f5 || ⏰ Tijd voor een pauze!
+07e13d0d || Er zijn nog geen gamegegevens voor dit jaar. De launcher houdt de speeltijd automatisch bij zodra een game draait.
+6c551c77 || Jouw gamejaar {0}
+47a1cfb4 || Totale speeltijd
+dcb93937 || Dagen met speeltijd
+11b52174 || Langste reeks
+c33c81e5 || Favoriete weekdag
+dc7a2a97 || Langste speeldag
+3e973080 || Meest gespeeld (totaal)
+72eed77b || Gelukt! {0} van {1} u in de laatste 7 dagen.
+3012ac2b || {0} van {1} u in de laatste 7 dagen.
+84548133 || Vandaag verschijnt: {0}
+d6dbe088 || Planner openen
+8202d15e || Opslag bekijken
+317850e6 || Op {0} is nog maar {1} GB vrij ({2} %).
+8438a7b1 || Bekijken
+c47787bb || Gratis bij Epic Games: {0}
+b638e6d4 || Gratis tot {0}
+2466c3df || Gratis vanaf {0}
+86cc7c44 || Binnenkort gratis
+fe3e4c97 || Aanbiedingen laden ...
+4b4bf597 || Geen aanbiedingen geladen. Controleer je internetverbinding.
+0aabe570 || Stand: {0}
+1da3ff4b || Online functies zijn uitgeschakeld in de instellingen.
+7981a4d0 || Schermafbeeldingen zoeken ...
+39635b2e || Verbinding testen ...
+4312f2e4 || Getest om {0}. Onder 40 ms is zeer goed, boven 100 ms merkbaar traag.
+d47c26a6 || Berekenen ... met veel games kan dit even duren.
+e15c8977 || Geen geïnstalleerde games gevonden.
+00e24e2c || Laatst uitgelezen om {0}
+ef9bc4f7 || Bibliotheek bijwerken
+3df165bf || Laat de launcher kiezen
+dc87f0c9 || Volledig scherm met gamepadbediening
+219627c2 || Volledig scherm met gamepadbediening (F11)
+a51898c7 || Geen videokaart gevonden
+6f3817f6 || Onderdeel openen
+c807556c || Toepassing
+4b4c459c || Game
+069b9c8e || Eerste start
+61f8ec81 || Starthulp
+d81551ce || Verzamelaar
+8525dcbf || Grootverzamelaar
+db53d2fd || Bibliothecaris
+4a3d997b || Opgewarmd
+f4c047db || Marathon
+7b2d8d33 || Legende
+4061cd91 || Volhouder
+83783128 || Vaste gast
+e40ecc4c || Onvermoeibaar
+2c1312ae || Criticus
+a7a2b78c || Lievelingen
+d46517b2 || Ordelijk
+cd5dee9f || Notitieboek
+9aaf16de || Alleskunner
+33aea7ec || Nachtuil
+52edb7a9 || Voorzichtig
+03d1427a || Uitgespeeld
+15deba2f || Start een game via de launcher.
+cad8fa25 || Start 50 keer een game via de launcher.
+8bf57907 || Heb 10 games in je bibliotheek.
+7576d903 || Heb 25 games in je bibliotheek.
+6e010603 || Heb 50 games in je bibliotheek.
+8d8ffb32 || Speel in totaal 10 uur.
+1f489754 || Speel in totaal 100 uur.
+ed270a78 || Speel in totaal 500 uur.
+455b8225 || Speel 3 dagen op rij.
+276ed649 || Speel 7 dagen op rij.
+bfc3baf9 || Speel 30 dagen op rij.
+a57d18b2 || Beoordeel 10 games.
+2f8c3c58 || Markeer 5 favorieten.
+4f21581f || Maak 3 collecties aan.
+632e3d69 || Schrijf notities bij 5 games.
+38bafb90 || Heb games uit 3 verschillende bronnen.
+0375747c || Speel na middernacht.
+372404e4 || Haal je weekdoel.
+51df71fe || Maak een back-up van een savegame.
+465633bf || Verplaats een game naar „Uitgespeeld”.
+f96f8044 || Programma's kiezen ...
+6e5effc3 || Gekozen programma's sluiten bij het starten van een game en daarna weer openen
+bcf1d726 || Bibliotheek automatisch bijwerken als je terugkeert naar de launcher
+f4295c7a || Globale sneltoets Ctrl+Alt+D om de launcher te tonen of te verbergen
+b57737cb || Programma's sluiten bij het starten van een game
+051197b9 || Deze programma's worden bij het starten van een game netjes gesloten (zoals met de sluitknop) en na de game weer geopend. Bij niet-opgeslagen werk kan eerst een vraag komen.
+ad5fae23 || Programma's gesloten
+dfa2e70e || Programma's weer geopend
+05c626ff || Gameroulette
+a5f2dbb5 || Vandaag speel je:
+13345013 || Het toeval kiest ...
+8db57280 || Starten
+5d700e6b || Opnieuw draaien
+f91e70a6 || Bibliotheek exporteren (CSV/HTML)
+21d57811 || De bibliotheek is geëxporteerd.
+8ebe17c1 || Steam-speeltijd importeren
+a1a71ea8 || Geen Steam-speeltijd gevonden. Steam slaat die niet altijd lokaal op.
+ddb027be || {0} games bijgewerkt.
+2b4fc904 || 🖥  Videostuurprogramma
+00686602 || Stuurprogrammapagina openen
+df52dbd9 || Huidig stuurprogramma: {0}
+2cb7ead8 || Nieuwe games gevonden
+f61677be || Laatst gespeeld:
+aecd238b || De launcher draait al.
+a88f68b3 || Laden ...
+0fe07306 || Naam
+00484bed || Bron
+9092bdfc || Speeltijd (u)
+8603e5ea || Starts
+6c52fbe9 || Wil ik spelen
+f5816e77 || Speel ik nu
+778e7743 || Exporteren mislukt:\n{0}
+7227b306 || Opslaan mislukt:\n{0}
+8b7f1671 || Back-up mislukt:\n{0}
+e1ef4245 || Laden mislukt:\n{0}
+4cd00a56 || Verwijderen mislukt:\n{0}
+8d90f053 || Herstellen mislukt:\n{0}
+d6bfb025 || Snelkoppeling mislukt:\n{0}
+43642fb8 || Kopiëren mislukt:\n{0}
+47ea7d3f || Achtergrond kon niet worden ingesteld:\n{0}
+9c89e14e || De afbeelding kon niet worden geladen:\n{0}
+82f69fd3 || Automatisch starten kon niet worden gewijzigd:\n{0}
+b4a6f97b || Bron: {0}
+08ad375c || Speeltijd: {0}
+0b24aeac || Nog niet gespeeld
+b3c92e50 || Via de launcher gestart: {0}×
+7c9c9026 || Laatst gespeeld: {0} ({1})
+c30318e7 || Startopties: {0}
+96f0c75a || Geen toepassingen gevonden.
+bc71f04e || Geen items aanwezig.
+9e076890 || Nog geen collecties. Maak ze aan met een rechtermuisklik op een game.
+6c332b47 || Nog geen items. Voeg komende games toe, de launcher telt de dagen af.
+b8f919dc || Deze game start via Steam, Epic of de Xbox-app. Stel startparameters en starten als administrator daar in.
+d9edbe32 || Startparameters en starten als administrator gelden voor het direct starten via het .exe-bestand.
+f5c63d6e || Je speelt „{0}” al {1} u {2} min. Tijd voor een korte pauze!
+6721a002 || Deze programma's starten automatisch mee met elke game als ze nog niet draaien.
+43bdbdad || Gametoepassing kiezen
+393e5563 || App kiezen
+b632e849 || Map met savegames van „{0}” kiezen
+26e91f2a || Overlaytest
+1efff8c7 || Uitvoerbare bestanden (*.exe)
+a0d98485 || Algemeen
+fa3416b5 || Zijbalk en logo
+1d2b7b1e || Prestaties
+24c9a89d || Bediening
+171ccbb8 || Gegevens en info
+a2fe7692 || Origineel
+6c94b6b3 || Goud
+c9078b65 || Neon
+da86bba8 || IJs
+0268b075 || Monochroom
+04cbeda6 || Accentkleur
+01d4492d || Wit

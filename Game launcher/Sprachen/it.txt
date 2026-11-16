@@ -1,0 +1,600 @@
+11f6d87b || Dashboard
+821226fb || Giochi
+9c02c485 || Statistiche
+abc9c18a || Offerte
+62014d28 || Arretrati
+2a40f567 || Arretrati e pianificatore
+0909a4e2 || Galleria
+a39a539f || App
+539307de || Download
+092b3092 || Monitor di sistema
+dd227e60 || Archiviazione
+781475e0 || Ottimizzazione
+950196fc || Strumenti
+9412d96a || Impostazioni
+7f68b257 || Bentornato
+c21c07ad || Ctrl+K  Cerca
+f8799cd6 || Espandi o comprimi la barra laterale
+9f02b107 || Ciao
+ce1270b2 || Buongiorno, {0}
+451a3c7e || Buon pomeriggio, {0}
+f8d07fbe || Buonasera, {0}
+8a13c656 || Buonanotte, {0}
+aaaea0fe || Settimana {0}
+66a03849 || proprio ora
+b09a6ccd || {0} min fa
+5cf586fe || {0} h fa
+0c1493d2 || {0} giorni fa
+0dd9fe05 || ieri
+c0b8fb84 || tra {0} giorni
+dad06e15 || domani
+4c2c61d5 || oggi!
+f090ee8b || uscito
+c0b83bd3 || 0 min
+ffa4f626 || < 1 min
+38f252ea || {0} min
+2204bc79 || {0} h
+95671b03 || {0} h {1} min
+64d61443 || {0} g {1} h {2} min
+1001b713 || {0} giorni
+0cb7da12 || {0} giochi
+01b68fd9 || {0} di {1} giochi
+d18f5e63 || Ordina: {0}
+f68cba8a || Piano attivo: {0}
+945a85c4 || {0}% occupato
+e1fc1b80 || {0} GB occupati su {1} GB
+5aacff05 || {0} GB liberi
+7cbbe25b || Nome (A–Z)
+4530f830 || Giocati di recente
+dc8196cc || Più avviati
+9444e424 || Aggiunti di recente
+0ef5f593 || Valutazione migliore
+081f1e8b || Più tempo di gioco
+612c2939 || Preferiti
+4537da31 || Azioni rapide
+cbf9e774 || Giochi nella libreria
+ba438037 || Tempo di gioco totale
+01afcfb7 || TEMPO DI GIOCO TOTALE
+b7873bcc || PIÙ GIOCATO
+9d42b849 || ULTIMI 7 GIORNI
+ecbda706 || ORA
+e61846e2 || METEO
+ce26e471 || Ancora niente avviato. Avvia un gioco dal launcher e comparirà qui.
+526793c1 || 🎲  Gioco casuale
+44720969 || ＋  Aggiungi gioco
+ed5a4081 || ＋ Aggiungi app
+c145a9e3 || ＋ Evento
+a1bec44e || 🔄  Nuova scansione
+60ea6285 || Nuova scansione
+506ad2ea || 🔍  Cerca (Ctrl+K)
+99dc0c37 || 🎮  Modalità controller (F11)
+00f223ba || Cerca giochi...
+44e25a93 || Tutti
+b6915086 || ★ Preferiti
+6486ba6e || 🆕 Nuovi
+967fd747 || 🎲 Mai giocati
+4b3d3e91 || Manuale
+d2842f89 || ▶ GIOCA
+184e3409 || ▶  Gioca
+87fc35ab || ▶  Continua a giocare
+365e29e9 || CONTINUA A GIOCARE
+0ec24245 || Dettagli
+e9a7dde8 || Schede
+fd5db391 || Schede dettagliate
+fbe2c98c || Elenco
+a6eb9df7 || Nessun risultato.
+4206944a || Nessun gioco trovato. Aggiungi giochi con «Aggiungi gioco» o avvia una nuova scansione.
+72171a83 || Ricerca dei giochi ...
+5b7ec51a || ☆  Aggiungi ai preferiti
+2e5e606a || ★  Rimuovi dai preferiti
+cf4bee0c || 📝  Dettagli, valutazione e note ...
+38deeadc || 📁  Raccolte
+7593fcff || ＋  Nuova raccolta ...
+164cdc9b || 📋  Stato (arretrati)
+40cdde4f || 📋  Voglio giocarci
+75d92a79 || ▶  Ci sto giocando
+ccff4ba1 || ✅  Completato
+4557758f || 💾  Salvataggi
+e4c58054 || Esegui backup ora
+8bc4421d || Ripristina ...
+d225fa58 || Imposta cartella dei salvataggi ...
+6b91f375 || ⚙  Opzioni di avvio e app di supporto ...
+dac5acf5 || 📂  Apri percorso file
+5c32ee52 || 🗑  Disinstalla ...
+51bbb8b6 || ✖  Rimuovi dall'elenco
+713a13d4 || 🗑  Rimuovi dall'elenco
+7d1c08fa || 🗑  Elimina voce
+54f27944 || 🗑  Elimina raccolta
+3f20fd17 || 🖼  Apri
+d35ae5fa || 📂  Mostra nella cartella
+a173204e || 📋  Copia negli appunti
+ae63d84e || 🎨  Usa come sfondo
+2d5d70e9 || Annulla
+2b4c700a || Salva
+e1cab4a5 || Chiudi
+9239bfb2 || Apri
+d5acd2ad || Applica
+46600c4a || Esci
+0a6c9d4d || Gioco casuale
+005ef20f || Stato
+8e811a36 || Valutazione
+cda7a74e || Note
+f5dcd640 || Raccolte
+2da55b1e || Parametri di avvio
+7a814f07 || Esegui come amministratore
+c12f34d5 || App di supporto per questo gioco
+01139528 || Elimina raccolta
+b2fd591e || Ripristina salvataggio
+c9d504c3 || Ripristina
+6b4c80c0 || Disinstalla
+56a1b66f || Aggiungi giochi
+db64a8c0 || Nuova raccolta
+789588e5 || Nuovo evento
+544fb376 || Data non valida
+c6dad8bf || Errore
+76397b4e || PROCESSORE
+75edefb2 || MEMORIA
+d358d80c || SCHEDA VIDEO
+44cdd9f6 || Il tuo sistema
+ff38ad2f || Rileggi
+17c68938 || Rete e ping
+5be157c5 || Prova ora
+999382b4 || Utilizzo
+9b562cf1 || Carico 3D
+bb4f1fa8 || non disponibile
+86087df4 || nessuna risposta
+922ed124 || Router
+62eee70f || Lettura dell'hardware ...
+8f3184bc || Sistema
+4abc6a8e || Processore
+c1392a4c || Scheda video
+2ff8137a || Schermo
+831f9efc || Scheda madre e BIOS
+49e008d1 || Unità
+94bdf7d8 || Audio e rete
+6435db1b || Nome computer
+6af8354a || Sistema operativo
+5376612b || Architettura
+06d54772 || Tempo di attività
+0ecd2422 || Modello
+ec80cc5d || Produttore
+ccdd1140 || Core / thread
+7ddbc0d9 || Frequenza
+554688bc || Totale
+e506c90c || Produttore scheda
+b371bd41 || Memoria video
+67ebe77e || Versione driver
+62a77a29 || Produttore BIOS
+0948883b || Versione BIOS
+7b7c9870 || Data BIOS
+e600afa2 || Monitor {0}
+d38f0a9b || Risoluzione {0}
+7dd8a9c3 || Modulo {0}
+aa8d6e09 || Scheda video {0}
+d429ec22 || Audio {0}
+08717d2a || Rete {0}
+e80aa93f || (schermo principale)
+e3a58811 || Disco locale
+11b023e7 || Calcola
+f1fe2445 || Spazio occupato dai giochi
+2fbdcb70 || ⚡  Combinazione di risparmio energia
+8462e917 || Risparmio energia
+277c5761 || Bilanciato
+cab950b4 || Prestazioni elevate
+ac5a0382 || Prestazioni eccellenti
+47e93b68 || 🧹  File temporanei
+da96a316 || Pulisci ora
+90b6b210 || 🗑  Cestino
+b79824c7 || Svuota cestino
+75c2a723 || 🎮  Modalità gioco di Windows
+c3b0de54 || Modalità gioco
+de2a5e4c || Impostazioni grafiche
+bb176c43 || Accesso rapido
+8fb21460 || Cartella Download
+5ddc26b1 || Mostra nella cartella
+57c2d870 || Apri cartella
+4a0c0319 || Aggiungi cartella
+5a13c24e || Aggiorna
+72cb2230 || File
+ced6afa2 || Dimensione
+44c0c36e || Modificato
+9ad59e86 || Screenshot
+32884132 || Ritaglio schermo
+f97a91eb || Diagnostica DirectX
+1c489ab1 || Gestione attività di Windows
+6235fe00 || Monitoraggio risorse
+45232ab0 || Utilizzo dettagliato
+253992a0 || Informazioni di sistema
+da9bd749 || Hardware e sistema
+4ae2e8c2 || Gestione dispositivi
+00ff621c || Gestisci driver
+3dfc6691 || Rete
+d0fcf128 || Connessioni di rete
+b3ca9a34 || Audio
+711ecbce || Impostazioni audio
+e7c4e7ca || Risoluzione e frequenza
+bf451bff || Modalità gioco di Windows
+10579889 || App di avvio
+ce1c88dc || Programmi all'avvio
+85de536b || Cerca aggiornamenti
+38510a3a || Xbox e Game Pass
+67ea4e1f || Driver NVIDIA
+e74938e4 || Driver AMD
+9d3c25c2 || Driver Intel
+66f9f751 || App personalizzata
+103d65ce || Rilevato
+1862df48 || 🎉  Il mio anno di gioco
+73eb61c9 || Ultimi 7 giorni
+b3c97e4f || Giochi più giocati
+05589d7b || 🏆  Obiettivi
+77401e65 || {0} di {1} sbloccati
+d5627d83 || Sbloccato
+18214705 || 🎁  Ora gratis su Epic Games
+e64208ca || ⏳  Presto gratis
+cd773928 || 🏷  Offerte Steam
+0c9ab1a9 || GRATIS
+d8254d4c || PRESTO
+b5045309 || Gratis
+b7438558 || 🗓  In arrivo
+295a5da3 || Nuovi giochi gratis
+24a404cf || Al momento non ci sono giochi gratis.
+cf227129 || Nessuna anteprima disponibile.
+3eca9632 || Nessuna offerta trovata.
+fa6671e0 || Vuoto. Trascina qui i giochi o usa ＋.
+63777db1 || Trascina per spostare, doppio clic per avviare
+b52b55f5 || Scegli la cartella degli screenshot
+0640028a || Windows
+fd9a9ad7 || Xbox Game Bar
+8aa515d8 || Cartella personalizzata
+aa2ae432 || Sereno
+7410f417 || Prevalentemente sereno
+a55e23b1 || Parzialmente nuvoloso
+7720d727 || Coperto
+2f180793 || Nebbia
+8eddf7ba || Pioggerella
+a66d73b2 || Pioggerella gelata
+a6baa4ba || Pioggia
+a5292222 || Pioggia gelata
+b76844b6 || Nevicata
+8a9b0280 || Granelli di neve
+8cefd7d5 || Rovesci di pioggia
+917b577e || Rovesci di neve
+67c892b2 || Temporale
+570d7599 || Temporale con grandine
+e0d2ee69 || Sconosciuto
+ae7e4027 || Percepita {0}
+baa788d0 || Vento {0} km/h
+ed9ba7e1 || Umidità {0} %
+b83629e1 || Oggi da {0} a {1}
+87bc0b7c || Località non trovata
+75695be3 || Meteo non raggiungibile
+57840931 || Inserisci una località nelle impostazioni.
+02666b14 || Controlla la connessione a Internet.
+e0494aee || Le funzioni online sono disattivate
+24de5be5 || Attivale nelle impostazioni.
+8b01539f || Profilo
+cdc3119a || Aspetto
+b4786685 || Sfondo ed effetto vetro
+f715a9d2 || Animazioni
+0e6e4227 || Dashboard e widget
+28306fd1 || Giochi e copertine
+c572f146 || Funzioni
+245345b3 || Obiettivi e promemoria
+26ceeef7 || Salvataggi e avvio
+e1168a65 || Avvisi e offerte
+73ec2248 || Scorciatoie da tastiera
+cdb65e89 || Barra laterale e sezioni
+a400651e || Comportamento e finestra
+a18e6fee || Funzioni online e privacy
+e389d679 || Dati e strumenti
+5bde0f3b || Comodità
+99efb25b || Lingua
+771f7f8f || Automatica (Windows)
+ac034a33 || Nome utente
+243da9d4 || Temi predefiniti
+c2d1d7bc || Scuro
+62ef3dd9 || Nero assoluto
+31cceecd || Foresta
+f00a9c50 || Oceano
+1c90883d || Tramonto
+1c6f408a || Rosé
+7778cb03 || Rosso sangue
+977d53bf || Scegli il colore di sfondo
+87f8fb8a || Scegli il colore principale
+bf9b5f59 || Ripristina colori
+43971f45 || Zoom dell'interfaccia
+b008f086 || Vista dei giochi
+26d7d2a3 || Dimensione delle schede gioco
+16fb0d9b || Arrotondamento delle schede
+7ccab525 || Intensità dello zoom al passaggio
+c824322e || Mostra i nomi dei giochi sulle schede
+042b3632 || Mostra fonte e tempo di gioco sulle schede
+ca777c92 || Scegli immagine di sfondo
+205b551b || Rimuovi immagine
+25c07880 || Oscuramento dell'immagine di sfondo
+5198252f || Sfocatura dell'immagine di sfondo
+82366b7b || Effetto vetro (Mica) – solo Windows 11, rende meglio senza immagine di sfondo
+1afdc17f || Transizioni morbide tra pagine e numeri animati
+6bcba50f || Mostra le schede gioco una dopo l'altra (con riflesso durante il caricamento delle copertine)
+06b73006 || Anima i grafici ad anello in modo fluido
+7e2e015a || Animazione di zoom al passaggio
+6f23cbd7 || Bagliore nel colore principale al passaggio
+f4ddd151 || Sfumatura di colore che scorre lentamente nello sfondo (richiede un po' di potenza grafica)
+9edc0d7c || Mostra il grande banner «Continua a giocare»
+c3f8dfba || Mostra widget orologio
+0a2e6747 || Formato 24 ore
+0e5843b5 || Mostra i secondi
+64e2c836 || Mostra widget meteo
+698bd335 || Temperatura in Fahrenheit
+1795ed78 || Località meteo (vuoto = automatica tramite indirizzo IP)
+a8d57d21 || Mostra riquadri statistici
+fb302551 || Mostra la sezione «Giocati di recente»
+05e043c4 || Mostra la sezione «Preferiti»
+247d40fa || Numero di giochi in «Giocati di recente» e «Preferiti»
+65b3208c || Carica e mostra le copertine alla risoluzione originale (richiede più memoria)
+ca18f85f || Pagina iniziale
+bc94bebe || Ricarica copertine
+f4dbc09e || Registra automaticamente il tempo di gioco mentre un gioco è in esecuzione
+300ed9f5 || Profilo di gioco: passa automaticamente a «Prestazioni elevate» mentre giochi
+aebd21a6 || Mostra un mini overlay con CPU, GPU e RAM mentre giochi
+b94b0af3 || Posizione dell'overlay
+eefa16de || In alto a sinistra
+6b1b37d2 || In alto a destra
+25898754 || In basso a sinistra
+6da7387c || In basso a destra
+9878d8b6 || Prova overlay
+10ff1df8 || Controllo con gamepad (il tasto Start apre la modalità controller, scorciatoia F11)
+39c9464a || Obiettivo settimanale (tempo di gioco degli ultimi 7 giorni)
+0fd7c052 || Promemoria pausa mentre giochi
+8cee7058 || Disattivato
+67d6dc36 || {0} h a settimana
+100e10a6 || ogni {0} min
+0697560b || Esegui il backup del salvataggio dopo ogni partita (se è impostata una cartella)
+c84fdb65 || Scegli le app di supporto predefinite ...
+d9da27db || Avvisami dei nuovi giochi gratis su Epic Games
+c892885c || Avvisa quando un'unità è quasi piena
+e5d4af40 || Aggiungi cartella screenshot ...
+12b475fd || Riduci a icona il launcher dopo l'avvio del gioco
+3497a142 || Avvia DFP Pro Launcher con Windows
+87d55be6 || Avvia ridotto a icona (nell'area di notifica, se attiva)
+9bb5b271 || Continua nell'area di notifica alla chiusura (il tempo di gioco continua a essere registrato)
+09fd3952 || Mantieni la finestra sempre in primo piano
+20af185e || Ricorda posizione e dimensione della finestra
+e9a92b37 || Consenti funzioni online (download copertine e meteo)
+c1deb47a || Azzera cronologia
+1069d6f9 || Apri cartella impostazioni
+c0524cc4 || Esegui backup impostazioni
+25a14514 || Carica impostazioni
+30d66a91 || Salva logo come icona (.ico)
+413ace34 || Crea collegamento sul desktop
+faefbe49 || Mostra grafici storici sotto i grafici ad anello
+e68d7082 || Aggiornamento dei valori in tempo reale
+2df7516d || 0,5 s
+2a5a8405 || 1 s
+810f9054 || 2 s
+6ec01b99 || 5 s
+16958c96 || Le sezioni deselezionate scompaiono dalla barra laterale. Puoi comunque aprirle con la ricerca (Ctrl+K).
+20ed9ddc || Il promemoria appare nel launcher e nel mini overlay sopra il gioco.
+2a7c536c || L'overlay appare sopra i giochi in finestra o senza bordi. A schermo intero esclusivo Windows non lo mostra.
+bff2abf4 || La cartella dei salvataggi si imposta per ogni gioco con il clic destro. I backup sono in %AppData%\Game_launcher\backups, vengono conservati gli ultimi 10.
+de41501a || Preferiti, cronologia, copertine e impostazioni si trovano in %AppData%\Game_launcher.
+ffee756d || Ctrl + K   Ricerca e avvio rapido\nCtrl + F   Cerca giochi\nCtrl + R   Nuova scansione giochi\nCtrl + 1–9   Apri sezioni\nCtrl + ,   Impostazioni\nF11   Modalità controller\nEsc   Chiudi modalità controller o ricerca
+87d2ea76 || ↑ ↓ seleziona   ·   Invio apri   ·   Esc chiudi
+d8e5c523 || Occupazione delle unità e spazio necessario ai tuoi giochi.
+da218d80 || Calcola quanto spazio occupa ogni gioco.
+f4e5294c || Il tempo di gioco viene registrato automaticamente appena un gioco è in esecuzione.
+abb24ba9 || I tuoi screenshot più recenti da Windows, Xbox Game Bar e Steam.
+57be449b || I tuoi programmi più importanti a portata di clic. Le app note vengono rilevate automaticamente.
+06415023 || La Modalità gioco dà priorità ai giochi. Controlla qui se è attiva e imposta le prestazioni grafiche per ogni gioco.
+a421b285 || Giochi gratis su Epic Games e sconti attuali su Steam.
+38dcd9a1 || Prestazioni elevate danno più FPS ma consumano più energia.
+8ddc255b || Nessuna app rilevata. Aggiungi i tuoi programmi con «Aggiungi app».
+b8ee7c5d || Svuota il cestino di tutte le unità e libera subito spazio.
+9d8f76da || Utilizzo del PC in tempo reale, aggiornato ogni secondo.
+e118248d || Elimina i file nella cartella Temp più vecchi di 24 ore. I file in uso vengono saltati.
+4705913f || Più prestazioni e spazio per i tuoi giochi.
+b8629697 || Nessun tempo di gioco registrato. Avvia un gioco e il launcher misura il tempo automaticamente.
+b169c8fe || Strumenti utili di Windows per i giocatori, sempre a portata di mano.
+7ce3941a || Personalizza il launcher come preferisci.
+a003cabc || Store, driver e i file scaricati di recente.
+6bb3c08a || Verifica la connessione a router, DNS e servizi di gioco.
+7a3b817d || Trascina i giochi tra le colonne. Il doppio clic avvia un gioco. Con ＋ ne aggiungi diversi in una volta.
+9f5b1d61 || Nuova scansione giochi
+a4565350 || Scansione completata!\nTrovati {0} giochi.
+fb9a0d1c || Non è ancora stato trovato nessun gioco.
+5e7ba768 || Che ne dici di «{0}»?\n\nAvviarlo ora?
+47099f15 || Disinstallare davvero «{0}»?\n\nIl gioco verrà rimosso dal PC.
+19521c3a || «{0}» è stato disinstallato.
+ac5b03a5 || Steam sta aprendo la disinstallazione.\nPoi fai clic su «Nuova scansione» per aggiornare l'elenco.
+af839e57 || Il programma di disinstallazione è stato avviato.\nPoi fai clic su «Nuova scansione» per aggiornare l'elenco.
+7faca14b || Epic Games non consente la disinstallazione dall'esterno.\nÈ stato aperto l'Epic Games Launcher: Libreria → gioco → ⋯ → Disinstalla.
+57608b06 || La disinstallazione automatica non ha funzionato.\nWindows apre ora la gestione delle app.
+2298b4ae || Nessun programma di disinstallazione trovato per questo gioco.\nWindows apre ora la gestione delle app.
+7d4e35bc || Questo gioco è già nell'elenco.
+dc676a83 || Questa app è già nell'elenco.
+69c9ff21 || File non trovato:\n{0}
+8d5f12bd || Impossibile avviare il gioco:\n{0}
+3e5c676d || Impossibile avviare l'app:\n{0}
+fe7fed64 || Impossibile aprire:\n{0}
+64d7d470 || Nome salvato correttamente!
+ca6b2e9e || Il cestino è stato svuotato.
+a4bd84fd || Il cestino è già vuoto.
+c7d9a3ad || Svuotare definitivamente il cestino?
+7bdcf424 || Eliminare i file temporanei (più vecchi di 24 ore) dalla cartella Temp?
+5bb484d5 || {0} file eliminati – {1} liberati.
+38b92ba5 || Questa combinazione di risparmio energia non è disponibile sul PC.
+828002f1 || Backup delle impostazioni eseguito.
+c616c818 || Le impostazioni sono state caricate.\nRiavvia il launcher per applicare tutto.
+e890e2da || Il logo è stato salvato come icona.
+01844d6e || Il collegamento con il tuo logo è stato creato sul desktop.
+99a06639 || Azzerare davvero la cronologia (giocati di recente, contatore avvii e tempo di gioco)?\nPreferiti, valutazioni e note vengono mantenuti.
+12579d3a || Eliminare tutte le copertine salvate e scaricarle di nuovo?
+c18d05eb || Impossibile leggere la data. Inseriscila nel formato GG.MM.AAAA.
+09589235 || Data nel formato GG.MM.AAAA:
+37c2951e || Nome del gioco in arrivo:
+c9f8513f || Nome della raccolta (ad esempio «Arretrati» o «Cooperativa»):
+b220eb18 || Eliminare la raccolta «{0}»?\nI giochi stessi vengono mantenuti.
+1b4e9871 || Scegli i giochi da mettere in questa colonna.
+d40abdb9 || Scegli un backup di «{0}». Prima viene salvato automaticamente lo stato attuale.
+b5bf7f24 || Non ci sono ancora backup per questo gioco.
+6712453a || Imposta prima la cartella dei salvataggi (clic destro, poi «Salvataggi»).
+48af8143 || Backup non riuscito. Il gioco è ancora in esecuzione o la cartella è vuota?
+f1fb1110 || Possibili salvataggi trovati:\n{0}\n\nUsare questa cartella?
+8fa84798 || Salvataggio copiato
+8f869d83 || Salvataggio ripristinato
+6d8519df || Gioco aggiunto
+f5a42171 || {0} giochi aggiunti
+a0b92c39 || Niente aggiunto
+04d5ffc1 || Trascina file .exe o collegamenti (.lnk) sulla finestra.
+d15c9ed9 || Il launcher continua a funzionare in background. Fai doppio clic sull'icona per riaprirlo.
+2f0f0182 || Obiettivo sbloccato: {0}
+89f3e1f5 || ⏰ È ora di una pausa!
+07e13d0d || Non ci sono ancora dati di gioco per quest'anno. Il launcher registra il tempo di gioco automaticamente mentre un gioco è in esecuzione.
+6c551c77 || Il tuo anno di gioco {0}
+47a1cfb4 || Tempo di gioco totale
+dcb93937 || Giorni con tempo di gioco
+11b52174 || Serie più lunga
+c33c81e5 || Giorno preferito
+dc7a2a97 || Giornata di gioco più lunga
+3e973080 || Più giocato (in totale)
+72eed77b || Fatto! {0} di {1} h negli ultimi 7 giorni.
+3012ac2b || {0} di {1} h negli ultimi 7 giorni.
+84548133 || Esce oggi: {0}
+d6dbe088 || Apri pianificatore
+8202d15e || Vedi archiviazione
+317850e6 || Su {0} restano solo {1} GB liberi ({2} %).
+8438a7b1 || Vedi
+c47787bb || Gratis su Epic Games: {0}
+b638e6d4 || Gratis fino alle {0}
+2466c3df || Gratis dalle {0}
+86cc7c44 || Presto gratis
+fe3e4c97 || Caricamento offerte ...
+4b4bf597 || Nessuna offerta caricata. Controlla la connessione a Internet.
+0aabe570 || Aggiornato alle {0}
+1da3ff4b || Le funzioni online sono disattivate nelle impostazioni.
+7981a4d0 || Ricerca degli screenshot ...
+39635b2e || Verifica della connessione ...
+4312f2e4 || Testato alle {0}. Sotto 40 ms è ottimo, oltre 100 ms è sensibilmente lento.
+d47c26a6 || Calcolo in corso ... con molti giochi può volerci un momento.
+e15c8977 || Nessun gioco installato trovato.
+00e24e2c || Ultima lettura alle {0}
+ef9bc4f7 || Aggiorna libreria
+3df165bf || Lascia decidere al launcher
+dc87f0c9 || Schermo intero con controllo gamepad
+219627c2 || Schermo intero con controllo gamepad (F11)
+a51898c7 || Nessuna scheda video rilevata
+6f3817f6 || Apri sezione
+c807556c || Applicazione
+4b4c459c || Gioco
+069b9c8e || Primo avvio
+61f8ec81 || Avviatore
+d81551ce || Collezionista
+8525dcbf || Grande collezionista
+db53d2fd || Bibliotecario
+4a3d997b || Riscaldamento
+f4c047db || Maratona
+7b2d8d33 || Leggenda
+4061cd91 || Costante
+83783128 || Habitué
+e40ecc4c || Instancabile
+2c1312ae || Critico
+a7a2b78c || Preferiti
+d46517b2 || Ordinato
+cd5dee9f || Taccuino
+9aaf16de || Tuttofare
+33aea7ec || Nottambulo
+52edb7a9 || Prudente
+03d1427a || Completato
+15deba2f || Avvia un gioco dal launcher.
+cad8fa25 || Avvia un gioco dal launcher 50 volte.
+8bf57907 || Avere 10 giochi nella libreria.
+7576d903 || Avere 25 giochi nella libreria.
+6e010603 || Avere 50 giochi nella libreria.
+8d8ffb32 || Gioca 10 ore in totale.
+1f489754 || Gioca 100 ore in totale.
+ed270a78 || Gioca 500 ore in totale.
+455b8225 || Gioca 3 giorni di fila.
+276ed649 || Gioca 7 giorni di fila.
+bfc3baf9 || Gioca 30 giorni di fila.
+a57d18b2 || Valuta 10 giochi.
+2f8c3c58 || Segna 5 preferiti.
+4f21581f || Crea 3 raccolte.
+632e3d69 || Scrivi note per 5 giochi.
+38bafb90 || Avere giochi da 3 fonti diverse.
+0375747c || Gioca dopo mezzanotte.
+372404e4 || Raggiungi il tuo obiettivo settimanale.
+51df71fe || Fai il backup di un salvataggio.
+465633bf || Sposta un gioco in «Completato».
+f96f8044 || Scegli programmi ...
+6e5effc3 || Chiudi i programmi selezionati all'avvio del gioco e riaprili dopo
+bcf1d726 || Aggiorna automaticamente la libreria quando torni al launcher
+f4295c7a || Scorciatoia globale Ctrl+Alt+D per mostrare o nascondere il launcher
+b57737cb || Chiudi programmi all'avvio del gioco
+051197b9 || Questi programmi vengono chiusi correttamente all'avvio del gioco (come con il pulsante di chiusura) e riaperti dopo. Per il lavoro non salvato potrebbe esserti chiesta conferma.
+ad5fae23 || Programmi chiusi
+dfa2e70e || Programmi riaperti
+05c626ff || Roulette dei giochi
+a5f2dbb5 || Oggi giochi a:
+13345013 || Il caso sta scegliendo ...
+8db57280 || Avvia
+5d700e6b || Gira ancora
+f91e70a6 || Esporta libreria (CSV/HTML)
+21d57811 || La libreria è stata esportata.
+8ebe17c1 || Importa tempo di gioco di Steam
+a1a71ea8 || Nessun tempo di gioco di Steam trovato. Steam non sempre lo salva in locale.
+ddb027be || {0} giochi aggiornati.
+2b4fc904 || 🖥  Driver grafico
+00686602 || Apri pagina driver
+df52dbd9 || Driver attuale: {0}
+2cb7ead8 || Nuovi giochi trovati
+f61677be || Giocati di recente:
+aecd238b || Il launcher è già in esecuzione.
+a88f68b3 || Caricamento ...
+0fe07306 || Nome
+00484bed || Fonte
+9092bdfc || Tempo di gioco (h)
+8603e5ea || Avvii
+6c52fbe9 || Voglio giocarci
+f5816e77 || Ci sto giocando
+778e7743 || Esportazione non riuscita:\n{0}
+7227b306 || Salvataggio non riuscito:\n{0}
+8b7f1671 || Backup non riuscito:\n{0}
+e1ef4245 || Caricamento non riuscito:\n{0}
+4cd00a56 || Disinstallazione non riuscita:\n{0}
+8d90f053 || Ripristino non riuscito:\n{0}
+d6bfb025 || Collegamento non riuscito:\n{0}
+43642fb8 || Copia non riuscita:\n{0}
+47ea7d3f || Impossibile impostare lo sfondo:\n{0}
+9c89e14e || Impossibile caricare l'immagine:\n{0}
+82f69fd3 || Impossibile modificare l'avvio automatico:\n{0}
+b4a6f97b || Fonte: {0}
+08ad375c || Tempo di gioco: {0}
+0b24aeac || Non ancora giocato
+b3c92e50 || Avviato dal launcher: {0}×
+7c9c9026 || Ultima partita: {0} ({1})
+c30318e7 || Opzioni di avvio: {0}
+96f0c75a || Nessuna applicazione rilevata.
+bc71f04e || Nessuna voce presente.
+9e076890 || Ancora nessuna raccolta. Creale con il clic destro su un gioco.
+6c332b47 || Ancora nessuna voce. Inserisci i giochi in arrivo, il launcher conta i giorni.
+b8f919dc || Questo gioco si avvia tramite Steam, Epic o l'app Xbox. Imposta lì i parametri di avvio e l'avvio come amministratore.
+d9edbe32 || I parametri di avvio e l'avvio come amministratore valgono per l'avvio diretto tramite il file .exe.
+f5c63d6e || Stai giocando a «{0}» da {1} h {2} min. È ora di una breve pausa!
+6721a002 || Questi programmi si avviano automaticamente con ogni gioco, se non sono già in esecuzione.
+43bdbdad || Scegli l'applicazione del gioco
+393e5563 || Scegli app
+b632e849 || Scegli la cartella con i salvataggi di «{0}»
+26e91f2a || Prova overlay
+1efff8c7 || File eseguibili (*.exe)
+a0d98485 || Generale
+fa3416b5 || Barra laterale e logo
+1d2b7b1e || Prestazioni
+24c9a89d || Comandi
+171ccbb8 || Dati e informazioni
+a2fe7692 || Originale
+6c94b6b3 || Oro
+c9078b65 || Neon
+da86bba8 || Ghiaccio
+0268b075 || Monocromatico
+04cbeda6 || Colore principale
+01d4492d || Bianco
