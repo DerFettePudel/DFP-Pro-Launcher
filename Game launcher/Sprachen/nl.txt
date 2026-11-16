@@ -1598,3 +1598,203 @@ d5d7aa06 || Hoe privégegevens in de stream worden verborgen: als donkere balk o
 5caf7fe5 || Zwarte balk
 6d538f47 || Vervaagd
 86f17261 || Computer- en gebruikersnaam censureren
+6318db40 || Verbergt de computernaam en je Windows-gebruikersnaam overal in de launcher, ook in bestandspaden.
+5e687741 || Verborgen in streamermodus
+1a142a57 || Rechtsklik op een link om hem te bewerken of te verwijderen. Met de plustegel voeg je eigen links toe.
+d9fb4985 || Link toevoegen
+4d70f4c8 || Website, programma of map
+bdfa481c || ↺  Standaardlinks herstellen
+a7624ab8 || Alle streamerlinks vervangen door de standaardselectie?
+1943d593 || Bekabelde verbinding aan
+01f0d4da || Verbonden
+217f2473 || laatst bekend
+63b5a511 || Downloadweergave op het dashboard
+03bd3bd2 || Toont rechtsboven voortgang, snelheid en resterende tijd als Steam of Epic Games iets downloadt.
+7fa6c583 || nog {0} sec
+8320a2e4 || nog {0} min
+dadb6e15 || nog {0} u {1} min
+00db5dfa || Streamingprogramma bewerken
+f0936882 || Ander programma kiezen ...
+1a3fbcda || ↺  Verborgen programma's weer tonen
+8225a576 || Rechtsklik op een programma om het te bewerken of te verwijderen.
+f2457674 || ☆  Favoriet
+3f7b4161 || ★  Favoriet
+415f03ad || 📝  Details
+d80cadbe || {0} stappen
+c6d8f9c4 || Niet verbonden
+45c26acb || Nu verbinden
+2ebe2259 || OBS-instellingen
+c229c67a || Stream starten
+82a5bdb4 || Stream stoppen
+a831b507 || Opname starten
+1b38cdc5 || Opname stoppen
+f5a14ae8 || 🎙 Microfoon aan
+5a64d048 || 🔇 Microfoon gedempt
+e889c64c || 🎙 Geen microfoon
+a582e785 || Stream
+c47c37c8 || Offline
+46e30fa8 || Opname
+24d5ad53 || Verloren frames
+13d7593c || Scènes
+d8d0786a || OBS-bediening
+53181db8 || OBS vanuit de launcher bedienen
+24c5fef3 || Maakt verbinding via de WebSocket-server van OBS (vanaf OBS 28). Schakel hem in OBS in onder Extra → WebSocket-serverinstellingen. Daar staan ook poort en wachtwoord.
+1f2a8a8e || Adres
+e2c53cc6 || Poort
+d2f5487a || Wachtwoord (leeg laten als OBS er geen vraagt)
+220220d2 || Het wachtwoord wordt versleuteld opgeslagen en kan alleen door je Windows-account worden gelezen.
+a467c256 || Verbinding testen
+700d342a || Verbinding testen …
+57688304 || ✓ Verbinding werkt: OBS {0}
+73bcf96b || Schakel hierboven „OBS vanuit de launcher bedienen” in om OBS via de streamerpagina te bedienen.
+cbd5d8e1 || Streamermodus automatisch met de stream
+15e15a19 || Schakelt de streamermodus in zodra de stream in OBS start en weer uit als hij eindigt.
+bc62a185 || Scènes waarin de streamermodus actief is
+4e2b0b94 || Naast de stream: is een van deze scènes actief in OBS, dan gaat de streamermodus aan, ook bij opnames zonder stream.
+e1a64c42 || Zodra OBS verbonden is, verschijnen hier je scènes om te kiezen.
+4e6c5d36 || Simulatie
+365722ba || Testmodus zonder OBS. Alle knoppen werken alleen in de launcher.
+d797c2a6 || Verbinden …
+f4b9d968 || De launcher maakt verbinding met OBS.
+87d00da6 || Verbinding verbroken
+56c02618 || De verbinding met OBS is verbroken. De launcher maakt automatisch opnieuw verbinding.
+9448c086 || De launcher blijft het automatisch proberen.
+614c7051 || Bedien scènes, stream en opname direct vanaf hier. Stel de verbinding in onder Instellingen → Streamer → OBS-bediening.
+47ca3cb7 || OBS reageert niet. Draait OBS en staat de WebSocket-server aan (Extra → WebSocket-serverinstellingen)? Kloppen adres en poort?
+e1f0e5b5 || OBS vraagt een wachtwoord. Voer het in bij de instellingen.
+c8c9babd || Het OBS-wachtwoord is onjuist.
+192300ce || De verbinding met OBS is mislukt.
+06b1e6be || In OBS is onder Instellingen → Audio geen microfoon ingesteld.
+4c783320 || Dempt de microfoon in OBS of zet hem weer aan.
+49c5db30 || Live sinds {0} ({1})
+57895aa6 || {0} (gepauzeerd)
+d6d98e7c || {0} van {1} ({2} %)
+9617fd20 || Geen scènes gevonden.
+44a1f181 || Huidige scène
+c218959e || Naar deze scène wisselen
+f3c7a9ea || OBS heeft de opdracht niet uitgevoerd.
+d559db2a || Stream echt stoppen?
+0a107a97 || Opname echt stoppen?
+30c2cd0e || OBS zendt niet meer uit. Alle gegevens zijn weer zichtbaar.
+6a82153d || Je stream is live. Privégegevens zijn verborgen.
+afee4eba || Deze OBS-scène is gemarkeerd voor de streamermodus. Privégegevens zijn verborgen.
+4d4cf2ac || OBS-simulatie gestart.
+1f1c512d || Actief (automatisch via OBS)
+ff2e9630 || Noch de Steam-winkel noch PCGamingWiki vermeldt systeemeisen voor deze game.
+b5814b3b || Ruwe schatting op basis van PCGamingWiki.
+4bc78beb || In één oogopslag
+08448691 || Volledige controllerondersteuning
+78397428 || Gedeeltelijke controllerondersteuning
+b4134f7f || Gedeeld scherm
+7388d193 || Online co-op
+030329c0 || Co-op
+61a317f1 || Online PvP
+43043db1 || Crossplay
+a6ccb587 || Alleen singleplayer
+1674b257 || Remote Play Together
+d3fd1675 || Gezinsdeling
+ce2bbfed || {0} prestaties
+9473b464 || Cloudopslag
+094ee845 || Jouw taal: tekst + gesproken
+fcdab432 || Jouw taal: alleen tekst
+3448b2df || Niet in jouw taal
+a56613d3 || Steam-beoordeling:
+608bd9b9 || Laatste 30 dagen:
+ac26a7eb || Te weinig beoordelingen
+6c6123e7 || Overweldigend positief
+95e6f823 || Zeer positief
+8177e45b || Positief
+808bbcb1 || Grotendeels positief
+7d79e082 || Gemengd
+44d08619 || Grotendeels negatief
+8e3b5367 || Overweldigend negatief
+bce61973 || Zeer negatief
+3a283d1b || Negatief
+fca00ac9 || De nieuwe beoordelingen zijn duidelijk slechter. Misschien zijn er problemen met de laatste update.
+dccd1955 || De nieuwe beoordelingen zijn duidelijk beter dan vroeger.
+a9376e0b || USB-station
+d6d6fb78 || NVMe-SSD
+3d337ec2 || Harde schijf (HDD)
+3d1974e5 || SSD
+cbc88e50 || De game staat op een harde schijf (HDD). Laadtijden kunnen lang zijn, op een SSD loopt hij vloeiender.
+ec03f3cf || Draait dit op mijn pc?
+9dba404e || Systeemeisen controleren …
+f9096f88 || Steam-winkel niet bereikbaar. Open later opnieuw.
+5f38c0dd || De Steam-winkel vermeldt geen systeemeisen voor deze game.
+e52252a0 || Je pc kon niet betrouwbaar worden ingeschat.
+64faeae8 || Je pc zit deels onder het minimum.
+d03082ff || Je pc haalt de aanbevolen instellingen.
+ff4389a5 || Je pc haalt minstens het minimum.
+d04c6089 || Aanbevolen gehaald
+f1559ae3 || Minimum gehaald
+e0ffd283 || Onder het minimum
+80e4c18a || Niet betrouwbaar herkend
+d2f34e57 || Minimum:
+d678f80d || Aanbevolen:
+eb6d6c98 || Jouw pc:
+b920f826 || Ruwe schatting op basis van de Steam-winkel.
+b0fc39b0 || Update in afwachting:
+a6b470c9 || nog
+a3989733 || Update in afwachting (Steam noemt de grootte pas als de download begint)
+97aa784d || Actief (automatisch, omdat je streamt op Discord)
+9de8568a || Automatisch inschakelen als je streamt op Discord
+acd97c51 || Zodra Discord je scherm of een venster deelt, gaat de streamermodus aan en na de stream weer uit. Bovenaan het venster verschijnt dan een knop om hem uit te schakelen.
+59997403 || Je streamt op Discord. Privégegevens zijn verborgen.
+a13971e3 || Je Discord-stream is afgelopen. Alle gegevens zijn weer zichtbaar.
+e0571e4d || handmatig ingeschakeld
+3bf02d67 || Discord-stream herkend
+79d4ffa0 || OBS zendt uit
+f6c94176 || Streamingsoftware draait
+2a74c04b || Toont alle gegevens weer. Blijft uit tot de stream eindigt.
+77351aad || De launcher is verbonden met OBS
+89be5e26 || Verbinden
+3ba1d1a0 || OBS verbinden
+f789898b || Verbinding met OBS instellen
+5fd882c0 || OBS: stream starten
+5572a88a || OBS: stream stoppen
+b0a4a6f5 || OBS: opname starten
+ebb52cab || OBS: opname stoppen
+69bdbb3e || OBS: microfoon dempen
+1e1a3cae || OBS: microfoon aanzetten
+f6db5667 || OBS-scène: {0}
+67b2ccf7 || Bij problemen helpt het foutenlogboek. De launcher maakt eens per week bij het starten, voor elke update en voor elke import een back-up van je instellingen. De laatste 5 back-ups blijven bewaard en bij een beschadigd bestand wordt automatisch de nieuwste geladen.
+4003bae1 || Slaat alle instellingen op in een bestand of laadt ze weer, bijvoorbeeld op een nieuwe pc. Voor het laden zie je wat wordt overgenomen en je huidige instellingen worden eerst geback-upt.
+6b0afdbc || Nog geen back-up.
+d7f0a5d5 || Laatste back-up: {0}
+f6fecc47 || Geback-upt
+cbe0bab8 || Er is een back-up van je instellingen gemaakt.
+b9650672 || De back-up kon niet worden gemaakt.
+767123dc || Het bestand bevat geen geldige instellingen.
+e559d412 || Dit wordt overgenomen
+3035c350 || Opgeslagen met versie {0} op {1}
+44a80dd6 || Ouder back-upbestand zonder versie-informatie
+ebd02c22 || Het bestand komt uit een nieuwere versie ({0}). Instellingen die deze versie nog niet kent, worden overgeslagen.
+1c3e33c2 || Games met speeltijd, favorieten of notities: {0}
+894ac10e || Handmatig toegevoegde games: {0}
+012e710d || Snelkoppelingen en links: {0}
+80c8acf3 || Routines: {0}
+66bc8caf || Verlanglijst: {0}
+ea60ef41 || Instellingsprofielen: {0}
+59925626 || Totaal gewijzigde instellingen: {0}
+98414abc || Alles wordt vervangen door de inhoud van het bestand, ook speeltijden. Je huidige instellingen worden eerst automatisch geback-upt. Daarna start de launcher opnieuw.
+01ceeb93 || Overnemen en opnieuw starten
+727ae785 || Er draait nog een game. Laad de instellingen na de game.
+cb2e216f || Start de launcher nu opnieuw zodat de geladen instellingen worden overgenomen.
+e85640a6 || Instellingsprofielen
+4b739795 || Een profiel onthoudt gekozen instellingen, bijvoorbeeld ontwerp, streamermodus en energiebeheerschema. Bij het wisselen worden precies die overgenomen, al het andere blijft zoals het is. Wisselen kan ook met Ctrl+K en met een rechtsklik op het systeemvakpictogram.
+f37ca130 || ＋ Nieuw profiel
+715d4611 || Automatisch wisselen
+5821fb16 || Daarna keert de launcher terug naar je vorige instellingen: na de game of als OBS wordt gesloten. Voor het starten van een game moet het bijhouden van speeltijd aan staan.
+eef44b6e || Bij het starten van een game
+b94ac3ec || Als OBS wordt gestart
+f62aa210 || Kleuren en ontwerp
+290cb58b || Achtergrond
+a12cdb75 || Zijbalkonderdelen
+5b6b8a02 || Controlleropties
+c9a48f6f || Gamen
+82f2234a || Streamen
+19f3ec0c || Kantoor
+cafd2ffe || Profiel automatisch gewisseld
+51d0bbfe || Profiel gewisseld
+4b8138c2 || Profiel „{0}” is actief.
+1c473012 || Profiel hersteld

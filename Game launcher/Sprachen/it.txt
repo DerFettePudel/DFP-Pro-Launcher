@@ -1598,3 +1598,203 @@ d5d7aa06 || Come vengono nascoste le informazioni private in diretta: come barra
 5caf7fe5 || Barra nera
 6d538f47 || Sfocato
 86f17261 || Censura nome del computer e dell'utente
+6318db40 || Nasconde il nome del computer e il tuo nome utente di Windows ovunque nel launcher, anche nei percorsi dei file.
+5e687741 || Nascosto in modalità streamer
+1a142a57 || Clic destro su un link per modificarlo o rimuoverlo. Con il riquadro più ne aggiungi di tuoi.
+d9fb4985 || Aggiungi link
+4d70f4c8 || Sito web, programma o cartella
+bdfa481c || ↺  Ripristina link predefiniti
+a7624ab8 || Sostituire tutti i link streamer con la selezione predefinita?
+1943d593 || Collegato via cavo
+01f0d4da || Connesso
+217f2473 || ultimo noto
+63b5a511 || Indicatore download nella dashboard
+03bd3bd2 || Mostra in alto a destra avanzamento, velocità e tempo rimanente quando Steam o Epic Games scaricano qualcosa.
+7fa6c583 || ancora {0} s
+8320a2e4 || ancora {0} min
+dadb6e15 || ancora {0} h {1} min
+00db5dfa || Modifica programma di streaming
+f0936882 || Scegli un altro programma ...
+1a3fbcda || ↺  Mostra di nuovo i programmi nascosti
+8225a576 || Clic destro su un programma per modificarlo o rimuoverlo.
+f2457674 || ☆  Preferito
+3f7b4161 || ★  Preferito
+415f03ad || 📝  Dettagli
+d80cadbe || {0} passaggi
+c6d8f9c4 || Non connesso
+45c26acb || Connetti ora
+2ebe2259 || Impostazioni OBS
+c229c67a || Avvia diretta
+82a5bdb4 || Termina diretta
+a831b507 || Avvia registrazione
+1b38cdc5 || Termina registrazione
+f5a14ae8 || 🎙 Microfono attivo
+5a64d048 || 🔇 Microfono muto
+e889c64c || 🎙 Nessun microfono
+a582e785 || Diretta
+c47c37c8 || Offline
+46e30fa8 || Registrazione
+24d5ad53 || Fotogrammi persi
+13d7593c || Scene
+d8d0786a || Controllo OBS
+53181db8 || Controlla OBS dal launcher
+24c5fef3 || Si collega tramite il server WebSocket di OBS (da OBS 28). Attivalo in OBS in Strumenti → Impostazioni server WebSocket. Lì trovi anche porta e password.
+1f2a8a8e || Indirizzo
+e2c53cc6 || Porta
+d2f5487a || Password (lascia vuoto se OBS non la richiede)
+220220d2 || La password viene salvata cifrata e può essere letta solo dal tuo account Windows.
+a467c256 || Prova connessione
+700d342a || Verifica della connessione …
+57688304 || ✓ La connessione funziona: OBS {0}
+73bcf96b || Attiva qui sopra «Controlla OBS dal launcher» per usare OBS dalla pagina Streamer.
+cbd5d8e1 || Modalità streamer automatica con la diretta
+15e15a19 || Attiva la modalità streamer appena la diretta parte in OBS e la disattiva quando finisce.
+bc62a185 || Scene in cui la modalità streamer è attiva
+4e2b0b94 || Oltre alla diretta: se in OBS è attiva una di queste scene, la modalità streamer si attiva, anche durante registrazioni senza diretta.
+e1a64c42 || Appena OBS è connesso, qui compaiono le tue scene da selezionare.
+4e6c5d36 || Simulazione
+365722ba || Modalità di prova senza OBS. Tutti i pulsanti agiscono solo nel launcher.
+d797c2a6 || Connessione …
+f4b9d968 || Il launcher si sta collegando a OBS.
+87d00da6 || Connessione interrotta
+56c02618 || La connessione con OBS si è interrotta. Il launcher si ricollega automaticamente.
+9448c086 || Il launcher continua a riprovare automaticamente.
+614c7051 || Controlla scene, diretta e registrazione direttamente da qui. Configura la connessione in Impostazioni → Streamer → Controllo OBS.
+47ca3cb7 || OBS non risponde. OBS è in esecuzione e il server WebSocket è attivo (Strumenti → Impostazioni server WebSocket)? Indirizzo e porta sono corretti?
+e1f0e5b5 || OBS richiede una password. Inseriscila nelle impostazioni.
+c8c9babd || La password di OBS è errata.
+192300ce || La connessione a OBS non è riuscita.
+06b1e6be || In OBS non è configurato nessun microfono in Impostazioni → Audio.
+4c783320 || Silenzia o riattiva il microfono in OBS.
+49c5db30 || In diretta da {0} ({1})
+57895aa6 || {0} (in pausa)
+d6d98e7c || {0} di {1} ({2} %)
+9617fd20 || Nessuna scena trovata.
+44a1f181 || Scena attuale
+c218959e || Passa a questa scena
+f3c7a9ea || OBS non ha eseguito il comando.
+d559db2a || Terminare davvero la diretta?
+0a107a97 || Terminare davvero la registrazione?
+30c2cd0e || OBS non trasmette più. Tutte le informazioni sono di nuovo visibili.
+6a82153d || La tua diretta è in corso. Le informazioni private sono nascoste.
+afee4eba || Questa scena di OBS è contrassegnata per la modalità streamer. Le informazioni private sono nascoste.
+4d4cf2ac || Simulazione OBS avviata.
+1f1c512d || Attiva (automaticamente tramite OBS)
+ff2e9630 || Né il negozio di Steam né PCGamingWiki indicano requisiti per questo gioco.
+b5814b3b || Stima approssimativa basata su PCGamingWiki.
+4bc78beb || In breve
+08448691 || Supporto completo al controller
+78397428 || Supporto parziale al controller
+b4134f7f || Schermo condiviso
+7388d193 || Cooperativa online
+030329c0 || Cooperativa
+61a317f1 || PvP online
+43043db1 || Crossplay
+a6ccb587 || Solo giocatore singolo
+1674b257 || Remote Play Together
+d3fd1675 || Condivisione familiare
+ce2bbfed || {0} obiettivi
+9473b464 || Salvataggi nel cloud
+094ee845 || La tua lingua: testo + voce
+fcdab432 || La tua lingua: solo testo
+3448b2df || Non nella tua lingua
+a56613d3 || Valutazione Steam:
+608bd9b9 || Ultimi 30 giorni:
+ac26a7eb || Troppo poche recensioni
+6c6123e7 || Estremamente positive
+95e6f823 || Molto positive
+8177e45b || Positive
+808bbcb1 || Perlopiù positive
+7d79e082 || Nella media
+44d08619 || Perlopiù negative
+8e3b5367 || Estremamente negative
+bce61973 || Molto negative
+3a283d1b || Negative
+fca00ac9 || Le recensioni recenti sono nettamente peggiori. Forse l'ultimo aggiornamento ha creato problemi.
+dccd1955 || Le recensioni recenti sono nettamente migliori di prima.
+a9376e0b || Unità USB
+d6d6fb78 || SSD NVMe
+3d337ec2 || Disco rigido (HDD)
+3d1974e5 || SSD
+cbc88e50 || Il gioco si trova su un disco rigido (HDD). I caricamenti possono essere lunghi, su un SSD va più fluido.
+ec03f3cf || Gira sul mio PC?
+9dba404e || Verifica dei requisiti …
+f9096f88 || Negozio di Steam non raggiungibile. Riprova più tardi.
+5f38c0dd || Il negozio di Steam non indica requisiti per questo gioco.
+e52252a0 || Non è stato possibile valutare con certezza il tuo PC.
+64faeae8 || Il tuo PC è in parte sotto il minimo.
+d03082ff || Il tuo PC regge le impostazioni consigliate.
+ff4389a5 || Il tuo PC soddisfa almeno il minimo.
+d04c6089 || Consigliato raggiunto
+f1559ae3 || Minimo raggiunto
+e0ffd283 || Sotto il minimo
+80e4c18a || Non riconosciuto con certezza
+d2f34e57 || Minimo:
+d678f80d || Consigliato:
+eb6d6c98 || Il tuo PC:
+b920f826 || Stima approssimativa basata sul negozio di Steam.
+b0fc39b0 || Aggiornamento in sospeso:
+a6b470c9 || restano
+a3989733 || Aggiornamento in sospeso (Steam indica la dimensione solo all'inizio del download)
+97aa784d || Attiva (automaticamente, perché stai trasmettendo su Discord)
+9de8568a || Attiva automaticamente quando trasmetti su Discord
+acd97c51 || Appena Discord condivide il tuo schermo o una finestra, la modalità streamer si attiva e si disattiva dopo la diretta. In alto nella finestra compare allora un pulsante per disattivarla.
+59997403 || Stai trasmettendo su Discord. Le informazioni private sono nascoste.
+a13971e3 || La tua diretta su Discord è terminata. Tutte le informazioni sono di nuovo visibili.
+e0571e4d || attivata manualmente
+3bf02d67 || Diretta Discord rilevata
+79d4ffa0 || OBS in diretta
+f6c94176 || Software di streaming in esecuzione
+2a74c04b || Mostra di nuovo tutte le informazioni. Resta disattivata finché la diretta non termina.
+77351aad || Il launcher è connesso a OBS
+89be5e26 || Connetti
+3ba1d1a0 || Connetti OBS
+f789898b || Configura la connessione a OBS
+5fd882c0 || OBS: avvia diretta
+5572a88a || OBS: termina diretta
+b0a4a6f5 || OBS: avvia registrazione
+ebb52cab || OBS: termina registrazione
+69bdbb3e || OBS: silenzia microfono
+1e1a3cae || OBS: attiva microfono
+f6db5667 || Scena OBS: {0}
+67b2ccf7 || In caso di problemi aiuta il registro errori. Il launcher esegue il backup delle impostazioni una volta a settimana all'avvio, prima di ogni aggiornamento e prima di ogni importazione. Restano gli ultimi 5 backup e, se il file è danneggiato, viene caricato automaticamente il più recente.
+4003bae1 || Salva tutte le impostazioni in un file o le ricarica, ad esempio su un nuovo PC. Prima del caricamento vedi cosa verrà applicato e le impostazioni attuali vengono salvate prima.
+6b0afdbc || Ancora nessun backup.
+d7f0a5d5 || Ultimo backup: {0}
+f6fecc47 || Backup eseguito
+cbe0bab8 || Backup delle impostazioni eseguito.
+b9650672 || Impossibile creare il backup.
+767123dc || Il file non contiene impostazioni valide.
+e559d412 || Ecco cosa verrà applicato
+3035c350 || Salvato con la versione {0} il {1}
+44a80dd6 || File di backup più vecchio senza indicazione della versione
+ebd02c22 || Il file proviene da una versione più recente ({0}). Le impostazioni che questa versione non conosce ancora vengono saltate.
+1c3e33c2 || Giochi con tempo di gioco, preferiti o note: {0}
+894ac10e || Giochi aggiunti manualmente: {0}
+012e710d || Accessi rapidi e link: {0}
+80c8acf3 || Sequenze: {0}
+66bc8caf || Lista dei desideri: {0}
+ea60ef41 || Profili di impostazioni: {0}
+59925626 || Impostazioni modificate in totale: {0}
+98414abc || Tutto viene sostituito dal contenuto del file, compresi i tempi di gioco. Le impostazioni attuali vengono prima salvate automaticamente. Poi il launcher si riavvia.
+01ceeb93 || Applica e riavvia
+727ae785 || Un gioco è ancora in esecuzione. Carica le impostazioni dopo la partita.
+cb2e216f || Riavvia ora il launcher per applicare le impostazioni caricate.
+e85640a6 || Profili di impostazioni
+4b739795 || Un profilo memorizza impostazioni scelte, ad esempio design, modalità streamer e combinazione energetica. Quando cambi profilo vengono applicate esattamente queste, tutto il resto rimane com'è. Puoi cambiare anche con Ctrl+K e con il clic destro sull'icona nell'area di notifica.
+f37ca130 || ＋ Nuovo profilo
+715d4611 || Cambia automaticamente
+5821fb16 || Poi il launcher torna alle impostazioni precedenti: dopo il gioco o quando OBS viene chiuso. Per l'avvio del gioco deve essere attiva la registrazione del tempo di gioco.
+eef44b6e || All'avvio di un gioco
+b94ac3ec || All'avvio di OBS
+f62aa210 || Colori e design
+290cb58b || Sfondo
+a12cdb75 || Sezioni della barra laterale
+5b6b8a02 || Opzioni del controller
+c9a48f6f || Gioco
+82f2234a || Streaming
+19f3ec0c || Ufficio
+cafd2ffe || Profilo cambiato automaticamente
+51d0bbfe || Profilo cambiato
+4b8138c2 || Il profilo «{0}» è attivo.
+1c473012 || Profilo ripristinato

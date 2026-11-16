@@ -1598,3 +1598,203 @@ d5d7aa06 || Jak ukrywać prywatne dane na streamie: jako ciemny pasek lub rozmyt
 5caf7fe5 || Czarny pasek
 6d538f47 || Rozmyte
 86f17261 || Cenzuruj nazwę komputera i użytkownika
+6318db40 || Ukrywa nazwę komputera i twoją nazwę użytkownika Windows w całym launcherze, także w ścieżkach plików.
+5e687741 || Ukryte w trybie streamera
+1a142a57 || Prawy przycisk na linku pozwala go edytować lub usunąć. Kafelkiem z plusem dodasz własne.
+d9fb4985 || Dodaj link
+4d70f4c8 || Strona, program lub folder
+bdfa481c || ↺  Przywróć domyślne linki
+a7624ab8 || Zastąpić wszystkie linki streamera domyślnym zestawem?
+1943d593 || Połączenie przewodowe włączone
+01f0d4da || Połączono
+217f2473 || ostatnio
+63b5a511 || Wskaźnik pobierania na pulpicie
+03bd3bd2 || Pokazuje w prawym górnym rogu postęp, prędkość i pozostały czas, gdy Steam lub Epic Games coś pobiera.
+7fa6c583 || zostało {0} s
+8320a2e4 || zostało {0} min
+dadb6e15 || zostało {0} godz. {1} min
+00db5dfa || Edytuj program do streamingu
+f0936882 || Wybierz inny program ...
+1a3fbcda || ↺  Pokaż ponownie ukryte programy
+8225a576 || Prawy przycisk na programie pozwala go edytować lub usunąć.
+f2457674 || ☆  Ulubiona
+3f7b4161 || ★  Ulubiona
+415f03ad || 📝  Szczegóły
+d80cadbe || Kroki: {0}
+c6d8f9c4 || Nie połączono
+45c26acb || Połącz teraz
+2ebe2259 || Ustawienia OBS
+c229c67a || Rozpocznij stream
+82a5bdb4 || Zakończ stream
+a831b507 || Rozpocznij nagrywanie
+1b38cdc5 || Zakończ nagrywanie
+f5a14ae8 || 🎙 Mikrofon wł.
+5a64d048 || 🔇 Mikrofon wyciszony
+e889c64c || 🎙 Brak mikrofonu
+a582e785 || Stream
+c47c37c8 || Offline
+46e30fa8 || Nagrywanie
+24d5ad53 || Utracone klatki
+13d7593c || Sceny
+d8d0786a || Sterowanie OBS
+53181db8 || Steruj OBS z launchera
+24c5fef3 || Łączy się przez serwer WebSocket OBS (od OBS 28). Włącz go w OBS w Narzędzia → Ustawienia serwera WebSocket. Znajdziesz tam też port i hasło.
+1f2a8a8e || Adres
+e2c53cc6 || Port
+d2f5487a || Hasło (zostaw puste, jeśli OBS go nie wymaga)
+220220d2 || Hasło jest zapisywane w postaci zaszyfrowanej i może je odczytać tylko twoje konto Windows.
+a467c256 || Testuj połączenie
+700d342a || Sprawdzanie połączenia …
+57688304 || ✓ Połączenie działa: OBS {0}
+73bcf96b || Włącz powyżej „Steruj OBS z launchera”, aby obsługiwać OBS ze strony Streamer.
+cbd5d8e1 || Tryb streamera automatycznie ze streamem
+15e15a19 || Włącza tryb streamera, gdy stream w OBS się zaczyna, i wyłącza go po zakończeniu.
+bc62a185 || Sceny, w których tryb streamera jest aktywny
+4e2b0b94 || Oprócz streamu: jeśli w OBS aktywna jest jedna z tych scen, tryb streamera się włącza, także przy nagrywaniu bez streamu.
+e1a64c42 || Gdy tylko OBS się połączy, tu pojawią się twoje sceny do wyboru.
+4e6c5d36 || Symulacja
+365722ba || Tryb testowy bez OBS. Wszystkie przyciski działają tylko w launcherze.
+d797c2a6 || Łączenie …
+f4b9d968 || Launcher łączy się z OBS.
+87d00da6 || Połączenie przerwane
+56c02618 || Połączenie z OBS zostało przerwane. Launcher połączy się ponownie automatycznie.
+9448c086 || Launcher będzie automatycznie próbował dalej.
+614c7051 || Steruj scenami, streamem i nagrywaniem prosto stąd. Skonfiguruj połączenie w Ustawienia → Streamer → Sterowanie OBS.
+47ca3cb7 || OBS nie odpowiada. Czy OBS działa i serwer WebSocket jest włączony (Narzędzia → Ustawienia serwera WebSocket)? Czy adres i port są poprawne?
+e1f0e5b5 || OBS wymaga hasła. Wpisz je w ustawieniach.
+c8c9babd || Hasło do OBS jest nieprawidłowe.
+192300ce || Połączenie z OBS nie powiodło się.
+06b1e6be || W OBS nie skonfigurowano mikrofonu w Ustawienia → Dźwięk.
+4c783320 || Wycisza lub włącza mikrofon w OBS.
+49c5db30 || Na żywo od {0} ({1})
+57895aa6 || {0} (wstrzymane)
+d6d98e7c || {0} z {1} ({2} %)
+9617fd20 || Nie znaleziono scen.
+44a1f181 || Bieżąca scena
+c218959e || Przełącz na tę scenę
+f3c7a9ea || OBS nie wykonał polecenia.
+d559db2a || Na pewno zakończyć stream?
+0a107a97 || Na pewno zakończyć nagrywanie?
+30c2cd0e || OBS już nie nadaje. Wszystkie informacje są znowu widoczne.
+6a82153d || Twój stream trwa. Prywatne informacje są ukryte.
+afee4eba || Ta scena OBS jest oznaczona dla trybu streamera. Prywatne informacje są ukryte.
+4d4cf2ac || Uruchomiono symulację OBS.
+1f1c512d || Aktywny (automatycznie przez OBS)
+ff2e9630 || Ani w sklepie Steam, ani w PCGamingWiki nie ma wymagań dla tej gry.
+b5814b3b || Przybliżona ocena na podstawie PCGamingWiki.
+4bc78beb || W skrócie
+08448691 || Pełna obsługa kontrolera
+78397428 || Częściowa obsługa kontrolera
+b4134f7f || Podzielony ekran
+7388d193 || Co-op online
+030329c0 || Co-op
+61a317f1 || PvP online
+43043db1 || Crossplay
+a6ccb587 || Tylko dla jednego gracza
+1674b257 || Remote Play Together
+d3fd1675 || Rodzinne udostępnianie
+ce2bbfed || Osiągnięcia: {0}
+9473b464 || Zapisy w chmurze
+094ee845 || Twój język: tekst + dubbing
+fcdab432 || Twój język: tylko tekst
+3448b2df || Brak twojego języka
+a56613d3 || Ocena na Steam:
+608bd9b9 || Ostatnie 30 dni:
+ac26a7eb || Za mało recenzji
+6c6123e7 || Przytłaczająco pozytywne
+95e6f823 || Bardzo pozytywne
+8177e45b || Pozytywne
+808bbcb1 || W większości pozytywne
+7d79e082 || Mieszane
+44d08619 || W większości negatywne
+8e3b5367 || Przytłaczająco negatywne
+bce61973 || Bardzo negatywne
+3a283d1b || Negatywne
+fca00ac9 || Nowe recenzje są wyraźnie gorsze. Może ostatnia aktualizacja sprawia problemy.
+dccd1955 || Nowe recenzje są wyraźnie lepsze niż wcześniej.
+a9376e0b || Dysk USB
+d6d6fb78 || Dysk SSD NVMe
+3d337ec2 || Dysk twardy (HDD)
+3d1974e5 || Dysk SSD
+cbc88e50 || Gra jest na dysku twardym (HDD). Wczytywanie może trwać długo, na SSD działa płynniej.
+ec03f3cf || Czy pójdzie na moim PC?
+9dba404e || Sprawdzanie wymagań …
+f9096f88 || Sklep Steam jest niedostępny. Otwórz ponownie później.
+5f38c0dd || Sklep Steam nie podaje wymagań dla tej gry.
+e52252a0 || Nie udało się pewnie ocenić twojego komputera.
+64faeae8 || Twój komputer jest częściowo poniżej minimum.
+d03082ff || Twój komputer spełnia zalecane wymagania.
+ff4389a5 || Twój komputer spełnia co najmniej minimum.
+d04c6089 || Spełnia zalecane
+f1559ae3 || Spełnia minimum
+e0ffd283 || Poniżej minimum
+80e4c18a || Nie rozpoznano pewnie
+d2f34e57 || Minimum:
+d678f80d || Zalecane:
+eb6d6c98 || Twój PC:
+b920f826 || Przybliżona ocena na podstawie sklepu Steam.
+b0fc39b0 || Oczekująca aktualizacja:
+a6b470c9 || zostało
+a3989733 || Oczekująca aktualizacja (Steam poda rozmiar dopiero po rozpoczęciu pobierania)
+97aa784d || Aktywny (automatycznie, bo streamujesz na Discordzie)
+9de8568a || Włączaj automatycznie, gdy streamujesz na Discordzie
+acd97c51 || Gdy Discord udostępnia twój ekran lub okno, tryb streamera się włącza, a po streamie znowu wyłącza. U góry okna pojawia się wtedy przycisk do wyłączenia.
+59997403 || Streamujesz na Discordzie. Prywatne informacje są ukryte.
+a13971e3 || Twój stream na Discordzie się zakończył. Wszystkie informacje są znowu widoczne.
+e0571e4d || włączony ręcznie
+3bf02d67 || Wykryto stream na Discordzie
+79d4ffa0 || OBS nadaje
+f6c94176 || Działa oprogramowanie do streamingu
+2a74c04b || Znowu pokazuje wszystkie informacje. Pozostaje wyłączony do końca streamu.
+77351aad || Launcher jest połączony z OBS
+89be5e26 || Połącz
+3ba1d1a0 || Połącz z OBS
+f789898b || Skonfiguruj połączenie z OBS
+5fd882c0 || OBS: rozpocznij stream
+5572a88a || OBS: zakończ stream
+b0a4a6f5 || OBS: rozpocznij nagrywanie
+ebb52cab || OBS: zakończ nagrywanie
+69bdbb3e || OBS: wycisz mikrofon
+1e1a3cae || OBS: włącz mikrofon
+f6db5667 || Scena OBS: {0}
+67b2ccf7 || W razie problemów pomoże dziennik błędów. Launcher tworzy kopię ustawień raz w tygodniu przy starcie, przed każdą aktualizacją i przed każdym importem. Zachowywanych jest 5 ostatnich kopii, a gdy plik jest uszkodzony, automatycznie wczytywana jest najnowsza.
+4003bae1 || Zapisuje wszystkie ustawienia do pliku lub je wczytuje, na przykład na nowym komputerze. Przed wczytaniem widzisz, co zostanie zastosowane, a bieżące ustawienia są najpierw zabezpieczane.
+6b0afdbc || Brak kopii zapasowej.
+d7f0a5d5 || Ostatnia kopia: {0}
+f6fecc47 || Zabezpieczono
+cbe0bab8 || Utworzono kopię ustawień.
+b9650672 || Nie udało się utworzyć kopii.
+767123dc || Plik nie zawiera prawidłowych ustawień.
+e559d412 || To zostanie zastosowane
+3035c350 || Zapisano w wersji {0} dnia {1}
+44a80dd6 || Starszy plik kopii bez informacji o wersji
+ebd02c22 || Plik pochodzi z nowszej wersji ({0}). Ustawienia, których ta wersja jeszcze nie zna, zostaną pominięte.
+1c3e33c2 || Gry z czasem gry, ulubione lub z notatkami: {0}
+894ac10e || Gry dodane ręcznie: {0}
+012e710d || Skróty i linki: {0}
+80c8acf3 || Procedury: {0}
+66bc8caf || Lista życzeń: {0}
+ea60ef41 || Profile ustawień: {0}
+59925626 || Łącznie zmienionych ustawień: {0}
+98414abc || Wszystko zostanie zastąpione zawartością pliku, także czasy gry. Bieżące ustawienia są najpierw automatycznie zabezpieczane. Potem launcher uruchomi się ponownie.
+01ceeb93 || Zastosuj i uruchom ponownie
+727ae785 || Gra nadal działa. Wczytaj ustawienia po grze.
+cb2e216f || Uruchom teraz launcher ponownie, aby wczytane ustawienia zaczęły działać.
+e85640a6 || Profile ustawień
+4b739795 || Profil zapamiętuje wybrane ustawienia, np. wygląd, tryb streamera i plan zasilania. Przy przełączaniu stosowane są dokładnie one, a wszystko inne pozostaje bez zmian. Przełączać możesz też Ctrl+K oraz prawym przyciskiem na ikonie w obszarze powiadomień.
+f37ca130 || ＋ Nowy profil
+715d4611 || Przełączaj automatycznie
+5821fb16 || Potem launcher wraca do poprzednich ustawień: po grze lub po zamknięciu OBS. Przy starcie gry musi być włączone mierzenie czasu gry.
+eef44b6e || Przy starcie gry
+b94ac3ec || Po uruchomieniu OBS
+f62aa210 || Kolory i wygląd
+290cb58b || Tło
+a12cdb75 || Sekcje paska bocznego
+5b6b8a02 || Opcje kontrolera
+c9a48f6f || Granie
+82f2234a || Streaming
+19f3ec0c || Biuro
+cafd2ffe || Profil zmieniony automatycznie
+51d0bbfe || Zmieniono profil
+4b8138c2 || Profil „{0}” jest aktywny.
+1c473012 || Przywrócono profil

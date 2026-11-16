@@ -1598,3 +1598,203 @@ d5d7aa06 || Özel bilgilerin yayında nasıl gizleneceği: koyu bir çubuk olara
 5caf7fe5 || Siyah çubuk
 6d538f47 || Bulanık
 86f17261 || Bilgisayar ve kullanıcı adını sansürle
+6318db40 || Bilgisayar adını ve Windows kullanıcı adını başlatıcının her yerinde, dosya yolları dahil gizler.
+5e687741 || Yayıncı modunda gizli
+1a142a57 || Bir bağlantıya sağ tıklamak onu düzenler veya kaldırır. Artı kutucuğuyla kendi bağlantılarını eklersin.
+d9fb4985 || Bağlantı ekle
+4d70f4c8 || Web sitesi, program veya klasör
+bdfa481c || ↺  Varsayılan bağlantıları geri yükle
+a7624ab8 || Tüm yayıncı bağlantıları varsayılan seçimle değiştirilsin mi?
+1943d593 || Kablolu bağlantı açık
+01f0d4da || Bağlı
+217f2473 || son bilinen
+63b5a511 || Panoda indirme göstergesi
+03bd3bd2 || Steam veya Epic Games bir şey indirirken sağ üstte ilerlemeyi, hızı ve kalan süreyi gösterir.
+7fa6c583 || {0} sn kaldı
+8320a2e4 || {0} dk kaldı
+dadb6e15 || {0} sa {1} dk kaldı
+00db5dfa || Yayın programını düzenle
+f0936882 || Başka program seç ...
+1a3fbcda || ↺  Gizlenen programları yeniden göster
+8225a576 || Bir programa sağ tıklamak onu düzenler veya kaldırır.
+f2457674 || ☆  Favori
+3f7b4161 || ★  Favori
+415f03ad || 📝  Ayrıntılar
+d80cadbe || {0} adım
+c6d8f9c4 || Bağlı değil
+45c26acb || Şimdi bağlan
+2ebe2259 || OBS ayarları
+c229c67a || Yayını başlat
+82a5bdb4 || Yayını bitir
+a831b507 || Kaydı başlat
+1b38cdc5 || Kaydı bitir
+f5a14ae8 || 🎙 Mikrofon açık
+5a64d048 || 🔇 Mikrofon sessiz
+e889c64c || 🎙 Mikrofon yok
+a582e785 || Yayın
+c47c37c8 || Çevrimdışı
+46e30fa8 || Kayıt
+24d5ad53 || Kaybolan kareler
+13d7593c || Sahneler
+d8d0786a || OBS kontrolü
+53181db8 || OBS'yi başlatıcıdan kontrol et
+24c5fef3 || OBS'nin WebSocket sunucusu üzerinden bağlanır (OBS 28 ve üzeri). OBS'de Araçlar → WebSocket Sunucu Ayarları altından aç. Bağlantı noktası ve parola da orada yazar.
+1f2a8a8e || Adres
+e2c53cc6 || Bağlantı noktası
+d2f5487a || Parola (OBS istemiyorsa boş bırak)
+220220d2 || Parola şifrelenmiş olarak kaydedilir ve yalnızca Windows hesabın tarafından okunur.
+a467c256 || Bağlantıyı test et
+700d342a || Bağlantı test ediliyor …
+57688304 || ✓ Bağlantı çalışıyor: OBS {0}
+73bcf96b || OBS'yi yayıncı sayfasından kullanmak için yukarıda „OBS'yi başlatıcıdan kontrol et“i aç.
+cbd5d8e1 || Yayıncı modu yayınla birlikte otomatik
+15e15a19 || OBS'de yayın başladığı anda yayıncı modunu açar ve yayın bitince kapatır.
+bc62a185 || Yayıncı modunun etkin olduğu sahneler
+4e2b0b94 || Yayına ek olarak: OBS'de bu sahnelerden biri etkinse yayıncı modu açılır, yayın olmadan kayıtta da.
+e1a64c42 || OBS bağlanır bağlanmaz sahnelerin burada seçilmek üzere görünür.
+4e6c5d36 || Simülasyon
+365722ba || OBS olmadan test modu. Tüm düğmeler yalnızca başlatıcıda etki eder.
+d797c2a6 || Bağlanıyor …
+f4b9d968 || Başlatıcı OBS'ye bağlanıyor.
+87d00da6 || Bağlantı kesildi
+56c02618 || OBS ile bağlantı koptu. Başlatıcı otomatik olarak yeniden bağlanacak.
+9448c086 || Başlatıcı otomatik olarak denemeye devam ediyor.
+614c7051 || Sahneleri, yayını ve kaydı doğrudan buradan kontrol et. Bağlantıyı Ayarlar → Yayıncı → OBS kontrolü altında kur.
+47ca3cb7 || OBS yanıt vermiyor. OBS çalışıyor mu ve WebSocket sunucusu açık mı (Araçlar → WebSocket Sunucu Ayarları)? Adres ve bağlantı noktası doğru mu?
+e1f0e5b5 || OBS bir parola istiyor. Onu ayarlara gir.
+c8c9babd || OBS parolası yanlış.
+192300ce || OBS bağlantısı başarısız oldu.
+06b1e6be || OBS'de Ayarlar → Ses altında mikrofon ayarlı değil.
+4c783320 || OBS'de mikrofonu sessize alır veya yeniden açar.
+49c5db30 || {0}'dan beri canlı ({1})
+57895aa6 || {0} (duraklatıldı)
+d6d98e7c || {1} içinden {0} (%{2})
+9617fd20 || Sahne bulunamadı.
+44a1f181 || Geçerli sahne
+c218959e || Bu sahneye geç
+f3c7a9ea || OBS komutu yürütmedi.
+d559db2a || Yayın gerçekten bitirilsin mi?
+0a107a97 || Kayıt gerçekten bitirilsin mi?
+30c2cd0e || OBS artık yayın yapmıyor. Tüm bilgiler yeniden görünür.
+6a82153d || Yayının canlı. Özel bilgiler gizli.
+afee4eba || Bu OBS sahnesi yayıncı modu için işaretli. Özel bilgiler gizli.
+4d4cf2ac || OBS simülasyonu başlatıldı.
+1f1c512d || Etkin (OBS ile otomatik)
+ff2e9630 || Ne Steam mağazasında ne de PCGamingWiki'de bu oyun için gereksinim var.
+b5814b3b || PCGamingWiki bilgilerine göre kaba tahmin.
+4bc78beb || Bir bakışta
+08448691 || Tam kumanda desteği
+78397428 || Kısmi kumanda desteği
+b4134f7f || Bölünmüş ekran
+7388d193 || Çevrimiçi ortak oyun
+030329c0 || Ortak oyun
+61a317f1 || Çevrimiçi PvP
+43043db1 || Çapraz platform
+a6ccb587 || Yalnızca tek oyunculu
+1674b257 || Remote Play Together
+d3fd1675 || Aile Paylaşımı
+ce2bbfed || {0} başarım
+9473b464 || Bulut kayıtları
+094ee845 || Senin dilin: metin + seslendirme
+fcdab432 || Senin dilin: yalnızca metin
+3448b2df || Senin dilinde değil
+a56613d3 || Steam değerlendirmesi:
+608bd9b9 || Son 30 gün:
+ac26a7eb || Çok az değerlendirme
+6c6123e7 || Son derece olumlu
+95e6f823 || Çok olumlu
+8177e45b || Olumlu
+808bbcb1 || Çoğunlukla olumlu
+7d79e082 || Karışık
+44d08619 || Çoğunlukla olumsuz
+8e3b5367 || Son derece olumsuz
+bce61973 || Çok olumsuz
+3a283d1b || Olumsuz
+fca00ac9 || Yeni değerlendirmeler belirgin şekilde daha kötü. Son güncellemede sorun olabilir.
+dccd1955 || Yeni değerlendirmeler eskisinden belirgin şekilde daha iyi.
+a9376e0b || USB sürücü
+d6d6fb78 || NVMe SSD
+3d337ec2 || Sabit disk (HDD)
+3d1974e5 || SSD
+cbc88e50 || Oyun bir sabit diskte (HDD). Yükleme süreleri uzun olabilir, SSD'de daha akıcı çalışır.
+ec03f3cf || Bilgisayarımda çalışır mı?
+9dba404e || Gereksinimler kontrol ediliyor …
+f9096f88 || Steam mağazasına ulaşılamıyor. Daha sonra tekrar aç.
+5f38c0dd || Steam mağazasında bu oyun için gereksinim yok.
+e52252a0 || Bilgisayarın güvenilir şekilde değerlendirilemedi.
+64faeae8 || Bilgisayarın kısmen minimumun altında.
+d03082ff || Bilgisayarın önerilen ayarları kaldırır.
+ff4389a5 || Bilgisayarın en azından minimumu karşılar.
+d04c6089 || Önerilen karşılandı
+f1559ae3 || Minimum karşılandı
+e0ffd283 || Minimumun altında
+80e4c18a || Güvenilir şekilde tanınmadı
+d2f34e57 || Minimum:
+d678f80d || Önerilen:
+eb6d6c98 || Bilgisayarın:
+b920f826 || Steam mağazası bilgilerine göre kaba tahmin.
+b0fc39b0 || Bekleyen güncelleme:
+a6b470c9 || kalan
+a3989733 || Bekleyen güncelleme (Steam boyutu indirme başlayınca gösterir)
+97aa784d || Etkin (otomatik, çünkü Discord'da yayın yapıyorsun)
+9de8568a || Discord'da yayın yaparken otomatik aç
+acd97c51 || Discord ekranını veya bir pencereyi paylaştığı anda yayıncı modu açılır, yayından sonra yeniden kapanır. Bu sırada pencerenin üstünde kapatmak için bir düğme görünür.
+59997403 || Discord'da yayın yapıyorsun. Özel bilgiler gizli.
+a13971e3 || Discord yayının bitti. Tüm bilgiler yeniden görünür.
+e0571e4d || elle açıldı
+3bf02d67 || Discord yayını algılandı
+79d4ffa0 || OBS yayında
+f6c94176 || Yayın yazılımı çalışıyor
+2a74c04b || Tüm bilgileri yeniden gösterir. Yayın bitene kadar kapalı kalır.
+77351aad || Başlatıcı OBS'ye bağlı
+89be5e26 || Bağlan
+3ba1d1a0 || OBS'ye bağlan
+f789898b || OBS bağlantısını kur
+5fd882c0 || OBS: Yayını başlat
+5572a88a || OBS: Yayını bitir
+b0a4a6f5 || OBS: Kaydı başlat
+ebb52cab || OBS: Kaydı bitir
+69bdbb3e || OBS: Mikrofonu sessize al
+1e1a3cae || OBS: Mikrofonu aç
+f6db5667 || OBS sahnesi: {0}
+67b2ccf7 || Bir sorun olursa hata günlüğü yardımcı olur. Başlatıcı ayarlarını her hafta başlangıçta, her güncellemeden ve her içe aktarmadan önce yedekler. Son 5 yedek saklanır; dosya bozulursa en yenisi otomatik yüklenir.
+4003bae1 || Tüm ayarları bir dosyaya kaydeder veya yeniden yükler, örneğin yeni bir bilgisayarda. Yüklemeden önce nelerin uygulanacağını görürsün ve mevcut ayarların önceden yedeklenir.
+6b0afdbc || Henüz yedek yok.
+d7f0a5d5 || Son yedek: {0}
+f6fecc47 || Yedeklendi
+cbe0bab8 || Ayarların yedeklendi.
+b9650672 || Yedek oluşturulamadı.
+767123dc || Dosya geçerli ayarlar içermiyor.
+e559d412 || Uygulanacaklar
+3035c350 || {0} sürümüyle {1} tarihinde kaydedildi
+44a80dd6 || Sürüm bilgisi olmayan eski yedek dosyası
+ebd02c22 || Dosya daha yeni bir sürümden ({0}). Bu sürümün henüz bilmediği ayarlar atlanır.
+1c3e33c2 || Oynama süresi, favori veya notu olan oyunlar: {0}
+894ac10e || Elle eklenen oyunlar: {0}
+012e710d || Kısayollar ve bağlantılar: {0}
+80c8acf3 || Rutinler: {0}
+66bc8caf || İstek listesi: {0}
+ea60ef41 || Ayar profilleri: {0}
+59925626 || Toplam değişen ayar: {0}
+98414abc || Oynama süreleri dahil her şey dosyanın içeriğiyle değiştirilir. Mevcut ayarların önce otomatik yedeklenir. Ardından başlatıcı yeniden başlar.
+01ceeb93 || Uygula ve yeniden başlat
+727ae785 || Hâlâ bir oyun çalışıyor. Ayarları lütfen oyundan sonra yükle.
+cb2e216f || Yüklenen ayarların uygulanması için başlatıcıyı şimdi yeniden başlat.
+e85640a6 || Ayar profilleri
+4b739795 || Bir profil seçilen ayarları hatırlar, örneğin tasarım, yayıncı modu ve güç planı. Geçiş yapınca tam olarak bunlar uygulanır, geri kalan her şey olduğu gibi kalır. Ctrl+K ile ve bildirim alanı simgesine sağ tıklayarak da geçiş yapabilirsin.
+f37ca130 || ＋ Yeni profil
+715d4611 || Otomatik geçiş
+5821fb16 || Sonra başlatıcı önceki ayarlarına döner: oyundan sonra veya OBS kapanınca. Oyun başlangıcı için oynama süresi kaydı açık olmalıdır.
+eef44b6e || Bir oyun başladığında
+b94ac3ec || OBS başlatıldığında
+f62aa210 || Renkler ve tasarım
+290cb58b || Arka plan
+a12cdb75 || Kenar çubuğu bölümleri
+5b6b8a02 || Kumanda seçenekleri
+c9a48f6f || Oyun
+82f2234a || Yayın
+19f3ec0c || Ofis
+cafd2ffe || Profil otomatik değişti
+51d0bbfe || Profil değişti
+4b8138c2 || „{0}“ profili etkin.
+1c473012 || Profil geri yüklendi
