@@ -511,6 +511,12 @@ namespace Game_launcher
             var start = HoloLaunchButton(game);
             start.Margin = new Thickness(0, 22, 0, 0);
             left.Children.Add(start);
+            if (SteamUpdateText(game) is string update)
+            {
+                var updateLine = new TextBlock { Text = "⬇  " + update, Foreground = MakeBrush("#FBBF24"), FontSize = 13, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(2, 10, 0, 0) };
+                updateLine.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
+                left.Children.Add(updateLine);
+            }
             var back = HoloButton("Zurück", () => ConsoleBack(), false, "");
             back.Margin = new Thickness(0, 14, 0, 0);
             back.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
@@ -575,6 +581,7 @@ namespace Game_launcher
                 new StackPanel { Children = { HoloPanel(Loc.T("Spielzeit"), ringRow, null, 20) } },
                 new StackPanel { Children = { HoloPanel(Loc.T("Letzte Sitzungen"), sessionBody, null, 20) } }, 0.5);
             right.Children.Add(panels);
+            right.Children.Add(HoloPanel(Loc.T("Läuft das auf meinem PC?"), BuildRequirementCheck(game), null, 16));
 
             if (!string.IsNullOrWhiteSpace(game.Notes))
             {

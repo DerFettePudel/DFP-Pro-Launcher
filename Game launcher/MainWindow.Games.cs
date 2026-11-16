@@ -2180,9 +2180,16 @@ namespace Game_launcher
             Line(game.LastPlayed.HasValue ? $"Zuletzt gespielt: {game.LastPlayed.Value:dd.MM.yyyy HH:mm} ({FormatRelative(game.LastPlayed.Value)})" : "Noch nicht gespielt");
             Line($"Über den Launcher gestartet: {game.LaunchCount}×");
             if (!SHide(settings.StreamHidePaths)) Line(game.InstallDir);
+            if (SteamUpdateText(game) is string update)
+                info.Children.Add(new TextBlock { Text = "⬇  " + update, Foreground = MakeBrush("#FBBF24"), FontSize = 13, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 6, 0, 0) });
             header.Children.Add(info);
             panel.Children.Add(header);
             AddGameInfoSection(panel, game);
+
+            // Läuft das auf meinem PC?
+            panel.Children.Add(new TextBlock { Text = Loc.T("Läuft das auf meinem PC?"), Foreground = BrushSubtle, Margin = new Thickness(0, 0, 0, 8) });
+            var requirements = BuildRequirementCheck(game);
+            panel.Children.Add(new Border { Background = MakeBrush("#14FFFFFF"), CornerRadius = new CornerRadius(12), Padding = new Thickness(14, 12, 14, 8), Margin = new Thickness(0, 0, 0, 18), Child = requirements });
 
             // Bewertung
             panel.Children.Add(new TextBlock { Text = "Bewertung", Foreground = BrushSubtle, Margin = new Thickness(0, 0, 0, 4) });
@@ -2268,22 +2275,38 @@ namespace Game_launcher
             var cancel = new System.Windows.Controls.Button { Content = "Abbrechen", Margin = new Thickness(0, 0, 10, 0), IsCancel = true };
             var save = new System.Windows.Controls.Button { Content = "Speichern", Padding = new Thickness(26, 8, 26, 8) };
             save.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentBrush");
-            save.Click += (s, e) =>
+            void Store()
             {
                 game.Rating = rating;
                 game.Notes = notes.Text;
                 game.Collections = boxes.Where(p => p.Value.IsChecked == true).Select(p => p.Key).ToList();
                 SaveGameState(game);
+            }
+            save.Click += (s, e) =>
+            {
+                Store();
+                dialog.DialogResult = true;
+            };
+            // Direkt aus dem Fenster starten (Änderungen werden vorher gespeichert)
+            bool launch = false;
+            var play = new System.Windows.Controls.Button { Content = Loc.T("▶  Spielen"), Padding = new Thickness(26, 8, 26, 8), Margin = new Thickness(10, 0, 0, 0) };
+            play.SetResourceReference(System.Windows.Controls.Control.BackgroundProperty, "AccentGradientBrush");
+            play.Click += (s, e) =>
+            {
+                Store();
+                launch = true;
                 dialog.DialogResult = true;
             };
             buttons.Children.Add(cancel);
             buttons.Children.Add(save);
+            buttons.Children.Add(play);
             panel.Children.Add(buttons);
 
             if (dialog.ShowDialog() == true)
             {
                 ApplyFilter();
                 RefreshDashboard();
+                if (launch) LaunchGame(game);
             }
         }
 
