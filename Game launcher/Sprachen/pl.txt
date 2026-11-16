@@ -998,3 +998,203 @@ ea9929fd || 📡 Przełącz tryb streamera
 62b76af3 || Ukrywa prywatne informacje
 3a839501 || Kliknij, aby wyłączyć
 458731ec || Tryb kontrolera
+e29c0b40 || Przeszukaj ustawienia ...
+e25720cd || Otwieraj launcher ponownie po grze
+63b4e3e8 || Wysuwa launcher na pierwszy plan, gdy tylko gra się skończy. Przydatne razem z „Minimalizuj launcher po uruchomieniu gry”.
+32015901 || Pytaj przy zamykaniu
+2bf337af || Przy zamykaniu okna pyta, czy launcher ma działać dalej w tle, czy się zamknąć.
+0a848f58 || Czy launcher ma działać dalej w tle?\n\nTak: działaj dalej w obszarze powiadomień\nNie: zamknij launcher\nAnuluj: zostaw okno otwarte
+1c13ae8f || Zamknij launcher
+856174c3 || Pojedyncze kliknięcie ikony w obszarze powiadomień otwiera launcher
+dc7b1abe || Wyłączone: kliknięcie otwiera mały szybki panel, dwuklik otwiera launcher.
+cdaeddb8 || Pisanie uruchamia wyszukiwanie
+014767ff || Na liście gier wystarczy zacząć pisać. Tekst trafia do pola wyszukiwania.
+ac8c9138 || Zawsze pokazuj ulubione na górze
+e7ce7e57 || Ulubione są na samej górze listy gier, potem następuje wybrane sortowanie.
+db3bb6da || Pokazuj pasek alfabetu
+60e6a3a4 || Wąski pasek A–Z przy prawej krawędzi listy gier do szybkiego przeskakiwania. Pojawia się tylko przy sortowaniu po nazwie i większych bibliotekach.
+97f2b450 || ☑ Edytuj zaznaczenie
+958c1ca2 || Edytuj kilka gier
+d33070ec || Wybierz gry, do których zastosować akcję. Wyświetlane są tylko aktualnie pokazane gry.
+96421d53 || ★ Dodaj do ulubionych
+bacb0eb7 || ☆ Usuń z ulubionych
+d156cad0 || 📁 Do kolekcji
+1d58b472 || Gotowe
+1a8f9162 || zmienione gry
+d0b14e43 || Raport po każdej sesji
+bedf2e6b || Po dłuższej grze pokazuje średnie i maksymalne obciążenie procesora, karty graficznej i pamięci.
+e3f56ac1 || Raport z gry
+9b6eabd4 || godz.
+ac6baf95 || maks.
+ef22de13 || Wyciszaj powiadomienia launchera podczas gry
+45a7034b || Powiadomienia, banery i alerty cenowe czekają do końca gry. Przypomnienia o przerwie i limicie dziennym zostają.
+608b3c5e || Limit dzienny
+51f9f1ee || Przypomina, gdy dziś zagrasz tyle godzin. 0 wyłącza limit.
+41d59a24 || Osiągnięto limit dzienny
+79d1e871 || ⏳ Osiągnięto limit dzienny
+ab435917 || Dziś grano
+9d29224e || .
+a727c956 || Przerwa?
+5030d7b4 || Dostosuj nakładkę
+47b0f137 || Mini nakładka pojawia się nad grą, jeśli jest włączona w ustawieniach w sekcji „Czas gry i przypomnienia”.
+b33cbbf6 || Przezroczystość nakładki
+f556d960 || Niższe wartości sprawiają, że nakładka jest bardziej przezroczysta i mniej rzuca się w oczy.
+842d29eb || Rozmiar nakładki
+8141fe3f || Powiększa lub pomniejsza nakładkę w procentach.
+6a70c4b5 || Pokazuj obciążenie procesora
+72307edf || Pokazuje obciążenie CPU w nakładce.
+86e2fa1d || Pokazuj obciążenie karty graficznej
+529633d2 || Pokazuje obciążenie GPU w nakładce, jeśli Windows je udostępnia.
+b050309b || Pokazuj pamięć
+89f7d428 || Pokazuje zajętość RAM w nakładce.
+6a4c03df || Pokazuj godzinę
+05e586aa || Pokazuje aktualną godzinę w nakładce.
+c534e072 || Pamięć RAM
+e2319091 || Pamięć launchera
+e1a0cb30 || Zwalnia obrazy i animacje z pamięci podręcznej. Przydatne, gdy launcher z bardzo wieloma okładkami zajmuje dużo pamięci.
+9e9d2985 || Zwolnij pamięć
+72d79cf8 || Obecnie zajęte:
+f8641691 || Otwórz folder modów
+d5cd8976 || 🧩 Otwórz folder modów
+68cfd158 || 🧩 Ustaw folder modów ...
+177ea238 || ↺ Przywróć folder modów
+c1b1f01c || Wybierz folder modów tej gry
+6ac629dc || Pokazuj przycisk folderu modów na okładkach
+afe07cfc || W grach z wykrytym folderem modów po najechaniu w prawym dolnym rogu okładki pojawia się mały przycisk 🧩, który otwiera folder. Prawym przyciskiem możesz ustawić folder samodzielnie.
+7d800c73 || Powiadomienie Discord
+8ad85009 || Launcher może wysłać wiadomość na wybrany kanał Discord, gdy uruchamiasz lub kończysz grę. W tym celu tworzysz w Discordzie webhook (edytuj kanał, integracje, webhooki). Wysyłane jest tylko to, co tu włączysz, i tylko na podany adres.
+b91cf8f5 || Włącz powiadomienie Discord
+9f3ca119 || Bez prawidłowego adresu webhooka nic nie jest wysyłane. Adres zostaje zapisany na twoim komputerze i jest rozmywany w trybie streamera.
+7089361a || Adres webhooka
+a3c38dbc || Zaczyna się od https://discord.com/api/webhooks/ i należy do kanału, na którym zezwalasz na wiadomości. Traktuj go jak hasło.
+130ed4d9 || Wyślij wiadomość testową
+a0917bbb || Powiadamiaj przy starcie gry
+c12b2c6f || Wysyła „… gra teraz w …” z nazwą gry, źródłem i – w grach ze Steam – obrazem nagłówka.
+779a03e5 || Powiadamiaj przy końcu gry
+d633ef80 || Po zakończeniu wysyła wiadomość z czasem gry tej sesji.
+214b6208 || Dołącz moją nazwę użytkownika
+ccd31ebd || Wyłączone: zamiast twojej nazwy wiadomość mówi tylko „Ktoś”.
+fed1d4e8 || Ktoś
+6dc535d8 || {0} gra teraz w {1}
+9ad98e68 || {0} zakończył(a) {1}
+f94ce58e || Czas gry tej sesji: {0}
+bf9e1b35 || Test udany
+26219c8a || Twój DFP Pro Launcher jest połączony z tym kanałem Discord.
+ba66a3a3 || To nie jest prawidłowy adres webhooka Discord.
+b8a29f34 || Webhook usunięty.
+4a2e454a || Zapisano.
+3367f9d5 || Wysyłanie wiadomości testowej ...
+ce9984eb || Wiadomość testowa wysłana. Zajrzyj na swój kanał Discord.
+af32c2e4 || Discord odrzucił wiadomość:
+685b83c5 || Wysyłanie nie powiodło się. Sprawdź połączenie z internetem.
+33eb492d || Rozmieść widżety
+b18fae9a || Wybierz, które sekcje pojawiają się na pulpicie, i przesuwaj je strzałkami. Nowe są: cel tygodniowy, następna gra, lista życzeń i szybki dostęp.
+67b98af2 || Baner Graj dalej
+a43d4262 || Zegar i pogoda
+a5009014 || Kafelki statystyk
+adef7c1f || Cel tygodniowy
+68742651 || Następna gra
+903c48fe || 🎯 Cel tygodniowy
+8cd33463 || 📋 Następna gra
+a1ff9fd0 || 💝 Lista życzeń
+5654eb25 || 🔗 Szybki dostęp
+b36f3fe7 || 🔗 Zarządzaj szybkim dostępem
+145abffd || Ustaw cel tygodniowy w ustawieniach w sekcji „Gry i okładki”.
+9955be3c || Twoje zaległe gry są puste. Oznacz gry prawym przyciskiem jako „Chcę zagrać”.
+e5e0e00b || Lista życzeń jest pusta.
+9f4a1da0 || Brak skrótów.
+6c5b92bd || Schematy widoku
+d739d887 || Jednym kliknięciem przełączasz się między gotowymi widokami. Zmieniają widżety pulpitu, widoczne sekcje, układ kart, odstępy i animacje. Twoje kolory pozostają bez zmian. Potem możesz dalej dopasować każde ustawienie.
+c26040e6 || Oryginalny widok ze wszystkimi ustawieniami domyślnymi.
+294b5c4f || Minimalistyczny
+79cb5404 || Tylko to, co najważniejsze: zwinięty pasek boczny, mało sekcji, bez animacji.
+63ee2e0e || Spokojny interfejs z banerem, „Ostatnio grane” i ulubionymi. Rzadko używane sekcje są ukryte.
+7e3e334e || Informacyjny
+a9168100 || Wszystko na jednym ekranie: kafelki ze szczegółami, statystyki, cel tygodniowy, zaległe gry, lista życzeń i szybki dostęp.
+a08d9476 || Kompaktowy
+a2993a68 || Dużo gier na małej przestrzeni: lista, zwinięty pasek boczny i wąskie odstępy.
+c8b7bbad || Salon
+eb1ac62f || Duże karty i duży tekst dla telewizora i kontrolera.
+5638aef6 || Schemat zastosowany
+76827043 || Schemat cofnięty
+1c0d4ce2 || Kliknij, aby cofnąć
+d450b72e || Poprzednie ustawienia są znowu aktywne.
+cf0467fe || Animacja powitalna przy starcie
+279558ca || Przy starcie krótko pokazuje twoje logo i wita cię po imieniu. Kliknięcie ją pomija.
+ceb4cd04 || Dzień dobry
+66928138 || Dzień dobry
+e10848f8 || Dobry wieczór
+c5065250 || Dobranoc
+73d0d249 || Dostępna aktualizacja
+3d63c7e0 || Nowa wersja DFP Pro Launcher jest gotowa. Zostanie pobrana i zainstalowana bezpośrednio tutaj.
+906d05d0 || Nowości w tej wersji
+093de8e3 || Brak opisu.
+6894c883 || Aktualizuj teraz
+b0d09ad1 || Później
+dc9b1eb8 || Pomiń tę wersję
+00412404 || Pobieranie ... {0} %
+7bcdfa89 || Rozpoczynanie instalacji. Launcher na chwilę się zamknie, a potem sam ponownie otworzy.
+9289f76f || Gra nadal działa. Zainstaluj aktualizację po grze.
+9916944c || Nie udało się pobrać aktualizacji:
+f3b8a7f2 || Suma kontrolna się nie zgadza. Pobrany plik odrzucono.
+f23a6992 || Brakuje sumy kontrolnej tej aktualizacji. Ze względów bezpieczeństwa nie zostanie zainstalowana.
+47cc3c27 || Dla tej wersji nie ustawiono źródła aktualizacji.
+3e869765 || Zainstalowana wersja: {0}
+1bfaca5e || Sprawdź aktualizacje teraz
+b469332c || Aktualizacje są pobierane i instalowane bezpośrednio w launcherze. Przeglądarka się nie otwiera.
+343d5778 || Obraz i dźwięk
+76557343 || System i diagnostyka
+37e9a4a1 || Gry i wydajność
+6c834a49 || Kontrola gamingowa
+03378958 || spełnione
+ef581d80 || Plan zasilania: wysoka wydajność
+ea0a0ba7 || Tryb gry jest włączony
+576f6f9b || Przyspieszenie myszy jest wyłączone
+db0f27ad || Nagrywanie w tle jest wyłączone
+4f62954c || 🕹  Windows dla gier
+337c0be2 || Te ustawienia Windows bezpośrednio wpływają na twoje gry.
+2f65f8d4 || Windows daje grze pierwszeństwo i wstrzymuje aktualizacje w tle.
+1fe1673e || Nagrywanie w tle
+d916f3cc || Ciągle nagrywa ostatnie minuty. Wyłączone oznacza więcej FPS; zrzuty ekranu i ręczne nagrania nadal działają.
+cc70284c || Przyspieszenie myszy
+d597f036 || W strzelankach lepiej wyłączone: ten sam ruch ręki daje zawsze ten sam dystans na ekranie.
+c17bd710 || Gry
+2279d8cb || Czat
+8df5852f || Przeglądarka
+e8e53b13 || Multimedia
+1ce14551 || Biuro
+b6b8268f || Inne
+5abc32af || Wyszukiwanie aplikacji ...
+63b2bd69 || Znaleziono aplikacje: {0} · Kliknij, aby uruchomić, prawy przycisk – więcej
+5d525172 || Szukaj aplikacji ...
+558f06b1 || Wczytaj ponownie
+a77bf95e || ▶  Uruchom
+8286f83e || 📂  Otwórz lokalizację pliku
+50c682c4 || Pionowo
+7b4225b8 || Aktywny
+e35b5e0e || Opcje zasilania
+22e7d577 || Kliknij plan, aby od razu go włączyć.
+bebf98e4 || Oszczędza energię, mniejsza wydajność
+3afd650a || Zalecany, dopasowuje się automatycznie
+19f1a4a0 || Wyższe taktowanie, nieco większe zużycie prądu
+48605b4e || Maksymalna wydajność, bez funkcji oszczędzania
+105fb679 || Nowe sterowniki często dają więcej FPS i naprawiają awarie w nowych grach.
+c3943354 || Wszystko gotowe. Twój komputer jest optymalnie ustawiony do gier.
+84f0cf20 || Otwarte punkty: {0} z 4. Możesz je poprawić poniżej jednym kliknięciem.
+929120cb || 🧹  Sprzątanie
+87e6d4e3 || Oblicz ponownie
+64a78073 || Opróżnij wszystko
+a94570f2 || Opróżnij
+d5c0d16d || Tylko pliki, które można bezpiecznie usunąć. Pliki w użyciu po prostu zostają.
+a53a8af7 || Pliki tymczasowe
+2efaf5f4 || Pliki w folderach Temp starsze niż 24 godziny
+870451f3 || Pamięć podręczna shaderów
+fc61bf8f || DirectX, NVIDIA, AMD, Intel – przydatne po aktualizacji sterowników (pierwsze uruchomienie gry potem trwa nieco dłużej)
+eb4e8314 || Kosz
+ee3b23b9 || Trwale usuń skasowane pliki
+181a693c || Raporty o awariach
+9903e6af || Zrzuty pamięci i raporty błędów programów, które uległy awarii
+56583f0b || Pamięć podręczna okładek
+f93ab595 || Pobrane okładki – potem automatycznie pobierane ponownie
+dcb5f8eb || Dzienniki launchera
+a0c8a036 || Dzienniki błędów tego launchera

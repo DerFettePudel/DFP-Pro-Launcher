@@ -998,3 +998,203 @@ ea9929fd || 📡 Streamermodus wisselen
 62b76af3 || Verbergt privégegevens
 3a839501 || Klik om uit te schakelen
 458731ec || Controllermodus
+e29c0b40 || Instellingen doorzoeken ...
+e25720cd || Launcher na de game weer openen
+63b4e3e8 || Haalt de launcher naar voren zodra je game is afgelopen. Handig samen met „Launcher minimaliseren na het starten van een game”.
+32015901 || Vragen bij sluiten
+2bf337af || Vraagt bij het sluiten van het venster of de launcher op de achtergrond moet blijven draaien of moet afsluiten.
+0a848f58 || Moet de launcher op de achtergrond blijven draaien?\n\nJa: in het systeemvak blijven draaien\nNee: launcher afsluiten\nAnnuleren: venster open laten
+1c13ae8f || Launcher sluiten
+856174c3 || Eén klik op het systeemvakpictogram opent de launcher
+dc7b1abe || Uit: een klik opent het kleine snelpaneel, een dubbelklik de launcher.
+cdaeddb8 || Typen start het zoeken
+014767ff || In de gamelijst kun je gewoon beginnen met typen. De invoer komt in het zoekveld.
+ac8c9138 || Favorieten altijd bovenaan tonen
+e7ce7e57 || Je favorieten staan helemaal bovenaan de gamelijst, daarna volgt de gekozen sortering.
+db3bb6da || Alfabetbalk tonen
+60e6a3a4 || Een smalle A–Z-balk aan de rechterrand van de gamelijst om snel te springen. Verschijnt alleen bij sorteren op naam en grotere bibliotheken.
+97f2b450 || ☑ Selectie bewerken
+958c1ca2 || Meerdere games bewerken
+d33070ec || Kies de games waarop de actie wordt toegepast. Alleen de nu getoonde games worden vermeld.
+96421d53 || ★ Toevoegen aan favorieten
+bacb0eb7 || ☆ Verwijderen uit favorieten
+d156cad0 || 📁 Naar collectie
+1d58b472 || Klaar
+1a8f9162 || games gewijzigd
+d0b14e43 || Speelrapport na elke sessie
+bedf2e6b || Toont na een langere game hoe zwaar processor, videokaart en geheugen gemiddeld en maximaal belast werden.
+e3f56ac1 || Speelrapport
+9b6eabd4 || u
+ac6baf95 || max.
+ef22de13 || Launchermeldingen onderdrukken tijdens het spelen
+45a7034b || Meldingen, banners en prijsalarmen wachten tot je game is afgelopen. Pauze- en daglimietherinneringen blijven.
+608b3c5e || Daglimiet
+51f9f1ee || Herinnert je zodra je vandaag zoveel uur hebt gespeeld. 0 schakelt de limiet uit.
+41d59a24 || Daglimiet bereikt
+79d1e871 || ⏳ Daglimiet bereikt
+ab435917 || Je hebt vandaag
+9d29224e || gespeeld.
+a727c956 || Pauze?
+5030d7b4 || Overlay aanpassen
+47b0f137 || De mini-overlay verschijnt boven je game als hij is ingeschakeld in de instellingen onder „Speeltijd en herinneringen”.
+b33cbbf6 || Doorzichtigheid van de overlay
+f556d960 || Lagere waarden maken de overlay doorzichtiger en minder opvallend.
+842d29eb || Grootte van de overlay
+8141fe3f || Vergroot of verkleint de overlay in procenten.
+6a70c4b5 || Processorbelasting tonen
+72307edf || Toont de CPU-belasting in de overlay.
+86e2fa1d || Videokaartbelasting tonen
+529633d2 || Toont de GPU-belasting in de overlay als Windows die levert.
+b050309b || Geheugen tonen
+89f7d428 || Toont het RAM-gebruik in de overlay.
+6a4c03df || Tijd tonen
+05e586aa || Toont de huidige tijd in de overlay.
+c534e072 || Geheugen
+e2319091 || Geheugen van de launcher
+e1a0cb30 || Geeft gecachte afbeeldingen en animaties vrij. Handig als de launcher met heel veel covers veel geheugen gebruikt.
+9e9d2985 || Geheugen vrijgeven
+72d79cf8 || Nu in gebruik:
+f8641691 || Modmap openen
+d5cd8976 || 🧩 Modmap openen
+68cfd158 || 🧩 Modmap instellen ...
+177ea238 || ↺ Modmap herstellen
+c1b1f01c || Modmap van deze game kiezen
+6ac629dc || Modmapknop op de covers tonen
+afe07cfc || Bij games met een herkende modmap verschijnt bij aanwijzen rechtsonder op de cover een kleine 🧩-knop die de map opent. Met een rechtsklik kun je zelf een map instellen.
+7d800c73 || Discord-melding
+8ad85009 || De launcher kan een bericht sturen naar een Discord-kanaal naar keuze als je een game start of afsluit. Daarvoor maak je in Discord een webhook aan (kanaal bewerken, integraties, webhooks). Alleen wat je hier inschakelt wordt verstuurd, en alleen naar het adres dat je invoert.
+b91cf8f5 || Discord-melding inschakelen
+9f3ca119 || Zonder geldig webhookadres wordt niets verstuurd. Het adres blijft op je pc opgeslagen en wordt in de streamermodus vervaagd.
+7089361a || Webhookadres
+a3c38dbc || Het begint met https://discord.com/api/webhooks/ en hoort bij een kanaal waar je berichten toestaat. Behandel het als een wachtwoord.
+130ed4d9 || Testbericht sturen
+a0917bbb || Melden bij het starten van een game
+c12b2c6f || Stuurt „… speelt nu …” met gamenaam, bron en bij Steam-games de titelafbeelding.
+779a03e5 || Melden bij het einde van een game
+d633ef80 || Stuurt na het afsluiten een bericht met de speeltijd van deze sessie.
+214b6208 || Mijn gebruikersnaam meesturen
+ccd31ebd || Uit: het bericht noemt in plaats van je naam alleen „Iemand”.
+fed1d4e8 || Iemand
+6dc535d8 || {0} speelt nu {1}
+9ad98e68 || {0} is gestopt met {1}
+f94ce58e || Speeltijd van deze sessie: {0}
+bf9e1b35 || Test geslaagd
+26219c8a || Je DFP Pro Launcher is verbonden met dit Discord-kanaal.
+ba66a3a3 || Dit is geen geldig Discord-webhookadres.
+b8a29f34 || Webhook verwijderd.
+4a2e454a || Opgeslagen.
+3367f9d5 || Testbericht versturen ...
+ce9984eb || Testbericht verstuurd. Kijk in je Discord-kanaal.
+af32c2e4 || Discord heeft het bericht geweigerd:
+685b83c5 || Versturen mislukt. Controleer je internetverbinding.
+33eb492d || Widgets ordenen
+b18fae9a || Kies welke onderdelen op het dashboard verschijnen en verplaats ze met de pijlen. Nieuw zijn weekdoel, hierna spelen, verlanglijst en snelle toegang.
+67b98af2 || Banner Verder spelen
+a43d4262 || Klok en weer
+a5009014 || Statistiektegels
+adef7c1f || Weekdoel
+68742651 || Hierna spelen
+903c48fe || 🎯 Weekdoel
+8cd33463 || 📋 Hierna spelen
+a1ff9fd0 || 💝 Verlanglijst
+5654eb25 || 🔗 Snelle toegang
+b36f3fe7 || 🔗 Snelle toegang beheren
+145abffd || Stel in de instellingen onder „Games en covers” een weekdoel in.
+9955be3c || Je backlog is leeg. Markeer games met een rechtsklik als „Wil ik spelen”.
+e5e0e00b || Nog geen games op de verlanglijst.
+9f4a1da0 || Nog geen snelkoppelingen.
+6c5b92bd || Weergaveschema's
+d739d887 || Met één klik wissel je tussen kant-en-klare weergaven. Ze wijzigen dashboardwidgets, zichtbare onderdelen, kaartindeling, afstanden en animaties. Je kleuren blijven ongewijzigd. Daarna kun je elke instelling verder aanpassen.
+c26040e6 || De oorspronkelijke weergave met alle standaardinstellingen.
+294b5c4f || Minimalistisch
+79cb5404 || Alleen het essentiële: ingeklapte zijbalk, weinig onderdelen, geen animaties.
+63ee2e0e || Rustige interface met banner, „Laatst gespeeld” en favorieten. Weinig gebruikte onderdelen zijn verborgen.
+7e3e334e || Informatief
+a9168100 || Alles in één oogopslag: detailtegels, statistieken, weekdoel, backlog, verlanglijst en snelle toegang.
+a08d9476 || Compact
+a2993a68 || Veel games op weinig ruimte: lijst, ingeklapte zijbalk en smalle afstanden.
+c8b7bbad || Woonkamer
+eb1ac62f || Grote kaarten en grote tekst voor tv en controller.
+5638aef6 || Schema toegepast
+76827043 || Schema teruggezet
+1c0d4ce2 || Klik om ongedaan te maken
+d450b72e || De vorige instellingen zijn weer actief.
+cf0467fe || Welkomstanimatie bij het starten
+279558ca || Toont bij het starten kort je logo en begroet je met je naam. Een klik slaat haar over.
+ceb4cd04 || Goedemorgen
+66928138 || Goedemiddag
+e10848f8 || Goedenavond
+c5065250 || Goedenacht
+73d0d249 || Update beschikbaar
+3d63c7e0 || Er staat een nieuwe versie van DFP Pro Launcher klaar. Die wordt hier direct gedownload en geïnstalleerd.
+906d05d0 || Nieuw in deze versie
+093de8e3 || Geen beschrijving beschikbaar.
+6894c883 || Nu bijwerken
+b0d09ad1 || Later
+dc9b1eb8 || Deze versie overslaan
+00412404 || Downloaden ... {0} %
+7bcdfa89 || Installatie wordt gestart. De launcher sluit even en opent daarna vanzelf weer.
+9289f76f || Er draait nog een game. Installeer de update na de game.
+9916944c || De update kon niet worden gedownload:
+f3b8a7f2 || De controlesom klopt niet. De download is verworpen.
+f23a6992 || De controlesom van deze update ontbreekt. Om veiligheidsredenen wordt hij niet geïnstalleerd.
+47cc3c27 || Voor deze versie is geen updatebron ingesteld.
+3e869765 || Geïnstalleerde versie: {0}
+1bfaca5e || Nu naar updates zoeken
+b469332c || Updates worden direct in de launcher gedownload en geïnstalleerd. Er opent geen browser.
+343d5778 || Beeld en geluid
+76557343 || Systeem en diagnose
+37e9a4a1 || Games en prestaties
+6c834a49 || Gamingcheck
+03378958 || voldaan
+ef581d80 || Energiebeheer: hoge prestaties
+ea0a0ba7 || Spelmodus staat aan
+576f6f9b || Muisversnelling staat uit
+db0f27ad || Opnemen op de achtergrond staat uit
+4f62954c || 🕹  Windows voor games
+337c0be2 || Deze Windows-instellingen hebben direct invloed op je games.
+2f65f8d4 || Windows geeft de game voorrang en houdt updates op de achtergrond tegen.
+1fe1673e || Opnemen op de achtergrond
+d916f3cc || Neemt continu de laatste minuten op. Uit betekent meer FPS; schermafbeeldingen en handmatige opnames werken nog.
+cc70284c || Muisversnelling
+d597f036 || Voor shooters beter uit: dezelfde handbeweging geeft altijd dezelfde afstand op het scherm.
+c17bd710 || Gaming
+2279d8cb || Chat
+8df5852f || Browser
+e8e53b13 || Media
+1ce14551 || Office
+b6b8268f || Overig
+5abc32af || Toepassingen zoeken ...
+63b2bd69 || {0} apps gevonden · Klik om te starten, rechtsklik voor meer
+5d525172 || Apps zoeken ...
+558f06b1 || Opnieuw laden
+a77bf95e || ▶  Starten
+8286f83e || 📂  Bestandslocatie openen
+50c682c4 || Staand
+7b4225b8 || Actief
+e35b5e0e || Energiebeheer
+22e7d577 || Klik op een schema om het meteen te activeren.
+bebf98e4 || Bespaart stroom, minder prestaties
+3afd650a || Aanbevolen, past zich automatisch aan
+19f1a4a0 || Hogere kloksnelheden, iets meer stroomverbruik
+48605b4e || Maximale prestaties, geen energiebesparing
+105fb679 || Nieuwe stuurprogramma's geven vaak meer FPS en verhelpen crashes in nieuwe games.
+c3943354 || Alles klaar. Je pc is optimaal ingesteld voor games.
+84f0cf20 || Nog {0} van 4 punten open. Je kunt ze hieronder met één klik verbeteren.
+929120cb || 🧹  Opruimen
+87e6d4e3 || Opnieuw berekenen
+64a78073 || Alles legen
+a94570f2 || Legen
+d5c0d16d || Alleen bestanden die veilig weg kunnen. Bestanden die in gebruik zijn, blijven gewoon staan.
+a53a8af7 || Tijdelijke bestanden
+2efaf5f4 || Bestanden in de Temp-mappen die ouder zijn dan 24 uur
+870451f3 || Shadercache
+fc61bf8f || DirectX, NVIDIA, AMD, Intel – nuttig na stuurprogramma-updates (de eerste gamestart daarna duurt iets langer)
+eb4e8314 || Prullenbak
+ee3b23b9 || Verwijderde bestanden definitief wissen
+181a693c || Crashrapporten
+9903e6af || Geheugendumps en foutrapporten van gecrashte programma's
+56583f0b || Covercache
+f93ab595 || Gedownloade covers – worden daarna automatisch opnieuw geladen
+dcb5f8eb || Launcherlogboeken
+a0c8a036 || Foutenlogboeken van deze launcher

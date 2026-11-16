@@ -998,3 +998,203 @@ ea9929fd || 📡 Yayıncı modunu aç/kapat
 62b76af3 || Özel bilgileri gizler
 3a839501 || Kapatmak için tıkla
 458731ec || Kumanda modu
+e29c0b40 || Ayarlarda ara ...
+e25720cd || Oyundan sonra başlatıcıyı yeniden aç
+63b4e3e8 || Oyunun bittiği anda başlatıcıyı öne getirir. „Oyun başladıktan sonra başlatıcıyı küçült“ ile birlikte kullanışlıdır.
+32015901 || Kapatırken sor
+2bf337af || Pencereyi kapattığında başlatıcının arka planda mı çalışacağını yoksa kapanacağını mı sorar.
+0a848f58 || Başlatıcı arka planda çalışmaya devam etsin mi?\n\nEvet: Bildirim alanında çalışmaya devam et\nHayır: Başlatıcıdan çık\nİptal: Pencereyi açık bırak
+1c13ae8f || Başlatıcıyı kapat
+856174c3 || Bildirim alanı simgesine tek tıklama başlatıcıyı açar
+dc7b1abe || Kapalı: tıklama küçük hızlı paneli, çift tıklama başlatıcıyı açar.
+cdaeddb8 || Yazmaya başlamak aramayı başlatır
+014767ff || Oyun listesinde yazmaya başlaman yeterli. Yazdığın arama kutusuna gider.
+ac8c9138 || Favorileri her zaman üstte göster
+e7ce7e57 || Favorilerin oyun listesinin en üstünde durur, ardından seçilen sıralama gelir.
+db3bb6da || Alfabe çubuğunu göster
+60e6a3a4 || Hızlı geçiş için oyun listesinin sağ kenarında ince bir A–Z çubuğu. Yalnızca ada göre sıralamada ve büyük kütüphanelerde görünür.
+97f2b450 || ☑ Seçimi düzenle
+958c1ca2 || Birden fazla oyunu düzenle
+d33070ec || İşlemin uygulanacağı oyunları seç. Yalnızca şu an gösterilen oyunlar listelenir.
+96421d53 || ★ Favorilere ekle
+bacb0eb7 || ☆ Favorilerden çıkar
+d156cad0 || 📁 Koleksiyona ekle
+1d58b472 || Bitti
+1a8f9162 || oyun değiştirildi
+d0b14e43 || Her oturumdan sonra oyun raporu
+bedf2e6b || Uzun bir oyundan sonra işlemci, ekran kartı ve belleğin ortalama ve en yüksek ne kadar kullanıldığını gösterir.
+e3f56ac1 || Oyun raporu
+9b6eabd4 || sa
+ac6baf95 || maks.
+ef22de13 || Oynarken başlatıcı bildirimlerini bastır
+45a7034b || Bildirimler, afişler ve fiyat alarmları oyunun bitmesini bekler. Mola ve günlük sınır hatırlatıcıları korunur.
+608b3c5e || Günlük sınır
+51f9f1ee || Bugün bu kadar saat oynadığında sana hatırlatır. 0 sınırı kapatır.
+41d59a24 || Günlük sınıra ulaşıldı
+79d1e871 || ⏳ Günlük sınıra ulaşıldı
+ab435917 || Bugün
+9d29224e || oynadın.
+a727c956 || Mola?
+5030d7b4 || Kaplamayı özelleştir
+47b0f137 || Ayarlarda „Oynama süresi ve hatırlatıcılar“ altında açıksa mini kaplama oyununun üzerinde görünür.
+b33cbbf6 || Kaplamanın saydamlığı
+f556d960 || Düşük değerler kaplamayı daha saydam ve daha az dikkat çekici yapar.
+842d29eb || Kaplamanın boyutu
+8141fe3f || Kaplamayı yüzde olarak büyütür veya küçültür.
+6a70c4b5 || İşlemci kullanımını göster
+72307edf || Kaplamada CPU yükünü gösterir.
+86e2fa1d || Ekran kartı kullanımını göster
+529633d2 || Windows sağlıyorsa kaplamada GPU yükünü gösterir.
+b050309b || Belleği göster
+89f7d428 || Kaplamada RAM kullanımını gösterir.
+6a4c03df || Saati göster
+05e586aa || Kaplamada güncel saati gösterir.
+c534e072 || Bellek
+e2319091 || Başlatıcının belleği
+e1a0cb30 || Önbellekteki resimleri ve animasyonları serbest bırakır. Başlatıcı çok sayıda kapakla çok bellek kullanıyorsa faydalıdır.
+9e9d2985 || Belleği boşalt
+72d79cf8 || Şu an kullanılan:
+f8641691 || Mod klasörünü aç
+d5cd8976 || 🧩 Mod klasörünü aç
+68cfd158 || 🧩 Mod klasörünü belirle ...
+177ea238 || ↺ Mod klasörünü sıfırla
+c1b1f01c || Bu oyunun mod klasörünü seç
+6ac629dc || Kapaklarda mod klasörü düğmesini göster
+afe07cfc || Mod klasörü algılanan oyunlarda üzerine gelince kapağın sağ altında klasörü açan küçük bir 🧩 düğmesi çıkar. Sağ tıklayarak klasörü kendin belirleyebilirsin.
+7d800c73 || Discord bildirimi
+8ad85009 || Başlatıcı, bir oyunu başlattığında veya bitirdiğinde seçtiğin bir Discord kanalına mesaj gönderebilir. Bunun için Discord'da bir webhook oluşturursun (kanalı düzenle, entegrasyonlar, webhook'lar). Yalnızca burada açtıkların ve yalnızca girdiğin adrese gönderilir.
+b91cf8f5 || Discord bildirimini aç
+9f3ca119 || Geçerli bir webhook adresi olmadan hiçbir şey gönderilmez. Adres bilgisayarında kayıtlı kalır ve yayıncı modunda bulanıklaştırılır.
+7089361a || Webhook adresi
+a3c38dbc || https://discord.com/api/webhooks/ ile başlar ve mesajlara izin verdiğin bir kanala aittir. Bir parola gibi davran.
+130ed4d9 || Test mesajı gönder
+a0917bbb || Oyun başladığında bildir
+c12b2c6f || Oyun adı, kaynak ve Steam oyunlarında kapak görseliyle „… şimdi … oynuyor“ gönderir.
+779a03e5 || Oyun bittiğinde bildir
+d633ef80 || Oyun bittikten sonra bu oturumun oynama süresiyle bir mesaj gönderir.
+214b6208 || Kullanıcı adımı da gönder
+ccd31ebd || Kapalı: mesajda adın yerine yalnızca „Biri“ yazar.
+fed1d4e8 || Biri
+6dc535d8 || {0} şimdi {1} oynuyor
+9ad98e68 || {0}, {1} oyununu bitirdi
+f94ce58e || Bu oturumun oynama süresi: {0}
+bf9e1b35 || Test başarılı
+26219c8a || DFP Pro Launcher'ın bu Discord kanalına bağlı.
+ba66a3a3 || Bu geçerli bir Discord webhook adresi değil.
+b8a29f34 || Webhook kaldırıldı.
+4a2e454a || Kaydedildi.
+3367f9d5 || Test mesajı gönderiliyor ...
+ce9984eb || Test mesajı gönderildi. Discord kanalına bak.
+af32c2e4 || Discord mesajı reddetti:
+685b83c5 || Gönderme başarısız. İnternet bağlantını kontrol et.
+33eb492d || Bileşenleri düzenle
+b18fae9a || Panoda hangi bölümlerin görüneceğini seç ve oklarla taşı. Yeni: haftalık hedef, sıradaki oyun, istek listesi ve hızlı erişim.
+67b98af2 || Devam et afişi
+a43d4262 || Saat ve hava durumu
+a5009014 || İstatistik kutucukları
+adef7c1f || Haftalık hedef
+68742651 || Sıradaki oyun
+903c48fe || 🎯 Haftalık hedef
+8cd33463 || 📋 Sıradaki oyun
+a1ff9fd0 || 💝 İstek listesi
+5654eb25 || 🔗 Hızlı erişim
+b36f3fe7 || 🔗 Hızlı erişimi yönet
+145abffd || Ayarlarda „Oyunlar ve kapaklar“ altında bir haftalık hedef belirle.
+9955be3c || Oynanacaklar listen boş. Oyunları sağ tıklayıp „Oynamak istiyorum“ ile işaretle.
+e5e0e00b || İstek listesinde henüz oyun yok.
+9f4a1da0 || Henüz kısayol yok.
+6c5b92bd || Görünüm şemaları
+d739d887 || Tek tıkla hazır görünümler arasında geçiş yaparsın. Pano bileşenlerini, görünür bölümleri, kart düzenini, aralıkları ve animasyonları değiştirir. Renklerin aynı kalır. Sonra her ayarı istediğin gibi değiştirebilirsin.
+c26040e6 || Tüm varsayılan ayarlarla orijinal görünüm.
+294b5c4f || Minimalist
+79cb5404 || Yalnızca temel şeyler: kenar çubuğu daraltılmış, az bölüm, animasyon yok.
+63ee2e0e || Afiş, „Son oynanan“ ve favorilerle sakin bir arayüz. Az kullanılan bölümler gizli.
+7e3e334e || Bilgilendirici
+a9168100 || Her şey bir bakışta: ayrıntılı kutucuklar, istatistikler, haftalık hedef, oynanacaklar, istek listesi ve hızlı erişim.
+a08d9476 || Kompakt
+a2993a68 || Az yerde çok oyun: liste, daraltılmış kenar çubuğu ve dar aralıklar.
+c8b7bbad || Oturma odası
+eb1ac62f || TV ve kumanda için büyük kartlar ve büyük yazı.
+5638aef6 || Şema uygulandı
+76827043 || Şema geri alındı
+1c0d4ce2 || Geri almak için tıkla
+d450b72e || Önceki ayarlar yeniden etkin.
+cf0467fe || Başlangıçta karşılama animasyonu
+279558ca || Başlangıçta logonu kısaca gösterir ve seni adınla karşılar. Bir tıklama atlar.
+ceb4cd04 || Günaydın
+66928138 || İyi günler
+e10848f8 || İyi akşamlar
+c5065250 || İyi geceler
+73d0d249 || Güncelleme mevcut
+3d63c7e0 || DFP Pro Launcher'ın yeni bir sürümü hazır. Doğrudan burada indirilip kurulur.
+906d05d0 || Bu sürümdeki yenilikler
+093de8e3 || Açıklama yok.
+6894c883 || Şimdi güncelle
+b0d09ad1 || Daha sonra
+dc9b1eb8 || Bu sürümü atla
+00412404 || İndiriliyor ... %{0}
+7bcdfa89 || Kurulum başlatılıyor. Başlatıcı kısa süre kapanır ve ardından kendiliğinden yeniden açılır.
+9289f76f || Hâlâ bir oyun çalışıyor. Güncellemeyi oyundan sonra kur.
+9916944c || Güncelleme indirilemedi:
+f3b8a7f2 || Sağlama toplamı eşleşmiyor. İndirme atıldı.
+f23a6992 || Bu güncellemenin sağlama toplamı eksik. Güvenlik nedeniyle kurulmayacak.
+47cc3c27 || Bu sürüm için güncelleme kaynağı tanımlı değil.
+3e869765 || Kurulu sürüm: {0}
+1bfaca5e || Şimdi güncellemeleri denetle
+b469332c || Güncellemeler doğrudan başlatıcıda indirilip kurulur. Tarayıcı açılmaz.
+343d5778 || Ekran ve ses
+76557343 || Sistem ve tanılama
+37e9a4a1 || Oyunlar ve performans
+6c834a49 || Oyun kontrolü
+03378958 || karşılandı
+ef581d80 || Güç planı: yüksek performans
+ea0a0ba7 || Oyun modu açık
+576f6f9b || Fare ivmesi kapalı
+db0f27ad || Arka plan kaydı kapalı
+4f62954c || 🕹  Oyunlar için Windows
+337c0be2 || Bu Windows ayarları oyunlarını doğrudan etkiler.
+2f65f8d4 || Windows oyuna öncelik verir ve arka plandaki güncellemeleri bekletir.
+1fe1673e || Arka plan kaydı
+d916f3cc || Son birkaç dakikayı sürekli kaydeder. Kapalı daha fazla FPS demektir; ekran görüntüleri ve elle kayıt çalışmaya devam eder.
+cc70284c || Fare ivmesi
+d597f036 || Nişancı oyunları için kapalı olması daha iyi: aynı el hareketi ekranda hep aynı mesafeyi verir.
+c17bd710 || Oyun
+2279d8cb || Sohbet
+8df5852f || Tarayıcı
+e8e53b13 || Medya
+1ce14551 || Ofis
+b6b8268f || Diğer
+5abc32af || Uygulamalar aranıyor ...
+63b2bd69 || {0} uygulama bulundu · Başlatmak için tıkla, fazlası için sağ tıkla
+5d525172 || Uygulama ara ...
+558f06b1 || Yeniden yükle
+a77bf95e || ▶  Başlat
+8286f83e || 📂  Dosya konumunu aç
+50c682c4 || Dikey
+7b4225b8 || Etkin
+e35b5e0e || Güç seçenekleri
+22e7d577 || Bir planı hemen etkinleştirmek için üzerine tıkla.
+bebf98e4 || Enerji tasarrufu, daha az performans
+3afd650a || Önerilen, kendini otomatik ayarlar
+19f1a4a0 || Daha yüksek saat hızları, biraz daha fazla enerji tüketimi
+48605b4e || En yüksek performans, enerji tasarrufu yok
+105fb679 || Yeni sürücüler çoğu zaman daha fazla FPS getirir ve yeni oyunlardaki çökmeleri giderir.
+c3943354 || Her şey hazır. Bilgisayarın oyunlar için en iyi şekilde ayarlı.
+84f0cf20 || 4 maddeden {0} tanesi hâlâ açık. Aşağıda tek tıkla iyileştirebilirsin.
+929120cb || 🧹  Temizle
+87e6d4e3 || Yeniden hesapla
+64a78073 || Hepsini boşalt
+a94570f2 || Boşalt
+d5c0d16d || Yalnızca güvenle silinebilecek dosyalar. O an kullanılan dosyalar olduğu gibi kalır.
+a53a8af7 || Geçici dosyalar
+2efaf5f4 || Geçici klasörlerdeki 24 saatten eski dosyalar
+870451f3 || Gölgelendirici önbelleği
+fc61bf8f || DirectX, NVIDIA, AMD, Intel – sürücü güncellemelerinden sonra faydalı (sonraki ilk oyun başlatması biraz uzun sürer)
+eb4e8314 || Geri dönüşüm kutusu
+ee3b23b9 || Silinen dosyaları kalıcı olarak kaldır
+181a693c || Çökme raporları
+9903e6af || Çöken programların bellek dökümleri ve hata raporları
+56583f0b || Kapak önbelleği
+f93ab595 || İndirilen kapaklar – sonra otomatik olarak yeniden yüklenir
+dcb5f8eb || Başlatıcı günlükleri
+a0c8a036 || Bu başlatıcının hata günlükleri

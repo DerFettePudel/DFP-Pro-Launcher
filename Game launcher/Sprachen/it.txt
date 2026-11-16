@@ -998,3 +998,203 @@ ea9929fd || 📡 Attiva/disattiva modalità streamer
 62b76af3 || Nasconde le informazioni private
 3a839501 || Fai clic per disattivare
 458731ec || Modalità controller
+e29c0b40 || Cerca nelle impostazioni ...
+e25720cd || Riapri il launcher dopo il gioco
+63b4e3e8 || Riporta in primo piano il launcher appena il gioco termina. Utile insieme a «Riduci a icona il launcher dopo l'avvio del gioco».
+32015901 || Chiedi alla chiusura
+2bf337af || Quando chiudi la finestra, chiede se il launcher deve continuare in background o chiudersi.
+0a848f58 || Il launcher deve continuare a funzionare in background?\n\nSì: continua nell'area di notifica\nNo: chiudi il launcher\nAnnulla: lascia aperta la finestra
+1c13ae8f || Chiudi launcher
+856174c3 || Un singolo clic sull'icona nell'area di notifica apre il launcher
+dc7b1abe || Disattivato: un clic apre il piccolo pannello rapido, un doppio clic il launcher.
+cdaeddb8 || Scrivere avvia la ricerca
+014767ff || Nell'elenco dei giochi basta iniziare a scrivere. Il testo finisce nella casella di ricerca.
+ac8c9138 || Mostra sempre i preferiti in alto
+e7ce7e57 || I preferiti stanno in cima all'elenco dei giochi, poi segue l'ordinamento scelto.
+db3bb6da || Mostra la barra alfabetica
+60e6a3a4 || Una sottile barra A–Z sul bordo destro dell'elenco per saltare velocemente. Appare solo ordinando per nome e con librerie più grandi.
+97f2b450 || ☑ Modifica selezione
+958c1ca2 || Modifica più giochi
+d33070ec || Scegli i giochi a cui applicare l'azione. Vengono elencati solo i giochi mostrati al momento.
+96421d53 || ★ Aggiungi ai preferiti
+bacb0eb7 || ☆ Rimuovi dai preferiti
+d156cad0 || 📁 Nella raccolta
+1d58b472 || Fatto
+1a8f9162 || giochi modificati
+d0b14e43 || Resoconto dopo ogni sessione
+bedf2e6b || Dopo una partita lunga mostra quanto sono stati usati in media e al massimo processore, scheda video e memoria.
+e3f56ac1 || Resoconto di gioco
+9b6eabd4 || h
+ac6baf95 || max.
+ef22de13 || Silenzia le notifiche del launcher mentre giochi
+45a7034b || Notifiche, banner e avvisi di prezzo aspettano la fine del gioco. I promemoria di pausa e limite giornaliero restano.
+608b3c5e || Limite giornaliero
+51f9f1ee || Ti avvisa appena oggi hai giocato queste ore. 0 disattiva il limite.
+41d59a24 || Limite giornaliero raggiunto
+79d1e871 || ⏳ Limite giornaliero raggiunto
+ab435917 || Oggi hai giocato
+9d29224e || .
+a727c956 || Pausa?
+5030d7b4 || Personalizza overlay
+47b0f137 || Il mini overlay appare sopra il gioco se è attivato nelle impostazioni in «Tempo di gioco e promemoria».
+b33cbbf6 || Trasparenza dell'overlay
+f556d960 || Valori più bassi rendono l'overlay più trasparente e meno vistoso.
+842d29eb || Dimensione dell'overlay
+8141fe3f || Ingrandisce o riduce l'overlay in percentuale.
+6a70c4b5 || Mostra utilizzo del processore
+72307edf || Mostra il carico della CPU nell'overlay.
+86e2fa1d || Mostra utilizzo della scheda video
+529633d2 || Mostra il carico della GPU nell'overlay, se Windows lo fornisce.
+b050309b || Mostra memoria
+89f7d428 || Mostra l'uso della RAM nell'overlay.
+6a4c03df || Mostra ora
+05e586aa || Mostra l'ora attuale nell'overlay.
+c534e072 || Memoria
+e2319091 || Memoria del launcher
+e1a0cb30 || Libera immagini e animazioni in cache. Utile se il launcher occupa molta memoria con moltissime copertine.
+9e9d2985 || Libera memoria
+72d79cf8 || In uso ora:
+f8641691 || Apri cartella mod
+d5cd8976 || 🧩 Apri cartella mod
+68cfd158 || 🧩 Imposta cartella mod ...
+177ea238 || ↺ Ripristina cartella mod
+c1b1f01c || Scegli la cartella mod di questo gioco
+6ac629dc || Mostra il pulsante cartella mod sulle copertine
+afe07cfc || Per i giochi con cartella mod rilevata, al passaggio del mouse compare in basso a destra sulla copertina un piccolo pulsante 🧩 che apre la cartella. Con il clic destro puoi impostarla tu.
+7d800c73 || Notifica Discord
+8ad85009 || Il launcher può inviare un messaggio in un canale Discord a tua scelta quando avvii o chiudi un gioco. Per farlo crei un webhook in Discord (modifica canale, integrazioni, webhook). Viene inviato solo ciò che attivi qui e solo all'indirizzo che inserisci.
+b91cf8f5 || Attiva notifica Discord
+9f3ca119 || Senza un indirizzo webhook valido non viene inviato nulla. L'indirizzo resta salvato sul tuo PC e viene sfocato in modalità streamer.
+7089361a || Indirizzo webhook
+a3c38dbc || Inizia con https://discord.com/api/webhooks/ e appartiene a un canale in cui consenti i messaggi. Trattalo come una password.
+130ed4d9 || Invia messaggio di prova
+a0917bbb || Notifica all'avvio del gioco
+c12b2c6f || Invia «… sta giocando a …» con nome del gioco, fonte e, per i giochi Steam, l'immagine di copertina.
+779a03e5 || Notifica alla fine del gioco
+d633ef80 || Al termine invia un messaggio con il tempo di gioco di questa sessione.
+214b6208 || Includi il mio nome utente
+ccd31ebd || Disattivato: al posto del tuo nome il messaggio dice solo «Qualcuno».
+fed1d4e8 || Qualcuno
+6dc535d8 || {0} sta giocando a {1}
+9ad98e68 || {0} ha terminato {1}
+f94ce58e || Tempo di gioco di questa sessione: {0}
+bf9e1b35 || Prova riuscita
+26219c8a || Il tuo DFP Pro Launcher è collegato a questo canale Discord.
+ba66a3a3 || Questo non è un indirizzo webhook Discord valido.
+b8a29f34 || Webhook rimosso.
+4a2e454a || Salvato.
+3367f9d5 || Invio messaggio di prova ...
+ce9984eb || Messaggio di prova inviato. Guarda nel tuo canale Discord.
+af32c2e4 || Discord ha rifiutato il messaggio:
+685b83c5 || Invio non riuscito. Controlla la connessione a Internet.
+33eb492d || Disponi widget
+b18fae9a || Scegli quali sezioni compaiono nella dashboard e spostale con le frecce. Novità: obiettivo settimanale, prossimo gioco, lista dei desideri e accesso rapido.
+67b98af2 || Banner Continua a giocare
+a43d4262 || Orologio e meteo
+a5009014 || Riquadri statistici
+adef7c1f || Obiettivo settimanale
+68742651 || Prossimo gioco
+903c48fe || 🎯 Obiettivo settimanale
+8cd33463 || 📋 Prossimo gioco
+a1ff9fd0 || 💝 Lista dei desideri
+5654eb25 || 🔗 Accesso rapido
+b36f3fe7 || 🔗 Gestisci accesso rapido
+145abffd || Imposta un obiettivo settimanale nelle impostazioni in «Giochi e copertine».
+9955be3c || Gli arretrati sono vuoti. Segna i giochi con «Voglio giocarci» tramite clic destro.
+e5e0e00b || Ancora nessun gioco nella lista dei desideri.
+9f4a1da0 || Ancora nessun collegamento.
+6c5b92bd || Schemi di visualizzazione
+d739d887 || Con un clic passi da una vista pronta all'altra. Cambiano widget della dashboard, sezioni visibili, layout delle schede, spaziature e animazioni. I tuoi colori restano invariati. Poi puoi continuare a modificare ogni impostazione.
+c26040e6 || La vista originale con tutte le impostazioni predefinite.
+294b5c4f || Minimalista
+79cb5404 || Solo l'essenziale: barra laterale compressa, poche sezioni, nessuna animazione.
+63ee2e0e || Interfaccia tranquilla con banner, «Giocati di recente» e preferiti. Le sezioni poco usate sono nascoste.
+7e3e334e || Informativa
+a9168100 || Tutto a colpo d'occhio: riquadri dettagliati, statistiche, obiettivo settimanale, arretrati, lista dei desideri e accesso rapido.
+a08d9476 || Compatta
+a2993a68 || Tanti giochi in poco spazio: elenco, barra laterale compressa e spaziature strette.
+c8b7bbad || Salotto
+eb1ac62f || Schede grandi e testo grande per TV e controller.
+5638aef6 || Schema applicato
+76827043 || Schema annullato
+1c0d4ce2 || Fai clic per annullare
+d450b72e || Le impostazioni precedenti sono di nuovo attive.
+cf0467fe || Animazione di benvenuto all'avvio
+279558ca || All'avvio mostra brevemente il tuo logo e ti saluta per nome. Un clic la salta.
+ceb4cd04 || Buongiorno
+66928138 || Buon pomeriggio
+e10848f8 || Buonasera
+c5065250 || Buonanotte
+73d0d249 || Aggiornamento disponibile
+3d63c7e0 || È pronta una nuova versione di DFP Pro Launcher. Viene scaricata e installata direttamente qui.
+906d05d0 || Novità di questa versione
+093de8e3 || Nessuna descrizione disponibile.
+6894c883 || Aggiorna ora
+b0d09ad1 || Più tardi
+dc9b1eb8 || Salta questa versione
+00412404 || Download in corso ... {0} %
+7bcdfa89 || Avvio dell'installazione. Il launcher si chiude un attimo e poi si riapre da solo.
+9289f76f || Un gioco è ancora in esecuzione. Installa l'aggiornamento dopo la partita.
+9916944c || Impossibile scaricare l'aggiornamento:
+f3b8a7f2 || Il checksum non corrisponde. Il download è stato scartato.
+f23a6992 || Manca il checksum di questo aggiornamento. Per motivi di sicurezza non verrà installato.
+47cc3c27 || Per questa versione non è impostata nessuna fonte di aggiornamento.
+3e869765 || Versione installata: {0}
+1bfaca5e || Cerca aggiornamenti ora
+b469332c || Gli aggiornamenti vengono scaricati e installati direttamente nel launcher. Non si apre nessun browser.
+343d5778 || Schermo e audio
+76557343 || Sistema e diagnostica
+37e9a4a1 || Giochi e prestazioni
+6c834a49 || Controllo gaming
+03378958 || soddisfatto
+ef581d80 || Risparmio energia: prestazioni elevate
+ea0a0ba7 || La modalità gioco è attiva
+576f6f9b || L'accelerazione del mouse è disattivata
+db0f27ad || La registrazione in background è disattivata
+4f62954c || 🕹  Windows per i giochi
+337c0be2 || Queste impostazioni di Windows influiscono direttamente sui giochi.
+2f65f8d4 || Windows dà priorità al gioco e trattiene gli aggiornamenti in background.
+1fe1673e || Registrazione in background
+d916f3cc || Registra di continuo gli ultimi minuti. Disattivata significa più FPS; screenshot e registrazioni manuali continuano a funzionare.
+cc70284c || Accelerazione del mouse
+d597f036 || Meglio disattivata per gli sparatutto: lo stesso movimento della mano dà sempre lo stesso spostamento sullo schermo.
+c17bd710 || Gaming
+2279d8cb || Chat
+8df5852f || Browser
+e8e53b13 || Multimedia
+1ce14551 || Ufficio
+b6b8268f || Altro
+5abc32af || Ricerca delle applicazioni ...
+63b2bd69 || {0} app trovate · Clic per avviare, clic destro per altro
+5d525172 || Cerca app ...
+558f06b1 || Ricarica
+a77bf95e || ▶  Avvia
+8286f83e || 📂  Apri percorso file
+50c682c4 || Verticale
+7b4225b8 || Attivo
+e35b5e0e || Opzioni risparmio energia
+22e7d577 || Fai clic su una combinazione per attivarla subito.
+bebf98e4 || Risparmia energia, meno prestazioni
+3afd650a || Consigliato, si adatta automaticamente
+19f1a4a0 || Frequenze più alte, consumo un po' maggiore
+48605b4e || Prestazioni massime, nessuna funzione di risparmio
+105fb679 || I nuovi driver spesso danno più FPS e risolvono crash nei giochi nuovi.
+c3943354 || Tutto pronto. Il tuo PC è configurato in modo ottimale per giocare.
+84f0cf20 || Restano ancora {0} punti su 4. Puoi migliorarli qui sotto con un clic.
+929120cb || 🧹  Pulizia
+87e6d4e3 || Ricalcola
+64a78073 || Svuota tutto
+a94570f2 || Svuota
+d5c0d16d || Solo file che si possono eliminare in sicurezza. I file in uso vengono semplicemente lasciati.
+a53a8af7 || File temporanei
+2efaf5f4 || File nelle cartelle Temp più vecchi di 24 ore
+870451f3 || Cache degli shader
+fc61bf8f || DirectX, NVIDIA, AMD, Intel – utile dopo aggiornamenti dei driver (il primo avvio di un gioco dopo dura un po' di più)
+eb4e8314 || Cestino
+ee3b23b9 || Rimuovi definitivamente i file eliminati
+181a693c || Rapporti di arresto anomalo
+9903e6af || Dump di memoria e rapporti di errore dei programmi bloccati
+56583f0b || Cache delle copertine
+f93ab595 || Copertine scaricate – vengono poi ricaricate automaticamente
+dcb5f8eb || Registri del launcher
+a0c8a036 || Registri errori di questo launcher
