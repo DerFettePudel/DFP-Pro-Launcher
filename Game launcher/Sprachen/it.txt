@@ -1798,3 +1798,203 @@ cafd2ffe || Profilo cambiato automaticamente
 51d0bbfe || Profilo cambiato
 4b8138c2 || Il profilo «{0}» è attivo.
 1c473012 || Profilo ripristinato
+3d4767a3 || Il gioco è terminato. Valgono di nuovo le impostazioni precedenti.
+d1fa0abf || OBS è stato chiuso. Valgono di nuovo le impostazioni precedenti.
+c696a786 || Modalità streamer attiva
+bfa162e8 || Non cambia ancora nulla
+d5852118 || attivo
+08f9fbe3 || Attiva
+18693a7d || Ancora nessun profilo creato.
+4495c6c3 || Nuovo profilo
+5b2e4118 || Modifica profilo
+3a105ef1 || Icona
+a11a025a || Cosa cambia il profilo
+ce1a1e80 || Salva le mie impostazioni attuali nel profilo
+db4d1d75 || Il profilo memorizza le impostazioni attuali per le aree selezionate.
+9328c0d9 || Le aree appena selezionate prendono sempre le impostazioni attuali.
+42dc0486 || Eliminare davvero il profilo «{0}»?
+666a5e88 || Elimina profilo
+b4527e34 || Cambia profilo
+780d9091 || Profilo: {0}
+a63b737e || Profilo attivo
+636f374b || Attiva profilo
+8da84541 || ⏱ Conto alla rovescia «Tra poco in diretta»
+d2ff2809 || Conta alla rovescia fino alla diretta. La checklist qui sotto si aggiorna di continuo e alla fine compare un messaggio.
+d0c110d2 || Durata
+4f4bd5d0 || Poi avvia questa sequenza
+05b2cfa1 || Nessuna
+ea5809a5 || Poi avvia la diretta in OBS
+f1ba008f || Avvia conto alla rovescia
+72cb0386 || Annulla conto alla rovescia
+90321441 || Crea la sequenza «Inizio diretta»
+60169cb5 || 🔴 In diretta!
+ffe1eec0 || Conto alla rovescia annullato
+46b66cfa || Il conto alla rovescia «Tra poco in diretta» è stato fermato.
+39948c86 || Tra poco in diretta!
+dc08276a || Il conto alla rovescia è finito. Buona diretta!
+69647dcd || Sequenza creata
+8f2c4819 || «Inizio diretta» attiva la modalità streamer. Altri passaggi li aggiungi in Sequenze.
+6d2be7d5 || Sei in diretta. Buon divertimento!
+15471c6c || Rendi il launcher invisibile in registrazioni e dirette
+0e66d5d6 || OBS, Discord e gli screenshot non mostrano più la finestra del launcher né i suoi dialoghi. Tu la vedi normalmente. Vale sempre, anche senza modalità streamer.
+56cf4cb9 || Serve Windows 10 versione 2004 o successiva. Su questo PC non è disponibile.
+59610277 || Il launcher è invisibile nelle registrazioni
+e2298142 || Rendi invisibile
+de17d8bc || Invisibile nelle registrazioni
+0bcd3aeb || Visibile nelle registrazioni
+a0968cf9 || OBS, Discord e gli screenshot non mostrano più il launcher.
+7dca08ff || Il launcher compare di nuovo nelle registrazioni.
+7f618517 || Avvia come console
+2e61cb1a || Avvia il launcher con Windows e apre subito la modalità controller. Per farlo attiva l'avvio automatico.
+ced89310 || Mappatura tasti personalizzata
+f2fae7a2 || Decidi tu cosa fa ogni tasto. La mappatura viene salvata per ogni tipo di controller. Se scegli un tasto già usato, le due azioni si scambiano i tasti. Croce direzionale e levetta sinistra restano fisse.
+9c6bf561 || Tipo di controller
+62f6cc45 || Ripristina mappatura consigliata
+ead3eb3a || Sezione a sinistra
+3a296086 || Sezione a destra
+ab299e85 || Dieci giochi indietro
+5e0e3977 || Dieci giochi avanti
+9fa0cb80 || Visualizza (per la combinazione)
+3e1fbfa4 || Scegli tasto
+5779a4e9 || Vale di nuovo la mappatura consigliata.
+c5d8148e || La tua mappatura
+443051b3 || Spazio
+13d6b52c || Tasto
+a1ed0b22 || Cerca giochi ...
+7bc929a3 || Nessun risultato per «{0}».
+b9a52372 || 🔎 Cerca
+8d88f519 || 🔊 Volume
+acaf23e2 || Volume
+9e0630b4 || modifica
+de5b35df || muto
+84183a7f || Muto
+3391f4c9 || Impossibile leggere il volume di Windows.
+7bc17156 || ⏹ Chiudi gioco
+fe2659c9 || Chiudi gioco
+8429bd3e || Chiudere «{0}»? I progressi non salvati andranno persi.
+490137f7 || Quale gioco chiudere?
+4938219d || Chiusura del gioco
+a72e5bfb || Per questo gioco non è più in esecuzione nessun programma.
+80897f8a || 🔄 Riavvia il PC
+62c690f6 || ⏻ Arresta il PC
+9e3c6247 || Riavviare ora il PC?
+b98e3119 || Arrestare ora il PC?
+e757c463 || 🔄 Riavvia
+5794b19d || ⏻ Arresta
+4665e8b8 || Non ha funzionato.
+0ca99c92 || 🎯 A cosa gioco?
+2244aa15 || A cosa gioco?
+c6ceed7d || ＋ Lista intelligente
+7a69c878 || Suggerimento: con Ctrl+clic selezioni più giochi direttamente, poi un clic destro li modifica tutti insieme.
+43aa50a3 || ☑ {0} selezionati
+14bb5b6a || {0} giochi selezionati
+330a7a89 || ✕ Annulla selezione
+f8585dc4 || mai giocato
+4ee6b6f1 || più piccolo di {0} GB
+e819c3b4 || non giocato da {0} mesi
+9f1d0607 || Tutti i giochi
+f9d3da69 || 🗑 Elimina lista intelligente
+aa10f761 || Eliminare la lista intelligente «{0}»?\nI giochi stessi vengono mantenuti.
+0c885f56 || Lista intelligente
+db40603d || Nuova lista intelligente
+4a3b2cf7 || Modifica lista intelligente
+87c0f2b8 || Regole (tutte quelle selezionate devono valere)
+1da46a5a || Ora corrisponde a {0} giochi.
+b7d1713e || Le dimensioni dei giochi vengono calcolate ora, dopo potrebbero essere di più.
+06b038e4 || Mai giocato
+8562690f || Più piccolo di
+ecc86fa0 || Qualsiasi
+616c6721 || Non giocato da
+931da473 || 1 mese
+1dc1320a || {0} mesi
+e8be158d || La fonte è
+c3ebb5a8 || Non ci sono ancora giochi nella tua libreria.
+bc97a299 || Suggerimento di gioco
+a17e618e || Suggerimento di gioco in base all'umore
+5314016c || Quanto tempo hai?
+65faa7c8 || 30 minuti
+fdd9a71f || 1 ora
+28cb2297 || Di cosa hai voglia?
+d80c7f12 || Qualcosa di rilassante
+b014ac44 || Qualcosa di emozionante
+ea08601d || Qualcosa di nuovo
+a65ed733 || 🎲 Altro suggerimento
+fc2738c8 || Rilassante
+7b7a3022 || Emozionante
+5e8d5d1e || mai giocato
+a76d0f1f || provato solo brevemente
+a2e4e738 || nuovo nella tua libreria
+0d009397 || è nella tua lista
+39fc883a || ottimo per una partita veloce
+04ec635d || Una scelta casuale dalla tua libreria
+9b6764ed || Riepilogo dell'anno
+8c650a4e || Il tuo anno di gioco
+54e584f0 || 🎉 Il tuo anno di gioco {0}
+04a640b1 || La modalità streamer nasconde al momento tempi di gioco e statistiche. Mostrare comunque il riepilogo dell'anno?
+4a827851 || registrato da ora in poi
+840e16fa || Sessione più lunga
+c66ec83e || Fonte preferita
+9df15257 || Giochi giocati
+1e3d0a5a || Top 5 dell'anno
+37368ef2 || Per quest'anno non ci sono ancora tempi per gioco. Viene mostrato il tempo di gioco totale dei giochi giocati quest'anno.
+17c4ff46 || Tempo per gioco e sessione più lunga vengono registrati dal {0}.
+9bc7f68c || Download completato
+6a1de64c || «{0}» è pronto.
+adc297f2 || Notifica quando un download è completato
+9b0470a2 || Avvisa appena Steam o Epic Games hanno finito di scaricare un gioco, anche se il launcher è in background. In modalità streamer l'avviso resta silenzioso se lì le notifiche sono silenziate.
+b5860b55 || Ricevi versioni preliminari
+f6c4fdc2 || Ricevi le novità prima, ma potrebbero contenere ancora errori. Se lo disattivi, resti sulla versione preliminare fino alla prossima versione normale.
+414b62dc || È disponibile la versione preliminare {0}.
+04b1ec74 || Riceverai di nuovo solo versioni normali.
+cbf3303d || Proponi un rapporto errori in caso di problemi
+93a2fa08 || Dopo un errore imprevisto il launcher chiede se può inviare un rapporto a questo webhook. Vedi prima esattamente cosa viene inviato. Percorsi con nomi utente, nome del PC e nomi vengono rimossi. Senza il tuo consenso non viene mai inviato nulla.
+7a8f16e6 || Inviare il rapporto errori?
+a4d1a764 || Nel launcher si è verificato un errore imprevisto. Vuoi inviare il rapporto al tuo webhook Discord? Le informazioni private sono state rimosse. Verrà inviato:
+5520d3c9 || L'ultima volta il launcher si è chiuso per un errore. Vuoi inviare il rapporto al tuo webhook Discord? Le informazioni private sono state rimosse. Verrà inviato:
+03ab9d54 || Non chiedere più
+be9820d6 || Non inviare
+e973fed0 || Invia
+3e932890 || Rapporto errori
+23c079ef || Il rapporto è stato inviato. Grazie!
+60ca976a || Impossibile inviare il rapporto.
+1eb8ca73 || Posizione della barra
+445924e4 || A sinistra o a destra come barra laterale, oppure in basso come barra fluttuante con icone. Lì il nome di ogni sezione appare passando il mouse.
+9202088e || Sinistra
+97ae4262 || Destra
+d19e2e55 || In basso (fluttuante)
+b6bd7ef8 || Riscatta codice
+6f35d2dc || Premi Invio per confermare
+c72e8a28 || Codice non valido
+30ddf96b || Questo codice non corrisponde.
+8be50c92 || Già sbloccato
+1ad6f39e || Puoi già modificare nome e sottotitolo.
+e893a1e9 || Ora puoi modificare nome e sottotitolo in Impostazioni → Logo e nome.
+ca4d231b || Nome e sottotitolo sono fissi: «DFP PRO» e «LAUNCHER».
+2e6659d5 || Mostra logo e nome nella barra fluttuante
+ea6e57d7 || Vale quando la barra è in basso. Logo, nome e sottotitolo usano le tue impostazioni in «Logo e nome».
+6c3106ce || La modalità streamer è attiva. Fai clic per disattivarla
+12325a0b || Barra laterale
+5c2002d8 || ＋ Aggiungi programma all'avvio rapido
+dd0f438d || Nascondi la barra delle applicazioni a schermo intero
+17211492 || Quando il launcher è ingrandito e in primo piano, usa tutto lo schermo. La barra delle applicazioni compare quando il mouse si ferma un attimo sul bordo. Sul desktop e negli altri programmi resta com'è, l'impostazione di Windows non viene modificata.
+df15a916 || Un'immagine tua dietro tutta l'interfaccia. Supporta PNG, JPG e BMP. Dopo averla scelta imposti l'inquadratura: sposta e zooma.
+63ff0960 || Regola inquadratura
+13b322ec || Immagine logo personalizzata
+b8f1663f || Sostituisce il logo del barboncino in alto a sinistra con un'immagine tua (PNG, JPG, BMP o GIF). Poi scegli l'inquadratura.
+d16def6c || Scegli immagine
+26fd54aa || Usa il logo originale
+8f5f280a || Rotondo
+7f9d2e38 || Arrotondato
+e657b8de || Squadrato
+efafd7c2 || Trascina l'immagine con il mouse nella posizione desiderata. Con il cursore o la rotellina zoomi.
+62399752 || Zoom
+984ae862 || Usa l'immagine intera
+d80b32e8 || Inquadratura per lo sfondo
+b953e79a || Inquadratura per il logo
+18666c5c || Scegli immagine logo
+0739785b || Non è ancora impostata nessuna immagine di sfondo. Scegline prima una.
+e54a3c0d || Impossibile salvare il logo:\n{0}
+df95b54e || (controllo)
+54bfd097 || max {0} °C
+446ff80e || max {0}
+76941098 || {0} temperature e {1} ventole

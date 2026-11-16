@@ -1798,3 +1798,203 @@ cafd2ffe || Profil otomatik değişti
 51d0bbfe || Profil değişti
 4b8138c2 || „{0}“ profili etkin.
 1c473012 || Profil geri yüklendi
+3d4767a3 || Oyun bitti. Önceki ayarların yeniden geçerli.
+d1fa0abf || OBS kapatıldı. Önceki ayarların yeniden geçerli.
+c696a786 || Yayıncı modu açık
+bfa162e8 || Henüz hiçbir şeyi değiştirmiyor
+d5852118 || etkin
+08f9fbe3 || Etkinleştir
+18693a7d || Henüz profil oluşturulmadı.
+4495c6c3 || Yeni profil
+5b2e4118 || Profili düzenle
+3a105ef1 || Simge
+a11a025a || Profilin değiştirdikleri
+ce1a1e80 || Mevcut ayarlarımı profile al
+db4d1d75 || Profil, seçilen alanlar için şu anki ayarlarını hatırlar.
+9328c0d9 || Yeni seçilen alanlar her zaman şu anki ayarlarını alır.
+42dc0486 || „{0}“ profili gerçekten silinsin mi?
+666a5e88 || Profili sil
+b4527e34 || Profil değiştir
+780d9091 || Profil: {0}
+a63b737e || Etkin profil
+636f374b || Profili etkinleştir
+8da84541 || ⏱ „Birazdan canlı“ geri sayımı
+d2ff2809 || Yayına başlamaya kadar geri sayar. Aşağıdaki kontrol listesi bu sırada sürekli güncellenir, sonunda bir mesaj çıkar.
+d0c110d2 || Süre
+4f4bd5d0 || Ardından bu rutini başlat
+05b2cfa1 || Hiçbiri
+ea5809a5 || Ardından OBS'de yayını başlat
+f1ba008f || Geri sayımı başlat
+72cb0386 || Geri sayımı iptal et
+90321441 || „Yayın başlangıcı“ rutini oluştur
+60169cb5 || 🔴 Canlı!
+ffe1eec0 || Geri sayım iptal edildi
+46b66cfa || „Birazdan canlı“ geri sayımı durduruldu.
+39948c86 || Birazdan canlı!
+dc08276a || Geri sayım bitti. Yayında iyi eğlenceler!
+69647dcd || Rutin oluşturuldu
+8f2c4819 || „Yayın başlangıcı“ yayıncı modunu açar. Diğer adımları Rutinler altında eklersin.
+6d2be7d5 || Canlıdasın. Yayında iyi eğlenceler!
+15471c6c || Başlatıcıyı kayıtlarda ve yayınlarda görünmez yap
+0e66d5d6 || OBS, Discord ve ekran görüntüleri başlatıcı penceresini ve tüm iletişim kutularını artık göstermez. Sen onu normal şekilde görürsün. Yayıncı modu olmadan da her zaman geçerlidir.
+56cf4cb9 || Bunun için Windows 10 sürüm 2004 veya daha yenisi gerekir. Bu bilgisayarda kullanılamıyor.
+59610277 || Başlatıcı kayıtlarda görünmez
+e2298142 || Görünmez yap
+de17d8bc || Kayıtlarda görünmez
+0bcd3aeb || Kayıtlarda görünür
+a0968cf9 || OBS, Discord ve ekran görüntüleri başlatıcıyı artık göstermez.
+7dca08ff || Başlatıcı kayıtlarda yeniden görünür.
+7f618517 || Konsol olarak başlat
+2e61cb1a || Başlatıcıyı Windows ile başlatır ve doğrudan kumanda modunu açar. Bunun için otomatik başlatmayı açar.
+ced89310 || Özel tuş düzeni
+f2fae7a2 || Hangi tuşun ne yapacağını kendin belirle. Düzen her kumanda türü için ayrı kaydedilir. Zaten kullanılan bir tuşu seçersen iki işlem tuşlarını değiştirir. Yön tuşları ve sol çubuk sabit kalır.
+9c6bf561 || Kumanda türü
+62f6cc45 || Önerilen düzeni geri yükle
+ead3eb3a || Soldaki bölüm
+3a296086 || Sağdaki bölüm
+ab299e85 || On oyun geri
+5e0e3977 || On oyun ileri
+9fa0cb80 || Görünüm (tuş kombinasyonu için)
+3e1fbfa4 || Tuş seç
+5779a4e9 || Önerilen düzen yeniden geçerli.
+c5d8148e || Tuş düzenin
+443051b3 || Boşluk
+13d6b52c || Tuş
+a1ed0b22 || Oyun ara ...
+7bc929a3 || „{0}“ için sonuç yok.
+b9a52372 || 🔎 Ara
+8d88f519 || 🔊 Ses düzeyi
+acaf23e2 || Ses düzeyi
+9e0630b4 || değiştir
+de5b35df || sessiz
+84183a7f || Sessiz
+3391f4c9 || Windows ses düzeyi okunamadı.
+7bc17156 || ⏹ Oyunu kapat
+fe2659c9 || Oyunu kapat
+8429bd3e || „{0}“ kapatılsın mı? Kaydedilmemiş ilerleme kaybolur.
+490137f7 || Hangi oyun kapatılsın?
+4938219d || Oyun kapatılıyor
+a72e5bfb || Bu oyuna ait çalışan program kalmadı.
+80897f8a || 🔄 Bilgisayarı yeniden başlat
+62c690f6 || ⏻ Bilgisayarı kapat
+9e3c6247 || Bilgisayar şimdi yeniden başlatılsın mı?
+b98e3119 || Bilgisayar şimdi kapatılsın mı?
+e757c463 || 🔄 Yeniden başlat
+5794b19d || ⏻ Kapat
+4665e8b8 || Bu işe yaramadı.
+0ca99c92 || 🎯 Ne oynasam?
+2244aa15 || Ne oynasam?
+c6ceed7d || ＋ Akıllı liste
+7a69c878 || İpucu: Ctrl+tıklama ile birden fazla oyunu doğrudan işaretlersin, ardından sağ tıklama hepsini birlikte düzenler.
+43aa50a3 || ☑ {0} seçili
+14bb5b6a || {0} oyun seçili
+330a7a89 || ✕ Seçimi kaldır
+f8585dc4 || hiç oynanmadı
+4ee6b6f1 || {0} GB'tan küçük
+e819c3b4 || {0} aydır oynanmadı
+9f1d0607 || Tüm oyunlar
+f9d3da69 || 🗑 Akıllı listeyi sil
+aa10f761 || „{0}“ akıllı listesi silinsin mi?\nOyunların kendisi korunur.
+0c885f56 || Akıllı liste
+db40603d || Yeni akıllı liste
+4a3b2cf7 || Akıllı listeyi düzenle
+87c0f2b8 || Kurallar (seçilenlerin hepsi uymalı)
+1da46a5a || Şu an {0} oyuna uyuyor.
+b7d1713e || Oyun boyutları şu an hesaplanıyor, sonrasında daha fazla olabilir.
+06b038e4 || Hiç oynanmadı
+8562690f || Şundan küçük
+ecc86fa0 || Fark etmez
+616c6721 || Şu süredir oynanmadı
+931da473 || 1 ay
+1dc1320a || {0} ay
+e8be158d || Kaynak
+c3ebb5a8 || Kütüphanende henüz oyun yok.
+bc97a299 || Oyun önerisi
+a17e618e || Ruh haline göre oyun önerisi
+5314016c || Ne kadar vaktin var?
+65faa7c8 || 30 dakika
+fdd9a71f || 1 saat
+28cb2297 || Canın ne istiyor?
+d80c7f12 || Rahatlatıcı bir şey
+b014ac44 || Heyecanlı bir şey
+ea08601d || Yeni bir şey
+a65ed733 || 🎲 Başka öneri
+fc2738c8 || Rahatlatıcı
+7b7a3022 || Heyecanlı
+5e8d5d1e || hiç oynanmadı
+a76d0f1f || yalnızca kısa denendi
+a2e4e738 || kütüphanende yeni
+0d009397 || listende var
+39fc883a || ara sıra için ideal
+04ec635d || Kütüphanenden rastgele bir seçim
+9b6764ed || Yıllık özet
+8c650a4e || Oyun yılın
+54e584f0 || 🎉 {0} oyun yılın
+04a640b1 || Yayıncı modu şu an oynama sürelerini ve istatistikleri gizliyor. Yıllık özet yine de gösterilsin mi?
+4a827851 || bundan sonra kaydedilecek
+840e16fa || En uzun oturum
+c66ec83e || En sevilen kaynak
+9df15257 || Oynanan oyunlar
+1e3d0a5a || Yılın ilk 5'i
+37368ef2 || Bu yıl için henüz oyun başına süre yok. Bu yıl oynadığın oyunların toplam oynama süresi gösteriliyor.
+17c4ff46 || Oyun başına süre ve en uzun oturum {0} tarihinden beri kaydediliyor.
+9bc7f68c || İndirme tamamlandı
+6a1de64c || „{0}“ hazır.
+adc297f2 || Bir indirme bitince bildir
+9b0470a2 || Steam veya Epic Games bir oyunu indirmeyi bitirdiği anda haber verir, başlatıcı arka planda çalışsa bile. Bildirimler orada sessize alınmışsa yayıncı modunda bildirim sessiz kalır.
+b5860b55 || Ön sürümleri al
+f6c4fdc2 || Yeni özellikleri daha erken alırsın ama hâlâ hata içerebilirler. Kapatırsan bir sonraki normal sürüm çıkana kadar ön sürümde kalırsın.
+414b62dc || {0} ön sürümü mevcut.
+04b1ec74 || Artık yine yalnızca normal sürümleri alacaksın.
+cbf3303d || Hata olduğunda hata raporu öner
+93a2fa08 || Beklenmeyen bir hatadan sonra başlatıcı bu webhook'a bir rapor gönderip gönderemeyeceğini sorar. Ne gönderileceğini önceden tam olarak görürsün. Kullanıcı adlı yollar, bilgisayar adı ve adlar kaldırılır. Onayın olmadan asla bir şey gönderilmez.
+7a8f16e6 || Hata raporu gönderilsin mi?
+a4d1a764 || Başlatıcıda beklenmeyen bir hata oluştu. Raporu Discord webhook'una göndermek ister misin? Özel bilgiler kaldırıldı. Gönderilecek olan:
+5520d3c9 || Geçen sefer başlatıcı bir hata yüzünden kapandı. Raporu Discord webhook'una göndermek ister misin? Özel bilgiler kaldırıldı. Gönderilecek olan:
+03ab9d54 || Bir daha sorma
+be9820d6 || Gönderme
+e973fed0 || Gönder
+3e932890 || Hata raporu
+23c079ef || Rapor gönderildi. Teşekkürler!
+60ca976a || Rapor gönderilemedi.
+1eb8ca73 || Çubuğun konumu
+445924e4 || Solda veya sağda kenar çubuğu olarak ya da altta simgeli yüzen bir çubuk olarak. Orada bir bölümün adı üzerine gelince ipucu olarak görünür.
+9202088e || Sol
+97ae4262 || Sağ
+d19e2e55 || Alt (yüzen)
+b6bd7ef8 || Kodu kullan
+6f35d2dc || Onaylamak için Enter'a bas
+c72e8a28 || Geçersiz kod
+30ddf96b || Bu kod uymuyor.
+8be50c92 || Zaten açık
+1ad6f39e || Adı ve alt başlığı zaten değiştirebilirsin.
+e893a1e9 || Adı ve alt başlığı artık Ayarlar → Logo ve ad altından değiştirebilirsin.
+ca4d231b || Ad ve alt başlık sabit: „DFP PRO“ ve „LAUNCHER“.
+2e6659d5 || Yüzen çubukta logoyu ve adı göster
+ea6e57d7 || Çubuk alttayken geçerlidir. Logo, ad ve alt başlık „Logo ve ad“ altındaki ayarlarını kullanır.
+6c3106ce || Yayıncı modu açık. Kapatmak için tıkla
+12325a0b || Kenar çubuğu
+5c2002d8 || ＋ Hızlı başlatmaya program ekle
+dd0f438d || Tam ekranda görev çubuğunu gizle
+17211492 || Başlatıcı ekranı kaplamış ve öndeyse tüm ekranı kullanır. Fare kenarda kısa süre durunca görev çubuğu görünür. Masaüstünde ve diğer programlarda olduğu gibi kalır, Windows ayarı değiştirilmez.
+df15a916 || Tüm arayüzün arkasında kendi resmin. PNG, JPG ve BMP desteklenir. Seçtikten sonra kesiti belirlersin: kaydır ve yakınlaştır.
+63ff0960 || Kesiti ayarla
+13b322ec || Özel logo resmi
+b8f1663f || Sol üstteki kaniş logosunu kendi resminle (PNG, JPG, BMP veya GIF) değiştirir. Sonra kesiti seçersin.
+d16def6c || Resim seç
+26fd54aa || Orijinal logoyu kullan
+8f5f280a || Yuvarlak
+7f9d2e38 || Yuvarlatılmış
+e657b8de || Köşeli
+efafd7c2 || Resmi fareyle istediğin yere sürükle. Kaydırıcıyla veya fare tekerleğiyle yakınlaştırırsın.
+62399752 || Yakınlaştırma
+984ae862 || Tüm resmi kullan
+d80b32e8 || Arka plan için kesit
+b953e79a || Logo için kesit
+18666c5c || Logo resmi seç
+0739785b || Henüz arka plan resmi ayarlanmadı. Önce bir tane seç.
+e54a3c0d || Logo kaydedilemedi:\n{0}
+df95b54e || (kontrol)
+54bfd097 || maks. {0} °C
+446ff80e || maks. {0}
+76941098 || {0} sıcaklık ve {1} fan

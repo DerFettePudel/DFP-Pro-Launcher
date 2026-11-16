@@ -1798,3 +1798,203 @@ cafd2ffe || Profil zmieniony automatycznie
 51d0bbfe || Zmieniono profil
 4b8138c2 || Profil „{0}” jest aktywny.
 1c473012 || Przywrócono profil
+3d4767a3 || Gra się zakończyła. Znowu obowiązują twoje poprzednie ustawienia.
+d1fa0abf || OBS został zamknięty. Znowu obowiązują twoje poprzednie ustawienia.
+c696a786 || Tryb streamera wł.
+bfa162e8 || Jeszcze niczego nie przełącza
+d5852118 || aktywny
+08f9fbe3 || Aktywuj
+18693a7d || Nie utworzono jeszcze profili.
+4495c6c3 || Nowy profil
+5b2e4118 || Edytuj profil
+3a105ef1 || Ikona
+a11a025a || Co przełącza profil
+ce1a1e80 || Zapisz moje obecne ustawienia w profilu
+db4d1d75 || Profil zapamiętuje twoje obecne ustawienia dla wybranych obszarów.
+9328c0d9 || Nowo wybrane obszary zawsze przejmują twoje obecne ustawienia.
+42dc0486 || Na pewno usunąć profil „{0}”?
+666a5e88 || Usuń profil
+b4527e34 || Zmień profil
+780d9091 || Profil: {0}
+a63b737e || Aktywny profil
+636f374b || Aktywuj profil
+8da84541 || ⏱ Odliczanie „Zaraz na żywo”
+d2ff2809 || Odlicza czas do wejścia na żywo. Lista kontrolna poniżej odświeża się na bieżąco, a na końcu pojawia się komunikat.
+d0c110d2 || Czas trwania
+4f4bd5d0 || Potem uruchom tę procedurę
+05b2cfa1 || Brak
+ea5809a5 || Potem rozpocznij stream w OBS
+f1ba008f || Rozpocznij odliczanie
+72cb0386 || Anuluj odliczanie
+90321441 || Utwórz procedurę „Start streamu”
+60169cb5 || 🔴 Na żywo!
+ffe1eec0 || Anulowano odliczanie
+46b66cfa || Odliczanie „Zaraz na żywo” zostało zatrzymane.
+39948c86 || Zaraz na żywo!
+dc08276a || Odliczanie dobiegło końca. Miłego streamu!
+69647dcd || Utworzono procedurę
+8f2c4819 || „Start streamu” włącza tryb streamera. Kolejne kroki dodasz w Procedurach.
+6d2be7d5 || Jesteś na żywo. Miłego streamu!
+15471c6c || Ukryj launcher w nagraniach i streamach
+0e66d5d6 || OBS, Discord i zrzuty ekranu przestają pokazywać okno launchera i wszystkie jego okna dialogowe. Ty widzisz je normalnie. Działa zawsze, także bez trybu streamera.
+56cf4cb9 || Wymaga to Windows 10 w wersji 2004 lub nowszej. Na tym komputerze nie jest dostępne.
+59610277 || Launcher jest niewidoczny w nagraniach
+e2298142 || Ukryj
+de17d8bc || Niewidoczny w nagraniach
+0bcd3aeb || Widoczny w nagraniach
+a0968cf9 || OBS, Discord i zrzuty ekranu nie pokazują już launchera.
+7dca08ff || Launcher znowu pojawia się w nagraniach.
+7f618517 || Uruchamiaj jako konsolę
+2e61cb1a || Uruchamia launcher z Windows i od razu otwiera tryb kontrolera. W tym celu włącza autostart.
+ced89310 || Własny układ przycisków
+f2fae7a2 || Sam ustal, który przycisk co robi. Układ jest zapisywany osobno dla każdego typu kontrolera. Jeśli wybierzesz przycisk, który jest już zajęty, obie akcje zamienią się przyciskami. Krzyżak i lewa gałka pozostają stałe.
+9c6bf561 || Typ kontrolera
+62f6cc45 || Przywróć zalecany układ
+ead3eb3a || Sekcja w lewo
+3a296086 || Sekcja w prawo
+ab299e85 || Dziesięć gier wstecz
+5e0e3977 || Dziesięć gier do przodu
+9fa0cb80 || Widok (do kombinacji przycisków)
+3e1fbfa4 || Wybierz przycisk
+5779a4e9 || Znowu obowiązuje zalecany układ.
+c5d8148e || Twój układ przycisków
+443051b3 || Spacja
+13d6b52c || Klawisz
+a1ed0b22 || Szukaj gier ...
+7bc929a3 || Brak wyników dla „{0}”.
+b9a52372 || 🔎 Szukaj
+8d88f519 || 🔊 Głośność
+acaf23e2 || Głośność
+9e0630b4 || zmień
+de5b35df || wycisz
+84183a7f || Wyciszone
+3391f4c9 || Nie udało się odczytać głośności Windows.
+7bc17156 || ⏹ Zamknij grę
+fe2659c9 || Zamknij grę
+8429bd3e || Zamknąć „{0}”? Niezapisany postęp zostanie utracony.
+490137f7 || Którą grę zamknąć?
+4938219d || Zamykanie gry
+a72e5bfb || Żaden program tej gry już nie działa.
+80897f8a || 🔄 Uruchom komputer ponownie
+62c690f6 || ⏻ Wyłącz komputer
+9e3c6247 || Uruchomić teraz komputer ponownie?
+b98e3119 || Wyłączyć teraz komputer?
+e757c463 || 🔄 Uruchom ponownie
+5794b19d || ⏻ Wyłącz
+4665e8b8 || To się nie udało.
+0ca99c92 || 🎯 W co zagrać?
+2244aa15 || W co zagrać?
+c6ceed7d || ＋ Inteligentna lista
+7a69c878 || Wskazówka: Ctrl+klik zaznacza kilka gier naraz, a prawy przycisk edytuje je wszystkie razem.
+43aa50a3 || ☑ Zaznaczono: {0}
+14bb5b6a || Zaznaczone gry: {0}
+330a7a89 || ✕ Wyczyść zaznaczenie
+f8585dc4 || nigdy nie grano
+4ee6b6f1 || mniejsze niż {0} GB
+e819c3b4 || nie grano od {0} mies.
+9f1d0607 || Wszystkie gry
+f9d3da69 || 🗑 Usuń inteligentną listę
+aa10f761 || Usunąć inteligentną listę „{0}”?\nSame gry zostaną zachowane.
+0c885f56 || Inteligentna lista
+db40603d || Nowa inteligentna lista
+4a3b2cf7 || Edytuj inteligentną listę
+87c0f2b8 || Reguły (wszystkie zaznaczone muszą być spełnione)
+1da46a5a || Obecnie pasuje do gier: {0}.
+b7d1713e || Rozmiary gier są właśnie obliczane, potem może być ich więcej.
+06b038e4 || Nigdy nie grano
+8562690f || Mniejsze niż
+ecc86fa0 || Dowolne
+616c6721 || Nie grano od
+931da473 || 1 miesiąc
+1dc1320a || {0} mies.
+e8be158d || Źródło to
+c3ebb5a8 || W twojej bibliotece nie ma jeszcze gier.
+bc97a299 || Propozycja gry
+a17e618e || Propozycja gry według nastroju
+5314016c || Ile masz czasu?
+65faa7c8 || 30 minut
+fdd9a71f || 1 godzina
+28cb2297 || Na co masz ochotę?
+d80c7f12 || Coś relaksującego
+b014ac44 || Coś emocjonującego
+ea08601d || Coś nowego
+a65ed733 || 🎲 Inna propozycja
+fc2738c8 || Relaksująca
+7b7a3022 || Emocjonująca
+5e8d5d1e || jeszcze nigdy nie grano
+a76d0f1f || ledwo zaczęta
+a2e4e738 || nowa w twojej bibliotece
+0d009397 || jest na twojej liście
+39fc883a || dobra na szybką partię
+04ec635d || Losowy wybór z twojej biblioteki
+9b6764ed || Podsumowanie roku
+8c650a4e || Twój rok w grach
+54e584f0 || 🎉 Twój rok w grach {0}
+04a640b1 || Tryb streamera ukrywa teraz czasy gry i statystyki. Mimo to pokazać podsumowanie roku?
+4a827851 || będzie zapisywane od teraz
+840e16fa || Najdłuższa sesja
+c66ec83e || Ulubione źródło
+9df15257 || Grane gry
+1e3d0a5a || Top 5 roku
+37368ef2 || Dla tego roku nie ma jeszcze czasów dla poszczególnych gier. Pokazano łączny czas gier, w które grałeś w tym roku.
+17c4ff46 || Czas na grę i najdłuższa sesja są zapisywane od {0}.
+9bc7f68c || Pobieranie zakończone
+6a1de64c || „{0}” jest gotowa.
+adc297f2 || Powiadamiaj o zakończeniu pobierania
+9b0470a2 || Daje znać, gdy Steam lub Epic Games skończy pobierać grę, nawet gdy launcher działa w tle. W trybie streamera powiadomienie jest wyciszone, jeśli tam wyciszono powiadomienia.
+b5860b55 || Otrzymuj wersje przedpremierowe
+f6c4fdc2 || Nowe funkcje dostajesz wcześniej, ale mogą jeszcze zawierać błędy. Jeśli to wyłączysz, zostaniesz na wersji przedpremierowej do wydania kolejnej zwykłej wersji.
+414b62dc || Dostępna jest wersja przedpremierowa {0}.
+04b1ec74 || Znowu będziesz dostawać tylko zwykłe wersje.
+cbf3303d || Proponuj raport o błędzie, gdy coś pójdzie nie tak
+93a2fa08 || Po nieoczekiwanym błędzie launcher pyta, czy może wysłać raport na ten webhook. Wcześniej widzisz dokładnie, co zostanie wysłane. Ścieżki z nazwami użytkowników, nazwa komputera i imiona są usuwane. Bez twojej zgody nic nie jest wysyłane.
+7a8f16e6 || Wysłać raport o błędzie?
+a4d1a764 || W launcherze wystąpił nieoczekiwany błąd. Czy chcesz wysłać raport na swój webhook Discord? Prywatne dane zostały usunięte. Zostanie wysłane:
+5520d3c9 || Ostatnio launcher zamknął się z powodu błędu. Czy chcesz wysłać raport na swój webhook Discord? Prywatne dane zostały usunięte. Zostanie wysłane:
+03ab9d54 || Nie pytaj więcej
+be9820d6 || Nie wysyłaj
+e973fed0 || Wyślij
+3e932890 || Raport o błędzie
+23c079ef || Raport wysłany. Dziękujemy!
+60ca976a || Nie udało się wysłać raportu.
+1eb8ca73 || Położenie paska
+445924e4 || Po lewej lub prawej jako pasek boczny albo na dole jako pływający pasek z ikonami. Tam nazwa sekcji pojawia się po najechaniu.
+9202088e || Po lewej
+97ae4262 || Po prawej
+d19e2e55 || Na dole (pływający)
+b6bd7ef8 || Zrealizuj kod
+6f35d2dc || Naciśnij Enter, aby potwierdzić
+c72e8a28 || Nieprawidłowy kod
+30ddf96b || Ten kod nie pasuje.
+8be50c92 || Już odblokowano
+1ad6f39e || Nazwę i podtytuł możesz już zmieniać.
+e893a1e9 || Nazwę i podtytuł możesz teraz zmienić w Ustawienia → Logo i nazwa.
+ca4d231b || Nazwa i podtytuł są stałe: „DFP PRO” i „LAUNCHER”.
+2e6659d5 || Pokazuj logo i nazwę na pływającym pasku
+ea6e57d7 || Dotyczy paska na dole. Logo, nazwa i podtytuł przejmują twoje ustawienia z „Logo i nazwa”.
+6c3106ce || Tryb streamera jest włączony. Kliknij, aby wyłączyć
+12325a0b || Pasek boczny
+5c2002d8 || ＋ Dodaj program do szybkiego startu
+dd0f438d || Ukrywaj pasek zadań na pełnym ekranie
+17211492 || Gdy launcher jest zmaksymalizowany i na pierwszym planie, zajmuje cały ekran. Pasek zadań pojawia się, gdy kursor chwilę zatrzyma się przy krawędzi. Na pulpicie i w innych programach zostaje bez zmian, ustawienie Windows nie jest zmieniane.
+df15a916 || Własny obraz za całym interfejsem. Obsługuje PNG, JPG i BMP. Po wybraniu ustawiasz kadr: przesuwasz i powiększasz.
+63ff0960 || Dopasuj kadr
+13b322ec || Własny obraz logo
+b8f1663f || Zastępuje logo z pudlem w lewym górnym rogu twoim obrazem (PNG, JPG, BMP lub GIF). Potem wybierasz kadr.
+d16def6c || Wybierz obraz
+26fd54aa || Użyj oryginalnego logo
+8f5f280a || Okrągłe
+7f9d2e38 || Zaokrąglone
+e657b8de || Kanciaste
+efafd7c2 || Przeciągnij obraz myszą w wybrane miejsce. Suwakiem lub kółkiem myszy powiększasz.
+62399752 || Powiększenie
+984ae862 || Użyj całego obrazu
+d80b32e8 || Kadr tła
+b953e79a || Kadr logo
+18666c5c || Wybierz obraz logo
+0739785b || Nie ustawiono jeszcze obrazu tła. Najpierw jakiś wybierz.
+e54a3c0d || Nie udało się zapisać logo:\n{0}
+df95b54e || (sterowanie)
+54bfd097 || maks. {0} °C
+446ff80e || maks. {0}
+76941098 || Temperatury: {0}, wentylatory: {1}

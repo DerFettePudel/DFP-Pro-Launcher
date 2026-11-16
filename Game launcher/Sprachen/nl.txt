@@ -1798,3 +1798,203 @@ cafd2ffe || Profiel automatisch gewisseld
 51d0bbfe || Profiel gewisseld
 4b8138c2 || Profiel „{0}” is actief.
 1c473012 || Profiel hersteld
+3d4767a3 || De game is afgelopen. Je vorige instellingen gelden weer.
+d1fa0abf || OBS is afgesloten. Je vorige instellingen gelden weer.
+c696a786 || Streamermodus aan
+bfa162e8 || Schakelt nog niets om
+d5852118 || actief
+08f9fbe3 || Activeren
+18693a7d || Nog geen profielen aangemaakt.
+4495c6c3 || Nieuw profiel
+5b2e4118 || Profiel bewerken
+3a105ef1 || Pictogram
+a11a025a || Wat het profiel omschakelt
+ce1a1e80 || Mijn huidige instellingen in het profiel overnemen
+db4d1d75 || Het profiel onthoudt je huidige instellingen voor de gekozen onderdelen.
+9328c0d9 || Nieuw gekozen onderdelen nemen altijd je huidige instellingen over.
+42dc0486 || Profiel „{0}” echt verwijderen?
+666a5e88 || Profiel verwijderen
+b4527e34 || Profiel wisselen
+780d9091 || Profiel: {0}
+a63b737e || Actief profiel
+636f374b || Profiel activeren
+8da84541 || ⏱ Aftellen „Zo live”
+d2ff2809 || Telt af tot je live gaat. De checklist hieronder wordt intussen bijgewerkt en aan het eind verschijnt een melding.
+d0c110d2 || Duur
+4f4bd5d0 || Daarna deze routine starten
+05b2cfa1 || Geen
+ea5809a5 || Daarna in OBS de stream starten
+f1ba008f || Aftellen starten
+72cb0386 || Aftellen annuleren
+90321441 || Routine „Stream-start” aanmaken
+60169cb5 || 🔴 Live!
+ffe1eec0 || Aftellen geannuleerd
+46b66cfa || Het aftellen „Zo live” is gestopt.
+39948c86 || Zo live!
+dc08276a || Het aftellen is voorbij. Veel plezier met je stream!
+69647dcd || Routine aangemaakt
+8f2c4819 || „Stream-start” schakelt de streamermodus in. Meer stappen voeg je toe bij Routines.
+6d2be7d5 || Je bent live. Veel plezier met je stream!
+15471c6c || Launcher onzichtbaar maken in opnames en streams
+0e66d5d6 || OBS, Discord en schermafbeeldingen tonen het launchervenster en al zijn dialogen niet meer. Zelf zie je het gewoon. Geldt altijd, ook zonder streamermodus.
+56cf4cb9 || Hiervoor is Windows 10 versie 2004 of nieuwer nodig. Op deze pc is het niet beschikbaar.
+59610277 || De launcher is onzichtbaar in opnames
+e2298142 || Onzichtbaar maken
+de17d8bc || Onzichtbaar in opnames
+0bcd3aeb || Zichtbaar in opnames
+a0968cf9 || OBS, Discord en schermafbeeldingen tonen de launcher niet meer.
+7dca08ff || De launcher verschijnt weer in opnames.
+7f618517 || Als console starten
+2e61cb1a || Start de launcher met Windows en opent direct de controllermodus. Schakelt daarvoor automatisch starten in.
+ced89310 || Eigen knopindeling
+f2fae7a2 || Bepaal zelf welke knop wat doet. De indeling wordt per controllertype opgeslagen. Kies je een knop die al in gebruik is, dan wisselen de twee acties van knop. Richtingskruis en linkerstick blijven vast.
+9c6bf561 || Controllertype
+62f6cc45 || Aanbevolen indeling herstellen
+ead3eb3a || Onderdeel links
+3a296086 || Onderdeel rechts
+ab299e85 || Tien games terug
+5e0e3977 || Tien games vooruit
+9fa0cb80 || Weergave (voor de knopcombinatie)
+3e1fbfa4 || Knop kiezen
+5779a4e9 || De aanbevolen indeling geldt weer.
+c5d8148e || Jouw knopindeling
+443051b3 || Spatie
+13d6b52c || Toets
+a1ed0b22 || Games zoeken ...
+7bc929a3 || Geen resultaten voor „{0}”.
+b9a52372 || 🔎 Zoeken
+8d88f519 || 🔊 Volume
+acaf23e2 || Volume
+9e0630b4 || wijzigen
+de5b35df || dempen
+84183a7f || Gedempt
+3391f4c9 || Het Windows-volume kon niet worden gelezen.
+7bc17156 || ⏹ Game afsluiten
+fe2659c9 || Game afsluiten
+8429bd3e || „{0}” afsluiten? Niet-opgeslagen voortgang gaat verloren.
+490137f7 || Welke game afsluiten?
+4938219d || Game wordt afgesloten
+a72e5bfb || Er draait geen programma van deze game meer.
+80897f8a || 🔄 Pc opnieuw opstarten
+62c690f6 || ⏻ Pc afsluiten
+9e3c6247 || De pc nu opnieuw opstarten?
+b98e3119 || De pc nu afsluiten?
+e757c463 || 🔄 Opnieuw opstarten
+5794b19d || ⏻ Afsluiten
+4665e8b8 || Dat is niet gelukt.
+0ca99c92 || 🎯 Wat zal ik spelen?
+2244aa15 || Wat zal ik spelen?
+c6ceed7d || ＋ Slimme lijst
+7a69c878 || Tip: met Ctrl+klik selecteer je meerdere games direct, een rechtsklik bewerkt ze dan allemaal tegelijk.
+43aa50a3 || ☑ {0} geselecteerd
+14bb5b6a || {0} games geselecteerd
+330a7a89 || ✕ Selectie opheffen
+f8585dc4 || nooit gespeeld
+4ee6b6f1 || kleiner dan {0} GB
+e819c3b4 || al {0} maanden niet gespeeld
+9f1d0607 || Alle games
+f9d3da69 || 🗑 Slimme lijst verwijderen
+aa10f761 || Slimme lijst „{0}” verwijderen?\nDe games zelf blijven behouden.
+0c885f56 || Slimme lijst
+db40603d || Nieuwe slimme lijst
+4a3b2cf7 || Slimme lijst bewerken
+87c0f2b8 || Regels (alle gekozen regels moeten kloppen)
+1da46a5a || Komt nu overeen met {0} games.
+b7d1713e || De gamegroottes worden nu bepaald, daarna kunnen het er meer worden.
+06b038e4 || Nooit gespeeld
+8562690f || Kleiner dan
+ecc86fa0 || Maakt niet uit
+616c6721 || Niet meer gespeeld sinds
+931da473 || 1 maand
+1dc1320a || {0} maanden
+e8be158d || Bron is
+c3ebb5a8 || Er staan nog geen games in je bibliotheek.
+bc97a299 || Gamesuggestie
+a17e618e || Gamesuggestie naar stemming
+5314016c || Hoeveel tijd heb je?
+65faa7c8 || 30 minuten
+fdd9a71f || 1 uur
+28cb2297 || Waar heb je zin in?
+d80c7f12 || Iets ontspannends
+b014ac44 || Iets spannends
+ea08601d || Iets nieuws
+a65ed733 || 🎲 Andere suggestie
+fc2738c8 || Ontspannend
+7b7a3022 || Spannend
+5e8d5d1e || nog nooit gespeeld
+a76d0f1f || pas kort geprobeerd
+a2e4e738 || nieuw in je bibliotheek
+0d009397 || staat op je lijst
+39fc883a || goed voor tussendoor
+04ec635d || Een willekeurige keuze uit je bibliotheek
+9b6764ed || Jaaroverzicht
+8c650a4e || Jouw gamejaar
+54e584f0 || 🎉 Jouw gamejaar {0}
+04a640b1 || De streamermodus verbergt nu speeltijden en statistieken. Het jaaroverzicht toch tonen?
+4a827851 || wordt vanaf nu bijgehouden
+840e16fa || Langste sessie
+c66ec83e || Favoriete bron
+9df15257 || Gespeelde games
+1e3d0a5a || Top 5 van het jaar
+37368ef2 || Voor dit jaar zijn er nog geen tijden per game. Getoond wordt de totale speeltijd van de games die je dit jaar hebt gespeeld.
+17c4ff46 || Speeltijd per game en langste sessie worden bijgehouden sinds {0}.
+9bc7f68c || Download voltooid
+6a1de64c || „{0}” is klaar.
+adc297f2 || Melding als een download klaar is
+9b0470a2 || Laat het weten zodra Steam of Epic Games een game klaar heeft gedownload, ook als de launcher op de achtergrond draait. In de streamermodus blijft de melding stil als meldingen daar gedempt zijn.
+b5860b55 || Voorlopige versies ontvangen
+f6c4fdc2 || Je krijgt nieuwe functies eerder, maar er kunnen nog fouten in zitten. Schakel je het weer uit, dan blijf je op de voorlopige versie tot de volgende normale versie verschijnt.
+414b62dc || Voorlopige versie {0} is beschikbaar.
+04b1ec74 || Je krijgt weer alleen normale versies.
+cbf3303d || Bij fouten een foutrapport aanbieden
+93a2fa08 || Na een onverwachte fout vraagt de launcher of hij een rapport naar deze webhook mag sturen. Je ziet vooraf precies wat er wordt verstuurd. Paden met gebruikersnamen, de pc-naam en namen worden verwijderd. Zonder jouw toestemming wordt nooit iets verstuurd.
+7a8f16e6 || Foutrapport versturen?
+a4d1a764 || In de launcher is een onverwachte fout opgetreden. Wil je het rapport naar je Discord-webhook sturen? Privégegevens zijn verwijderd. Dit wordt verstuurd:
+5520d3c9 || De vorige keer is de launcher door een fout afgesloten. Wil je het rapport naar je Discord-webhook sturen? Privégegevens zijn verwijderd. Dit wordt verstuurd:
+03ab9d54 || Niet meer vragen
+be9820d6 || Niet versturen
+e973fed0 || Versturen
+3e932890 || Foutrapport
+23c079ef || Het rapport is verstuurd. Bedankt!
+60ca976a || Het rapport kon niet worden verstuurd.
+1eb8ca73 || Positie van de balk
+445924e4 || Links of rechts als zijbalk, of onderaan als zwevende balk met pictogrammen. Daar toont een tip bij aanwijzen de naam van een onderdeel.
+9202088e || Links
+97ae4262 || Rechts
+d19e2e55 || Onderaan (zwevend)
+b6bd7ef8 || Code inwisselen
+6f35d2dc || Bevestig met Enter
+c72e8a28 || Ongeldige code
+30ddf96b || Deze code klopt niet.
+8be50c92 || Al vrijgespeeld
+1ad6f39e || Naam en ondertitel kun je al wijzigen.
+e893a1e9 || Naam en ondertitel kun je nu wijzigen onder Instellingen → Logo en naam.
+ca4d231b || Naam en ondertitel liggen vast: „DFP PRO” en „LAUNCHER”.
+2e6659d5 || Logo en naam in de zwevende balk tonen
+ea6e57d7 || Geldt als de balk onderaan staat. Logo, naam en ondertitel nemen je instellingen onder „Logo en naam” over.
+6c3106ce || Streamermodus staat aan. Klik om uit te schakelen
+12325a0b || Zijbalk
+5c2002d8 || ＋ Programma aan snel starten toevoegen
+dd0f438d || Taakbalk verbergen in volledig scherm
+17211492 || Als de launcher gemaximaliseerd en op de voorgrond is, gebruikt hij het hele scherm. De taakbalk verschijnt zodra de muis even aan de rand blijft. Op het bureaublad en in andere programma's blijft hij zoals hij is, de Windows-instelling wordt niet gewijzigd.
+df15a916 || Een eigen afbeelding achter de hele interface. Ondersteunt PNG, JPG en BMP. Na het kiezen bepaal je de uitsnede: verschuiven en zoomen.
+63ff0960 || Uitsnede aanpassen
+13b322ec || Eigen logoafbeelding
+b8f1663f || Vervangt het poedellogo linksboven door een eigen afbeelding (PNG, JPG, BMP of GIF). Daarna kies je de uitsnede.
+d16def6c || Afbeelding kiezen
+26fd54aa || Origineel logo gebruiken
+8f5f280a || Rond
+7f9d2e38 || Afgerond
+e657b8de || Hoekig
+efafd7c2 || Sleep de afbeelding met de muis naar de gewenste plek. Met de schuifregelaar of het muiswiel zoom je in.
+62399752 || Zoom
+984ae862 || Hele afbeelding gebruiken
+d80b32e8 || Uitsnede voor de achtergrond
+b953e79a || Uitsnede voor het logo
+18666c5c || Logoafbeelding kiezen
+0739785b || Er is nog geen achtergrondafbeelding ingesteld. Kies er eerst een.
+e54a3c0d || Het logo kon niet worden opgeslagen:\n{0}
+df95b54e || (besturing)
+54bfd097 || max. {0} °C
+446ff80e || max. {0}
+76941098 || {0} temperaturen en {1} ventilatoren
