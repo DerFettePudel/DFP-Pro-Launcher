@@ -1398,3 +1398,203 @@ ecebf53b || Wanneer moet de routine starten?
 46de7234 || Wachten
 00c1698c || Wachten: {0} seconden
 de39234e || Website openen
+da3f6e91 || Welk scherm?
+4300b00b || Wanneer de launcher start
+6cd98195 || Wanneer een game eindigt
+7d166853 || Wanneer een game start
+05e67534 || Hoe moet het venster eruitzien?
+c07c01c3 || Hoeveel seconden moet er worden gewacht?
+3c46bc73 || Waar moet het programma vandaan komen?
+813c06b6 || inch
+6a2ecf16 || geen accu
+3c7563ed || ⏱  Wachten
+a97f976f || ▶  Programma starten
+6830e41d || ⚡  Energiebeheerschema instellen
+61e617cf || ⛔  Programma sluiten
+f49bec7f || ✏  Naam wijzigen
+eeff6d55 || ＋ Stap toevoegen
+768f0340 || 🌐  Website openen
+5f0b6a43 || 🎮  Game starten
+ddb8b9ec || 💬  Melding tonen
+c32acc20 || 🔁  Ander programma kiezen
+23295a5d || 🪟  Venster plaatsen
+2c958ccf || Welke muziekdiensten moeten worden getoond?
+05e7e853 || Kies er één, twee of alle drie. Minstens één dienst blijft altijd actief.
+d1342f80 || Minstens één dienst moet actief blijven.
+c555a8f4 || Minimaliseren
+4b3cddf2 || Maximaliseren
+04ba3e6e || Vorig formaat
+a2fec6ea || Zijbalk en tabbladen
+6a48005f || Kleur de achtergrond van de zijbalk, de tabbladen (Dashboard, Games, Hulpmiddelen …) en het geselecteerde tabblad apart.
+0bfd0e22 || Achtergrond van de zijbalk
+1db60d70 || Kleur van de tabbladen
+995eb5ca || Kleur van het geselecteerde tabblad
+7ec8ab5e || 🌈  RGB-accentkleur
+2fced2a4 || Vrijgespeeld met de Konami-code. De accentkleur wisselt voortdurend door alle regenboogkleuren.
+a57ab4cc || Langzaam
+3289deaa || Gemiddeld
+421628e0 || Snel
+cf38debe || RGB-accentkleur vrijgespeeld
+6eab5ec0 || Je hebt de Konami-code gevonden! Als beloning krijg je nu de RGB-accentkleur: die wisselt voortdurend door alle regenboogkleuren. Je vindt hem voortaan onder Instellingen → Weergave.
+860a2194 || Nu inschakelen
+702b9b0e || Controlleraccu bijna leeg
+bf6d7251 || De accu van je controller is bijna leeg. Tijd om op te laden.
+632b266d || Accu
+f2ea4f62 || Vol
+fb42fd4d || Laag
+aa7e1a1d || Leeg
+01476c18 || Kabel
+267885f1 || Actief (handmatig)
+e72fc0ee || Actief (automatisch, omdat er streamingsoftware draait)
+e3e68319 || Inschakelen
+c29c174e || Uitschakelen
+82474e6b || Alles voor je stream: programma's, snelkoppelingen en een checklist voordat je live gaat.
+7797405d || Verbergt naam, locatie, statistieken, paden en de muziekspeler. Wat precies wordt verborgen, stel je in onder Instellingen → Streamer.
+180f0c8e || 🎬  Streamingprogramma's
+e4f53168 || Er is nog geen streamingsoftware gevonden. Voeg je programma's toe met het plusteken.
+54ebe84b || {0} programma's automatisch herkend.
+e0fc8d3d || Streamingprogramma
+27ae55c0 || 🔗  Snelkoppelingen
+9bc662e7 || ✅  Checklist voordat je live gaat
+67fb02c1 || Er draait streamingsoftware
+7c50ba39 || De streamermodus staat aan
+d435a132 || Meldingen zijn gedempt
+79d301eb || Dempen
+f4fd27c0 || Je naam wordt verborgen
+dece5fb3 || Verbergen
+09c93c79 || De muziekspeler blijft verborgen
+1a3cc466 || Streamerpagina in de zijbalk tonen
+55eb64a5 || Toont het onderdeel „Streamer” met OBS en dergelijke in de zijbalk.
+3b7eabae || Muziekspeler verbergen
+42bd1ef0 || De muziekspeler toont je account en afspeellijsten. Daarom blijft hij in de streamermodus gesloten.
+bac957b5 || In de streamermodus is de muziekspeler verborgen.
+856b06a7 || Snelkoppelingen met echte pictogrammen
+41a2245d || Toont voor programma's en websites het echte pictogram in plaats van een emoji.
+7e8018d4 || Programma zoeken ...
+16d5b2d3 || Niets gevonden. Kies hieronder een bestand.
+c2e61bda || Schermafbeelding verwijderen
+5af5889f || Deze schermafbeelding naar de prullenbak verplaatsen?
+782c277b || Schermafbeelding verwijderd
+1681949a || De schermafbeelding kon niet worden verwijderd:\n{0}
+b954c182 || Bestandslocatie openen
+16e56ff2 || 🗑  Verwijderen ...
+30f1a28d || Gekopieerd
+28462eb0 || De opdracht staat op het klembord.
+cb1acf8f || Systeemopdrachten
+2e81a7f0 || Systeemopdracht
+7ed4ea79 || Een klik opent een PowerShell-venster met de opdracht. Opdrachten met 🛡 vereisen beheerdersrechten, Windows vraagt daar dan om. Rechtsklikken kopieert de opdracht.
+ecdb81c5 || Opschonen
+37c62e81 || Reparatie
+8012104b || Uitlezen
+bcb91555 || Tijdelijke bestanden legen
+bb45fc09 || Verwijdert tijdelijke bestanden van je gebruiker
+bd2769b4 || Alle bestanden in de Temp-map verwijderen? Bestanden in gebruik blijven staan.
+d69236eb || Leegt de prullenbak definitief
+f21bcc17 || De prullenbak definitief legen?
+39c32ee2 || DNS-cache legen
+8fd80385 || Helpt bij verbindingsproblemen
+f3f96b2a || Windows Update-cache legen
+851333c8 || 🛡 Ruimt gedownloade updateresten op
+762d175c || De Windows Update-cache legen? Windows downloadt updates daarna opnieuw als dat nodig is.
+9082ce3a || Systeembestanden controleren (SFC)
+3e6b94fd || 🛡 Zoekt en herstelt beschadigde Windows-bestanden
+fed61f5c || Windows-image controleren (DISM)
+666ca52c || 🛡 Controleert de staat van de Windows-installatie
+6ae6996e || Station C: controleren
+49ec3fbb || 🛡 Alleen lezen, er wordt niets gewijzigd
+ae33fd5b || Netwerk opnieuw instellen
+005119f0 || 🛡 Zet Winsock en IP-instellingen terug
+d26d2e84 || Het netwerk wordt kort onderbroken en daarna is een herstart nodig. Doorgaan?
+0f5e3a49 || Systeeminformatie
+e3e863b9 || Hardware, Windows en updates in één overzicht
+84fff391 || Netwerkinformatie
+362bf523 || IP-adressen, DNS en adapters
+b9225934 || Verbindingstest
+24d74511 || Ping naar Cloudflare en Google
+375dba50 || Stations en gezondheid
+7b9786ed || Staat en vrije ruimte van alle stations
+e4eba1e0 || Geheugenvreters
+6bbc1bc5 || De 15 programma's die het meeste geheugen gebruiken
+e16ad61d || Accurapport
+ffadf4a0 || Maakt een rapport op het bureaublad
+2ae0ed7f || Info over videostuurprogramma
+9bef2a86 || Naam, versie en datum van het stuurprogramma
+cd191b51 || Recente programmacrashes
+0a2e6af5 || De laatste 10 fouten uit Logboeken
+cd429c41 || ▶  Uitvoeren
+a5b79d6c || 📋  Opdracht kopiëren
+598d3de5 || De opdracht kon niet worden gestart:\n{0}
+fefad5b4 || Belasting: {0} %
+afc94461 || Kloksnelheid: {0} GHz
+ef8ebef3 || Kloksnelheid: {0} MHz
+77f4dde1 || Threads: {0}
+f0b9d52a || Temperatuur: {0} °C
+e194c274 || Vermogen: {0} W
+bf467600 || {0} GB van {1} GB gebruikt
+65f2782f || {0} GB van {1} GB gebruikt ({2} %)
+1971cb11 || Vrij: {0} GB
+54854990 || VRAM: {0} GB van {1} GB gebruikt
+6b2efe19 || VRAM: {0} GB
+127543fa || Geen meetwaarden beschikbaar voor de videokaart.
+ed57a9d6 || Geen netwerk
+4fd05869 || Onthouden: twee launchers, één idee
+312a710d || Een eerbetoon: twee launchers, tegelijk ontstaan.
+28b98716 || Twee launchers, één idee
+169ed779 || De hemel is van jou. De wolken volgen je.
+1ed656a6 || Welkom terug, baas!
+f84cd9d2 || Druivenvriendschap
+a9a68151 || Je hebt het eerbetoon aan TraubeMinze gevonden.
+ba973ecf || Wolkenhoeder
+3be38e53 || Je hebt de wolken van StardiSkyTTV gevonden.
+ac5ec5f0 || De maker
+cee34a40 || Je hebt de naam van de maker ingevoerd.
+5009293d || Toegevoegd aan favorieten
+aaa80fca || Verwijderd uit favorieten
+c3a1e244 || Hier is nog niets.
+89242a8b || Nieuw
+79c6c5d5 || Menu
+c656a060 || Terug naar de launcher
+c48c4896 || Aanbevolen knopindeling
+ecb56b2f || Aanbevolen knopindeling tonen
+2d403025 || Controllerinstellingen
+fbc85297 || Opties
+63891143 || Onderdeel
+18961bbf || Springen
+d6fbe428 || Controller gevonden
+cd33ad99 || Klik hier voor de aanbevolen knopindeling.
+4b80a982 || Starten en bevestigen
+08a4dd44 || Opties voor de game
+a123e0f8 || Onderdeel wisselen
+fb2c5e0a || Tien games springen
+f19eb7ad || Controllermodus aan en uit
+f310e8ed || Klopt de indeling niet met je controller, kies hem dan zelf onder Instellingen → Bediening.
+dce60bad || Instellingen openen
+7bf83e2e || Gamepadbediening (controllermodus via knopcombinatie of F11)
+fc4017c0 || Een eigen volledig-schermweergave voor de bank, vergelijkbaar met de Big Picture-modus van Steam: grote covers, vloeiend bladeren en alles bedienbaar met de controller.
+884a55c3 || Starten met een knopcombinatie
+ebc48b74 || Start en beëindigt de controllermodus direct op de controller, ook als de launcher op de achtergrond staat.
+066d6099 || Knopcombinatie
+ec46ff09 || Welke knoppen de controllermodus in- en uitschakelen.
+97e9da2e || Weergave + Menu
+2ace80a9 || LB + RB + Menu
+0e8f3cb2 || Menu ingedrukt houden
+b02ddb3e || Ook tijdens een game toestaan
+2a98581c || Uit: de combinatie wordt genegeerd zolang een game draait. Zo stoor je je game niet per ongeluk.
+7e20bfc4 || Automatisch starten bij verbinden
+6b9bc418 || Opent de controllermodus zodra een controller wordt herkend en de launcher open is.
+30b98889 || Trillen bij bladeren
+14a1b2d1 || Een korte trilling bij wisselen en starten (alleen Xbox-controllers).
+829e77dd || Snelheid bij ingedrukt houden
+1f0a5e9f || Hoe snel er verder wordt gebladerd als je het richtingskruis ingedrukt houdt.
+58de2772 || Normaal
+446b2f8a || Controllermodus nu starten
+9067d985 || „Origineel” toont alle games als kaarten. „Cover Flow” bladert de covers vloeiend van links naar rechts door, zoals in een boek.
+28a28ed3 || Cover Flow
+2115c01f || ← → bladeren · muiswiel · Enter start de game
+ebc4b483 || Ontwikkelaarsinstellingen
+247ae4a3 || Ontwikkelaar
+a2abf9dd || Censuurstijl
+d5d7aa06 || Hoe privégegevens in de stream worden verborgen: als donkere balk of vervaagd.
+5caf7fe5 || Zwarte balk
+6d538f47 || Vervaagd
+86f17261 || Computer- en gebruikersnaam censureren

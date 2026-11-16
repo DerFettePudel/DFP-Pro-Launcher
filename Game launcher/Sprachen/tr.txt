@@ -1398,3 +1398,203 @@ ecebf53b || Rutin ne zaman başlasın?
 46de7234 || Bekle
 00c1698c || Bekle: {0} saniye
 de39234e || Web sitesini aç
+da3f6e91 || Hangi ekran?
+4300b00b || Başlatıcı açıldığında
+6cd98195 || Bir oyun bittiğinde
+7d166853 || Bir oyun başladığında
+05e67534 || Pencere nasıl görünsün?
+c07c01c3 || Kaç saniye beklensin?
+3c46bc73 || Program nereden gelsin?
+813c06b6 || inç
+6a2ecf16 || pil yok
+3c7563ed || ⏱  Bekle
+a97f976f || ▶  Programı başlat
+6830e41d || ⚡  Güç planı ayarla
+61e617cf || ⛔  Programı kapat
+f49bec7f || ✏  Yeniden adlandır
+eeff6d55 || ＋ Adım ekle
+768f0340 || 🌐  Web sitesini aç
+5f0b6a43 || 🎮  Oyunu başlat
+ddb8b9ec || 💬  Mesaj göster
+c32acc20 || 🔁  Başka program seç
+23295a5d || 🪟  Pencereyi yerleştir
+2c958ccf || Hangi müzik hizmetleri gösterilsin?
+05e7e853 || Birini, ikisini veya üçünü seç. En az bir hizmet her zaman etkin kalır.
+d1342f80 || En az bir hizmet etkin kalmalı.
+c555a8f4 || Simge durumuna küçült
+4b3cddf2 || Ekranı kapla
+04ba3e6e || Önceki boyuta getir
+a2fec6ea || Kenar çubuğu ve sekmeler
+6a48005f || Kenar çubuğunun arka planını, sekmeleri (Pano, Oyunlar, Araçlar …) ve seçili sekmeyi ayrı ayrı renklendir.
+0bfd0e22 || Kenar çubuğu arka planı
+1db60d70 || Sekme rengi
+995eb5ca || Seçili sekme rengi
+7ec8ab5e || 🌈  RGB vurgu rengi
+2fced2a4 || Konami koduyla açıldı. Vurgu rengi sürekli tüm gökkuşağı renkleri arasında geçiş yapar.
+a57ab4cc || Yavaş
+3289deaa || Orta
+421628e0 || Hızlı
+cf38debe || RGB vurgu rengi açıldı
+6eab5ec0 || Konami kodunu buldun! Ödül olarak artık RGB vurgu rengin var: sürekli tüm gökkuşağı renkleri arasında geçiş yapar. Onu her zaman Ayarlar → Görünüm altında bulursun.
+860a2194 || Şimdi aç
+702b9b0e || Kumanda pili zayıf
+bf6d7251 || Kumandanın pili neredeyse bitti. Şarj etme zamanı.
+632b266d || Pil
+f2ea4f62 || Dolu
+fb42fd4d || Zayıf
+aa7e1a1d || Boş
+01476c18 || Kablolu
+267885f1 || Etkin (elle)
+e72fc0ee || Etkin (otomatik, bir yayın yazılımı çalıştığı için)
+e3e68319 || Aç
+c29c174e || Kapat
+82474e6b || Yayının için her şey: programlar, kısayollar ve yayına başlamadan önce bir kontrol listesi.
+7797405d || Adı, konumu, istatistikleri, yolları ve müzik çaları gizler. Tam olarak neyin gizleneceğini Ayarlar → Yayıncı altında belirlersin.
+180f0c8e || 🎬  Yayın programları
+e4f53168 || Henüz yayın yazılımı algılanmadı. Programlarını artı işaretiyle ekle.
+54ebe84b || {0} program otomatik algılandı.
+e0fc8d3d || Yayın programı
+27ae55c0 || 🔗  Kısayollar
+9bc662e7 || ✅  Yayına başlamadan önce kontrol listesi
+67fb02c1 || Bir yayın yazılımı çalışıyor
+7c50ba39 || Yayıncı modu açık
+d435a132 || Bildirimler sessizde
+79d301eb || Sessize al
+f4fd27c0 || Adın gizleniyor
+dece5fb3 || Gizle
+09c93c79 || Müzik çalar gizli kalır
+1a3cc466 || Yayıncı sayfasını kenar çubuğunda göster
+55eb64a5 || Kenar çubuğunda OBS ve benzerlerini içeren „Yayıncı“ bölümünü gösterir.
+3b7eabae || Müzik çaları gizle
+42bd1ef0 || Müzik çalar hesabını ve listelerini gösterir. Bu yüzden yayıncı modunda kapalı kalır.
+bac957b5 || Yayıncı modunda müzik çalar gizlidir.
+856b06a7 || Gerçek simgelerle kısayollar
+41a2245d || Programlar ve web siteleri için emoji yerine gerçek simgeyi gösterir.
+7e8018d4 || Program ara ...
+16d5b2d3 || Hiçbir şey bulunamadı. Aşağıdan bir dosya seç.
+c2e61bda || Ekran görüntüsünü sil
+5af5889f || Bu ekran görüntüsü geri dönüşüm kutusuna taşınsın mı?
+782c277b || Ekran görüntüsü silindi
+1681949a || Ekran görüntüsü silinemedi:\n{0}
+b954c182 || Dosya konumunu aç
+16e56ff2 || 🗑  Sil ...
+30f1a28d || Kopyalandı
+28462eb0 || Komut panoya kopyalandı.
+cb1acf8f || Sistem komutları
+2e81a7f0 || Sistem komutu
+7ed4ea79 || Bir tıklama komutu içeren bir PowerShell penceresi açar. 🛡 ile işaretli komutlar yönetici hakları gerektirir, Windows bunu sorar. Sağ tıklama komutu kopyalar.
+ecdb81c5 || Temizlik
+37c62e81 || Onarım
+8012104b || Bilgi okuma
+bcb91555 || Geçici dosyaları temizle
+bb45fc09 || Kullanıcının geçici dosyalarını siler
+bd2769b4 || Geçici klasördeki tüm dosyalar silinsin mi? O an kullanılan dosyalar kalır.
+d69236eb || Geri dönüşüm kutusunu kalıcı olarak boşaltır
+f21bcc17 || Geri dönüşüm kutusu kalıcı olarak boşaltılsın mı?
+39c32ee2 || DNS önbelleğini temizle
+8fd80385 || Bağlantı sorunlarında yardımcı olur
+f3f96b2a || Windows Update önbelleğini temizle
+851333c8 || 🛡 İndirilmiş güncelleme artıklarını temizler
+762d175c || Windows Update önbelleği temizlensin mi? Windows güncellemeleri gerektiğinde yeniden indirir.
+9082ce3a || Sistem dosyalarını denetle (SFC)
+3e6b94fd || 🛡 Bozuk Windows dosyalarını bulur ve onarır
+fed61f5c || Windows görüntüsünü denetle (DISM)
+666ca52c || 🛡 Windows kurulumunun durumunu denetler
+6ae6996e || C: sürücüsünü denetle
+49ec3fbb || 🛡 Yalnızca okur, hiçbir şey değiştirilmez
+ae33fd5b || Ağı sıfırla
+005119f0 || 🛡 Winsock ve IP ayarlarını sıfırlar
+d26d2e84 || Ağ kısa süre kesilecek ve ardından yeniden başlatma gerekecek. Devam edilsin mi?
+0f5e3a49 || Sistem bilgileri
+e3e863b9 || Donanım, Windows ve güncellemelere genel bakış
+84fff391 || Ağ bilgileri
+362bf523 || IP adresleri, DNS ve bağdaştırıcılar
+b9225934 || Bağlantı testi
+24d74511 || Cloudflare ve Google'a ping
+375dba50 || Sürücüler ve sağlık durumu
+7b9786ed || Tüm sürücülerin durumu ve boş alanı
+e4eba1e0 || Bellek canavarları
+6bbc1bc5 || En çok bellek kullanan 15 program
+e16ad61d || Pil raporu
+ffadf4a0 || Masaüstünde bir rapor oluşturur
+2ae0ed7f || Ekran kartı sürücüsü bilgisi
+9bef2a86 || Sürücünün adı, sürümü ve tarihi
+cd191b51 || Son program çökmeleri
+0a2e6af5 || Olay Görüntüleyicisi'ndeki son 10 hata
+cd429c41 || ▶  Çalıştır
+a5b79d6c || 📋  Komutu kopyala
+598d3de5 || Komut başlatılamadı:\n{0}
+fefad5b4 || Yük: %{0}
+afc94461 || Saat hızı: {0} GHz
+ef8ebef3 || Saat hızı: {0} MHz
+77f4dde1 || İş parçacığı: {0}
+f0b9d52a || Sıcaklık: {0} °C
+e194c274 || Güç: {0} W
+bf467600 || {1} GB'ın {0} GB'ı dolu
+65f2782f || {1} GB'ın {0} GB'ı dolu (%{2})
+1971cb11 || Boş: {0} GB
+54854990 || VRAM: {1} GB'ın {0} GB'ı dolu
+6b2efe19 || VRAM: {0} GB
+127543fa || Ekran kartı için ölçüm değeri yok.
+ed57a9d6 || Ağ yok
+4fd05869 || Not edildi: iki başlatıcı, bir fikir
+312a710d || Bir saygı duruşu: aynı anda doğan iki başlatıcı.
+28b98716 || İki başlatıcı, bir fikir
+169ed779 || Gökyüzü senin. Bulutlar seni takip ediyor.
+1ed656a6 || Tekrar hoş geldin, şef!
+f84cd9d2 || Üzüm dostluğu
+a9a68151 || TraubeMinze'ye yapılan saygı duruşunu buldun.
+ba973ecf || Bulut çobanı
+3be38e53 || StardiSkyTTV'nin bulutlarını buldun.
+ac5ec5f0 || Yaratıcı
+cee34a40 || Yaratıcının adını girdin.
+5009293d || Favorilere eklendi
+aaa80fca || Favorilerden çıkarıldı
+c3a1e244 || Burada henüz bir şey yok.
+89242a8b || Yeni
+79c6c5d5 || Menü
+c656a060 || Başlatıcıya dön
+c48c4896 || Önerilen tuş düzeni
+ecb56b2f || Önerilen tuş düzenini göster
+2d403025 || Kumanda ayarları
+fbc85297 || Seçenekler
+63891143 || Bölüm
+18961bbf || Atla
+d6fbe428 || Kumanda algılandı
+cd33ad99 || Önerilen tuş düzeni için buraya tıkla.
+4b80a982 || Başlat ve onayla
+08a4dd44 || Oyun seçenekleri
+a123e0f8 || Bölüm değiştir
+fb2c5e0a || On oyun atla
+f19eb7ad || Kumanda modunu aç ve kapat
+f310e8ed || Düzen kumandanla uyuşmuyorsa onu Ayarlar → Kontroller altında kendin seç.
+dce60bad || Ayarları aç
+7bf83e2e || Oyun kumandası kontrolü (kumanda modu tuş kombinasyonu veya F11 ile)
+fc4017c0 || Kanepe için ayrı bir tam ekran arayüz, Steam'in Big Picture moduna benzer: büyük kapaklar, akıcı gezinme ve her şey kumandayla kontrol edilebilir.
+884a55c3 || Bir tuş kombinasyonuyla başlat
+ebc48b74 || Başlatıcı arka plandayken bile kumanda modunu doğrudan kumandadan başlatır ve kapatır.
+066d6099 || Tuş kombinasyonu
+ec46ff09 || Kumanda modunu hangi tuşların açıp kapattığı.
+97e9da2e || Görünüm + Menü
+2ace80a9 || LB + RB + Menü
+0e8f3cb2 || Menü'yü basılı tut
+b02ddb3e || Oyun sırasında da izin ver
+2a98581c || Kapalı: bir oyun çalışırken kombinasyon yok sayılır. Böylece oyununu yanlışlıkla bozmazsın.
+7e20bfc4 || Bağlanınca otomatik başlat
+6b9bc418 || Bir kumanda algılandığında ve başlatıcı açıkken kumanda modunu açar.
+30b98889 || Gezinirken titreşim
+14a1b2d1 || Geçişte ve başlatmada kısa bir titreşim (yalnızca Xbox kumandaları).
+829e77dd || Basılı tutma hızı
+1f0a5e9f || Yön tuşunu basılı tuttuğunda ne kadar hızlı ilerleneceği.
+58de2772 || Normal
+446b2f8a || Kumanda modunu şimdi başlat
+9067d985 || „Orijinal“ tüm oyunları kart olarak gösterir. „Cover Flow“ kapakları bir kitap gibi soldan sağa akıcı şekilde çevirir.
+28a28ed3 || Cover Flow
+2115c01f || ← → göz at · fare tekerleği · Enter oyunu başlatır
+ebc4b483 || Geliştirici ayarları
+247ae4a3 || Geliştirici
+a2abf9dd || Sansür stili
+d5d7aa06 || Özel bilgilerin yayında nasıl gizleneceği: koyu bir çubuk olarak veya bulanık.
+5caf7fe5 || Siyah çubuk
+6d538f47 || Bulanık
+86f17261 || Bilgisayar ve kullanıcı adını sansürle

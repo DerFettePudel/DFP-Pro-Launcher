@@ -1398,3 +1398,203 @@ ecebf53b || Quando deve partire la sequenza?
 46de7234 || Attendi
 00c1698c || Attendi: {0} secondi
 de39234e || Apri sito web
+da3f6e91 || Quale schermo?
+4300b00b || All'avvio del launcher
+6cd98195 || Quando un gioco termina
+7d166853 || Quando un gioco si avvia
+05e67534 || Come deve apparire la finestra?
+c07c01c3 || Quanti secondi attendere?
+3c46bc73 || Da dove deve venire il programma?
+813c06b6 || pollici
+6a2ecf16 || nessuna batteria
+3c7563ed || ⏱  Attendi
+a97f976f || ▶  Avvia programma
+6830e41d || ⚡  Imposta combinazione energetica
+61e617cf || ⛔  Chiudi programma
+f49bec7f || ✏  Rinomina
+eeff6d55 || ＋ Aggiungi passaggio
+768f0340 || 🌐  Apri sito web
+5f0b6a43 || 🎮  Avvia gioco
+ddb8b9ec || 💬  Mostra messaggio
+c32acc20 || 🔁  Scegli un altro programma
+23295a5d || 🪟  Posiziona finestra
+2c958ccf || Quali servizi musicali mostrare?
+05e7e853 || Scegline uno, due o tutti e tre. Almeno un servizio resta sempre attivo.
+d1342f80 || Almeno un servizio deve restare attivo.
+c555a8f4 || Riduci a icona
+4b3cddf2 || Ingrandisci
+04ba3e6e || Ripristina giù
+a2fec6ea || Barra laterale e schede
+6a48005f || Colora separatamente lo sfondo della barra laterale, le schede (Dashboard, Giochi, Strumenti …) e la scheda selezionata.
+0bfd0e22 || Sfondo della barra laterale
+1db60d70 || Colore delle schede
+995eb5ca || Colore della scheda selezionata
+7ec8ab5e || 🌈  Colore principale RGB
+2fced2a4 || Sbloccato con il codice Konami. Il colore principale scorre di continuo tra tutti i colori dell'arcobaleno.
+a57ab4cc || Lenta
+3289deaa || Media
+421628e0 || Veloce
+cf38debe || Colore principale RGB sbloccato
+6eab5ec0 || Hai trovato il codice Konami! Come premio ora c'è il colore principale RGB: scorre di continuo tra tutti i colori dell'arcobaleno. Lo trovi per sempre in Impostazioni → Aspetto.
+860a2194 || Attiva ora
+702b9b0e || Batteria del controller scarica
+bf6d7251 || La batteria del controller è quasi scarica. È ora di ricaricarla.
+632b266d || Batteria
+f2ea4f62 || Carica
+fb42fd4d || Bassa
+aa7e1a1d || Scarica
+01476c18 || Cavo
+267885f1 || Attiva (manuale)
+e72fc0ee || Attiva (automatica, perché è in esecuzione un software di streaming)
+e3e68319 || Attiva
+c29c174e || Disattiva
+82474e6b || Tutto per la tua diretta: programmi, collegamenti e una checklist prima di andare live.
+7797405d || Nasconde nome, posizione, statistiche, percorsi e il lettore musicale. Cosa nascondere di preciso lo scegli in Impostazioni → Streamer.
+180f0c8e || 🎬  Programmi di streaming
+e4f53168 || Non è ancora stato rilevato nessun software di streaming. Aggiungi i tuoi programmi con il più.
+54ebe84b || {0} programmi rilevati automaticamente.
+e0fc8d3d || Programma di streaming
+27ae55c0 || 🔗  Collegamenti
+9bc662e7 || ✅  Checklist prima della diretta
+67fb02c1 || È in esecuzione un software di streaming
+7c50ba39 || La modalità streamer è attiva
+d435a132 || Le notifiche sono silenziate
+79d301eb || Silenzia
+f4fd27c0 || Il tuo nome è nascosto
+dece5fb3 || Nascondi
+09c93c79 || Il lettore musicale resta nascosto
+1a3cc466 || Mostra la pagina Streamer nella barra laterale
+55eb64a5 || Mostra la sezione «Streamer» con OBS e simili nella barra laterale.
+3b7eabae || Nascondi il lettore musicale
+42bd1ef0 || Il lettore musicale mostra il tuo account e le tue playlist. Per questo in modalità streamer resta chiuso.
+bac957b5 || In modalità streamer il lettore musicale è nascosto.
+856b06a7 || Collegamenti con icone vere
+41a2245d || Per programmi e siti mostra l'icona vera invece di un'emoji.
+7e8018d4 || Cerca programma ...
+16d5b2d3 || Nessun risultato. Scegli un file qui sotto.
+c2e61bda || Elimina screenshot
+5af5889f || Spostare questo screenshot nel cestino?
+782c277b || Screenshot eliminato
+1681949a || Impossibile eliminare lo screenshot:\n{0}
+b954c182 || Apri percorso file
+16e56ff2 || 🗑  Elimina ...
+30f1a28d || Copiato
+28462eb0 || Il comando è negli appunti.
+cb1acf8f || Comandi di sistema
+2e81a7f0 || Comando di sistema
+7ed4ea79 || Un clic apre una finestra PowerShell con il comando. I comandi contrassegnati con 🛡 richiedono diritti di amministratore, Windows li chiederà. Il clic destro copia il comando.
+ecdb81c5 || Pulizia
+37c62e81 || Riparazione
+8012104b || Lettura
+bcb91555 || Svuota file temporanei
+bb45fc09 || Elimina i file temporanei del tuo utente
+bd2769b4 || Eliminare tutti i file nella cartella Temp? I file in uso restano.
+d69236eb || Svuota definitivamente il cestino
+f21bcc17 || Svuotare definitivamente il cestino?
+39c32ee2 || Svuota cache DNS
+8fd80385 || Aiuta con i problemi di connessione
+f3f96b2a || Svuota cache di Windows Update
+851333c8 || 🛡 Rimuove i residui degli aggiornamenti scaricati
+762d175c || Svuotare la cache di Windows Update? Windows riscaricherà gli aggiornamenti quando servono.
+9082ce3a || Controlla file di sistema (SFC)
+3e6b94fd || 🛡 Trova e ripara i file di Windows danneggiati
+fed61f5c || Controlla immagine di Windows (DISM)
+666ca52c || 🛡 Controlla lo stato dell'installazione di Windows
+6ae6996e || Controlla unità C:
+49ec3fbb || 🛡 Solo lettura, non viene modificato nulla
+ae33fd5b || Reimposta rete
+005119f0 || 🛡 Reimposta Winsock e impostazioni IP
+d26d2e84 || La rete verrà interrotta brevemente e dopo servirà un riavvio. Continuare?
+0f5e3a49 || Informazioni di sistema
+e3e863b9 || Panoramica di hardware, Windows e aggiornamenti
+84fff391 || Informazioni di rete
+362bf523 || Indirizzi IP, DNS e schede di rete
+b9225934 || Test di connessione
+24d74511 || Ping verso Cloudflare e Google
+375dba50 || Unità e stato di salute
+7b9786ed || Stato e spazio libero di tutte le unità
+e4eba1e0 || Divoratori di memoria
+6bbc1bc5 || I 15 programmi che usano più memoria
+e16ad61d || Rapporto batteria
+ffadf4a0 || Crea un rapporto sul desktop
+2ae0ed7f || Info driver grafico
+9bef2a86 || Nome, versione e data del driver
+cd191b51 || Ultimi arresti anomali dei programmi
+0a2e6af5 || Gli ultimi 10 errori del Visualizzatore eventi
+cd429c41 || ▶  Esegui
+a5b79d6c || 📋  Copia comando
+598d3de5 || Impossibile avviare il comando:\n{0}
+fefad5b4 || Carico: {0} %
+afc94461 || Frequenza: {0} GHz
+ef8ebef3 || Frequenza: {0} MHz
+77f4dde1 || Thread: {0}
+f0b9d52a || Temperatura: {0} °C
+e194c274 || Potenza: {0} W
+bf467600 || {0} GB occupati su {1} GB
+65f2782f || {0} GB occupati su {1} GB ({2} %)
+1971cb11 || Liberi: {0} GB
+54854990 || VRAM: {0} GB occupati su {1} GB
+6b2efe19 || VRAM: {0} GB
+127543fa || Nessun valore disponibile per la scheda video.
+ed57a9d6 || Nessuna rete
+4fd05869 || Annotato: due launcher, un'idea
+312a710d || Un omaggio: due launcher, nati nello stesso momento.
+28b98716 || Due launcher, un'idea
+169ed779 || Il cielo è tuo. Le nuvole ti seguono.
+1ed656a6 || Bentornato, capo!
+f84cd9d2 || Amicizia d'uva
+a9a68151 || Hai trovato l'omaggio a TraubeMinze.
+ba973ecf || Pastore di nuvole
+3be38e53 || Hai trovato le nuvole di StardiSkyTTV.
+ac5ec5f0 || Il creatore
+cee34a40 || Hai inserito il nome del creatore.
+5009293d || Aggiunto ai preferiti
+aaa80fca || Rimosso dai preferiti
+c3a1e244 || Qui non c'è ancora niente.
+89242a8b || Nuovo
+79c6c5d5 || Menu
+c656a060 || Torna al launcher
+c48c4896 || Mappatura consigliata dei tasti
+ecb56b2f || Mostra la mappatura consigliata
+2d403025 || Impostazioni controller
+fbc85297 || Opzioni
+63891143 || Sezione
+18961bbf || Salta
+d6fbe428 || Controller rilevato
+cd33ad99 || Fai clic qui per la mappatura consigliata.
+4b80a982 || Avvia e conferma
+08a4dd44 || Opzioni del gioco
+a123e0f8 || Cambia sezione
+fb2c5e0a || Salta dieci giochi
+f19eb7ad || Attiva e disattiva modalità controller
+f310e8ed || Se la mappatura non corrisponde al tuo controller, sceglila tu in Impostazioni → Comandi.
+dce60bad || Apri impostazioni
+7bf83e2e || Controllo con gamepad (modalità controller con combinazione di tasti o F11)
+fc4017c0 || Un'interfaccia a schermo intero dedicata per il divano, simile alla modalità Big Picture di Steam: copertine grandi, scorrimento fluido e tutto gestibile con il controller.
+884a55c3 || Avvia con una combinazione di tasti
+ebc48b74 || Avvia e chiude la modalità controller direttamente dal controller, anche quando il launcher è in background.
+066d6099 || Combinazione di tasti
+ec46ff09 || Quali tasti attivano e disattivano la modalità controller.
+97e9da2e || Visualizza + Menu
+2ace80a9 || LB + RB + Menu
+0e8f3cb2 || Tieni premuto Menu
+b02ddb3e || Consenti anche durante un gioco
+2a98581c || Disattivato: la combinazione viene ignorata mentre un gioco è in esecuzione. Così non disturbi il gioco per sbaglio.
+7e20bfc4 || Avvia automaticamente alla connessione
+6b9bc418 || Apre la modalità controller appena viene rilevato un controller e il launcher è aperto.
+30b98889 || Vibrazione durante lo scorrimento
+14a1b2d1 || Una breve vibrazione nel cambio e nell'avvio (solo controller Xbox).
+829e77dd || Velocità tenendo premuto
+1f0a5e9f || Quanto velocemente scorre tenendo premuta la croce direzionale.
+58de2772 || Normale
+446b2f8a || Avvia ora la modalità controller
+9067d985 || «Originale» mostra tutti i giochi come schede. «Cover Flow» sfoglia le copertine in modo fluido da sinistra a destra, come un libro.
+28a28ed3 || Cover Flow
+2115c01f || ← → sfoglia · rotellina · Invio avvia il gioco
+ebc4b483 || Impostazioni sviluppatore
+247ae4a3 || Sviluppatore
+a2abf9dd || Stile di censura
+d5d7aa06 || Come vengono nascoste le informazioni private in diretta: come barra scura o sfocate.
+5caf7fe5 || Barra nera
+6d538f47 || Sfocato
+86f17261 || Censura nome del computer e dell'utente

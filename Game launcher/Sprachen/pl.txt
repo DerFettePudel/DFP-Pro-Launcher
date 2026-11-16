@@ -1398,3 +1398,203 @@ ecebf53b || Kiedy procedura ma się uruchamiać?
 46de7234 || Czekaj
 00c1698c || Czekaj: {0} s
 de39234e || Otwórz stronę
+da3f6e91 || Który ekran?
+4300b00b || Gdy launcher się uruchamia
+6cd98195 || Gdy gra się kończy
+7d166853 || Gdy gra się uruchamia
+05e67534 || Jak ma wyglądać okno?
+c07c01c3 || Ile sekund czekać?
+3c46bc73 || Skąd ma pochodzić program?
+813c06b6 || cali
+6a2ecf16 || brak baterii
+3c7563ed || ⏱  Czekaj
+a97f976f || ▶  Uruchom program
+6830e41d || ⚡  Ustaw plan zasilania
+61e617cf || ⛔  Zamknij program
+f49bec7f || ✏  Zmień nazwę
+eeff6d55 || ＋ Dodaj krok
+768f0340 || 🌐  Otwórz stronę
+5f0b6a43 || 🎮  Uruchom grę
+ddb8b9ec || 💬  Pokaż komunikat
+c32acc20 || 🔁  Wybierz inny program
+23295a5d || 🪟  Ustaw okno
+2c958ccf || Które serwisy muzyczne pokazywać?
+05e7e853 || Wybierz jeden, dwa albo wszystkie trzy. Co najmniej jeden serwis zawsze pozostaje aktywny.
+d1342f80 || Co najmniej jeden serwis musi pozostać aktywny.
+c555a8f4 || Minimalizuj
+4b3cddf2 || Maksymalizuj
+04ba3e6e || Przywróć w dół
+a2fec6ea || Pasek boczny i karty
+6a48005f || Pokoloruj osobno tło paska bocznego, karty (Pulpit, Gry, Narzędzia …) i wybraną kartę.
+0bfd0e22 || Tło paska bocznego
+1db60d70 || Kolor kart
+995eb5ca || Kolor wybranej karty
+7ec8ab5e || 🌈  Kolor akcentu RGB
+2fced2a4 || Odblokowany kodem Konami. Kolor akcentu cały czas przechodzi przez wszystkie kolory tęczy.
+a57ab4cc || Wolno
+3289deaa || Średnio
+421628e0 || Szybko
+cf38debe || Odblokowano kolor akcentu RGB
+6eab5ec0 || Znalazłeś kod Konami! W nagrodę masz teraz kolor akcentu RGB: cały czas przechodzi przez wszystkie kolory tęczy. Na zawsze znajdziesz go w Ustawienia → Wygląd.
+860a2194 || Włącz teraz
+702b9b0e || Słaba bateria kontrolera
+bf6d7251 || Bateria kontrolera jest prawie pusta. Czas ją naładować.
+632b266d || Bateria
+f2ea4f62 || Pełna
+fb42fd4d || Słaba
+aa7e1a1d || Pusta
+01476c18 || Przewód
+267885f1 || Aktywny (ręcznie)
+e72fc0ee || Aktywny (automatycznie, bo działa oprogramowanie do streamingu)
+e3e68319 || Włącz
+c29c174e || Wyłącz
+82474e6b || Wszystko do streamu: programy, skróty i lista kontrolna przed wejściem na żywo.
+7797405d || Ukrywa nazwę, lokalizację, statystyki, ścieżki i odtwarzacz muzyki. Co dokładnie jest ukrywane, ustawisz w Ustawienia → Streamer.
+180f0c8e || 🎬  Programy do streamingu
+e4f53168 || Nie wykryto jeszcze oprogramowania do streamingu. Dodaj swoje programy plusem.
+54ebe84b || Automatycznie wykryte programy: {0}.
+e0fc8d3d || Program do streamingu
+27ae55c0 || 🔗  Skróty
+9bc662e7 || ✅  Lista kontrolna przed wejściem na żywo
+67fb02c1 || Działa oprogramowanie do streamingu
+7c50ba39 || Tryb streamera jest włączony
+d435a132 || Powiadomienia są wyciszone
+79d301eb || Wycisz
+f4fd27c0 || Twoja nazwa jest ukryta
+dece5fb3 || Ukryj
+09c93c79 || Odtwarzacz muzyki pozostaje ukryty
+1a3cc466 || Pokazuj stronę Streamer na pasku bocznym
+55eb64a5 || Pokazuje na pasku bocznym sekcję „Streamer” z OBS i innymi.
+3b7eabae || Ukryj odtwarzacz muzyki
+42bd1ef0 || Odtwarzacz muzyki pokazuje twoje konto i playlisty. Dlatego w trybie streamera pozostaje zamknięty.
+bac957b5 || W trybie streamera odtwarzacz muzyki jest ukryty.
+856b06a7 || Skróty z prawdziwymi ikonami
+41a2245d || Pokazuje prawdziwą ikonę programów i stron zamiast emoji.
+7e8018d4 || Szukaj programu ...
+16d5b2d3 || Nic nie znaleziono. Wybierz plik poniżej.
+c2e61bda || Usuń zrzut ekranu
+5af5889f || Przenieść ten zrzut ekranu do kosza?
+782c277b || Zrzut ekranu usunięty
+1681949a || Nie udało się usunąć zrzutu ekranu:\n{0}
+b954c182 || Otwórz lokalizację pliku
+16e56ff2 || 🗑  Usuń ...
+30f1a28d || Skopiowano
+28462eb0 || Polecenie jest w schowku.
+cb1acf8f || Polecenia systemowe
+2e81a7f0 || Polecenie systemowe
+7ed4ea79 || Kliknięcie otwiera okno PowerShell z poleceniem. Polecenia oznaczone 🛡 wymagają uprawnień administratora, Windows o nie zapyta. Prawy przycisk kopiuje polecenie.
+ecdb81c5 || Czyszczenie
+37c62e81 || Naprawa
+8012104b || Odczyt
+bcb91555 || Wyczyść pliki tymczasowe
+bb45fc09 || Usuwa pliki tymczasowe twojego użytkownika
+bd2769b4 || Usunąć wszystkie pliki z folderu Temp? Pliki w użyciu zostaną.
+d69236eb || Trwale opróżnia kosz
+f21bcc17 || Trwale opróżnić kosz?
+39c32ee2 || Wyczyść pamięć DNS
+8fd80385 || Pomaga przy problemach z połączeniem
+f3f96b2a || Wyczyść pamięć Windows Update
+851333c8 || 🛡 Usuwa pozostałości pobranych aktualizacji
+762d175c || Wyczyścić pamięć podręczną Windows Update? Windows pobierze aktualizacje ponownie w razie potrzeby.
+9082ce3a || Sprawdź pliki systemowe (SFC)
+3e6b94fd || 🛡 Wyszukuje i naprawia uszkodzone pliki Windows
+fed61f5c || Sprawdź obraz Windows (DISM)
+666ca52c || 🛡 Sprawdza stan instalacji Windows
+6ae6996e || Sprawdź dysk C:
+49ec3fbb || 🛡 Tylko odczyt, nic nie jest zmieniane
+ae33fd5b || Zresetuj sieć
+005119f0 || 🛡 Resetuje Winsock i ustawienia IP
+d26d2e84 || Sieć zostanie na chwilę przerwana, a potem potrzebny będzie restart. Kontynuować?
+0f5e3a49 || Informacje o systemie
+e3e863b9 || Przegląd sprzętu, Windows i aktualizacji
+84fff391 || Informacje o sieci
+362bf523 || Adresy IP, DNS i karty sieciowe
+b9225934 || Test połączenia
+24d74511 || Ping do Cloudflare i Google
+375dba50 || Dyski i ich kondycja
+7b9786ed || Stan i wolne miejsce wszystkich dysków
+e4eba1e0 || Pożeracze pamięci
+6bbc1bc5 || 15 programów zużywających najwięcej pamięci
+e16ad61d || Raport baterii
+ffadf4a0 || Tworzy raport na pulpicie
+2ae0ed7f || Informacje o sterowniku grafiki
+9bef2a86 || Nazwa, wersja i data sterownika
+cd191b51 || Ostatnie awarie programów
+0a2e6af5 || 10 ostatnich błędów z Podglądu zdarzeń
+cd429c41 || ▶  Wykonaj
+a5b79d6c || 📋  Kopiuj polecenie
+598d3de5 || Nie udało się uruchomić polecenia:\n{0}
+fefad5b4 || Obciążenie: {0} %
+afc94461 || Taktowanie: {0} GHz
+ef8ebef3 || Taktowanie: {0} MHz
+77f4dde1 || Wątki: {0}
+f0b9d52a || Temperatura: {0} °C
+e194c274 || Moc: {0} W
+bf467600 || Zajęte {0} GB z {1} GB
+65f2782f || Zajęte {0} GB z {1} GB ({2} %)
+1971cb11 || Wolne: {0} GB
+54854990 || VRAM: zajęte {0} GB z {1} GB
+6b2efe19 || VRAM: {0} GB
+127543fa || Brak odczytów dla karty graficznej.
+ed57a9d6 || Brak sieci
+4fd05869 || Zanotowano: dwa launchery, jeden pomysł
+312a710d || Hołd: dwa launchery powstałe w tym samym czasie.
+28b98716 || Dwa launchery, jeden pomysł
+169ed779 || Niebo należy do ciebie. Chmury podążają za tobą.
+1ed656a6 || Witaj z powrotem, szefie!
+f84cd9d2 || Winogronowa przyjaźń
+a9a68151 || Znalazłeś hołd dla TraubeMinze.
+ba973ecf || Pasterz chmur
+3be38e53 || Znalazłeś chmury StardiSkyTTV.
+ac5ec5f0 || Twórca
+cee34a40 || Wpisałeś nazwę twórcy.
+5009293d || Dodano do ulubionych
+aaa80fca || Usunięto z ulubionych
+c3a1e244 || Nic tu jeszcze nie ma.
+89242a8b || Nowe
+79c6c5d5 || Menu
+c656a060 || Wróć do launchera
+c48c4896 || Zalecany układ przycisków
+ecb56b2f || Pokaż zalecany układ przycisków
+2d403025 || Ustawienia kontrolera
+fbc85297 || Opcje
+63891143 || Sekcja
+18961bbf || Skocz
+d6fbe428 || Wykryto kontroler
+cd33ad99 || Kliknij tutaj, aby zobaczyć zalecany układ przycisków.
+4b80a982 || Uruchom i zatwierdź
+08a4dd44 || Opcje gry
+a123e0f8 || Zmień sekcję
+fb2c5e0a || Przeskocz dziesięć gier
+f19eb7ad || Włącz i wyłącz tryb kontrolera
+f310e8ed || Jeśli układ nie pasuje do twojego kontrolera, wybierz go sam w Ustawienia → Sterowanie.
+dce60bad || Otwórz ustawienia
+7bf83e2e || Sterowanie padem (tryb kontrolera kombinacją przycisków lub F11)
+fc4017c0 || Osobny pełnoekranowy interfejs na kanapę, podobny do trybu Big Picture w Steam: duże okładki, płynne przewijanie i wszystko obsługiwane kontrolerem.
+884a55c3 || Uruchamiaj kombinacją przycisków
+ebc48b74 || Uruchamia i kończy tryb kontrolera bezpośrednio na kontrolerze, nawet gdy launcher jest w tle.
+066d6099 || Kombinacja przycisków
+ec46ff09 || Które przyciski włączają i wyłączają tryb kontrolera.
+97e9da2e || Widok + Menu
+2ace80a9 || LB + RB + Menu
+0e8f3cb2 || Przytrzymaj Menu
+b02ddb3e || Zezwalaj także podczas gry
+2a98581c || Wyłączone: kombinacja jest ignorowana, gdy gra działa. Dzięki temu nie przeszkodzisz sobie przypadkiem w grze.
+7e20bfc4 || Uruchamiaj automatycznie po podłączeniu
+6b9bc418 || Otwiera tryb kontrolera, gdy tylko kontroler zostanie wykryty, a launcher jest otwarty.
+30b98889 || Wibracje przy przewijaniu
+14a1b2d1 || Krótka wibracja przy zmianie i uruchamianiu (tylko kontrolery Xbox).
+829e77dd || Szybkość przy przytrzymaniu
+1f0a5e9f || Jak szybko przewija się dalej, gdy przytrzymujesz krzyżak.
+58de2772 || Normalnie
+446b2f8a || Uruchom tryb kontrolera teraz
+9067d985 || „Oryginalny” pokazuje wszystkie gry jako karty. „Cover Flow” płynnie przewraca okładki od lewej do prawej jak w książce.
+28a28ed3 || Cover Flow
+2115c01f || ← → przewijaj · kółko myszy · Enter uruchamia grę
+ebc4b483 || Ustawienia dewelopera
+247ae4a3 || Deweloper
+a2abf9dd || Styl cenzury
+d5d7aa06 || Jak ukrywać prywatne dane na streamie: jako ciemny pasek lub rozmyte.
+5caf7fe5 || Czarny pasek
+6d538f47 || Rozmyte
+86f17261 || Cenzuruj nazwę komputera i użytkownika
