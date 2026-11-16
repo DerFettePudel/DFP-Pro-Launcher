@@ -38,7 +38,27 @@ namespace Game_launcher
                 actions.Add(HoloButton("Spiel hinzufügen", () => BtnAddGame_Click(this, new RoutedEventArgs()), false, ""));
                 actions.Add(HoloButton("Neu scannen", () => BtnRescanGames_Click(this, new RoutedEventArgs()), false, ""));
             }
+            // Wie in Thema 1 auf dem Dashboard: Controller-Modus per Knopf (sonst nur F11 / Controller-Kombination)
+            actions.Add(HoloButton("Controller-Modus", ToggleControllerMode, false, ""));
             page.Children.Add(HoloHeader(code, GreetingLine(), null, actions.ToArray()));
+
+            // Laufender Steam-/Epic-Download (in Thema 1 die Anzeige oben rechts)
+            holoDownloadText = new TextBlock { FontSize = 13, Foreground = System.Windows.Media.Brushes.White, TextTrimming = TextTrimming.CharacterEllipsis };
+            holoDownloadText.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
+            holoDownloadChip = new Border
+            {
+                Background = MakeBrush("#33101B2E"),
+                BorderBrush = HoloEdgeBrush(0x99),
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(14, 8, 14, 8),
+                Margin = new Thickness(0, 0, 18, 14),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                Cursor = System.Windows.Input.Cursors.Hand,
+                Child = holoDownloadText
+            };
+            holoDownloadChip.MouseLeftButtonUp += (s, e) => { if (downloadOpenUri != null) OpenShell(downloadOpenUri); };
+            page.Children.Add(holoDownloadChip);
+            UpdateHoloDownloadChip();
 
             // ── Zahlen-Platten ──
             if (!DashOff("stats") && !hideStats)

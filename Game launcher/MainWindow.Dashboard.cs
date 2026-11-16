@@ -3199,7 +3199,10 @@ namespace Game_launcher
             {
                 // Kurz sichtbar lassen, damit die Anzeige nicht flackert
                 if (DownloadPill.Visibility == Visibility.Visible && (DateTime.Now - downloadLastSeen).TotalSeconds > 8)
+                {
                     DownloadPill.Visibility = Visibility.Collapsed;
+                    UpdateHoloDownloadChip();
+                }
                 return;
             }
 
@@ -3220,6 +3223,21 @@ namespace Game_launcher
             DlFill.Opacity = state.Progress >= 0 ? 1 : 0.25;
             DownloadPill.ToolTip = state.Store;
             DownloadPill.Visibility = Visibility.Visible;
+            UpdateHoloDownloadChip();
+        }
+
+        private Border? holoDownloadChip;
+        private TextBlock? holoDownloadText;
+
+        /// <summary>Thema 2: dieselbe Download-Anzeige als Zeile auf dem Holo-Dashboard.</summary>
+        private void UpdateHoloDownloadChip()
+        {
+            if (holoDownloadChip == null || holoDownloadText == null) return;
+            bool active = settings.DownloadWidget && DownloadPill.Visibility == Visibility.Visible;
+            holoDownloadChip.Visibility = active ? Visibility.Visible : Visibility.Collapsed;
+            if (!active) return;
+            holoDownloadText.Text = "⬇  " + TxtDlName.Text + (TxtDlInfo.Text.Length > 0 ? "   ·   " + TxtDlInfo.Text : string.Empty);
+            holoDownloadChip.ToolTip = DownloadPill.ToolTip;
         }
 
         private void DownloadPill_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)

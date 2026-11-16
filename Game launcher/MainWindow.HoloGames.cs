@@ -21,6 +21,9 @@ namespace Game_launcher
 
         private string holoGamesFilter = "all";
         private string holoGamesSearch = string.Empty;
+        private string holoGamesGenre = string.Empty;
+        private System.Windows.Controls.ContextMenu? holoRailMenu;   // Rechtsklick-Menü für den nächsten Schienen-Eintrag (smarte Listen)
+        private string? holoRailTip;
         private WrapPanel? holoGamesGrid;
         private TextBlock? holoGamesCount;
 
@@ -47,8 +50,58 @@ namespace Game_launcher
                 menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
                 menu.IsOpen = true;
             };
+            // Genre-Filter (wie „🏷 Genre“ in Thema 1)
+            var genre = HoloButton(holoGamesGenre.Length == 0 ? Loc.T("Genre") : Loc.T("Genre") + ": " + holoGamesGenre + "  ✕", () => { }, holoGamesGenre.Length > 0, "");
+            genre.MouseLeftButtonUp += (s, e) =>
+            {
+                var counts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                foreach (var game in allGames.Where(g => !g.Hidden && g.AppId.Length > 0))
+                {
+                    if (!settings.GameInfo.TryGetValue(game.AppId, out var info)) continue;
+                    foreach (string name in info.Genres) counts[name] = counts.TryGetValue(name, out int c) ? c + 1 : 1;
+                }
+                var menu = CreateMenu();
+                if (holoGamesGenre.Length > 0) AddMenuItem(menu, "✖ Alle Genres", () => { holoGamesGenre = string.Empty; RefreshHoloPage(); });
+                if (counts.Count == 0) AddMenuItem(menu, "Noch keine Spielinfos geladen", () => { });
+                foreach (var pair in counts.OrderByDescending(p => p.Value).ThenBy(p => p.Key).Take(25))
+                {
+                    string chosen = pair.Key;
+                    AddMenuItem(menu, $"{chosen}  ({pair.Value})", () => { holoGamesGenre = chosen; RefreshHoloPage(); });
+                }
+                menu.PlacementTarget = genre;
+                menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                menu.IsOpen = true;
+            };
+
+            // Alles, was Thema 1 über der Spieleliste anbietet: Vorschlag, Mehrfach-Bearbeitung, smarte Listen, Spiele-Ordner
+            FrameworkElement? more = null;
+            more = HoloButton("Mehr", () =>
+            {
+                var menu = CreateMenu();
+                AddMenuItem(menu, "🎯 Was soll ich spielen?", ShowGameSuggestion);
+                AddMenuItem(menu, "☑ Auswahl bearbeiten", HoloBulkEdit);
+                AddMenuItem(menu, "＋ Smarte Liste", () => { EditSmartList(null); RefreshHoloPage(); });
+                menu.Items.Add(new System.Windows.Controls.Separator());
+                AddMenuItem(menu, "📂  Spiele-Ordner hinzufügen ...", AddGameFolder);
+                if (settings.GameFolders.Count > 0)
+                {
+                    var folders = new System.Windows.Controls.MenuItem { Header = Loc.T("📂  Spiele-Ordner entfernen") };
+                    foreach (string folder in settings.GameFolders.ToList())
+                    {
+                        string path = folder;
+                        AddSubItem(folders, StreamerOn ? FolderTitle(path) : path, () => { RemoveGameFolder(path); RefreshHoloPage(); });
+                    }
+                    menu.Items.Add(folders);
+                }
+                menu.PlacementTarget = more;
+                menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                menu.IsOpen = true;
+            }, false, "");
+
             page.Children.Add(HoloHeader(Loc.T("Bibliothek"), Loc.T("Alle Spiele"), Loc.T("Klick öffnet ein Spiel, Doppelklick startet es."),
                 sort,
+                genre,
+                more,
                 HoloButton("Spiel hinzufügen", () => BtnAddGame_Click(this, new RoutedEventArgs()), false, ""),
                 HoloButton("Neu scannen", () => BtnRescanGames_Click(this, new RoutedEventArgs()), false, "")));
 
@@ -124,6 +177,12 @@ namespace Game_launcher
                     RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);
                     row.Children.Add(image);
                 }
+                if (holoRailMenu != null)
+                {
+                    item.ContextMenu = holoRailMenu;
+                    item.ToolTip = holoRailTip;
+                    holoRailMenu = null;
+                }
                 rail.Children.Add(item);
             }
 
@@ -158,8 +217,16 @@ namespace Game_launcher
             if (settings.SmartLists.Count > 0)
             {
                 Section("Smarte Listen");
-                foreach (var list in settings.SmartLists)
+                foreach (var list in settings.SmartLists.ToList())
+                {
+                    var smart = list;
+                    var smartMenu = CreateMenu();
+                    AddMenuItem(smartMenu, "✏  Bearbeiten ...", () => { EditSmartList(smart); RefreshHoloPage(); });
+                    AddMenuItem(smartMenu, "🗑  Smarte Liste löschen", () => { DeleteSmartList(smart); RefreshHoloPage(); });
+                    holoRailMenu = smartMenu;
+                    holoRailTip = DescribeSmartList(smart);
                     Item("smart:" + list.Id, list.Name, visible.Count(g => MatchesSmartList(list, g)), "");
+                }
             }
 
             int hidden = allGames.Count(g => g.Hidden);
@@ -189,6 +256,7 @@ namespace Game_launcher
                 query = query.Where(g => MatchesSmartList(smart, g));
             }
             else if (filter is not ("all" or "hidden")) query = query.Where(g => string.Equals(g.Source, filter, StringComparison.OrdinalIgnoreCase));
+            if (holoGamesGenre.Length > 0) query = query.Where(g => GameHasGenre(g, holoGamesGenre));
 
             if (holoGamesSearch.Length > 0)
             {
@@ -200,6 +268,23 @@ namespace Game_launcher
             var sorted = SortGames(query);
             if (settings.FavoritesFirst) sorted = sorted.OrderByDescending(g => g.IsFavorite);
             return sorted.ToList();
+        }
+
+        /// <summary>Mehrere Spiele auf einmal bearbeiten (wie „☑ Auswahl bearbeiten“ in Thema 1), aus den gerade gezeigten Spielen.</summary>
+        private void HoloBulkEdit()
+        {
+            var shown = HoloGamesFiltered();
+            if (shown.Count == 0) return;
+
+            var chosen = PickFromList("Mehrere Spiele bearbeiten",
+                "Wähle die Spiele aus, auf die die Aktion angewendet wird. Es werden nur die aktuell angezeigten Spiele aufgelistet.",
+                shown.Select(g => g.Name).ToList());
+            if (chosen == null || chosen.Count == 0) return;
+
+            var menu = BuildBulkMenu(shown.Where(g => chosen.Contains(g.Name)).ToList());
+            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint;
+            menu.Closed += (s, e) => RefreshHoloPage();
+            menu.IsOpen = true;
         }
 
         private void RenderHoloGamesGrid()

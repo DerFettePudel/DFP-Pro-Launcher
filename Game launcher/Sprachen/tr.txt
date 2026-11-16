@@ -2496,3 +2496,8 @@ b7e7c121 || Sıradaki
 eaf02075 || Sıralama
 a191a1b6 || Gizli
 9f23ce6f || Dil ayarlandı. Başlangıçta bir kez oluşturulanlar dahil tüm metinlerin değişmesi için başlatıcıyı yeniden başlatmak en iyisi.\n\nŞimdi yeniden başlatılsın mı?
+1c27eb60 || Tür
+bd2be37b || 🔌  Kapat
+29d2e648 || 🌙  Uyku
+0ced9136 || 👤  Oturumu kapat
+7d561e2e || 🔒  Bilgisayarı kilitle

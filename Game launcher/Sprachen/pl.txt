@@ -2496,3 +2496,8 @@ b7e7c121 || Następna
 eaf02075 || Sortowanie
 a191a1b6 || Ukryte
 9f23ce6f || Język został ustawiony. Aby zmieniły się naprawdę wszystkie teksty, także te tworzone raz przy starcie, najlepiej uruchomić launcher ponownie.\n\nUruchomić ponownie teraz?
+1c27eb60 || Gatunek
+bd2be37b || 🔌  Wyłącz
+29d2e648 || 🌙  Uśpij
+0ced9136 || 👤  Wyloguj
+7d561e2e || 🔒  Zablokuj komputer

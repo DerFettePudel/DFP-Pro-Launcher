@@ -277,12 +277,41 @@ namespace Game_launcher
             if (search.Content is TextBlock lens) lens.SetResourceReference(TextBlock.FontFamilyProperty, "IconFont");
             search.ToolTip = Loc.T("Suche (Strg+K)");
             right.Children.Add(search);
+
+            // Energie-Knopf (Herunterfahren, Neu starten …), wenn „Herunterfahren und Neustart im Launcher anzeigen“ an ist
+            System.Windows.Controls.Button? power = null;
+            power = ConsoleButton("⏻", false, () =>
+            {
+                var menu = CreateMenu();
+                AddMenuItem(menu, "🔌  Herunterfahren", () => PowerAction("shutdown"));
+                AddMenuItem(menu, "🔄  Neu starten", () => PowerAction("restart"));
+                AddMenuItem(menu, "🌙  Energie sparen", () => PowerAction("sleep"));
+                AddMenuItem(menu, "👤  Abmelden", () => PowerAction("logoff"));
+                AddMenuItem(menu, "🔒  PC sperren", () => PowerAction("lock"));
+                menu.PlacementTarget = power;
+                menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+                menu.IsOpen = true;
+            }, 16);
+            power.ToolTip = Loc.T("Energie");
+            power.Margin = new Thickness(8, 0, 0, 0);
+            consolePowerButton = power;
+            UpdateConsolePowerButton();
+            right.Children.Add(power);
+
             consoleClock = new TextBlock { FontSize = 22, FontWeight = FontWeights.SemiBold, Foreground = System.Windows.Media.Brushes.White, VerticalAlignment = System.Windows.VerticalAlignment.Center, Margin = new Thickness(14, 0, 0, 0) };
             consoleClock.SetResourceReference(TextBlock.FontFamilyProperty, "DisplayFont");
             right.Children.Add(consoleClock);
             row.Children.Add(right);
 
             WindowRoot.Children.Add(consoleBar);
+        }
+
+        private System.Windows.Controls.Button? consolePowerButton;
+
+        private void UpdateConsolePowerButton()
+        {
+            if (consolePowerButton != null)
+                consolePowerButton.Visibility = settings.PowerButtons ? Visibility.Visible : Visibility.Collapsed;
         }
 
         /// <summary>Den Inhalt der schwebenden Leiste (Logo, Bereiche, Schnellstart, Musik) in die Kopfleiste hängen.</summary>

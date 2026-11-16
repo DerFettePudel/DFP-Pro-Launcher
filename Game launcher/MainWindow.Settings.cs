@@ -3263,6 +3263,7 @@ namespace Game_launcher
             settings.PowerButtons = ChkPowerButtons.IsChecked == true;
             settings.PowerConfirm = ChkPowerConfirm.IsChecked == true;
             settings.AutomationsEnabled = ChkAutomations.IsChecked == true;
+            UpdateConsolePowerButton();
         }
 
         private void PopulateExtra11Settings()
